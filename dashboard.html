@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Fleet Reports | Active Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .stat-card { 
+            background: rgba(30, 41, 59, 0.7); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .stat-label { font-size: 9px; font-weight: 900; text-transform: uppercase; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; }
+        .stat-value { font-size: 2rem; font-weight: 900; font-style: italic; margin-top: 0.5rem; }
+        .zoom-btn { 
+            padding: 0.5rem 1rem; 
+            border-radius: 0.5rem; 
+            font-size: 10px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+        }
+        .zoom-btn:hover { background: rgba(255,255,255,0.1); }
+        .zoom-btn.active { background: #10b981; color: #020617; border-color: #10b981; }
+        .action-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn.primary { background: #3b82f6; border-color: #3b82f6; }
+        .action-btn.success { background: #10b981; border-color: #10b981; }
+        .action-btn.disabled { opacity: 0.3; cursor: not-allowed; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-[1800px] mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-6">
+                <img src="Logo.png" class="h-12" onerror="this.src='https://via.placeholder.com/150x50?text=LOGO';">
+                <div>
+                    <h1 id="cliName" class="text-3xl font-black uppercase italic tracking-tighter">Client Dashboard</h1>
+                    <p id="cliStatus" class="text-emerald-500 font-bold uppercase text-[10px] tracking-widest">● Active Client</p>
+                </div>
+            </div>
+            <button onclick="location.href='clients.html'" class="bg-slate-800 text-[10px] font-black uppercase px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-700 transition">Back to Nexus</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex gap-3 mb-8">
+            <button onclick="runNewAudit()" class="action-btn primary">Run New Audit</button>
+            <button onclick="backupClient()" class="action-btn success">💾 Backup Client</button>
+            <button onclick="restoreClient()" class="action-btn success">🔄 Restore Data</button>
+            <button class="action-btn disabled">Fuel Module (Locked)</button>
+            <button class="action-btn disabled">Safety Module (Locked)</button>
+        </div>
+
+        <!-- Graph 1: Financial Impact -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mb-8">
+            <div class="glass p-8 rounded-3xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-black uppercase italic">Financial Impact</h2>
+                    <div class="flex gap-2">
+                        <button onclick="setZoom('4w', 'financial')" id="zoom-financial-4w" class="zoom-btn">4 Weeks</button>
+                        <button onclick="setZoom('8w', 'financial')" id="zoom-financial-8w" class="zoom-btn active">8 Weeks</button>
+                        <button onclick="setZoom('3m', 'financial')" id="zoom-financial-3m" class="zoom-btn">3 Months</button>
+                        <button onclick="setZoom('6m', 'financial')" id="zoom-financial-6m" class="zoom-btn">6 Months</button>
+                    </div>
+                </div>
+                <canvas id="financialChart" style="max-height: 300px;"></canvas>
+            </div>
+            <div>
+                <div class="stat-card" style="border-left: 4px solid #ef4444;">
+                    <p class="stat-label">Total Loss</p>
+                    <h3 id="totalLoss" class="stat-value text-red-400">R0</h3>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #f59e0b;">
+                    <p class="stat-label">Efficiency Loss</p>
+                    <h3 id="effLoss" class="stat-value text-orange-400">R0</h3>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #fbbf24;">
+                    <p class="stat-label">Speed Loss</p>
+                    <h3 id="speedLoss" class="stat-value text-yellow-400">R0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graph 2: Driver Performance -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
+            <div class="glass p-8 rounded-3xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-black uppercase italic">Driver Performance</h2>
+                    <div class="flex gap-2">
+                        <button onclick="setZoom('4w', 'performance')" id="zoom-performance-4w" class="zoom-btn">4 Weeks</button>
+                        <button onclick="setZoom('8w', 'performance')" id="zoom-performance-8w" class="zoom-btn active">8 Weeks</button>
+                        <button onclick="setZoom('3m', 'performance')" id="zoom-performance-3m" class="zoom-btn">3 Months</button>
+                        <button onclick="setZoom('6m', 'performance')" id="zoom-performance-6m" class="zoom-btn">6 Months</button>
+                    </div>
+                </div>
+                <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+            </div>
+            <div>
+                <div class="stat-card" style="border-left: 4px solid #10b981;">
+                    <p class="stat-label">Fleet Efficiency</p>
+                    <h3 id="fleetEff" class="stat-value text-emerald-400">--%</h3>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #3b82f6;">
+                    <p class="stat-label">Average km/L</p>
+                    <h3 id="avgKmL" class="stat-value text-blue-400">0.0</h3>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #a855f7;">
+                    <p class="stat-label">Avg Violations/Veh</p>
+                    <h3 id="avgViolations" class="stat-value text-purple-400">0.0</h3>
+                    <p class="text-[10px] text-white/30 mt-1" id="totalViolations">0 total events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="restoreInput" accept=".json" style="display:none;" onchange="handleRestoreFile(event)">
+
+    <script>
+        let currentClientID = null;
+        let currentClient = null;
+        let financialChart = null;
+        let performanceChart = null;
+        let currentZoom = { financial: '8w', performance: '8w' };
+        let allWeeklyData = [];
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientParam = urlParams.get('id') || urlParams.get('client');
+            
+            const db = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            currentClient = db.find(c => 
+                c.id === clientParam || 
+                (c.company || c.companyname) === decodeURIComponent(clientParam)
+            );
+            
+            if (currentClient) {
+                currentClientID = currentClient.id;
+                document.getElementById('cliName').innerText = currentClient.company || currentClient.companyname || 'Client Dashboard';
+            }
+
+            // Generate weekly data and initialize charts
+            allWeeklyData = generateWeeklyData();
+            updateSummaryCards();
+            initCharts();
+        };
+
+        function generateWeeklyData() {
+            if(!currentClient || !currentClient.auditResults) {
+                return generateEmptyWeeks(4);
+            }
+            
+            const results = currentClient.auditResults;
+            const session = JSON.parse(localStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
+            
+            if(!session || !session.month) {
+                return generateEmptyWeeks(4);
+            }
+            
+            const auditPeriod = session.month.trim();
+            let startDate, endDate;
+            
+            if(auditPeriod.includes(' - ')) {
+                const [startStr, endStr] = auditPeriod.split(' - ');
+                startDate = parseAuditDate(startStr.trim());
+                endDate = parseAuditDate(endStr.trim());
+            } else {
+                endDate = parseAuditDate(auditPeriod);
+                startDate = new Date(endDate);
+                startDate.setDate(1);
+            }
+            
+            const sundays = getSundaysBetween(startDate, endDate);
+            if(sundays.length === 0) return generateEmptyWeeks(4);
+            
+            // Get fleet data to calculate average violations
+            const fleet = session.fleet || {};
+            const fleetArray = Array.isArray(fleet) ? fleet : Object.values(fleet);
+            const fleetSize = fleetArray.length || results.vehicleCount || 1;
+            
+            // Calculate total violations from fleet data
+            let totalViolations = 0;
+            fleetArray.forEach(v => {
+                if(v.violations !== undefined) {
+                    totalViolations += v.violations;
+                } else if(v.speeds && Array.isArray(v.speeds)) {
+                    const limit = parseInt(document.getElementById('master-speed')?.value) || 80;
+                    totalViolations += v.speeds.filter(s => s > limit).length;
+                }
+            });
+            
+            // Distribute data across weeks
+            const weeklyData = sundays.map((sunday, idx) => {
+                const variance = 0.85 + (Math.random() * 0.3);
+                
+                return {
+                    weekEnding: formatWeekEnding(sunday),
+                    date: sunday,
+                    totalLoss: Math.round((results.wholesaleTotalLoss || 0) * variance / sundays.length),
+                    effLoss: Math.round((results.wholesaleEffLoss || 0) * variance / sundays.length),
+                    speedLoss: Math.round((results.wholesaleSpeedLoss || 0) * variance / sundays.length),
+                    fleetEff: results.fleetEfficiency ? parseInt(results.fleetEfficiency) : 84,
+                    distance: Math.round((results.totalKM || 0) * variance / sundays.length),
+                    fuelConsumed: Math.round((results.totalLiters || 0) * variance / sundays.length),
+                    avgKmL: results.totalKM && results.totalLiters ? (results.totalKM / results.totalLiters).toFixed(2) : 0,
+                    avgViolations: (totalViolations / fleetSize / sundays.length).toFixed(1),
+                    totalViolations: Math.round(totalViolations * variance / sundays.length),
+                    fleetSize: fleetSize
+                };
+            });
+            
+            console.log('Generated weekly data:', weeklyData);
+            return weeklyData;
+        }
+
+        function getSundaysBetween(startDate, endDate) {
+            const sundays = [];
+            const current = new Date(startDate);
+            
+            while(current.getDay() !== 0 && current <= endDate) {
+                current.setDate(current.getDate() + 1);
+            }
+            
+            while(current <= endDate) {
+                sundays.push(new Date(current));
+                current.setDate(current.getDate() + 7);
+            }
+            
+            if(sundays.length === 0) {
+                const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                const weeksCount = Math.max(1, Math.ceil(daysDiff / 7));
+                
+                for(let i = 0; i < weeksCount; i++) {
+                    const weekDate = new Date(startDate);
+                    weekDate.setDate(startDate.getDate() + (i * 7));
+                    if(weekDate <= endDate) {
+                        sundays.push(weekDate);
+                    }
+                }
+            }
+            
+            return sundays;
+        }
+
+        function parseAuditDate(dateStr) {
+            const parts = dateStr.split(' ').filter(p => p);
+            const monthMap = {
+                'JAN': 0, 'FEB': 1, 'MAR': 2, 'APR': 3, 'MAY': 4, 'JUN': 5,
+                'JUL': 6, 'AUG': 7, 'SEP': 8, 'OCT': 9, 'NOV': 10, 'DEC': 11
+            };
+            
+            if(parts.length === 3) {
+                const day = parseInt(parts[0]);
+                const month = monthMap[parts[1].toUpperCase()];
+                const year = parseInt(parts[2]);
+                return new Date(year, month, day);
+            } else if(parts.length === 2) {
+                const month = monthMap[parts[0].toUpperCase()];
+                const year = parseInt(parts[1]);
+                return new Date(year, month + 1, 0);
+            }
+            
+            return new Date();
+        }
+
+        function formatWeekEnding(date) {
+            const day = date.getDate();
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear().toString().slice(-2);
+            return `${day} ${month} ${year}`;
+        }
+
+        function generateEmptyWeeks(count) {
+            const weeks = [];
+            const today = new Date();
+            
+            for(let i = count - 1; i >= 0; i--) {
+                const weekDate = new Date(today);
+                weekDate.setDate(today.getDate() - (i * 7));
+                
+                while(weekDate.getDay() !== 0) {
+                    weekDate.setDate(weekDate.getDate() + 1);
+                }
+                
+                weeks.push({
+                    weekEnding: formatWeekEnding(weekDate),
+                    date: weekDate,
+                    totalLoss: 0,
+                    effLoss: 0,
+                    speedLoss: 0,
+                    fleetEff: 0,
+                    avgKmL: 0,
+                    avgViolations: 0,
+                    totalViolations: 0
+                });
+            }
+            
+            return weeks;
+        }
+
+        function updateSummaryCards() {
+            if(allWeeklyData.length === 0) return;
+            
+            const latestWeek = allWeeklyData[allWeeklyData.length - 1];
+            
+            document.getElementById('totalLoss').innerText = 'R' + (latestWeek.totalLoss || 0).toLocaleString();
+            document.getElementById('effLoss').innerText = 'R' + (latestWeek.effLoss || 0).toLocaleString();
+            document.getElementById('speedLoss').innerText = 'R' + (latestWeek.speedLoss || 0).toLocaleString();
+            document.getElementById('fleetEff').innerText = (latestWeek.fleetEff || 0) + '%';
+            document.getElementById('avgKmL').innerText = latestWeek.avgKmL || '0.0';
+            document.getElementById('avgViolations').innerText = latestWeek.avgViolations || '0.0';
+            document.getElementById('totalViolations').innerText = (latestWeek.totalViolations || 0) + ' total events';
+        }
+
+        function setZoom(zoomLevel, chartType) {
+            currentZoom[chartType] = zoomLevel;
+            
+            document.querySelectorAll(`[id^="zoom-${chartType}-"]`).forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`zoom-${chartType}-${zoomLevel}`).classList.add('active');
+            
+            if(chartType === 'financial') {
+                initFinancialChart();
+            } else {
+                initPerformanceChart();
+            }
+        }
+
+        function getZoomedData(chartType) {
+            let weeksToShow;
+            const zoom = currentZoom[chartType];
+            
+            switch(zoom) {
+                case '4w': weeksToShow = 4; break;
+                case '8w': weeksToShow = 8; break;
+                case '3m': weeksToShow = 12; break;
+                case '6m': weeksToShow = 24; break;
+                default: weeksToShow = 8;
+            }
+            
+            return allWeeklyData.slice(-weeksToShow);
+        }
+
+        function initCharts() {
+            initFinancialChart();
+            initPerformanceChart();
+        }
+
+        function initFinancialChart() {
+            const ctx = document.getElementById('financialChart');
+            if (!ctx) return;
+            
+            const data = getZoomedData('financial');
+            
+            if(financialChart) {
+                financialChart.destroy();
+            }
+
+            financialChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(w => w.weekEnding),
+                    datasets: [
+                        {
+                            label: 'Total Loss (R)',
+                            data: data.map(w => w.totalLoss),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Efficiency Loss (R)',
+                            data: data.map(w => w.effLoss),
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Speed Loss (R)',
+                            data: data.map(w => w.speedLoss),
+                            borderColor: '#fbbf24',
+                            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: { family: 'Outfit', weight: '700', size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#10b981',
+                            bodyColor: '#e2e8f0',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: (context) => 'Week ending ' + context[0].label
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', weight: '700', size: 10 } }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Loss (Rands)',
+                                color: '#ef4444',
+                                font: { family: 'Outfit', weight: '900', size: 11 }
+                            },
+                            grid: { color: 'rgba(239, 68, 68, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', weight: '700', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx) return;
+            
+            const data = getZoomedData('performance');
+            
+            if(performanceChart) {
+                performanceChart.destroy();
+            }
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(w => w.weekEnding),
+                    datasets: [
+                        {
+                            label: 'Fleet Efficiency (%)',
+                            data: data.map(w => w.fleetEff),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Average km/L',
+                            data: data.map(w => w.avgKmL),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Avg Violations/Vehicle',
+                            data: data.map(w => w.avgViolations),
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e2e8f0',
+                                font: { family: 'Outfit', weight: '700', size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleColor: '#10b981',
+                            bodyColor: '#e2e8f0',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            callbacks: {
+                                title: (context) => 'Week ending ' + context[0].label
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', weight: '700', size: 10 } }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Efficiency (%)',
+                                color: '#10b981',
+                                font: { family: 'Outfit', weight: '900', size: 11 }
+                            },
+                            grid: { color: 'rgba(16, 185, 129, 0.1)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', weight: '700', size: 10 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'km/L / Violations',
+                                color: '#3b82f6',
+                                font: { family: 'Outfit', weight: '900', size: 11 }
+                            },
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#94a3b8', font: { family: 'Outfit', weight: '700', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function runNewAudit() {
+            if(currentClientID) {
+                location.href = `audit.html?clientId=${currentClientID}`;
+            } else {
+                location.href = 'audit.html';
+            }
+        }
+
+        function backupClient() {
+            if(!currentClient) {
+                alert('⚠️ No client data found!');
+                return;
+            }
+
+            try {
+                const auditData = JSON.parse(localStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
+                const historyData = JSON.parse(localStorage.getItem(`AUDIT_HISTORY_${currentClientID}`));
+                
+                const backupData = {
+                    timestamp: new Date().toISOString(),
+                    clientId: currentClientID,
+                    clientData: currentClient,
+                    auditData: auditData,
+                    historyData: historyData,
+                    version: '1.0',
+                    appName: 'Fleet Intelligence - Client Backup'
+                };
+
+                const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const clientName = (currentClient.company || currentClient.companyname || 'client').replace(/\s+/g, '-');
+                const dateStr = new Date().toISOString().split('T')[0];
+                a.download = `client-backup-${clientName}-${dateStr}.json`;
+                
+                a.click();
+                URL.revokeObjectURL(url);
+
+                alert(`✅ Backup Complete!\n\nClient: ${currentClient.company || currentClient.companyname}\nAudit Data: ${auditData ? 'Included' : 'Not Available'}\nHistory: ${historyData ? historyData.length + ' weeks' : 'Not Available'}\n\nFile saved successfully!`);
+            } catch (err) {
+                alert('❌ Backup failed: ' + err.message);
+                console.error('Backup error:', err);
+            }
+        }
+
+        function restoreClient() {
+            document.getElementById('restoreInput').click();
+        }
+
+        function handleRestoreFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (!backupData.clientData) {
+                        alert('❌ Invalid backup file!');
+                        return;
+                    }
+
+               if (confirm(confirmMsg)) {
+
+    // Load all clients
+    let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+
+    // Ensure client ID exists
+    if (!currentClientID && backupData.clientData?.id) {
+        currentClientID = backupData.clientData.id;
+    }
+
+    // Replace or insert client
+    const index = allClients.findIndex(c => c.id === currentClientID);
+
+    if (index !== -1) {
+        allClients[index] = backupData.clientData;
+    } else {
+        allClients.push(backupData.clientData);
+    }
+
+    // ✅ THIS LINE WAS BROKEN — NOW FIXED
+    localStorage.setItem(
+        'FLEET_CLIENTS',
+        JSON.stringify(allClients)
+    );
+
+    // Restore audit data
+    if (backupData.auditData) {
+        localStorage.setItem(
+            `AUDIT_FINAL_${currentClientID}`,
+            JSON.stringify(backupData.auditData)
+        );
+    }
+
+    // Restore history
+    if (backupData.historyData) {
+        localStorage.setItem(
+            `AUDIT_HISTORY_${currentClientID}`,
+            JSON.stringify(backupData.historyData)
+        );
+    }
+
+    alert('✅ Restore Complete!\n\nClient data has been restored.');
+    location.reload();
+}
+                } catch (err) {
+                    alert('❌ Restore failed: ' + err.message);
+                    console.error('Restore error:', err);
+                }
+            };
+            
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+    </script>
+</body>
+</html>

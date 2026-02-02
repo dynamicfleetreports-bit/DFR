@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Fleet Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #f1f5f9; color: #0f172a; margin: 0; }
+        .report-page { width: 210mm; min-height: 297mm; padding: 12mm; margin: 10mm auto; background: white; box-shadow: 0 10px 50px rgba(0,0,0,0.1); box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #0f172a; color: white; font-size: 9px; text-transform: uppercase; padding: 10px 6px; border: 1px solid #e2e8f0; letter-spacing: 0.5px; }
+        td { padding: 8px 6px; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; text-align: center; }
+        tr:nth-child(even) { background: #f8fafc; }
+        .hero-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.2rem 1rem; border-radius: 0.8rem; flex: 1; text-align: center; }
+        .hero-card.loss { border-left: 4px solid #dc2626; background: #fef2f2; }
+        .hero-card.highlight { border-left: 4px solid #ef4444; background: #fff7ed; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 8mm; }
+            body { background: white !important; margin: 0; padding: 0; }
+            .report-page { margin: 0 !important; padding: 8mm !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; min-height: auto !important; }
+            .no-print { display: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top Control Bar -->
+<div class="no-print bg-slate-900 p-4 flex justify-between items-center text-white sticky top-0 z-50 shadow-lg">
+    <div class="font-black italic uppercase tracking-widest text-emerald-400 text-sm">
+        Custom Fleet Report
+    </div>
+    <div class="flex gap-3">
+        <button onclick="window.print()" class="bg-emerald-500 text-slate-900 px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-emerald-400 transition-all shadow">💾 Save PDF</button>
+        <button onclick="window.print()" class="bg-emerald-600 text-white px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-emerald-500 transition-all shadow">🖨️ Print</button>
+        <button onclick="emailReport()" class="bg-blue-500 text-white px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-blue-400 transition-all shadow">✉️ Email</button>
+        <button onclick="window.close()" class="bg-slate-700 px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-slate-600 transition-all">✕ Close</button>
+    </div>
+</div>
+
+<div class="report-page">
+
+    <!-- HEADER -->
+    <header class="flex justify-between items-start border-b-4 border-emerald-500 pb-5 mb-6">
+        <div>
+            <img src="Logo.png" alt="Dynamic Fleet Reporting" style="max-width: 160px;" class="mb-3">
+            <h1 class="text-4xl font-black uppercase italic tracking-tighter leading-none text-slate-900">
+                CUSTOM FLEET <span class="text-emerald-600">REPORT</span>
+            </h1>
+            <p id="repClient" class="text-lg font-bold uppercase text-slate-500 mt-1">CLIENT NAME</p>
+        </div>
+        <div class="text-right flex flex-col gap-1">
+            <div class="bg-emerald-600 text-white px-5 py-2 rounded-tl-xl">
+                <p class="text-[9px] font-black uppercase opacity-70">Reporting Period</p>
+                <p id="repPeriod" class="text-base font-black">-</p>
+            </div>
+            <div class="bg-slate-900 text-white px-5 py-2">
+                <p class="text-[9px] font-black uppercase opacity-50">Report Issued</p>
+                <p id="repDate" class="text-base font-black">-</p>
+            </div>
+            <div class="bg-blue-600 text-white px-5 py-2 rounded-br-xl">
+                <p class="text-[9px] font-black uppercase opacity-50">Focus</p>
+                <p id="repFocus" class="text-base font-black">COMBINED</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- SCOPE BADGE -->
+    <div class="bg-slate-50 border border-slate-200 rounded-lg px-5 py-3 mb-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <span class="text-lg">📋</span>
+            <div>
+                <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Scope</p>
+                <p class="text-sm font-black text-slate-700"><span id="selectedCount">0</span> of <span id="totalCount">0</span> vehicles selected</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Speed Limit</p>
+            <p class="text-sm font-black text-slate-700"><span id="scopeSpeedLimit">80</span> km/h</p>
+        </div>
+        <div class="text-right">
+            <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Target</p>
+            <p class="text-sm font-black text-slate-700"><span id="scopeTarget">2.3</span> km/L</p>
+        </div>
+    </div>
+
+    <!-- HERO TILES (dynamic per focus) -->
+    <div id="heroTiles" class="flex gap-3 mb-6"></div>
+
+    <!-- CHART -->
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
+        <h3 class="text-sm font-black uppercase text-slate-600 mb-4" id="chartTitle">Vehicle Comparison</h3>
+        <canvas id="reportChart" style="max-height: 220px;"></canvas>
+    </div>
+
+    <!-- VEHICLE TABLE -->
+    <div class="mb-6">
+        <h3 class="text-sm font-black uppercase text-slate-600 mb-3">Vehicle Details</h3>
+        <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="border border-slate-300 rounded-lg p-4 mb-6 bg-slate-50">
+        <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">⚠️ Disclaimer</h4>
+        <p class="text-[9px] text-slate-600 leading-relaxed">
+            This report is generated using telematics data provided by the vehicle tracking service provider. The accuracy of the data is dependent on the provider's systems, device calibration, and network connectivity. Dynamic Fleet Reporting does not guarantee the absolute accuracy of the figures presented herein and accepts no liability for any discrepancies between this report and the actual vehicle performance data.
+        </p>
+        <p class="text-[9px] text-slate-600 leading-relaxed mt-2">
+            This report is intended for <strong>internal use only</strong> and is provided for informational and operational purposes. It may not be used as the sole basis for disciplinary action, legal proceedings, or any binding decision. Dynamic Fleet Reporting shall not be held liable for any outcomes arising from the use of this report, including but not limited to employment disputes, contractual decisions, or any other actions taken based on the data or conclusions contained herein. The recipient assumes full responsibility for any decisions made using this information.
+        </p>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="flex justify-between items-end mt-8 mb-2">
+        <div style="width: 45%;">
+            <div class="border-b-2 border-slate-800 mb-2" style="height: 60px;"></div>
+            <p class="text-[9px] font-black uppercase text-slate-500 tracking-widest">Signature — Dynamic Fleet Reporting</p>
+            <p class="text-[8px] text-slate-400 mt-1">Date: _______________</p>
+        </div>
+        <div style="width: 45%;">
+            <div class="border-b-2 border-slate-800 mb-2" style="height: 60px;"></div>
+            <p class="text-[9px] font-black uppercase text-slate-500 tracking-widest">Signature — Fleet Manager</p>
+            <p class="text-[8px] text-slate-400 mt-1">Date: _______________</p>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-6 pt-4 border-t-2 border-emerald-500">
+        <div class="flex justify-between items-center">
+            <div>
+                <p class="text-sm font-black uppercase text-slate-900 tracking-tight">Dynamic Fleet Reporting</p>
+                <p class="text-[9px] text-slate-500 font-bold mt-0.5">Professional Fleet Intelligence & Forensic Auditing Services</p>
+            </div>
+            <div class="text-right text-[9px] font-bold text-slate-600">
+                <p>📞 083 314 9592</p>
+                <p>✉️ info@fleetintel.co.za</p>
+            </div>
+        </div>
+        <div class="text-center mt-3 pt-2 border-t border-slate-200">
+            <p class="text-[8px] font-bold text-slate-400 uppercase">Report Generated: <span id="reportCreated">-</span> &nbsp;|&nbsp; Confidential</p>
+        </div>
+    </footer>
+</div>
+
+<script>
+function emailReport() {
+    const client = document.getElementById('repClient').innerText;
+    const period = document.getElementById('repPeriod').innerText;
+    const subject = encodeURIComponent(`Custom Fleet Report - ${client} - ${period}`);
+    const body = encodeURIComponent(`Please find attached the custom fleet report for ${client} covering the period ${period}.\n\nKind regards,\nDynamic Fleet Reporting`);
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const raw = localStorage.getItem('AUDIT_FINAL');
+    if (!raw) {
+        alert('No report data found. Please generate a custom report from the database page.');
+        return;
+    }
+
+    const data = JSON.parse(raw);
+    const fleet = data.fleet || [];
+    const client = data.client;
+    const target = parseFloat(client.target) || 2.3;
+    const speedLimit = data.speedLimit || 80;
+    const customReport = data.customReport || {};
+    const focus = customReport.focus || 'combined';
+    const wPrice = 21.50; // wholesale fuel price
+
+    // --- HEADER ---
+    document.getElementById('repClient').innerText = client.company;
+    document.getElementById('repPeriod').innerText = data.month;
+
+    const now = new Date();
+    document.getElementById('repDate').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+    document.getElementById('reportCreated').innerText = now.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+
+    const focusLabels = { combined: 'COMBINED', speed: 'SPEED ONLY', efficiency: 'EFFICIENCY ONLY' };
+    document.getElementById('repFocus').innerText = focusLabels[focus] || 'COMBINED';
+
+    // --- SCOPE ---
+    document.getElementById('selectedCount').innerText = customReport.vehicleCount || fleet.length;
+    document.getElementById('totalCount').innerText = customReport.totalVehicles || fleet.length;
+    document.getElementById('scopeSpeedLimit').innerText = speedLimit;
+    document.getElementById('scopeTarget').innerText = target;
+
+    // --- PROCESS FLEET (using same logic as audit) ---
+    let totalKM = 0, totalLiters = 0, totalEffLoss = 0, totalSpdLoss = 0, totalLoss = 0;
+    let totalEvents = 0, totalDuration = 0, highestMaxSpeed = 0;
+
+    const processed = fleet.map(v => {
+        const km = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
+        const lit = parseFloat(v.mL) || 0;
+        const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
+        const wastedL = (lit > 0 && km > 0 && actEff < target) ? (lit - (km / target)) : 0;
+        const effLoss = wastedL * wPrice;
+
+        // Speed loss — use per-event calculation matching audit
+        const events = v.violations || 0;
+        let spdLoss = 0;
+        if (v.speeds && v.speeds.length > 0) {
+            v.speeds.forEach(speed => {
+                if (speed > speedLimit) {
+                    const speedOver = speed - speedLimit;
+                    const eventDurationHours = 5 / 60;
+                    const eventSpeed = speed * 0.9;
+                    const eventDistance = eventSpeed * eventDurationHours;
+                    const speedPenaltyFactor = 1 + (speedOver / 100);
+                    const baseRate = 1 / target;
+                    const normalFuel = eventDistance * baseRate;
+                    const actualFuel = normalFuel * speedPenaltyFactor;
+                    spdLoss += (actualFuel - normalFuel) * wPrice;
+                }
+            });
+        } else {
+            // Fallback
+            const penalty = (v.type === 'Heavy' ? 1.5 : 1.1);
+            spdLoss = events * penalty * wPrice;
+        }
+
+        const tLoss = effLoss + spdLoss;
+        const duration = v.duration || 0;
+        const maxSpeed = v.maxSpeed || 0;
+
+        // Accumulate
+        totalKM += km;
+        totalLiters += lit;
+        totalEffLoss += effLoss;
+        totalSpdLoss += spdLoss;
+        totalLoss += tLoss;
+        totalEvents += events;
+        totalDuration += duration;
+        if (maxSpeed > highestMaxSpeed) highestMaxSpeed = maxSpeed;
+
+        return { ...v, km, lit, actEff, wastedL, effLoss, spdLoss, tLoss, events, duration, maxSpeed };
+    });
+
+    const avgConsumption = totalLiters > 0 ? (totalKM / totalLiters) : 0;
+
+    // --- HERO TILES ---
+    let tilesHTML = '';
+    if (focus === 'speed') {
+        tilesHTML = `
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Event Count</p>
+                <h3 class="text-2xl font-black text-red-600 italic">${totalEvents}</h3>
+            </div>
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Duration</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">${(totalDuration / 60).toFixed(1)} min</h3>
+            </div>
+            <div class="hero-card highlight">
+                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Max Speed</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">${highestMaxSpeed} km/h</h3>
+            </div>
+            <div class="hero-card loss">
+                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Speed Loss</p>
+                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalSpdLoss).toLocaleString()}</h3>
+            </div>
+        `;
+    } else if (focus === 'efficiency') {
+        tilesHTML = `
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Distance</p>
+                <h3 class="text-2xl font-black text-slate-800 italic">${Math.round(totalKM).toLocaleString()} KM</h3>
+            </div>
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fuel Wasted</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">${processed.reduce((s,v) => s + v.wastedL, 0).toFixed(1)} L</h3>
+            </div>
+            <div class="hero-card highlight">
+                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Avg Consumption</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">${avgConsumption.toFixed(2)} km/L</h3>
+            </div>
+            <div class="hero-card loss">
+                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Efficiency Loss</p>
+                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalEffLoss).toLocaleString()}</h3>
+            </div>
+        `;
+    } else {
+        // combined
+        tilesHTML = `
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Efficiency Loss</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">R ${Math.round(totalEffLoss).toLocaleString()}</h3>
+            </div>
+            <div class="hero-card">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Speed Loss</p>
+                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalSpdLoss).toLocaleString()}</h3>
+            </div>
+            <div class="hero-card highlight">
+                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Max Speed</p>
+                <h3 class="text-2xl font-black text-orange-600 italic">${highestMaxSpeed} km/h</h3>
+            </div>
+            <div class="hero-card loss">
+                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Total Loss</p>
+                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalLoss).toLocaleString()}</h3>
+            </div>
+        `;
+    }
+    document.getElementById('heroTiles').innerHTML = tilesHTML;
+
+    // --- CHART ---
+    const ctx = document.getElementById('reportChart').getContext('2d');
+    const labels = processed.map(v => v.reg);
+
+    if (focus === 'speed') {
+        document.getElementById('chartTitle').innerText = 'Speed Violations Per Vehicle';
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Violations',
+                    data: processed.map(v => v.events),
+                    backgroundColor: processed.map(v => v.events > 3 ? '#dc2626' : v.events > 1 ? '#f97316' : '#eab308'),
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Outfit', weight: '600', size: 10 } } },
+                    y: { ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
+                }
+            }
+        });
+
+    } else if (focus === 'efficiency') {
+        document.getElementById('chartTitle').innerText = 'Actual vs Target Consumption (km/L)';
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Actual km/L',
+                        data: processed.map(v => v.actEff > 0 ? parseFloat(v.actEff.toFixed(2)) : 0),
+                        backgroundColor: processed.map(v => v.actEff > 0 && v.actEff < target ? '#ef4444' : '#10b981'),
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Target km/L',
+                        data: processed.map(() => target),
+                        backgroundColor: '#cbd5e1',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { labels: { font: { family: 'Outfit', weight: '600', size: 10 } } } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { font: { family: 'Outfit', weight: '600', size: 10 } } },
+                    y: { ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
+                }
+            }
+        });
+
+    } else {
+        // combined — stacked bar
+        document.getElementById('chartTitle').innerText = 'Loss Breakdown Per Vehicle (R)';
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Efficiency Loss',
+                        data: processed.map(v => Math.round(v.effLoss)),
+                        backgroundColor: '#f97316',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Speed Loss',
+                        data: processed.map(v => Math.round(v.spdLoss)),
+                        backgroundColor: '#dc2626',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { labels: { font: { family: 'Outfit', weight: '600', size: 10 } } } },
+                scales: {
+                    x: { beginAtZero: true, stacked: true, ticks: { font: { family: 'Outfit', weight: '600', size: 10 }, callback: v => 'R ' + v.toLocaleString() } },
+                    y: { stacked: true, ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
+                }
+            }
+        });
+    }
+
+    // --- TABLE ---
+    let headHTML = '', bodyHTML = '';
+
+    if (focus === 'speed') {
+        headHTML = `<tr>
+            <th class="text-left px-3">Registration</th>
+            <th>Type</th>
+            <th>Violations</th>
+            <th>Duration (min)</th>
+            <th>Max Speed (km/h)</th>
+            <th class="bg-red-900">Speed Loss</th>
+        </tr>`;
+        bodyHTML = processed.map(v => `<tr>
+            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
+            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
+            <td class="${v.events > 0 ? 'text-red-600' : 'text-slate-400'}">${v.events}</td>
+            <td class="text-slate-600">${v.duration ? (v.duration / 60).toFixed(1) : '-'}</td>
+            <td class="${v.maxSpeed > speedLimit ? 'text-red-600' : 'text-slate-600'}">${v.maxSpeed || '-'}</td>
+            <td class="text-red-600 italic">R ${Math.round(v.spdLoss).toLocaleString()}</td>
+        </tr>`).join('');
+
+    } else if (focus === 'efficiency') {
+        headHTML = `<tr>
+            <th class="text-left px-3">Registration</th>
+            <th>Type</th>
+            <th>Track KM</th>
+            <th>Man KM</th>
+            <th>Liters</th>
+            <th class="bg-slate-800">Act KM/L</th>
+            <th>Waste (L)</th>
+            <th class="bg-red-900">Eff Loss</th>
+        </tr>`;
+        bodyHTML = processed.map(v => `<tr>
+            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
+            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
+            <td class="text-slate-400">${parseFloat(v.gpsDist).toFixed(0)}</td>
+            <td>${v.km.toFixed(0)}</td>
+            <td class="text-blue-600">${v.lit > 0 ? v.lit.toFixed(1) : '-'}</td>
+            <td class="${v.actEff > 0 && v.actEff < target ? 'text-red-500' : v.actEff > 0 ? 'text-emerald-600' : 'text-slate-400'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '-'}</td>
+            <td class="${v.wastedL > 0 ? 'text-orange-600' : 'text-slate-400'}">${v.wastedL > 0 ? v.wastedL.toFixed(2) : '-'}</td>
+            <td class="text-red-600 italic">R ${Math.round(v.effLoss).toLocaleString()}</td>
+        </tr>`).join('');
+
+    } else {
+        // combined
+        headHTML = `<tr>
+            <th class="text-left px-3">Registration</th>
+            <th>Type</th>
+            <th>Man KM</th>
+            <th>Liters</th>
+            <th class="bg-slate-800">Act KM/L</th>
+            <th>Eff Loss</th>
+            <th>Violations</th>
+            <th>Spd Loss</th>
+            <th class="bg-red-900">Total Loss</th>
+        </tr>`;
+        bodyHTML = processed.map(v => `<tr>
+            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
+            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
+            <td>${v.km.toFixed(0)}</td>
+            <td class="text-blue-600">${v.lit > 0 ? v.lit.toFixed(1) : '-'}</td>
+            <td class="${v.actEff > 0 && v.actEff < target ? 'text-red-500' : v.actEff > 0 ? 'text-emerald-600' : 'text-slate-400'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '-'}</td>
+            <td class="text-orange-600">R ${Math.round(v.effLoss).toLocaleString()}</td>
+            <td class="${v.events > 0 ? 'text-red-600' : 'text-slate-400'}">${v.events}</td>
+            <td class="text-red-600">R ${Math.round(v.spdLoss).toLocaleString()}</td>
+            <td class="text-red-600 italic font-black">R ${Math.round(v.tLoss).toLocaleString()}</td>
+        </tr>`).join('');
+    }
+
+    document.getElementById('tableHead').innerHTML = headHTML;
+    document.getElementById('tableBody').innerHTML = bodyHTML;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Global System Settings | Fleet Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; margin: 0; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .input-box { background: #0f172a; border: 1px solid #1e293b; padding: 12px; border-radius: 12px; width: 100%; color: white; outline: none; font-weight: 600; }
+        .input-box:focus { border-color: #3b82f6; }
+        label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-1">
+            <header class="mb-10 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-black uppercase italic tracking-tighter text-blue-500 text-6xl">Settings</h1>
+                </div>
+            </header>
+
+            <div class="glass-card p-8 rounded-[2.5rem] space-y-6">
+                <div>
+                    <label>Current Fuel Price (ZAR/L)</label>
+                    <input type="number" id="globalFuel" step="0.01" class="input-box" placeholder="18.45">
+                </div>
+
+                <div>
+                    <label>Default KM/L Target</label>
+                    <input type="number" id="globalTarget" step="0.1" class="input-box" placeholder="2.2">
+                </div>
+
+                <div>
+                    <label>Default Speed Limit</label>
+                    <input type="number" id="globalSpeed" class="input-box" placeholder="85">
+                </div>
+
+                <div class="pt-4">
+                    <button onclick="saveSettings()" class="w-full btn-primary bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-500/20 transition-all">
+                        Update & Log Price
+                    </button>
+                    <button onclick="window.location.href='index.html'" class="w-full mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all italic">← Back to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-2">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden h-full flex flex-col border border-slate-800">
+                <div class="p-6 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase italic tracking-widest">Fuel Price History Log</h3>
+                    <button onclick="clearHistory()" class="text-[8px] font-black text-red-500/50 hover:text-red-500 uppercase tracking-widest">Clear Log</button>
+                </div>
+                <div class="p-6 overflow-y-auto max-h-[500px]">
+                    <table class="w-full text-left">
+                        <thead class="text-[9px] font-black uppercase text-slate-500 tracking-widest">
+                            <tr>
+                                <th class="pb-4">Effective Date</th>
+                                <th class="pb-4">Price (ZAR)</th>
+                                <th class="pb-4">Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody" class="text-[11px] font-bold text-slate-300">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            document.getElementById('globalFuel').value = localStorage.getItem('GLOBAL_FUEL') || '18.45';
+            document.getElementById('globalTarget').value = localStorage.getItem('GLOBAL_TARGET') || '2.2';
+            document.getElementById('globalSpeed').value = localStorage.getItem('GLOBAL_SPEED') || '85';
+            renderHistory();
+        };
+
+        function saveSettings() {
+            const newPrice = document.getElementById('globalFuel').value;
+            const oldPrice = localStorage.getItem('GLOBAL_FUEL') || '0';
+            
+            // Only log if the price actually changed
+            if (newPrice !== oldPrice) {
+                const history = JSON.parse(localStorage.getItem('FUEL_HISTORY')) || [];
+                const change = oldPrice === '0' ? 'Initial' : (newPrice - oldPrice).toFixed(2);
+                
+                history.unshift({
+                    date: new Date().toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' }),
+                    price: newPrice,
+                    change: change > 0 ? `+${change}` : change
+                });
+                
+                localStorage.setItem('FUEL_HISTORY', JSON.stringify(history));
+            }
+
+            localStorage.setItem('GLOBAL_FUEL', newPrice);
+            localStorage.setItem('GLOBAL_TARGET', document.getElementById('globalTarget').value);
+            localStorage.setItem('GLOBAL_SPEED', document.getElementById('globalSpeed').value);
+            
+            renderHistory();
+            alert("Global settings updated and price change logged.");
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem('FUEL_HISTORY')) || [];
+            document.getElementById('historyBody').innerHTML = history.map(h => `
+                <tr class="border-b border-slate-800/50">
+                    <td class="py-4 text-slate-500 font-black italic uppercase">${h.date}</td>
+                    <td class="py-4 text-blue-400 font-black italic uppercase">R ${h.price}</td>
+                    <td class="py-4 ${h.change.includes('+') ? 'text-red-500' : 'text-emerald-500'} italic font-black text-[9px]">
+                        ${h.change === 'Initial' ? 'BASE PRICE' : h.change + ' ZAR'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if(confirm("Wipe all historical price records?")) {
+                localStorage.removeItem('FUEL_HISTORY');
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Client Onboarding | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: white; padding: 40px; }
+        .card { background: #1e293b; border: 1px solid #334155; padding: 30px; border-radius: 2rem; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        label { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        input, select { background: #0f172a; border: 1px solid #334155; padding: 12px; border-radius: 12px; color: white; width: 100%; margin-bottom: 20px; outline: none; transition: border 0.2s; }
+        input:focus { border-color: #3b82f6; }
+        .section-title { font-size: 14px; font-weight: 900; font-style: italic; text-transform: uppercase; color: #3b82f6; margin-bottom: 20px; border-left: 4px solid #3b82f6; padding-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-black italic uppercase tracking-tighter">Client Registry</h1>
+                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Setup & Configuration</p>
+            </div>
+            <button onclick="window.location.href='index.html'" class="bg-slate-800 hover:bg-slate-700 px-6 py-2 rounded-xl text-xs font-bold uppercase border border-slate-700 transition-all">← Dashboard</button>
+        </header>
+
+        <div class="card">
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <h2 class="section-title">Account Details</h2>
+                    <label>Company Name</label>
+                    <input type="text" id="compName" placeholder="e.g. Ocean Logistics">
+                    
+                    <label>Client Status</label>
+                    <select id="compStatus">
+                        <option value="Active">Active Client</option>
+                        <option value="Prospect">Prospect</option>
+                    </select>
+
+                    <label>Contact Person</label>
+                    <input type="text" id="contName" placeholder="Full Name">
+
+                    <label>Contact Email</label>
+                    <input type="email" id="contEmail" placeholder="email@client.co.za">
+
+                    <label>Telephone Number</label>
+                    <input type="tel" id="contTel" placeholder="+27 ...">
+                </div>
+
+                <div>
+                    <h2 class="section-title">Audit Parameters</h2>
+                    
+                    <label>Efficiency Target (KM/L)</label>
+                    <input type="number" id="targetKML" value="2.3" step="0.1">
+                    <p class="text-[9px] text-slate-500 -mt-4 mb-4 font-bold uppercase italic">Vehicles below this get a -20 point penalty</p>
+
+                    <label>Speeding Penalty (Points per event)</label>
+                    <input type="number" id="speedPenalty" value="0.5" step="0.1">
+                    <p class="text-[9px] text-slate-500 -mt-4 mb-4 font-bold uppercase italic">Deducted from 100 for every violation</p>
+
+                    <label>Currency Symbol</label>
+                    <input type="text" id="currency" value="R">
+
+                    <label>Fuel Price Baseline (R/L)</label>
+                    <input type="number" id="fuelBase" value="18.45" step="0.01">
+                </div>
+            </div>
+
+            <button onclick="saveClient()" class="w-full bg-blue-600 hover:bg-blue-500 py-4 mt-6 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-blue-900/40 transition-all">
+                Create Client Profile
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function saveClient() {
+            const clientData = {
+                name: document.getElementById('compName').value,
+                status: document.getElementById('compStatus').value,
+                contact: document.getElementById('contName').value,
+                email: document.getElementById('contEmail').value,
+                tel: document.getElementById('contTel').value,
+                settings: {
+                    target: parseFloat(document.getElementById('targetKML').value),
+                    penalty: parseFloat(document.getElementById('speedPenalty').value),
+                    currency: document.getElementById('currency').value,
+                    fuel: parseFloat(document.getElementById('fuelBase').value)
+                }
+            };
+
+            if(!clientData.name) return alert("Company Name is required.");
+
+            let registry = JSON.parse(localStorage.getItem('FLEET_REGISTRY')) || [];
+            registry.push(clientData);
+            localStorage.setItem('FLEET_REGISTRY', JSON.stringify(registry));
+            
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

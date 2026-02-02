@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Intake | Forensic Fleet Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+        
+        /* RESTORED: Deep Forest Green Background */
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: #064e3b; 
+            color: white; 
+            padding: 2rem; 
+        }
+
+        /* RESTORED: Form Sections with 1.5rem radius and Glass Border */
+        .form-section { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px);
+            border-radius: 1.5rem; 
+            padding: 2.5rem; 
+            margin-bottom: 2rem; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+
+        /* RESTORED: Input Labels in Emerald Green */
+        .input-label { 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            font-size: 10px; 
+            tracking-widest: 0.15em; 
+            color: #34d399; 
+            margin-bottom: 0.5rem; 
+            display: block; 
+        }
+
+        /* RESTORED: High-Contrast Dark Fields */
+        .field { 
+            width: 100%; 
+            padding: 0.8rem; 
+            background: rgba(0, 0, 0, 0.25); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 0.5rem; 
+            font-weight: 700; 
+            color: white; 
+            outline: none; 
+            transition: border-color 0.2s;
+        }
+
+        .field:focus { border-color: #34d399; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-3xl mx-auto">
+        <header class="flex justify-between items-center mb-10">
+            <h1 id="pageTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">
+                New <span class="text-emerald-400">Intake</span>
+            </h1>
+            <button onclick="window.location.href='index.html'" class="text-[10px] font-black uppercase text-white/40 hover:text-white tracking-widest">Cancel</button>
+        </header>
+        
+        <form id="intakeForm">
+            <div class="form-section">
+                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">01. Company & Location</h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div><label class="input-label">Company Name</label><input type="text" id="company" class="field" required placeholder="REGISTERED NAME"></div>
+                    <div><label class="input-label">Town / City</label><input type="text" id="city" class="field" required placeholder="BASE OF OPERATIONS"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">02. Contact Information</h3>
+                <div class="grid grid-cols-2 gap-6 mb-4">
+                    <div><label class="input-label">Contact Name</label><input type="text" id="contactName" class="field" placeholder="PRIMARY PERSON"></div>
+                    <div><label class="input-label">Mobile Number</label><input type="tel" id="contactTel" class="field" placeholder="000 000 0000"></div>
+                </div>
+                <div><label class="input-label">Email Address</label><input type="email" id="email" class="field" placeholder="name@company.co.za"></div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">03. Fleet Performance</h3>
+                <div class="grid grid-cols-3 gap-6 mb-4">
+                    <div><label class="input-label">Fleet Size (Units)</label><input type="number" id="fleetSize" class="field" required value="1"></div>
+                    <div><label class="input-label">Fuel Price (R/L)</label><input type="number" id="fuelPrice" class="field" step="0.01" value="22.50"></div>
+                    <div><label class="input-label">Speed Limit (km/h)</label><input type="number" id="speedLimit" class="field" value="80"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div><label class="input-label">Current Cons. (km/L)</label><input type="number" id="currentCons" class="field" step="0.1" placeholder="ACTUAL"></div>
+                    <div><label class="input-label">Target Cons. (km/L)</label><input type="number" id="targetCons" class="field" step="0.1" value="2.3"></div>
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl uppercase tracking-[0.2em] text-sm hover:bg-emerald-400 transition shadow-2xl active:scale-95">
+                Commit Forensic Data
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('editId');
+
+        window.onload = () => {
+            if (editId) {
+                const clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+                const p = clients.find(c => c.id == editId);
+                if (p) {
+                    document.getElementById('pageTitle').innerHTML = "Edit <span class='text-emerald-400'>Intake</span>";
+                    document.getElementById('submitBtn').innerText = "Update Forensic Data";
+                    
+                    document.getElementById('company').value = p.company || '';
+                    document.getElementById('city').value = p.city || '';
+                    document.getElementById('contactName').value = p.contactName || '';
+                    document.getElementById('contactTel').value = p.contactTel || '';
+                    document.getElementById('email').value = p.email || '';
+                    document.getElementById('fleetSize').value = p.fleetSize || 1;
+                    document.getElementById('fuelPrice').value = p.fuelPrice || 22.50;
+                    document.getElementById('speedLimit').value = p.speedLimit || 80;
+                    document.getElementById('currentCons').value = p.currentCons || '';
+                    document.getElementById('targetCons').value = p.targetCons || 2.3;
+                }
+            }
+        };
+
+        document.getElementById('intakeForm').onsubmit = (e) => {
+            e.preventDefault();
+            let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            
+            const clientData = {
+                id: editId ? parseInt(editId) : Date.now(),
+                company: document.getElementById('company').value.toUpperCase(),
+                city: document.getElementById('city').value.toUpperCase(),
+                contactName: document.getElementById('contactName').value,
+                contactTel: document.getElementById('contactTel').value,
+                email: document.getElementById('email').value,
+                fleetSize: parseInt(document.getElementById('fleetSize').value),
+                fuelPrice: document.getElementById('fuelPrice').value,
+                speedLimit: document.getElementById('speedLimit').value,
+                currentCons: document.getElementById('currentCons').value,
+                targetCons: document.getElementById('targetCons').value,
+                status: 'prospect' // Default for New Intake
+            };
+
+            if (editId) {
+                const index = clients.findIndex(c => c.id == editId);
+                clients[index] = clientData;
+            } else {
+                clients.push(clientData);
+            }
+
+            localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+            window.location.href = 'index.html';
+        };
+    </script>
+</body>
+</html>

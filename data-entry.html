@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Intel | Manual Data Entry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; padding: 0; }
+        .sticky-header { position: sticky; top: 0; background: #020617; z-index: 100; padding: 2rem 2rem 0 2rem; }
+        .container { max-width: 1900px; margin: 0 auto; }
+        .scroll-content { padding: 0 2rem 2rem 2rem; }
+        .entry-table { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.5rem; }
+        
+        .table-header, .table-row { 
+            display: flex !important;
+            gap: 0.75rem; 
+            padding: 0.75rem 1rem; 
+            align-items: center;
+        }
+        
+        .table-header { 
+            border-bottom: 2px solid #10b981; 
+            margin-bottom: 0.5rem; 
+        }
+        
+        .table-row { 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        
+        .table-row:hover { background: rgba(16, 185, 129, 0.05); }
+        
+        .header-cell { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #10b981; opacity: 0.8; }
+        
+        .col-num { width: 40px !important; flex-shrink: 0; }
+        .col-reg { width: 160px !important; flex-shrink: 0; }
+        .col-type { width: 100px !important; flex-shrink: 0; }
+        .col-make { width: 110px !important; flex-shrink: 0; }
+        .col-model { width: 110px !important; flex-shrink: 0; }
+        .col-year { width: 80px !important; flex-shrink: 0; }
+        .col-used { width: 140px !important; flex-shrink: 0; }
+        .col-kml { width: 80px !important; flex-shrink: 0; }
+        .col-odo { width: 120px !important; flex-shrink: 0; }
+        .col-liters { width: 120px !important; flex-shrink: 0; }
+        
+        .data-input { background: #0f172a; border: 2px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.6rem; color: white; width: 100%; font-size: 13px; outline: none; transition: all 0.2s; }
+        .data-input:focus { border-color: #10b981; background: #1e293b; }
+        .data-input::-webkit-outer-spin-button, .data-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .data-input[type=number] { -moz-appearance: textfield; }
+        .progress-bar { background: rgba(15, 23, 42, 0.6); height: 8px; border-radius: 999px; overflow: hidden; margin-bottom: 2rem; }
+        .progress-fill { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="sticky-header">
+        <div class="container">
+            <div class="mb-8">
+                <div class="flex justify-between items-end mb-4">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Manual Data Input</p>
+                        <h1 class="text-4xl font-black italic uppercase text-white">
+                            <span id="client-name">Loading...</span>
+                        </h1>
+                    </div>
+                    <div class="text-right">
+                        <p id="progress-text" class="text-2xl font-black text-emerald-400">0 / 0</p>
+                        <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">Vehicles Completed</p>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <div class="flex gap-4 mb-4">
+                    <div class="bg-emerald-500/10 border border-emerald-500/30 px-6 py-3 rounded-xl">
+                        <p class="text-[9px] font-black text-emerald-400 uppercase opacity-60">Audit Period</p>
+                        <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">-</p>
+                    </div>
+                    <div class="bg-blue-500/10 border border-blue-500/30 px-6 py-3 rounded-xl">
+                        <p class="text-[9px] font-black text-blue-400 uppercase opacity-60">Total Vehicles</p>
+                        <p id="total-vehicles" class="text-sm font-black text-blue-400 uppercase mt-1">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="scroll-content">
+        <div class="container">
+            <div class="entry-table">
+                <div class="table-header">
+                    <div class="header-cell col-num">#</div>
+                    <div class="header-cell col-reg">Registration</div>
+                    <div class="header-cell col-type">Type</div>
+                    <div class="header-cell col-make">Make</div>
+                    <div class="header-cell col-model">Model</div>
+                    <div class="header-cell col-year">Year</div>
+                    <div class="header-cell col-used">Used For</div>
+                    <div class="header-cell col-kml">Target km/L</div>
+                    <div class="header-cell col-odo">Actual Odo (km)</div>
+                    <div class="header-cell col-liters">Fuel Used (L)</div>
+                </div>
+                <div id="entry-rows"></div>
+            </div>
+
+            <div class="mt-8 flex gap-4">
+                <button onclick="saveAndContinue()" class="flex-1 bg-emerald-500 text-slate-900 font-black py-4 rounded-xl uppercase text-sm hover:bg-emerald-400 transition shadow-lg">
+                    💾 Save & Continue to Audit
+                </button>
+                <button onclick="autoFillForTesting()" class="bg-orange-500/20 border border-orange-500/30 text-orange-400 font-black py-4 px-6 rounded-xl uppercase text-sm hover:bg-orange-500/30 transition">
+                    🧪 Auto-Fill (Testing)
+                </button>
+                <button onclick="window.location.href='audit.html'" class="bg-white/5 border border-white/10 text-white font-black py-4 px-6 rounded-xl uppercase text-sm hover:bg-white/10 transition">
+                    ← Back
+                </button>
+            </div>
+
+            <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                <p class="text-[11px] font-bold text-blue-300">
+                    💡 <strong>Tip:</strong> Use <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Tab</kbd> or <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Enter</kbd> to move between Odo and Liters fields. 
+                    Press <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Ctrl+S</kbd> to quick save.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let auditData = {};
+        let currentClientName = '';
+
+        function loadData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientFromUrl = urlParams.get('client');
+            
+            if (clientFromUrl) {
+                currentClientName = decodeURIComponent(clientFromUrl);
+            } else {
+                currentClientName = localStorage.getItem('currentAuditClient') || 'Unknown Client';
+            }
+
+            document.getElementById('client-name').textContent = currentClientName.toUpperCase();
+
+            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
+            const savedDraft = localStorage.getItem(draftKey);
+
+            if (savedDraft) {
+                try {
+                    const draft = JSON.parse(savedDraft);
+                    auditData = draft.auditData || {};
+                    
+                    if (draft.auditPeriod) {
+                        document.getElementById('audit-period').textContent = draft.auditPeriod;
+                    }
+
+                    // Initialize vehicle details if not present
+                    Object.keys(auditData).forEach(key => {
+                        if (!auditData[key].make) auditData[key].make = '';
+                        if (!auditData[key].model) auditData[key].model = '';
+                        if (!auditData[key].year) auditData[key].year = '';
+                        if (!auditData[key].usedFor) auditData[key].usedFor = 'Long Distance';
+                        if (!auditData[key].targetKmL) auditData[key].targetKmL = '2.3';
+                    });
+
+                    renderTable();
+                } catch (e) {
+                    console.error('Error loading data:', e);
+                    alert('Error loading audit data. Please return to audit page.');
+                }
+            } else {
+                alert('No audit data found. Please upload CSV files first.');
+                window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
+            }
+        }
+
+        function renderTable() {
+            const container = document.getElementById('entry-rows');
+            const vehicles = Object.keys(auditData);
+            document.getElementById('total-vehicles').textContent = vehicles.length;
+
+            let completedCount = 0;
+            let html = '';
+
+            vehicles.forEach((key, index) => {
+                const v = auditData[key];
+                const isComplete = v.odo && v.liters;
+                if (isComplete) completedCount++;
+
+                html += `
+                    <div class="table-row">
+                        <span class="text-white/40 font-bold text-sm col-num">${index + 1}</span>
+                        <span class="font-medium text-white text-sm col-reg">${v.reg}</span>
+                        <select data-key="${key}" data-field="type" class="data-input col-type" onchange="updateValue(this)">
+                            <option value="Heavy"${v.type === 'Heavy' ? ' selected' : ''}>Heavy</option>
+                            <option value="Medium"${v.type === 'Medium' ? ' selected' : ''}>Medium</option>
+                        </select>
+                        <input type="text" 
+                               placeholder="Make" 
+                               value="${v.make || ''}" 
+                               data-key="${key}" 
+                               data-field="make"
+                               class="data-input col-make"
+                               oninput="updateValue(this)">
+                        <input type="text" 
+                               placeholder="Model" 
+                               value="${v.model || ''}" 
+                               data-key="${key}" 
+                               data-field="model"
+                               class="data-input col-model"
+                               oninput="updateValue(this)">
+                        <input type="text" 
+                               placeholder="Year" 
+                               value="${v.year || ''}" 
+                               data-key="${key}" 
+                               data-field="year"
+                               class="data-input col-year"
+                               oninput="updateValue(this)">
+                        <select data-key="${key}" data-field="usedFor" class="data-input col-used" onchange="updateValue(this); updateTargetKmL(this)">
+                            <option value="Long Distance"${v.usedFor === 'Long Distance' ? ' selected' : ''}>Long Distance</option>
+                            <option value="Local Full"${v.usedFor === 'Local Full' ? ' selected' : ''}>Local Full</option>
+                            <option value="Local 50%"${v.usedFor === 'Local 50%' ? ' selected' : ''}>Local 50%</option>
+                        </select>
+                        <input type="number" 
+                               step="0.1"
+                               placeholder="2.3" 
+                               value="${v.targetKmL || '2.3'}" 
+                               data-key="${key}" 
+                               data-field="targetKmL"
+                               class="data-input col-kml"
+                               oninput="updateValue(this)">
+                        <input type="number" 
+                               placeholder="Enter km" 
+                               value="${v.odo || ''}" 
+                               data-key="${key}" 
+                               data-field="odo"
+                               class="data-input col-odo odo-input"
+                               oninput="updateValue(this)">
+                        <input type="number" 
+                               placeholder="Enter liters" 
+                               value="${v.liters || ''}" 
+                               data-key="${key}" 
+                               data-field="liters"
+                               class="data-input col-liters liters-input"
+                               oninput="updateValue(this)">
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            updateProgress(completedCount, vehicles.length);
+            setupNavigation();
+        }
+
+        function updateValue(input) {
+            const key = input.getAttribute('data-key');
+            const field = input.getAttribute('data-field');
+            const value = input.value;
+
+            if (auditData[key]) {
+                auditData[key][field] = value;
+                updateProgress();
+            }
+        }
+
+        function updateTargetKmL(select) {
+            const key = select.getAttribute('data-key');
+            const usedFor = select.value;
+            const kmLInput = document.querySelector(`input[data-key="${key}"][data-field="targetKmL"]`);
+            
+            // Auto-suggest target km/L based on usage
+            let suggestedKmL = '2.3';
+            if (usedFor === 'Long Distance') {
+                suggestedKmL = '2.3';
+            } else if (usedFor === 'Local Full') {
+                suggestedKmL = '2.1';
+            } else if (usedFor === 'Local 50%') {
+                suggestedKmL = '2.8'; // Better efficiency when running empty half the time
+            }
+            
+            if (kmLInput && !kmLInput.value) {
+                kmLInput.value = suggestedKmL;
+                auditData[key].targetKmL = suggestedKmL;
+            }
+        }
+
+        function updateProgress(completed, total) {
+            if (completed === undefined) {
+                const vehicles = Object.keys(auditData);
+                total = vehicles.length;
+                completed = vehicles.filter(k => auditData[k].odo && auditData[k].liters).length;
+            }
+
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
+            
+            document.getElementById('progress-text').textContent = `${completed} / ${total}`;
+            document.getElementById('progress-fill').style.width = percentage + '%';
+        }
+
+        function setupNavigation() {
+            const inputs = document.querySelectorAll('.odo-input, .liters-input');
+            
+            inputs.forEach((input, index) => {
+                input.addEventListener('focus', function() {
+                    this.select();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === 'Tab') {
+                        e.preventDefault();
+                        
+                        if (index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    }
+                });
+            });
+        }
+
+        function saveAndContinue() {
+            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
+            const savedDraft = localStorage.getItem(draftKey);
+            
+            if (savedDraft) {
+                const draft = JSON.parse(savedDraft);
+                draft.auditData = auditData;
+                draft.savedAt = new Date().toISOString();
+                localStorage.setItem(draftKey, JSON.stringify(draft));
+            }
+
+            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
+            
+            if (clientIndex !== -1) {
+                allClients[clientIndex].auditStatus = 'in-progress';
+                allClients[clientIndex].lastEditedDate = new Date().toISOString();
+                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+            }
+
+            alert('✅ Data saved successfully!');
+            window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
+        }
+
+        function autoFillForTesting() {
+            if (!confirm('Auto-fill all empty fields with test data?')) return;
+
+            const makes = ['Volvo', 'Scania', 'MAN', 'Mercedes', 'Isuzu'];
+            const models = ['FH440', 'R450', 'TGX', 'Actros', 'FTR'];
+            const years = ['2020', '2021', '2022', '2023', '2024'];
+            const usage = ['Long Distance', 'Local Full', 'Local 50%'];
+
+            Object.keys(auditData).forEach(key => {
+                const v = auditData[key];
+                if (!v.make) v.make = makes[Math.floor(Math.random() * makes.length)];
+                if (!v.model) v.model = models[Math.floor(Math.random() * models.length)];
+                if (!v.year) v.year = years[Math.floor(Math.random() * years.length)];
+                if (!v.usedFor) v.usedFor = usage[Math.floor(Math.random() * usage.length)];
+                if (!v.targetKmL) {
+                    if (v.usedFor === 'Local 50%') v.targetKmL = '2.8';
+                    else if (v.usedFor === 'Local Full') v.targetKmL = '2.1';
+                    else v.targetKmL = '2.3';
+                }
+                if (!v.odo) v.odo = Math.floor(Math.random() * 5000) + 15000;
+                if (!v.liters) v.liters = Math.floor(Math.random() * 2000) + 5000;
+            });
+
+            renderTable();
+            alert('✅ Test data filled! Remember to save.');
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveAndContinue();
+            }
+        });
+
+        setInterval(() => {
+            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
+            const savedDraft = localStorage.getItem(draftKey);
+            
+            if (savedDraft) {
+                const draft = JSON.parse(savedDraft);
+                draft.auditData = auditData;
+                draft.savedAt = new Date().toISOString();
+                localStorage.setItem(draftKey, JSON.stringify(draft));
+                console.log('Auto-saved at', new Date().toLocaleTimeString());
+            }
+        }, 30000);
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

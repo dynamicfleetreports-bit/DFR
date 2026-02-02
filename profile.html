@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Intel | Client Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        .main-wrapper { flex: 1; overflow-y: auto; padding: 2rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
+        .profile-panel { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2rem; }
+        .audit-entry { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1.25rem; transition: 0.2s; cursor: pointer; }
+        .audit-entry:hover { border-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <div class="logo-area mb-10"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
+        <nav class="space-y-1">
+            <a href="index.html" class="flex items-center p-3 text-xs font-bold uppercase text-slate-500 hover:text-emerald-500">Dashboard</a>
+            <a href="pipeline.html" class="flex items-center p-3 text-xs font-bold uppercase text-slate-500 hover:text-emerald-500">Pipeline</a>
+            <a href="database.html" class="flex items-center p-3 text-xs font-bold uppercase text-emerald-500 bg-emerald-500/5 rounded-lg">Active Database</a>
+        </nav>
+    </aside>
+
+    <main class="main-wrapper">
+        <div class="profile-panel mb-8">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h1 id="p-name" class="text-5xl font-black italic uppercase text-white leading-none mb-4">Client Name</h1>
+                    <div id="p-contacts" class="flex gap-10 text-[10px] font-bold text-slate-400 uppercase tracking-widest"></div>
+                </div>
+                <button onclick="window.location.href='audit.html?client=' + encodeURIComponent(clientName)" class="bg-emerald-500 text-slate-900 px-6 py-2 rounded-xl font-black uppercase text-[10px] hover:scale-105 transition">New Audit</button>
+            </div>
+        </div>
+
+        <h3 class="text-xs font-black uppercase text-emerald-500 tracking-widest mb-4">Audit History</h3>
+        <div id="p-audit-list" class="space-y-3"></div>
+    </main>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientName = urlParams.get('client');
+
+        window.onload = () => {
+            const fleet = JSON.parse(localStorage.getItem('fleetHistory')) || [];
+            const archive = JSON.parse(localStorage.getItem('auditArchive')) || [];
+            const client = fleet.find(c => c.name === clientName);
+            if(!client) return;
+
+            document.getElementById('p-name').innerText = client.name;
+            document.getElementById('p-contacts').innerHTML = `
+                <span>Person: ${client.contactPerson}</span>
+                <span>Email: ${client.email}</span>
+                <span>Tel: ${client.phone}</span>
+            `;
+
+            const clientAudits = archive.filter(a => a.client === clientName).reverse();
+            const list = document.getElementById('p-audit-list');
+
+            list.innerHTML = clientAudits.map((audit, idx) => `
+                <div class="audit-entry flex justify-between items-center" onclick="viewAudit(${clientAudits.length - 1 - idx})">
+                    <div>
+                        <span class="block text-[9px] font-black text-emerald-500 uppercase">${new Date(audit.date).toDateString()}</span>
+                        <span class="text-xl font-black italic text-white uppercase">Forensic Audit #${clientAudits.length - idx}</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="block text-[8px] font-black opacity-30 uppercase">Loss Found</span>
+                        <span class="text-xl font-black italic text-emerald-400">${audit.summary.wholesale}</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        function viewAudit(idx) {
+            const archive = JSON.parse(localStorage.getItem('auditArchive')) || [];
+            const clientAudits = archive.filter(a => a.client === clientName);
+            localStorage.setItem('lastAudit', JSON.stringify(clientAudits[idx]));
+            window.location.href = `reports.html?client=${encodeURIComponent(clientName)}`;
+        }
+    </script>
+</body>
+</html>

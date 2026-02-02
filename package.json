@@ -1,0 +1,18 @@
+{
+  "name": "fleet-report-system",
+  "version": "1.0.0",
+  "description": "Fleet Intelligence Management System",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "vite": "^7.3.1"
+  }
+}

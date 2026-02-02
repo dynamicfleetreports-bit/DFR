@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Follow-Up System - Fleet Intel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: #f1f5f9; 
+            padding: 2rem; 
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { 
+            background: linear-gradient(135deg, #020617, #0f172a); 
+            color: white; 
+            padding: 3rem; 
+            border-radius: 1rem; 
+            text-align: center; 
+            margin-bottom: 3rem;
+        }
+        h1 { font-size: 3rem; font-weight: 900; margin-bottom: 1rem; }
+        .section { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 1rem; 
+            margin-bottom: 2rem; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .section-title { 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            color: #020617; 
+            margin-bottom: 1rem;
+            border-left: 4px solid #10b981;
+            padding-left: 1rem;
+        }
+        .timeline { 
+            display: grid; 
+            gap: 1rem; 
+            margin: 2rem 0;
+        }
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border-left: 4px solid #10b981;
+        }
+        .timeline-day {
+            font-weight: 900;
+            color: #10b981;
+            font-size: 1.25rem;
+        }
+        .email-template {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .email-label {
+            font-weight: 900;
+            color: #10b981;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+        .copy-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 900;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .copy-btn:hover { background: #059669; }
+        .email-field {
+            margin: 0.75rem 0;
+            font-size: 0.875rem;
+        }
+        .field-label {
+            font-weight: 700;
+            color: #64748b;
+            display: inline-block;
+            width: 80px;
+        }
+        .email-body {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            white-space: pre-wrap;
+            font-size: 0.875rem;
+            line-height: 1.8;
+            border: 1px solid #e2e8f0;
+        }
+        .variable {
+            background: #fef3c7;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-weight: 700;
+            color: #92400e;
+        }
+        .tip-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        .tip-title {
+            font-weight: 900;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+        .whatsapp-template {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+        }
+        .response-tracker {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .tracker-card {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        .tracker-title {
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .tracker-action {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #020617;
+        }
+        .flowchart {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 2px solid #10b981;
+            margin: 2rem 0;
+        }
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f0fdf4;
+            border-radius: 0.5rem;
+        }
+        .flow-number {
+            background: #10b981;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .status-hot { background: #fecaca; color: #991b1b; }
+        .status-warm { background: #fed7aa; color: #9a3412; }
+        .status-cold { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Email Follow-Up System</h1>
+            <p>Complete automation sequence for converting leads to clients</p>
+        </div>
+
+        <!-- LEAD RESPONSE FLOWCHART -->
+        <div class="section">
+            <h2 class="section-title">🔄 Lead Response Workflow</h2>
+            <div class="flowchart">
+                <div class="flow-step">
+                    <div class="flow-number">1</div>
+                    <div>
+                        <strong>Google Form Submitted</strong><br>
+                        <small>Lead fills out form → You get email notification</small>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #10b981; font-size: 2rem;">↓</div>
+                <div class="flow-step">
+                    <div class="flow-number">2</div>
+                    <div>
+                        <strong>Respond Within 1 Hour</strong><br>
+                        <small>Send "Email 1: Initial Contact & Data Request"</small>
+                    </div>
+                </div>
+                <div style="text-align: center; color: #10b981; font-size: 2rem;">↓</div>
+                <div class="flow-step">
+                    <div class="flow-number">3</div>
+                    <div>
+                        <strong>They Send Data OR Go Silent</strong><br>
+                        <small>Branch A: Data received → Run audit<br>
+                        Branch B: No response → Follow-up sequence</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESPONSE TRACKER -->
+        <div class="section">
+            <h2 class="section-title">📊 Lead Response Tracker</h2>
+            <div class="response-tracker">
+                <div class="tracker-card">
+                    <div class="tracker-title">🔥 Hot Lead</div>
+                    <div class="tracker-action">Data sent within 24hrs</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #16a34a;">ACTION: Run audit immediately</div>
+                </div>
+                <div class="tracker-card">
+                    <div class="tracker-title">⚠️ Warm Lead</div>
+                    <div class="tracker-action">No response after 3 days</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #ea580c;">ACTION: Send follow-up #1</div>
+                </div>
+                <div class="tracker-card">
+                    <div class="tracker-title">❄️ Cold Lead</div>
+                    <div class="tracker-action">No response after 7 days</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #2563eb;">ACTION: Send final follow-up</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUTOMATED SEQUENCE TIMELINE -->
+        <div class="section">
+            <h2 class="section-title">⏰ Automated Follow-Up Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-day">Day 0<br><small>Hour 0</small></div>
+                    <div>
+                        <strong>IMMEDIATE: Email 1 - Initial Contact</strong><br>
+                        Welcome them, explain next steps, request data<br>
+                        <span class="status-badge status-hot">Send within 1 hour</span>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-day">Day 1<br><small>+24hrs</small></div>
+                    <div>
+                        <strong>IF NO RESPONSE: WhatsApp Message</strong><br>
+                        Quick friendly check-in via WhatsApp<br>
+                        <span class="status-badge status-warm">Only if no data received</span>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-day">Day 3</div>
+                    <div>
+                        <strong>Email 2 - Gentle Reminder</strong><br>
+                        "Just checking if you got my email..."<br>
+                        <span class="status-badge status-warm">Still interested?</span>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-day">Day 7</div>
+                    <div>
+                        <strong>Email 3 - Final Offer</strong><br>
+                        Last chance, create urgency<br>
+                        <span class="status-badge status-cold">Final attempt</span>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-day">Day 14</div>
+                    <div>
+                        <strong>Email 4 - Re-Engagement (Optional)</strong><br>
+                        Case study or success story to re-engage<br>
+                        <span class="status-badge status-cold">Last resort</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EMAIL TEMPLATES -->
+        <div class="section">
+            <h2 class="section-title">📧 Email Templates</h2>
+
+            <!-- EMAIL 1 -->
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Email 1: Initial Contact (Send within 1 hour)</div>
+                    <button class="copy-btn" onclick="copyEmail('email1')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> Your FREE Fleet Audit - Next Steps 🎁</div>
+                <div class="email-field"><span class="field-label">When:</span> Within 1 hour of form submission</div>
+                <div class="email-body" id="email1">Hi <span class="variable">[First Name]</span>,
+
+Thanks for requesting your FREE fleet audit! 🚛
+
+I'm excited to show you exactly where your fleet might be losing money (most fleets lose R 45k+ per month without knowing).
+
+<strong>TO GET STARTED, I NEED:</strong>
+
+📊 <strong>FROM YOUR GPS PROVIDER</strong> (MiX/Cartrack/Ctrack/etc):
+1. Usage Report (CSV) - Last 30 days
+   Shows: Vehicle, Date, Distance/KM, Hours
+
+2. Speeding Violations Report (CSV) - Last 30 days  
+   Shows: Vehicle, Speed, Date/Time, Location
+
+📋 <strong>FROM YOUR RECORDS:</strong>
+3. Vehicle Data (Excel/CSV/Photo - any format works):
+   • Registration numbers
+   • Total kilometers driven (last month)
+   • Total liters of fuel used (last month)
+
+<strong>HOW TO SEND:</strong>
+📧 Email: dynamicfleetreports@gmail.com
+💬 WhatsApp: 083 314 9592
+📁 Or reply with Google Drive link
+
+<strong>WHAT HAPPENS NEXT:</strong>
+✅ I receive your data
+✅ I run the forensic analysis
+✅ You get detailed report in 48 hours
+✅ We schedule a call to review findings
+
+<strong>DON'T HAVE GPS REPORTS?</strong>
+No problem! Just send me your basic vehicle list (reg numbers, KM, liters) and I'll do a simplified audit.
+
+Questions? Just reply or call me: 083 314 9592
+
+Looking forward to helping you save thousands!
+
+Best,
+<span class="variable">[Your Name]</span>
+Dynamic Fleet Reporting
+083 314 9592
+dynamicfleetreports@gmail.com</div>
+            </div>
+
+            <!-- WHATSAPP MESSAGE -->
+            <div class="whatsapp-template">
+                <div class="email-header">
+                    <div class="email-label">💬 WhatsApp Follow-Up (Day 1 - If no email response)</div>
+                    <button class="copy-btn" onclick="copyEmail('whatsapp1')">📋 Copy</button>
+                </div>
+                <div class="email-body" id="whatsapp1" style="background: white;">Hi <span class="variable">[Name]</span>! 👋
+
+Quick check-in about your free fleet audit.
+
+Did you receive my email yesterday?
+
+I'm ready to analyze your fleet as soon as you send:
+• Usage report (CSV)
+• Violations report (CSV)  
+• Vehicle KM/Liters list
+
+Can send it right here on WhatsApp if easier! 📱
+
+Or email: dynamicfleetreports@gmail.com
+
+Let me know if you need help getting the data 👍</div>
+            </div>
+
+            <!-- EMAIL 2 -->
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Email 2: Gentle Reminder (Day 3)</div>
+                    <button class="copy-btn" onclick="copyEmail('email2')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> Still interested in your FREE audit? 🤔</div>
+                <div class="email-field"><span class="field-label">When:</span> 3 days after initial email (if no response)</div>
+                <div class="email-body" id="email2">Hi <span class="variable">[First Name]</span>,
+
+Just checking in! I sent you an email a few days ago about your FREE fleet audit.
+
+Haven't heard back yet - did my message get lost in your inbox? 📧
+
+<strong>QUICK REMINDER:</strong>
+I need a few simple files to analyze your fleet:
+• Usage report from your GPS provider
+• Violations/speeding report
+• Basic vehicle list (KM + Liters)
+
+Takes 2 minutes to gather, saves you thousands 💰
+
+<strong>NEED HELP?</strong>
+Not sure how to get these reports? I can walk you through it - just give me a call: 083 314 9592
+
+Or if you'd prefer, we can do a simplified audit with just your basic vehicle data (no GPS reports needed).
+
+Still interested? Just reply "YES" and I'll get started!
+
+Cheers,
+<span class="variable">[Your Name]</span>
+083 314 9592</div>
+            </div>
+
+            <!-- EMAIL 3 -->
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Email 3: Final Offer with Urgency (Day 7)</div>
+                    <button class="copy-btn" onclick="copyEmail('email3')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> Last chance for your FREE R 8,500 audit ⏰</div>
+                <div class="email-field"><span class="field-label">When:</span> 7 days after initial email (if still no response)</div>
+                <div class="email-body" id="email3">Hi <span class="variable">[First Name]</span>,
+
+This is my last email - I don't want to be a pest! 😊
+
+You requested a FREE fleet audit (worth R 8,500), but I haven't received your data yet.
+
+<strong>HERE'S THE THING:</strong>
+I'm limited to 10 free audits per month, and I've had a lot of interest.
+
+I'm holding your spot until <span class="variable">[Date in 3 days]</span>, then I'll have to give it to the next person on my waitlist.
+
+<strong>WANT TO KEEP YOUR SPOT?</strong>
+Just send me:
+• Your vehicle list (reg numbers, KM, liters)
+• OR your GPS reports if you have them
+
+Send to: dynamicfleetreports@gmail.com
+Or WhatsApp: 083 314 9592
+
+<strong>NOT READY YET?</strong>
+No worries! Just let me know and I'll follow up in a month or two.
+
+Either way, good luck with your fleet! 🚛
+
+Best,
+<span class="variable">[Your Name]</span>
+Dynamic Fleet Reporting</div>
+            </div>
+
+            <!-- EMAIL 4 -->
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Email 4: Re-Engagement with Value (Day 14 - Optional)</div>
+                    <button class="copy-btn" onclick="copyEmail('email4')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> We just saved a fleet R 187,000/month 🤯</div>
+                <div class="email-field"><span class="field-label">When:</span> 14 days after initial (only if they seem interested but busy)</div>
+                <div class="email-body" id="email4">Hi <span class="variable">[First Name]</span>,
+
+Quick story I thought you'd find interesting...
+
+Last week, we audited a 50-truck operation similar to yours.
+
+<strong>WHAT WE FOUND:</strong>
+❌ R 87,000/month in speeding waste
+❌ R 63,000/month in poor driving habits
+❌ R 37,000/month in vehicle inefficiency
+
+Total: <strong>R 187,000 per month</strong> going down the drain.
+
+The owner had NO IDEA. His GPS company never told him. His accountant couldn't see it.
+
+After 60 days of implementing our recommendations:
+✅ Fleet score improved from 62% to 89%
+✅ Fuel costs dropped by 31%
+✅ Drivers are actually motivated (bonus program)
+
+<strong>WONDERING WHAT YOUR FLEET NUMBERS LOOK LIKE?</strong>
+
+I know you were interested before but timing wasn't right.
+
+If you're ready now, I can still run that FREE audit for you.
+
+Just reply "READY" and send me your vehicle data.
+
+No pressure - but thought you'd want to know what's possible! 💰
+
+Cheers,
+<span class="variable">[Your Name]</span>
+083 314 9592</div>
+            </div>
+        </div>
+
+        <!-- AFTER THEY SEND DATA -->
+        <div class="section">
+            <h2 class="section-title">✅ After They Send Data</h2>
+            
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Confirmation Email (Immediate)</div>
+                    <button class="copy-btn" onclick="copyEmail('email5')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> Data received! Your audit is underway 🚀</div>
+                <div class="email-field"><span class="field-label">When:</span> Immediately after receiving their data</div>
+                <div class="email-body" id="email5">Hi <span class="variable">[First Name]</span>,
+
+Perfect! I've received your data and I'm diving in now 🔍
+
+<strong>WHAT'S HAPPENING:</strong>
+✅ Running forensic analysis on your fleet
+✅ Calculating efficiency scores
+✅ Identifying hidden losses
+✅ Building your custom report
+
+<strong>YOU'LL RECEIVE:</strong>
+📊 Detailed audit report (PDF)
+📈 Fleet efficiency score
+💰 Exact monthly losses breakdown
+🎯 Step-by-step action plan
+📞 15-min results review call
+
+<strong>TIMELINE:</strong>
+I'll have your results ready within 48 hours (usually faster!).
+
+I'll email you the report and we'll schedule a quick call to walk through the findings.
+
+Questions in the meantime? Call/WhatsApp: 083 314 9592
+
+Talk soon!
+
+<span class="variable">[Your Name]</span>
+Dynamic Fleet Reporting</div>
+            </div>
+
+            <div class="email-template">
+                <div class="email-header">
+                    <div class="email-label">📧 Results Delivery Email</div>
+                    <button class="copy-btn" onclick="copyEmail('email6')">📋 Copy</button>
+                </div>
+                <div class="email-field"><span class="field-label">Subject:</span> Your Fleet Audit Results: R <span class="variable">[Amount]</span>/month in losses found 😱</div>
+                <div class="email-field"><span class="field-label">When:</span> When audit is complete (within 48 hours)</div>
+                <div class="email-body" id="email6">Hi <span class="variable">[First Name]</span>,
+
+Your audit is complete, and I have some eye-opening news...
+
+<strong>YOUR RESULTS:</strong>
+🔴 Monthly Waste: <strong>R <span class="variable">[Total Loss]</span></strong>
+📊 Fleet Score: <strong><span class="variable">[Score]</span>%</strong> (Industry avg: 85%)
+🚨 Critical Vehicles: <strong><span class="variable">[Number]</span></strong> need immediate attention
+
+<strong>WHERE THE MONEY IS GOING:</strong>
+💸 Efficiency Loss: R <span class="variable">[Eff Loss]</span>/month
+🚨 Speeding Violations: R <span class="variable">[Speed Loss]</span>/month  
+⚠️ Poor Driving: R <span class="variable">[Other Loss]</span>/month
+
+<strong>📎 ATTACHED:</strong> Your full audit report (PDF)
+
+<strong>THE GOOD NEWS:</strong>
+All of this is fixable! I've included a step-by-step action plan in your report.
+
+<strong>NEXT STEP:</strong>
+Let's schedule a 15-minute call to walk through your results and discuss how to fix these issues.
+
+When are you free this week?
+• Tomorrow at 10am?
+• Thursday at 2pm?
+• Friday morning?
+
+Or suggest a time that works for you.
+
+Looking forward to helping you save thousands!
+
+Best,
+<span class="variable">[Your Name]</span>
+083 314 9592
+
+P.S. - If you want to start implementing changes right away, check page 8 of the report for "Quick Wins" you can do today.</div>
+            </div>
+        </div>
+
+        <!-- PRO TIPS -->
+        <div class="section">
+            <h2 class="section-title">💡 Pro Tips for Maximum Response Rate</h2>
+            
+            <div class="tip-box">
+                <div class="tip-title">⚡ Speed Matters</div>
+                Studies show responding within 1 hour increases conversion by 7x compared to responding after 24 hours.
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">📱 Use Multiple Channels</div>
+                If no email response after 24hrs, try WhatsApp. Some people respond better to different channels.
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">🎯 Personalize Everything</div>
+                Always use their first name and company name. Reference specific details from their form (fleet size, challenges mentioned).
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">💰 Lead with Value</div>
+                Every email should remind them of the value (R 8,500 free audit, saving R 45k+/month).
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">🔥 Create Urgency (But Be Honest)</div>
+                "Limited to 10 audits/month" is real urgency. Don't fake it or you'll lose trust.
+            </div>
+            
+            <div class="tip-box">
+                <div class="tip-title">📞 Phone > Email for High-Value Leads</div>
+                If they have 50+ vehicles, call them instead of just emailing. That's a potential R 100k+ annual client.
+            </div>
+        </div>
+
+        <!-- TRACKING SPREADSHEET -->
+        <div class="section">
+            <h2 class="section-title">📊 Lead Tracking Spreadsheet Template</h2>
+            <p style="margin-bottom: 1rem;">Create a Google Sheet or Excel file with these columns:</p>
+            
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead style="background: #f1f5f9;">
+                    <tr>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Date Submitted</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Name</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Company</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Fleet Size</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Email</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Phone</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Status</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Last Contact</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Next Action</th>
+                        <th style="padding: 0.75rem; border: 1px solid #e2e8f0; text-align: left;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">2026-01-10</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">John Smith</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">ABC Transport</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">30</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">john@abc.co.za</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">083 123 4567</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;"><span class="status-badge status-hot">Hot - Data Sent</span></td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">2026-01-11</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">Run audit</td>
+                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">Very interested, has MiX</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; border:
+<function_calls>
+<invoke name="artifacts">
+<parameter name="command">update</parameter>
+<parameter name="id">email-follow-up-system</parameter>
+<parameter name="old_str">                        <td style="padding: 0.75rem; border:</parameter>
+<parameter name="new_str">                        <td style="padding: 0.75rem; border: 1px solid #e2e8f0;">2026-01-09</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">Sarah Lee</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">XYZ Logistics</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">15</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">sarah@xyz.co.za</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">082 987 6543</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;"><span class="status-badge status-warm">Warm - No Response</span></td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">2026-01-09</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">Send Email 2 (Day 3)</td>
+<td style="padding: 0.75rem; border: 1px solid #e2e8f0;">Sent initial email, no response yet</td>
+</tr>
+</tbody>
+</table>
+  <p style="margin-top: 1.5rem; font-size: 0.875rem;">
+            <strong>Status Options:</strong> New Lead | Email 1 Sent | WhatsApp Sent | Email 2 Sent | Email 3 Sent | Data Received | Audit In Progress | Report Sent | Call Scheduled | Converted | Cold/Lost
+        </p>
+    </div>
+
+</div>
+
+<script>
+    function copyEmail(emailId) {
+        const emailContent = document.getElementById(emailId).innerText;
+        navigator.clipboard.writeText(emailContent).then(() => {
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = '✅ Copied!';
+            btn.style.background = '#059669';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.background = '';
+            }, 2000);
+        });
+    }
+</script>
+</body>
+</html></parameter>

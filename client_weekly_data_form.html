@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Intel | Fleet Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            color: #e2e8f0; 
+            padding: 2rem;
+            min-height: 100vh;
+			 display: flex;
+    justify-content: center;
+    align-items: stretch;
+        }
+        .container { 
+            max-width: 1800px; 
+            margin: 0 auto; 
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+			
+			 display: flex;
+    flex-direction: column;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+        }
+        .logo { max-width: 200px; margin-bottom: 1.5rem; }
+        .title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-style: italic;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .info-card {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: rgba(16, 185, 129, 0.8);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #10b981;
+        }
+        .report-type {
+            background: rgba(251, 191, 36, 0.1);
+            border: 2px solid #fbbf24;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .report-type label {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        .report-type select {
+            flex: 1;
+            background: #0f172a;
+            border: 2px solid #fbbf24;
+            color: #fbbf24;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 900;
+            font-size: 0.875rem;
+            outline: none;
+        }
+        .instructions {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+            border-left: 4px solid #fbbf24;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .instructions h3 {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .instructions ul {
+            list-style: none;
+            color: #fde68a;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .instructions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+        .progress-bar {
+            background: rgba(15, 23, 42, 0.6);
+            height: 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            height: 100%;
+            transition: width 0.3s;
+            width: 0%;
+        }
+        .progress-text {
+            font-size: 0.875rem;
+            color: rgba(16, 185, 129, 0.8);
+            font-weight: 700;
+        }
+        .data-table {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        thead th {
+            background: #10b981;
+            color: #020617;
+            padding: 1rem 0.5rem;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        thead th:first-child { border-radius: 0.5rem 0 0 0; }
+        thead th:last-child { border-radius: 0 0.5rem 0 0; }
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        tbody tr:hover {
+            background: rgba(16, 185, 129, 0.05);
+        }
+        tbody td {
+            padding: 0.75rem 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+        }
+        .locked-cell {
+            background: rgba(15, 23, 42, 0.8);
+            color: rgba(226, 232, 240, 0.6);
+        }
+        .editable-cell { background: rgba(255, 255, 255, 0.05); }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 0.6rem;
+            background: #0f172a;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: #10b981;
+            background: #1e293b;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        input::placeholder { color: rgba(226, 232, 240, 0.3); }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+        .add-vehicle-section {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .add-vehicle-section h3 {
+            color: #3b82f6;
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .new-vehicle-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+        }
+        .actions {
+    display: flex;
+    gap: 1rem;
+    margin: 3rem 0 4rem;
+    padding: 1.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.actions .btn {
+    flex: 1;
+}
+       button.btn {
+            padding: 1.25rem;
+            border: none;
+            border-radius: 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #020617;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-add {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            padding: 0.75rem;
+            font-size: 0.8rem;
+        }
+        .btn-add:hover { background: rgba(59, 130, 246, 0.3); }
+      .footer {
+    margin-top: auto;
+    padding: 1.5rem 1rem;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0 0 2rem 2rem;
+    text-align: center;
+    color: rgba(226, 232, 240, 0.6);
+    font-size: 0.75rem;
+}
+        select {
+            background: #0f172a;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1.5rem; }
+            .title { font-size: 1.75rem; }
+            .actions { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="Logo.png" alt="Fleet Intel" class="logo">
+            <h1 class="title">Fleet Report</h1>
+            <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Submit your fleet data and updates</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-label">Client</div>
+                <div class="info-value" id="client-name">TANJA TRANSPORT</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Generated</div>
+                <div class="info-value" id="generated-date">-</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Vehicles</div>
+                <div class="info-value"><span id="vehicle-count">0</span> Units</div>
+            </div>
+        </div>
+
+        <div class="report-type">
+            <label for="report-frequency">Report Type:</label>
+            <select id="report-frequency" onchange="updatePeriodDate()">
+                <option value="weekly">Weekly Report (Ends Sunday)</option>
+                <option value="monthly">Monthly Report (Month End)</option>
+            </select>
+            <div style="flex: 1;">
+                <span style="color: rgba(226, 232, 240, 0.6); font-size: 0.75rem; display: block;">Period Ending:</span>
+                <span id="period-date" style="color: #fbbf24; font-weight: 900; font-size: 1rem;">-</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions</h3>
+            <ul>
+                <li>Review vehicle details - check boxes if updates or removals needed</li>
+                <li>Complete <strong>End Odo</strong>, <strong>Total KM</strong>, and <strong>Fuel Used</strong> columns</li>
+                <li>You can fill either End Odo OR Total KM (or both for verification)</li>
+                <li>Add new vehicles in the section below the table</li>
+                <li>Click <strong>Submit Report</strong> when complete</li>
+            </ul>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-text">
+                Progress: <span id="completed-count">0</span> of <span id="total-count">0</span> vehicles completed
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">#</th>
+                        <th style="width: 150px;">Registration</th>
+                        <th style="width: 80px;">Type</th>
+                        <th style="width: 100px;">Make</th>
+                        <th style="width: 100px;">Model</th>
+                        <th style="width: 60px;">Year</th>
+                        <th style="width: 120px;">Used For</th>
+                        <th style="width: 80px;">Target km/L</th>
+                        <th style="width: 50px;">Update?</th>
+                        <th style="width: 50px;">Remove?</th>
+                        <th style="width: 120px;">End Odo</th>
+                        <th style="width: 110px;">Total KM</th>
+                        <th style="width: 110px;">Fuel Used (L)</th>
+                        <th style="width: 150px;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="add-vehicle-section">
+            <h3>➕ Add New Vehicles</h3>
+            <div id="new-vehicles-container"></div>
+            <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
+            <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
+        </div>
+
+        <div class="footer">
+            Email this file to: <strong>reports@fleetintel.co.za</strong><br>
+            For support, contact your account manager
+        </div>
+    </div>
+
+    <script>
+    const reportData = {
+        client: 'TANJA TRANSPORT',
+        generatedDate: new Date().toISOString(),
+        reportType: 'weekly',
+        vehicles: [
+            { reg: 'M110 / CEA10174', type: 'Heavy', make: 'Volvo', model: 'FH440', year: '2022', usedFor: 'Long Distance', targetKmL: '2.3' },
+            { reg: 'M114 / CEA11514', type: 'Heavy', make: 'Scania', model: 'R450', year: '2021', usedFor: 'Long Distance', targetKmL: '2.3' },
+            { reg: 'M115 / CEA9584', type: 'Heavy', make: 'MAN', model: 'TGX', year: '2023', usedFor: 'Local Full', targetKmL: '2.1' }
+        ]
+    };
+
+    let newVehicleCounter = 0;
+
+    function initForm() {
+        document.getElementById('client-name').textContent = reportData.client;
+        document.getElementById('generated-date').textContent = new Date().toLocaleDateString();
+        document.getElementById('vehicle-count').textContent = reportData.vehicles.length;
+        document.getElementById('total-count').textContent = reportData.vehicles.length;
+        
+        updatePeriodDate();
+        renderTable();
+        updateProgress();
+    }
+
+    function updatePeriodDate() {
+        const type = document.getElementById('report-frequency').value;
+        const today = new Date();
+        let periodEnd;
+
+        if (type === 'weekly') {
+            const dayOfWeek = today.getDay();
+            const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+            periodEnd = new Date(today);
+            periodEnd.setDate(today.getDate() + daysToSunday - 7);
+        } else {
+            periodEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+        }
+
+        const formatted = periodEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        document.getElementById('period-date').textContent = formatted;
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        let html = '';
+
+        reportData.vehicles.forEach((v, index) => {
+            html += `
+                <tr data-index="${index}">
+                    <td class="locked-cell">${index + 1}</td>
+                    <td class="locked-cell">${v.reg}</td>
+                    <td class="locked-cell">${v.type}</td>
+                    <td class="locked-cell">${v.make}</td>
+                    <td class="locked-cell">${v.model}</td>
+                    <td class="locked-cell">${v.year}</td>
+                    <td class="locked-cell">${v.usedFor}</td>
+                    <td class="locked-cell">${v.targetKmL}</td>
+                    <td class="editable-cell" style="text-align: center;">
+                        <input type="checkbox" id="update-${index}">
+                    </td>
+                    <td class="editable-cell" style="text-align: center;">
+                        <input type="checkbox" id="remove-${index}">
+                    </td>
+                    <td class="editable-cell">
+                        <input type="number" id="endOdo-${index}" placeholder="Odo" oninput="updateProgress()">
+                    </td>
+                    <td class="editable-cell">
+                        <input type="number" id="totalKm-${index}" placeholder="KM" oninput="updateProgress()">
+                    </td>
+                    <td class="editable-cell">
+                        <input type="number" id="fuelUsed-${index}" placeholder="Liters" oninput="updateProgress()">
+                    </td>
+                    <td class="editable-cell">
+                        <input type="text" id="notes-${index}" placeholder="Changes...">
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    function addNewVehicleRow() {
+        const container = document.getElementById('new-vehicles-container');
+        const id = newVehicleCounter++;
+
+        const row = document.createElement('div');
+        row.className = 'new-vehicle-row';
+        row.id = `new-vehicle-${id}`;
+        row.innerHTML = `
+            <input type="text" placeholder="Registration" id="new-reg-${id}">
+            <select id="new-type-${id}">
+                <option>Heavy</option>
+                <option>Medium</option>
+            </select>
+            <input type="text" placeholder="Make" id="new-make-${id}">
+            <input type="text" placeholder="Model" id="new-model-${id}">
+            <input type="text" placeholder="Year" id="new-year-${id}">
+            <select id="new-used-${id}">
+                <option>Long Distance</option>
+                <option>Local Full</option>
+                <option>Local 50%</option>
+            </select>
+            <input type="number" placeholder="Target km/L" id="new-target-${id}" value="2.3">
+            <button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('new-vehicle-${id}').remove()">Remove</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function updateProgress() {
+        let completed = 0;
+        const total = reportData.vehicles.length;
+
+        reportData.vehicles.forEach((v, index) => {
+            const endOdo = document.getElementById(`endOdo-${index}`).value;
+            const totalKm = document.getElementById(`totalKm-${index}`).value;
+            const fuelUsed = document.getElementById(`fuelUsed-${index}`).value;
+
+            if ((endOdo || totalKm) && fuelUsed) {
+                completed++;
+            }
+        });
+
+        const percentage = (completed / total) * 100;
+        document.getElementById('completed-count').textContent = completed;
+        document.getElementById('progress-fill').style.width = percentage + '%';
+    }
+
+    function submitReport() {
+        const submissionData = {
+            client: reportData.client,
+            reportType: document.getElementById('report-frequency').value,
+            periodEnding: document.getElementById('period-date').textContent,
+            submittedAt: new Date().toISOString(),
+            vehicles: [],
+            updates: [],
+            removals: [],
+            newVehicles: []
+        };
+
+        reportData.vehicles.forEach((v, index) => {
+            const update = document.getElementById(`update-${index}`).checked;
+            const remove = document.getElementById(`remove-${index}`).checked;
+            const notes = document.getElementById(`notes-${index}`).value;
+
+            const vehicleData = {
+                ...v,
+                endOdo: document.getElementById(`endOdo-${index}`).value || '',
+                totalKm: document.getElementById(`totalKm-${index}`).value || '',
+                fuelUsed: document.getElementById(`fuelUsed-${index}`).value || '',
+                notes: notes
+            };
+
+            submissionData.vehicles.push(vehicleData);
+
+            if (update) submissionData.updates.push({ reg: v.reg, notes });
+            if (remove) submissionData.removals.push({ reg: v.reg, notes });
+        });
+
+        for (let i = 0; i < newVehicleCounter; i++) {
+            const reg = document.getElementById(`new-reg-${i}`)?.value;
+            if (reg) {
+                submissionData.newVehicles.push({
+                    reg: reg,
+                    type: document.getElementById(`new-type-${i}`).value,
+                    make: document.getElementById(`new-make-${i}`).value,
+                    model: document.getElementById(`new-model-${i}`).value,
+                    year: document.getElementById(`new-year-${i}`).value,
+                    usedFor: document.getElementById(`new-used-${i}`).value,
+                    targetKmL: document.getElementById(`new-target-${i}`).value
+                });
+            }
+        }
+
+        const dataStr = JSON.stringify(submissionData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const type = submissionData.reportType.charAt(0).toUpperCase() + submissionData.reportType.slice(1);
+        const filename = `FleetData_${reportData.client.replace(/\s+/g, '_')}_${type}_${new Date().toISOString().split('T')[0]}.json`;
+        a.href = url;
+        a.download = filename;
+        a.click();
+
+        alert('✅ Report submitted successfully!\n\nFile: ' + filename + '\n\nPlease email this file to: reports@fleetintel.co.za');
+    }
+
+    function clearForm() {
+        if (confirm('Clear all entered data?')) {
+            location.reload();
+        }
+    }
+
+    window.onload = initForm;
+</script>
+</body>
+</html>
