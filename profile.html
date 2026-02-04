@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Client Profile</title>
@@ -44,9 +45,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const clientName = urlParams.get('client');
 
-        window.onload = () => {
-            const fleet = JSON.parse(localStorage.getItem('fleetHistory')) || [];
-            const archive = JSON.parse(localStorage.getItem('auditArchive')) || [];
+        window.onload = async () => {
+            const fleet = JSON.parse(await cloudStorage.getItem('fleetHistory')) || [];
+            const archive = JSON.parse(await cloudStorage.getItem('auditArchive')) || [];
             const client = fleet.find(c => c.name === clientName);
             if(!client) return;
 
@@ -74,12 +75,13 @@
             `).join('');
         };
 
-        function viewAudit(idx) {
-            const archive = JSON.parse(localStorage.getItem('auditArchive')) || [];
+       async function viewAudit(idx) {
+            const archive = JSON.parse(await cloudStorage.getItem('auditArchive')) || [];
             const clientAudits = archive.filter(a => a.client === clientName);
-            localStorage.setItem('lastAudit', JSON.stringify(clientAudits[idx]));
+            await cloudStorage.setItem('lastAudit', JSON.stringify(clientAudits[idx]));
             window.location.href = `reports.html?client=${encodeURIComponent(clientName)}`;
         }
     </script>
 </body>
+
 </html>
