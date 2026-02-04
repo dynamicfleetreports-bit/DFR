@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Fleet Report</title>
@@ -150,7 +151,7 @@
 </div>
 
 <script>
-function emailReport() {
+async function emailReport() {
     const client = document.getElementById('repClient').innerText;
     const period = document.getElementById('repPeriod').innerText;
     const subject = encodeURIComponent(`Custom Fleet Report - ${client} - ${period}`);
@@ -159,7 +160,7 @@ function emailReport() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const raw = localStorage.getItem('AUDIT_FINAL');
+    const raw = await cloudStorage.getItem('AUDIT_FINAL');
     if (!raw) {
         alert('No report data found. Please generate a custom report from the database page.');
         return;
@@ -472,4 +473,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
+
 </html>
