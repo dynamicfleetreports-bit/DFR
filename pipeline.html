@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script type="module" src="firebase-helper.js"></script>    
     <meta charset="UTF-8">
     <title>Fleet Intel | Prospect Pipeline</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -63,8 +64,8 @@
             }
         }
 
-        function renderPipeline() {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+      async  function renderPipeline() {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const pipeline = allClients.filter(c => c.status === 'prospect');
             
             const container = document.getElementById('pipeline-grid');
@@ -113,9 +114,9 @@
             `}).join('');
         }
 
-        function deleteProspect(id) {
+       async function deleteProspect(id) {
             if (confirm("Delete this prospect record? This will also delete it from Google Sheets and any audit data.")) {
-                let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+                let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
                 const prospect = clients.find(c => c.id == id);
                 
                 if(prospect) {
@@ -124,11 +125,11 @@
                     
                     // Delete audit draft
                     const draftKey = `AUDIT_DRAFT_${companyKey}`;
-                    localStorage.removeItem(draftKey);
+                    await cloudStorage.removeItem(draftKey);
                     
                     // Delete CSV mappings
-                    localStorage.removeItem(`CSV_MAPPING_${companyKey}_usage`);
-                    localStorage.removeItem(`CSV_MAPPING_${companyKey}_speed`);
+                    await cloudStorage.removeItem(`CSV_MAPPING_${companyKey}_usage`);
+                    await cloudStorage.removeItem(`CSV_MAPPING_${companyKey}_speed`);
                     
                     // Delete from Google Sheet
                     deleteFromSheet(companyName);
@@ -136,15 +137,15 @@
                 
                 // Remove from clients list
                 clients = clients.filter(c => c.id != id);
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
                 renderPipeline();
             }
         }
 
-        function convertToActive(id) {
+       async function convertToActive(id) {
             console.log('Converting prospect with ID/Company:', id);
             
-            let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             console.log('All clients:', clients);
             
             // Find client by ID or by company name
@@ -163,7 +164,7 @@
             
             // Load audit data to get fleet details
             const draftKey = 'AUDIT_DRAFT_' + companyKey;
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft = await cloudStorage.getItem(draftKey);
             let auditData = {};
             
             if (savedDraft) {
@@ -217,8 +218,8 @@
             
             console.log('Updated client:', clients[index]);
             
-            // Save to localStorage
-            localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+            // Save to await cloudStorage
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
             
             // Update Google Sheet status
             updateSheetStatus(companyName, 'Active')
@@ -302,4 +303,5 @@
         window.onload = renderPipeline;
     </script>
 </body>
+
 </html>
