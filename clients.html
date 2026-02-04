@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Database | Fleet Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -63,7 +64,7 @@
         // BACKUP FUNCTION - Save all clients to Google Drive
         async function backupAllClients() {
             try {
-                const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS') || '[]');
+                const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS') || '[]');
                 
                 if (allClients.length === 0) {
                     alert('⚠️ No clients to backup!\n\nPlease add some clients first.');
@@ -79,8 +80,8 @@
                     const auditKey = `AUDIT_FINAL_${client.id}`;
                     const historyKey = `AUDIT_HISTORY_${client.id}`;
                     
-                    const audit = localStorage.getItem(auditKey);
-                    const history = localStorage.getItem(historyKey);
+                    const audit = await cloudStorage.getItem(auditKey);
+                    const history = await cloudStorage.getItem(historyKey);
                     
                     if (audit) auditsData[client.id] = JSON.parse(audit);
                     if (history) historyData[client.id] = JSON.parse(history);
@@ -145,19 +146,19 @@
 
                     if (confirm(confirmMsg)) {
                         // Restore clients
-                        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
+                        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
                         
                         // Restore audit data
                         if (backupData.audits) {
                             Object.keys(backupData.audits).forEach(clientId => {
-                                localStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
+                                await cloudStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
                             });
                         }
                         
                         // Restore history data
                         if (backupData.history) {
                             Object.keys(backupData.history).forEach(clientId => {
-                                localStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
+                                await cloudStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
                             });
                         }
                         
@@ -174,7 +175,7 @@
         }
 
         // Keep the file upload restore as backup option
-        function restoreFromFile(event) {
+       async function restoreFromFile(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -194,19 +195,19 @@
                         `Continue?`;
 
                     if (confirm(confirmMsg)) {
-                        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
+                        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
                         
                         // Restore audit data if available
                         if (backupData.audits) {
                             Object.keys(backupData.audits).forEach(clientId => {
-                                localStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
+                                await cloudStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
                             });
                         }
                         
                         // Restore history data if available
                         if (backupData.history) {
                             Object.keys(backupData.history).forEach(clientId => {
-                                localStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
+                                await cloudStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
                             });
                         }
                         
@@ -247,8 +248,8 @@
             const container = document.getElementById('clientContainer');
             container.innerHTML = '<p class="text-white/20 font-black animate-pulse uppercase tracking-[0.3em]">Loading Clients...</p>';
 
-            // Load from localStorage
-            const localData = JSON.parse(localStorage.getItem('FLEET_CLIENTS') || '[]');
+            // Load from await cloudStorage
+            const localData = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS') || '[]');
             allClientsData = localData;
             renderCards(localData, currentFilter);
         }
@@ -290,11 +291,11 @@
             });
         }
 
-        function deleteClient(id) {
+       async function deleteClient(id) {
             if(confirm("Permanently delete this forensic record?")) {
-                let all = JSON.parse(localStorage.getItem('FLEET_CLIENTS') || '[]');
+                let all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS') || '[]');
                 all = all.filter(c => c.id != id);
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
                 location.reload();
             }
         }
@@ -302,4 +303,5 @@
         window.onload = loadClients;
     </script>
 </body>
+
 </html>
