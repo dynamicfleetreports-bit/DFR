@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Forensic Audit Engine</title>
@@ -221,7 +222,7 @@
         let activeMode = '';
         let currentClientName = '';
         let lastUploadTimestamp = { usage: 0, speed: 0 };
-	function initAudit() {
+	async function initAudit() {
     const urlParams = new URLSearchParams(window.location.search);
     const clientFromUrl = urlParams.get('client');
     
@@ -229,9 +230,9 @@
         const decodedClient = decodeURIComponent(clientFromUrl);
         currentClientName = decodedClient;
         document.getElementById('client-name').textContent = decodedClient.toUpperCase();
-        localStorage.setItem('currentAuditClient', decodedClient);
+        await cloudStorage.setItem('currentAuditClient', decodedClient);
         
-        const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+        const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const currentClient = allClients.find(c => c.company.toUpperCase() === decodedClient.toUpperCase());
         
         if(currentClient) {
@@ -244,24 +245,24 @@
             loadAuditDraft(decodedClient);
         }
     } else {
-        const savedCompany = localStorage.getItem('currentAuditClient');
+        const savedCompany = await cloudStorage.getItem('currentAuditClient');
         if(savedCompany) {
             currentClientName = savedCompany;
             document.getElementById('client-name').textContent = savedCompany.toUpperCase();
             loadAuditDraft(savedCompany);
         } else {
-            // No client in URL or localStorage - check if there are any drafts
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            // No client in URL or await cloudStorage - check if there are any drafts
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientsWithDrafts = allClients.filter(c => {
                 const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-                return localStorage.getItem(draftKey) !== null;
+                return await cloudStorage.getItem(draftKey) !== null;
             });
             
             if (clientsWithDrafts.length > 0) {
                 // Use the most recent one
                 currentClientName = clientsWithDrafts[0].company;
                 document.getElementById('client-name').textContent = currentClientName.toUpperCase();
-                localStorage.setItem('currentAuditClient', currentClientName);
+                await cloudStorage.setItem('currentAuditClient', currentClientName);
                 loadAuditDraft(currentClientName);
             }
         }
@@ -270,9 +271,9 @@
     console.log('Current client:', currentClientName); // Debug line
 }
             
-        function loadAuditDraft(clientName) {
+        async function loadAuditDraft(clientName) {
             const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft = await cloudStorage.getItem(draftKey);
             
             if(savedDraft) {
                 try {
@@ -302,7 +303,7 @@
             }
 	}
 
-       function autoSaveAuditDraft() {
+     async function autoSaveAuditDraft() {
     if(!currentClientName) return;
     
     const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
@@ -318,10 +319,10 @@
 		
     };
     
-    localStorage.setItem(draftKey, JSON.stringify(draft));
+    await cloudStorage.setItem(draftKey, JSON.stringify(draft));
     
     // Only set to in-progress if not already complete
-    let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
     if(clientIndex === -1 || allClients[clientIndex].auditStatus !== 'complete') {
         updateClientAuditStatus('in-progress');
@@ -340,14 +341,14 @@
             }, 2000);
         }
 
-        function updateClientAuditStatus(status) {
-            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+       async function updateClientAuditStatus(status) {
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
             
             if(clientIndex !== -1) {
                 allClients[clientIndex].auditStatus = status;
                 allClients[clientIndex].lastEditedDate = new Date().toISOString();
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
             }
         }
 
@@ -370,7 +371,7 @@
                 const opts = headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
                 
                 const mappingKey = 'CSV_MAPPING_' + currentClientName.toUpperCase().replace(/\s+/g, '_') + '_' + mode;
-                const savedMapping = localStorage.getItem(mappingKey);
+                const savedMapping = await cloudStorage.getItem(mappingKey);
                 
                 let regIdx = 0, valIdx = 1, dateIdx = -1, durationIdx = -1, maxSpeedIdx = -1;
                 
@@ -422,7 +423,7 @@
             reader.readAsText(input.files[0]);
         }
 
-     function commitMapping() {
+    async function commitMapping() {
     // Prevent duplicate processing within 2 seconds
     const now = Date.now();
     if (now - lastUploadTimestamp[activeMode] < 2000) {
@@ -443,7 +444,7 @@
     }
 
     const mappingKey = 'CSV_MAPPING_' + currentClientName.toUpperCase().replace(/\s+/g, '_') + '_' + activeMode;
-    localStorage.setItem(mappingKey, JSON.stringify({ 
+    await cloudStorage.setItem(mappingKey, JSON.stringify({ 
         reg: rIdx, 
         val: vIdx, 
         date: dIdx, 
@@ -781,8 +782,8 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     }
 }
 
-      function saveAuditResults() {
-    const companyName = localStorage.getItem('currentAuditClient');
+     async function saveAuditResults() {
+    const companyName = await cloudStorage.getItem('currentAuditClient');
     if(!companyName) {
         alert('No client selected for this audit');
         return;
@@ -849,7 +850,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
         sSpeedR += (speedLoss / wPrice) * rPrice;
     });
 
-    let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === companyName.toUpperCase());
     
     if(clientIndex !== -1) { 
@@ -883,10 +884,10 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
 
         // Save weekly history - use audit end date, not today's date
         const historyKey = `AUDIT_HISTORY_${allClients[clientIndex].id}`;
-        let history = JSON.parse(localStorage.getItem(historyKey)) || [];
+        let history = JSON.parse(await cloudStorage.getItem(historyKey)) || [];
 
         // Get audit end date from the audit period
-        const session = JSON.parse(localStorage.getItem('AUDIT_FINAL'));
+        const session = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
         const auditPeriod = session?.month || '';
         let auditEndDate = new Date();
 
@@ -920,8 +921,8 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
             history.push(newEntry);
         }
 
-        localStorage.setItem(historyKey, JSON.stringify(history));
-        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        await cloudStorage.setItem(historyKey, JSON.stringify(history));
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         autoSaveAuditDraft();
         
         alert('✅ Audit Complete!\n\nActual Fleet Size: ' + actualFleetSize + ' vehicles\nTotal Wholesale Loss: R ' + (sEffW + sSpeedW).toLocaleString() + '\nTotal Retail Loss: R ' + (sEffR + sSpeedR).toLocaleString() + '\n\nClient record updated. You can now convert to Active or run another audit.');
@@ -979,7 +980,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     });
     
     // Get client info and status
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const currentClient = allClients.find(c => c.company.toUpperCase() === companyName.toUpperCase());
     const clientTown = currentClient?.city || "Cape Town";
     const isActive = currentClient?.status === 'active' || false;
@@ -997,9 +998,9 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
         isActive: isActive
     };
     
-    // Save to localStorage so report-final.html can read it
-    localStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
-    console.log('📊 Report data saved to localStorage:', reportPayload);
+    // Save to await cloudStorage so report-final.html can read it
+    await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
+    console.log('📊 Report data saved to await cloudStorage:', reportPayload);
     console.log('🔑 Client status:', isActive ? 'ACTIVE' : 'PROSPECT');
     
     // Try to open the report in a new tab
@@ -1026,10 +1027,10 @@ setInterval(() => {
             auditPeriod: document.getElementById('audit-period').innerText,
             savedAt: new Date().toISOString()
         };
-        localStorage.setItem(draftKey, JSON.stringify(draft));
+        await cloudStorage.setItem(draftKey, JSON.stringify(draft));
         
         // Only set to in-progress if not already complete
-        let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+        let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
         if(clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
             updateClientAuditStatus('in-progress');
@@ -1040,3 +1041,4 @@ setInterval(() => {
 </script>
 </body>
 </html>
+
