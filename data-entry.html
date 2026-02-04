@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Manual Data Entry</title>
@@ -130,20 +131,20 @@
         let auditData = {};
         let currentClientName = '';
 
-        function loadData() {
+        async function loadData() {
             const urlParams = new URLSearchParams(window.location.search);
             const clientFromUrl = urlParams.get('client');
             
             if (clientFromUrl) {
                 currentClientName = decodeURIComponent(clientFromUrl);
             } else {
-                currentClientName = localStorage.getItem('currentAuditClient') || 'Unknown Client';
+                currentClientName =  await cloudStorage.getItem('currentAuditClient') || 'Unknown Client';
             }
 
             document.getElementById('client-name').textContent = currentClientName.toUpperCase();
 
             const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft =  await cloudStorage.getItem(draftKey);
 
             if (savedDraft) {
                 try {
@@ -317,31 +318,31 @@
             });
         }
 
-        function saveAndContinue() {
+       async function saveAndContinue() {
             const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft =  await cloudStorage.getItem(draftKey);
             
             if (savedDraft) {
                 const draft = JSON.parse(savedDraft);
                 draft.auditData = auditData;
                 draft.savedAt = new Date().toISOString();
-                localStorage.setItem(draftKey, JSON.stringify(draft));
+                 await cloudStorage.setItem(draftKey, JSON.stringify(draft));
             }
 
-            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let allClients = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
             
             if (clientIndex !== -1) {
                 allClients[clientIndex].auditStatus = 'in-progress';
                 allClients[clientIndex].lastEditedDate = new Date().toISOString();
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
             }
 
             alert('✅ Data saved successfully!');
             window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
         }
 
-        function autoFillForTesting() {
+       async function autoFillForTesting() {
             if (!confirm('Auto-fill all empty fields with test data?')) return;
 
             const makes = ['Volvo', 'Scania', 'MAN', 'Mercedes', 'Isuzu'];
@@ -377,13 +378,13 @@
 
         setInterval(() => {
             const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft =  await cloudStorage.getItem(draftKey);
             
             if (savedDraft) {
                 const draft = JSON.parse(savedDraft);
                 draft.auditData = auditData;
                 draft.savedAt = new Date().toISOString();
-                localStorage.setItem(draftKey, JSON.stringify(draft));
+                 await cloudStorage.setItem(draftKey, JSON.stringify(draft));
                 console.log('Auto-saved at', new Date().toLocaleTimeString());
             }
         }, 30000);
@@ -392,3 +393,4 @@
     </script>
 </body>
 </html>
+
