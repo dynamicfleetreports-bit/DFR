@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>New Intake | Forensic Fleet Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -102,9 +103,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('editId');
 
-        window.onload = () => {
+        window.onload = async () => {
             if (editId) {
-                const clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+                const clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
                 const p = clients.find(c => c.id == editId);
                 if (p) {
                     document.getElementById('pageTitle').innerHTML = "Edit <span class='text-emerald-400'>Intake</span>";
@@ -126,7 +127,7 @@
 
         document.getElementById('intakeForm').onsubmit = (e) => {
             e.preventDefault();
-            let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             
             const clientData = {
                 id: editId ? parseInt(editId) : Date.now(),
@@ -150,9 +151,10 @@
                 clients.push(clientData);
             }
 
-            localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
             window.location.href = 'index.html';
         };
     </script>
 </body>
+
 </html>
