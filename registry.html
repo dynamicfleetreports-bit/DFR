@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Client Onboarding | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -73,7 +74,7 @@
     </div>
 
     <script>
-        function saveClient() {
+       async function saveClient() {
             const clientData = {
                 name: document.getElementById('compName').value,
                 status: document.getElementById('compStatus').value,
@@ -90,9 +91,9 @@
 
             if(!clientData.name) return alert("Company Name is required.");
 
-            let registry = JSON.parse(localStorage.getItem('FLEET_REGISTRY')) || [];
+            let registry = JSON.parse(await cloudStorage.getItem('FLEET_REGISTRY')) || [];
             registry.push(clientData);
-            localStorage.setItem('FLEET_REGISTRY', JSON.stringify(registry));
+            await cloudStorage.setItem('FLEET_REGISTRY', JSON.stringify(registry));
             
             window.location.href = 'index.html';
         }
