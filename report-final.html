@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Efficiency Audit Report</title>
@@ -218,15 +219,15 @@
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        function emailReport() {
+       async function emailReport() {
             const client = document.getElementById('repClient').innerText;
             const subject = encodeURIComponent('Fleet Audit Report - ' + client);
             const body = encodeURIComponent('Please find attached the fleet audit report for ' + client + '.\n\nBest regards,\nDynamic Fleet Reporting');
             window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const raw = localStorage.getItem('AUDIT_FINAL');
+        document.addEventListener('DOMContentLoaded', async () => {
+            const raw = await cloudStorage.getItem('AUDIT_FINAL');
             if (!raw) {
                 alert('No audit data found. Please generate report from the audit page.');
                 return;
@@ -240,7 +241,7 @@
             const speedLimit = data.speedLimit || 80;
 
             // Get saved audit results from FLEET_CLIENTS
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientData = allClients.find(c => c.company === client.company);
             
             console.log('Client data:', clientData);
@@ -676,4 +677,5 @@
         });
     </script>
 </body>
+
 </html>
