@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Fleet Intel | Executive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -85,12 +86,12 @@
 
         function hardResetSystem() {
             if(confirm("DANGER: This wipes all clients and resets the system. Continue?")) {
-                localStorage.clear();
+                 await cloudStorage.clear();
                 location.reload();
             }
         }
 
-        function importFromSheet() {
+      async function importFromSheet() {
             document.getElementById('sync-status').innerText = "SYNCING...";
             const oldScript = document.getElementById('google-data-script');
             if (oldScript) oldScript.remove();
@@ -103,7 +104,7 @@
         window.handleResponse = function(response) {
             try {
                 const rows = response.table.rows;
-                let existingClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+                let existingClients = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
                 
                 let filteredClients = existingClients.filter(c => c.status === 'active');
                 let newProspects = [];
@@ -160,8 +161,8 @@
                     updateSheetStatus(prospect.company, 'Prospect');
                 });
 
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify([...filteredClients, ...newProspects]));
-                localStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify([...filteredClients, ...newProspects]));
+                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
                 
                 document.getElementById('sync-status').innerText = "SUCCESS";
                 setTimeout(() => {
@@ -213,11 +214,11 @@
             return managementTotal + vehicleTotal;
         }
 
-        function updateDisplay() {
-            const all = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+        async function updateDisplay() {
+            const all = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const p = all.filter(c => c.status === 'prospect');
             const a = all.filter(c => c.status === 'active');
-            const ts = localStorage.getItem('lastSyncTS') || 'NEVER';
+            const ts =  await cloudStorage.getItem('lastSyncTS') || 'NEVER';
 
             document.getElementById('count-prospects').innerText = p.length;
             document.getElementById('count-active').innerText = a.length;
@@ -231,4 +232,5 @@
         window.onload = updateDisplay;
     </script>
 </body>
+
 </html>
