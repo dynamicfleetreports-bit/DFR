@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Global System Settings | Fleet Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -72,21 +73,21 @@
     </div>
 
     <script>
-        window.onload = () => {
-            document.getElementById('globalFuel').value = localStorage.getItem('GLOBAL_FUEL') || '18.45';
-            document.getElementById('globalTarget').value = localStorage.getItem('GLOBAL_TARGET') || '2.2';
-            document.getElementById('globalSpeed').value = localStorage.getItem('GLOBAL_SPEED') || '85';
+    window.onload = async () => {
+    document.getElementById('globalFuel').value = await cloudStorage.getItem('GLOBAL_FUEL') || '18.45';
+    document.getElementById('globalTarget').value = await cloudStorage.getItem('GLOBAL_TARGET') || '2.2';
+    document.getElementById('globalSpeed').value = await cloudStorage.getItem('GLOBAL_SPEED') || '85';
             renderHistory();
         };
 
-        function saveSettings() {
-            const newPrice = document.getElementById('globalFuel').value;
-            const oldPrice = localStorage.getItem('GLOBAL_FUEL') || '0';
-            
-            // Only log if the price actually changed
-            if (newPrice !== oldPrice) {
-                const history = JSON.parse(localStorage.getItem('FUEL_HISTORY')) || [];
-                const change = oldPrice === '0' ? 'Initial' : (newPrice - oldPrice).toFixed(2);
+       async function saveSettings() {
+    const newPrice = document.getElementById('globalFuel').value;
+    const oldPrice = await cloudStorage.getItem('GLOBAL_FUEL') || '0';
+    
+    // Only log if the price actually changed
+    if (newPrice !== oldPrice) {
+        const history = JSON.parse(await cloudStorage.getItem('FUEL_HISTORY')) || [];
+        const change = oldPrice === '0' ? 'Initial' : (newPrice - oldPrice).toFixed(2);
                 
                 history.unshift({
                     date: new Date().toLocaleDateString('en-ZA', { year: 'numeric', month: 'short', day: 'numeric' }),
@@ -94,19 +95,19 @@
                     change: change > 0 ? `+${change}` : change
                 });
                 
-                localStorage.setItem('FUEL_HISTORY', JSON.stringify(history));
+                await cloudStorage.setItem('FUEL_HISTORY', JSON.stringify(history));
             }
 
-            localStorage.setItem('GLOBAL_FUEL', newPrice);
-            localStorage.setItem('GLOBAL_TARGET', document.getElementById('globalTarget').value);
-            localStorage.setItem('GLOBAL_SPEED', document.getElementById('globalSpeed').value);
+           await cloudStorage.setItem('GLOBAL_FUEL', newPrice);
+            await cloudStorage.setItem('GLOBAL_TARGET', document.getElementById('globalTarget').value);
+           await cloudStorage.setItem('GLOBAL_SPEED', document.getElementById('globalSpeed').value);
             
             renderHistory();
             alert("Global settings updated and price change logged.");
         }
 
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('FUEL_HISTORY')) || [];
+        async function renderHistory() {
+            const history = JSON.parse(await cloudStorage.getItem('FUEL_HISTORY')) || [];
             document.getElementById('historyBody').innerHTML = history.map(h => `
                 <tr class="border-b border-slate-800/50">
                     <td class="py-4 text-slate-500 font-black italic uppercase">${h.date}</td>
@@ -118,12 +119,13 @@
             `).join('');
         }
 
-        function clearHistory() {
+       async function clearHistory() {
             if(confirm("Wipe all historical price records?")) {
-                localStorage.removeItem('FUEL_HISTORY');
+                await cloudStorage.removeItem('FUEL_HISTORY');
                 renderHistory();
             }
         }
     </script>
 </body>
+
 </html>
