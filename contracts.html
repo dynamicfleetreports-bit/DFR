@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>SLA | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,8 +100,8 @@
     </div>
 
     <script>
-        window.onload = () => {
-            const data = JSON.parse(localStorage.getItem('AUDIT_FINAL'));
+        window.onload = async () => {
+            const data = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
             const now = new Date();
             document.getElementById('currentDate').innerText = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
             document.getElementById('docRef').innerText = `DFR-SLA-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -121,16 +122,17 @@
             }
         };
 
-        function signAgreement() {
-            const data = JSON.parse(localStorage.getItem('AUDIT_FINAL'));
+        async function signAgreement() {
+            const data = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
             document.getElementById('signText').innerHTML = `<span class="signature-font text-3xl text-blue-600 italic">${data ? data.client.contactName : 'Authorized Signatory'}</span>`;
             document.getElementById('signDate').innerHTML = `<span class="text-emerald-600 font-black">✓ EXECUTED: ${new Date().toLocaleString()}</span>`;
             
-            let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const idx = clients.findIndex(c => c.id === data.client.id);
-            if(idx !== -1) { clients[idx].status = 'active'; localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients)); }
+            if(idx !== -1) { clients[idx].status = 'active'; await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients)); }
             alert("Contract Executed Successfully.");
         }
     </script>
 </body>
+
 </html>
