@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Dynamic Fleet Reports | Active Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -146,11 +147,11 @@
         let currentZoom = { financial: '8w', performance: '8w' };
         let allWeeklyData = [];
 
-        window.onload = () => {
+        window.onload = async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const clientParam = urlParams.get('id') || urlParams.get('client');
             
-            const db = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            const db = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             currentClient = db.find(c => 
                 c.id === clientParam || 
                 (c.company || c.companyname) === decodeURIComponent(clientParam)
@@ -167,13 +168,13 @@
             initCharts();
         };
 
-        function generateWeeklyData() {
+       async function generateWeeklyData() {
             if(!currentClient || !currentClient.auditResults) {
                 return generateEmptyWeeks(4);
             }
             
             const results = currentClient.auditResults;
-            const session = JSON.parse(localStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
+            const session = JSON.parse(await cloudStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
             
             if(!session || !session.month) {
                 return generateEmptyWeeks(4);
@@ -571,15 +572,15 @@
             }
         }
 
-        function backupClient() {
+      async function backupClient() {
             if(!currentClient) {
                 alert('⚠️ No client data found!');
                 return;
             }
 
             try {
-                const auditData = JSON.parse(localStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
-                const historyData = JSON.parse(localStorage.getItem(`AUDIT_HISTORY_${currentClientID}`));
+                const auditData = JSON.parse(await cloudStorage.getItem(`AUDIT_FINAL_${currentClientID}`));
+                const historyData = JSON.parse(await cloudStorage.getItem(`AUDIT_HISTORY_${currentClientID}`));
                 
                 const backupData = {
                     timestamp: new Date().toISOString(),
@@ -614,7 +615,7 @@
             document.getElementById('restoreInput').click();
         }
 
-        function handleRestoreFile(event) {
+     async function handleRestoreFile(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -631,7 +632,7 @@
                if (confirm(confirmMsg)) {
 
     // Load all clients
-    let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
 
     // Ensure client ID exists
     if (!currentClientID && backupData.clientData?.id) {
@@ -648,14 +649,14 @@
     }
 
     // ✅ THIS LINE WAS BROKEN — NOW FIXED
-    localStorage.setItem(
+    await cloudStorage.setItem(
         'FLEET_CLIENTS',
         JSON.stringify(allClients)
     );
 
     // Restore audit data
     if (backupData.auditData) {
-        localStorage.setItem(
+        await cloudStorage.setItem(
             `AUDIT_FINAL_${currentClientID}`,
             JSON.stringify(backupData.auditData)
         );
@@ -663,7 +664,7 @@
 
     // Restore history
     if (backupData.historyData) {
-        localStorage.setItem(
+        await cloudStorage.setItem(
             `AUDIT_HISTORY_${currentClientID}`,
             JSON.stringify(backupData.historyData)
         );
@@ -683,4 +684,5 @@
         }
     </script>
 </body>
+
 </html>
