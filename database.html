@@ -582,31 +582,38 @@ function deleteFromSheet(companyName) {
             document.getElementById('editModal').style.display = 'flex';
         }
 
-      async function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
+   async function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 
-        document.getElementById('editForm').onsubmit = function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const index = allClients.findIndex(c => c.id === id);
-            
-            if (index !== -1) {
-                allClients[index] = {
-                    ...allClients[index],
-                    company: document.getElementById('editName').value,
-                    contactName: document.getElementById('editContact').value,
-                    email: document.getElementById('editEmail').value,
-                    fleetSize: parseInt(document.getElementById('editFleet').value),
-                    speedLimit: parseInt(document.getElementById('editSpeed').value),
-                    reportSchedule: document.getElementById('editSchedule').value
-                };
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                closeEditModal();
-                renderDatabase();
-            }
+document.getElementById('editForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editId').value;
+
+    // Safely parse the stored data
+    let data = await cloudStorage.getItem('FLEET_CLIENTS');
+    let allClients = JSON.parse(data || "[]");
+
+    const index = allClients.findIndex(c => c.id === id);
+
+    if (index !== -1) {
+        allClients[index] = {
+            ...allClients[index],
+            company: document.getElementById('editName').value,
+            contactName: document.getElementById('editContact').value,
+            email: document.getElementById('editEmail').value,
+            fleetSize: parseInt(document.getElementById('editFleet').value),
+            speedLimit: parseInt(document.getElementById('editSpeed').value),
+            reportSchedule: document.getElementById('editSchedule').value
         };
+
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        closeEditModal();
+        renderDatabase();
+    }
+};
+
+
 
       async function openNotes(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
@@ -1884,6 +1891,7 @@ console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
 
 
