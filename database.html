@@ -1828,9 +1828,11 @@ function closeSuccessModal() {
     URL.revokeObjectURL(url);
 }
 
-    // Just call directly
-    initVehicleDatabase();
-    renderDatabase();
+   // Wait for Firebase to initialize before running
+setTimeout(async () => {
+  await initVehicleDatabase();
+  await renderDatabase();
+}, 3000);
 	
 //Auto backup 
 let backupTimeout;  // <-- declare globally
@@ -1876,21 +1878,26 @@ async function scheduleBackup() {
   }, 30000); // 30 seconds
 }
 
-// Backup whenever cloudStorage changes
-const originalSetItem = cloudStorage.setItem;
-cloudStorage.setItem = async function(key, value) {
-  const result = await originalSetItem.apply(this, arguments);
-  if (key === 'FLEET_CLIENTS') {
-    autoBackup();
-  }
-  return result;
-};
-// Start auto-backup
-scheduleBackup();
-console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
+// Wait for Firebase to initialize, then set up auto-backup
+setTimeout(() => {
+  // Backup whenever cloudStorage changes
+  const originalSetItem = window.cloudStorage.setItem;
+  window.cloudStorage.setItem = async function(key, value) {
+    const result = await originalSetItem.apply(this, arguments);
+    if (key === 'FLEET_CLIENTS') {
+      autoBackup();
+    }
+    return result;
+  };
+  
+  // Start auto-backup
+  scheduleBackup();
+  console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
+}, 3000); // Wait 3 seconds for Firebase to load
 </script>
 </body>
 </html>
+
 
 
 
