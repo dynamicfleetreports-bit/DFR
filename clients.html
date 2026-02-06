@@ -103,7 +103,7 @@
                     appName: 'Fleet Intelligence System'
                 };
 
-                const response = await fetch('https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec', {
+                const response = fetch('https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec', {
                     method: 'POST',
                     body: JSON.stringify({
                         action: 'backup',
@@ -303,5 +303,6 @@
 </body>
 
 </html>
+
 
 
