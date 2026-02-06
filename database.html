@@ -1881,23 +1881,27 @@ async function scheduleBackup() {
 
 // Wait for Firebase to initialize, then set up auto-backup
 setTimeout(() => {
-  // Backup whenever cloudStorage changes
+  if (!window.cloudStorage) {
+    console.error('❌ cloudStorage not available');
+    return;
+  }
+  
   const originalSetItem = window.cloudStorage.setItem;
   window.cloudStorage.setItem = async function(key, value) {
-    const result = await originalSetItem.apply(this, arguments);
+    const result = await originalSetItem.call(this, key, value);
     if (key === 'FLEET_CLIENTS') {
       autoBackup();
     }
     return result;
   };
   
-  // Start auto-backup
   scheduleBackup();
-  console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
-}, 3000); // Wait 3 seconds for Firebase to load
+  console.log('🛡️ Auto-backup enabled');
+}, 3000);
 </script>
 </body>
 </html>
+
 
 
 
