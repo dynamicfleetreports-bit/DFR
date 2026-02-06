@@ -62,67 +62,75 @@
         let allClientsData = [];
 
         // BACKUP FUNCTION - Save all clients to Google Drive
-        async function backupAllClients() {
-            try {
-                const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS') || '[]');
-                
-                if (allClients.length === 0) {
-                    alert('⚠️ No clients to backup!\n\nPlease add some clients first.');
-                    return;
-                }
+  async function backupAllClients() {
+    try {
+        const data = await cloudStorage.getItem('FLEET_CLIENTS');
+        const allClients = JSON.parse(data || '[]');
 
-                // Collect audit data for each client
-                const auditsData = {};
-                const historyData = {};
-                let totalVehicles = 0;
+        if (allClients.length === 0) {
+            alert('⚠️ No clients to backup!\n\nPlease add some clients first.');
+            return;
+        }
 
-                allClients.forEach(client => {
-                    const auditKey = `AUDIT_FINAL_${client.id}`;
-                    const historyKey = `AUDIT_HISTORY_${client.id}`;
-                    const audit = await cloudStorage.getItem(auditKey);
-                    const history = await cloudStorage.getItem(historyKey);
-                    if (audit) auditsData[client.id] = JSON.parse(audit);
-                    if (history) historyData[client.id] = JSON.parse(history);
-                    
-                    // Count vehicles in fleet
-                    if (client.fleet && Array.isArray(client.fleet)) {
-                        totalVehicles += client.fleet.length;
-                    }
-                });
+        // Collect audit data for each client
+        const auditsData = {};
+        const historyData = {};
+        let totalVehicles = 0;
 
-                const backupData = {
-                    timestamp: new Date().toISOString(),
-                    totalClients: allClients.length,
-                    prospects: allClients.filter(c => c.status === 'prospect').length,
-                    active: allClients.filter(c => c.status === 'active').length,
-                    totalVehicles: totalVehicles,
-                    clients: allClients, // This includes the fleet array for each client
-                    audits: auditsData,
-                    history: historyData,
-                    version: '1.1',
-                    appName: 'Fleet Intelligence System'
-                };
+        for (const client of allClients) {
+            const auditKey = `AUDIT_FINAL_${client.id}`;
+            const historyKey = `AUDIT_HISTORY_${client.id}`;
 
-                const response = fetch('https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'backup',
-                        data: backupData
-                    })
-                });
+            const audit = await cloudStorage.getItem(auditKey);
+            const history = await cloudStorage.getItem(historyKey);
 
-                const result = response.json();
+            if (audit) auditsData[client.id] = JSON.parse(audit);
+            if (history) historyData[client.id] = JSON.parse(history);
 
-                if (result.success) {
-                    alert(`✅ Backup Complete!\n\n📊 Total Clients: ${backupData.totalClients}\n🟡 Prospects: ${backupData.prospects}\n🟢 Active: ${backupData.active}\n🚛 Total Vehicles: ${backupData.totalVehicles}\n\nFile saved to Google Drive:\n${result.fileName}`);
-                } else {
-                    alert('❌ Backup failed: ' + result.error);
-                }
-            } catch (err) {
-                alert('❌ Backup error: ' + err.message);
-                console.error('Backup error:', err);
+            // Count vehicles in fleet
+            if (client.fleet && Array.isArray(client.fleet)) {
+                totalVehicles += client.fleet.length;
             }
         }
+
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            totalClients: allClients.length,
+            prospects: allClients.filter(c => c.status === 'prospect').length,
+            active: allClients.filter(c => c.status === 'active').length,
+            totalVehicles: totalVehicles,
+            clients: allClients,
+            audits: auditsData,
+            history: historyData,
+            version: '1.1',
+            appName: 'Fleet Intelligence System'
+        };
+
+        const response = await fetch(
+            'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec',
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'backup',
+                    data: backupData
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`✅ Backup Complete!\n\n📊 Total Clients: ${backupData.totalClients}\n🟡 Prospects: ${backupData.prospects}\n🟢 Active: ${backupData.active}\n🚛 Total Vehicles: ${backupData.totalVehicles}\n\nFile saved to Google Drive:\n${result.fileName}`);
+        } else {
+            alert('❌ Backup failed: ' + result.error);
+        }
+    } catch (err) {
+        alert('❌ Backup error: ' + err.message);
+        console.error('Backup error:', err);
+    }
+}
+
+
 
         // RESTORE FUNCTION - Get latest backup from Google Drive
         async function restoreFromGoogleDrive() {
@@ -303,6 +311,7 @@
 </body>
 
 </html>
+
 
 
 
