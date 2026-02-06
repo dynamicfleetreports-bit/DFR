@@ -608,7 +608,7 @@ function deleteFromSheet(companyName) {
             }
         };
 
-        function openNotes(id) {
+      async function openNotes(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
@@ -1884,6 +1884,7 @@ console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
 
 
