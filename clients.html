@@ -176,25 +176,25 @@ async function restoreFromGoogleDrive() {
                     JSON.stringify(backupData.clients)
                 );
 
-                // Restore audit data
-                if (backupData.audits) {
-                    for (const clientId of Object.keys(backupData.audits)) {
-                        await cloudStorage.setItem(
-                            `AUDIT_FINAL_${clientId}`,
-                            JSON.stringify(backupData.audits[clientId])
-                        );
-                    }
-                }
+                // Restore audit data if available
+if (backupData.audits) {
+    for (const clientId of Object.keys(backupData.audits)) {
+        await cloudStorage.setItem(
+            `AUDIT_FINAL_${clientId}`,
+            JSON.stringify(backupData.audits[clientId])
+        );
+    }
+}
 
-                // Restore history data
-                if (backupData.history) {
-                    for (const clientId of Object.keys(backupData.history)) {
-                        await cloudStorage.setItem(
-                            `AUDIT_HISTORY_${clientId}`,
-                            JSON.stringify(backupData.history[clientId])
-                        );
-                    }
-                }
+// Restore history data if available
+if (backupData.history) {
+    for (const clientId of Object.keys(backupData.history)) {
+        await cloudStorage.setItem(
+            `AUDIT_HISTORY_${clientId}`,
+            JSON.stringify(backupData.history[clientId])
+        );
+    }
+}
 
                 alert(
                     `✅ Restore Complete!\n\n${backupData.totalClients} clients restored with full audit data.`
@@ -343,6 +343,7 @@ async function restoreFromGoogleDrive() {
 </body>
 
 </html>
+
 
 
 
