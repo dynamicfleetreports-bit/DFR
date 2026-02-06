@@ -84,7 +84,7 @@
         const GID = '1809947636'; // Form_Responses2 tab
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyplZ3ID9E4v-J1WS55n_obOKBWJVQkwQzD3XYvXzpkNVz5AUy5FsVti8o2AIEQTgo/exec'
 
-        function hardResetSystem() {
+        async function hardResetSystem() {
             if(confirm("DANGER: This wipes all clients and resets the system. Continue?")) {
                  await cloudStorage.clear();
                 location.reload();
@@ -234,3 +234,4 @@
 </body>
 
 </html>
+
