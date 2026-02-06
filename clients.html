@@ -79,7 +79,6 @@
                 allClients.forEach(client => {
                     const auditKey = `AUDIT_FINAL_${client.id}`;
                     const historyKey = `AUDIT_HISTORY_${client.id}`;
-                    
                     const audit = await cloudStorage.getItem(auditKey);
                     const history = await cloudStorage.getItem(historyKey);
                     if (audit) auditsData[client.id] = JSON.parse(audit);
@@ -304,4 +303,5 @@
 </body>
 
 </html>
+
 
