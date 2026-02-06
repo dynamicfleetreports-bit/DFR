@@ -321,8 +321,8 @@
 	        let currentFilter = 'all';
         const BACKUP_URL = 'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec';
 
-        function initVehicleDatabase() {
-            const savedDB = localStorage.getItem('VEHICLE_SPECS_DB');
+       async function initVehicleDatabase() {
+            const savedDB = await cloudStorage.getItem('VEHICLE_SPECS_DB');
             if (!savedDB) {
                 const defaultDB = {
                     'Volvo FH440': { targetKmL: 2.3, type: 'Heavy', category: 'Long Distance' },
@@ -338,7 +338,7 @@
                     'Hino 500': { targetKmL: 3.6, type: 'Medium', category: 'Local Full' },
                     'UD Quon': { targetKmL: 2.4, type: 'Heavy', category: 'Long Distance' }
                 };
-                localStorage.setItem('VEHICLE_SPECS_DB', JSON.stringify(defaultDB));
+                await cloudStorage.setItem('VEHICLE_SPECS_DB', JSON.stringify(defaultDB));
             }
         }
 
@@ -371,8 +371,8 @@
             return 'monthly';
         }
 
-        function renderDatabase() {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+       async function renderDatabase() {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
 			console.log('Clients in storage:', allClients);
             const active = allClients.filter(c => c.status === 'active');
             const container = document.getElementById('database-grid');
@@ -490,9 +490,9 @@
         }).join('');
     }
 	
-function deleteClient(id) {
+async function deleteClient(id) {
     if (confirm("⚠️ Delete this active client?\n\nThis will:\n• Remove from database\n• Delete from Google Sheet\n• Remove all fleet data\n\nThis cannot be undone!")) {
-        let clients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+        let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const client = clients.find(c => c.id == id);
         
         if(client) {
@@ -501,7 +501,7 @@ function deleteClient(id) {
         }
         
         clients = clients.filter(c => c.id != id);
-        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
         renderDatabase();
     }
 }
@@ -567,8 +567,8 @@ function deleteFromSheet(companyName) {
             renderDatabase();
         }
 
-        function openEdit(id) {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+      async function openEdit(id) {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
             
@@ -582,14 +582,14 @@ function deleteFromSheet(companyName) {
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        function closeEditModal() {
+       async function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
 
         document.getElementById('editForm').onsubmit = function(e) {
             e.preventDefault();
             const id = document.getElementById('editId').value;
-            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === id);
             
             if (index !== -1) {
@@ -602,14 +602,14 @@ function deleteFromSheet(companyName) {
                     speedLimit: parseInt(document.getElementById('editSpeed').value),
                     reportSchedule: document.getElementById('editSchedule').value
                 };
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
                 closeEditModal();
                 renderDatabase();
             }
         };
 
         function openNotes(id) {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
             
@@ -622,21 +622,21 @@ function deleteFromSheet(companyName) {
             document.getElementById('notesModal').style.display = 'none';
         }
 
-        function saveNotes() {
+       async function saveNotes() {
             const id = document.getElementById('notesId').value;
-            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === id);
             
             if (index !== -1) {
                 allClients[index].notes = document.getElementById('notesText').value;
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
                 closeNotesModal();
                 renderDatabase();
             }
         }
 
-       function viewHistory(id) {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+     async function viewHistory(id) {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
             
@@ -668,8 +668,8 @@ function deleteFromSheet(companyName) {
 	 // Fleet Management Functions
         let currentFleetData = [];
         
-        function manageFleet(clientId) {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+       async function manageFleet(clientId) {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
             if (!client) return;
             
@@ -683,8 +683,8 @@ function deleteFromSheet(companyName) {
             document.getElementById('fleetModal').style.display = 'flex';
         }
         
-function openCustomReport(clientId) {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+async function openCustomReport(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
     
     if (!client) {
@@ -694,7 +694,7 @@ function openCustomReport(clientId) {
     
     // Check for audit data
     const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-    const savedDraft = localStorage.getItem(draftKey);
+    const savedDraft = await cloudStorage.getItem(draftKey);
     
     if (!savedDraft) {
         alert('⚠️ No audit data found!\n\nPlease run an audit first by clicking "📊 View/Run Audit".');
@@ -750,7 +750,7 @@ function toggleAllVehicles() {
     });
 }
 
-function generateCustomReport() {
+async function generateCustomReport() {
     const clientId = document.getElementById('reportClientId').value;
     const startDate = document.getElementById('reportStartDate').value;
     const endDate = document.getElementById('reportEndDate').value;
@@ -758,7 +758,7 @@ function generateCustomReport() {
     const format = document.getElementById('reportFormat').value;
     
     // Get client
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
     
     if (!client) {
@@ -777,7 +777,7 @@ function generateCustomReport() {
     
     // Load audit data
     const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-    const draft = JSON.parse(localStorage.getItem(draftKey));
+    const draft = JSON.parse(await cloudStorage.getItem(draftKey));
     
     if (!draft || !draft.auditData) {
         alert('⚠️ No audit data found. Please run an audit first.');
@@ -839,8 +839,8 @@ function generateCustomReport() {
         }
     };
     
-    // Save to localStorage
-    localStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
+    // Save to await cloudStorage
+    await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
     
     console.log('📊 Custom report generated:', reportPayload);
     console.log('🚗 Filtered to', selectedVehicleKeys.length, 'of', Object.keys(fullAuditData).length, 'vehicles');
@@ -979,9 +979,9 @@ function generateCustomReport() {
             }
         }
         
-        function saveFleet() {
+      async function saveFleet() {
             const clientId = document.getElementById('fleetClientId').value;
-            let allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === clientId);
             
             if (index !== -1) {
@@ -994,7 +994,7 @@ function generateCustomReport() {
                 
                 allClients[index].fleet = validVehicles;
                 allClients[index].fleetSize = validVehicles.length;
-                localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
                 
                 closeFleetModal();
                 renderDatabase();
@@ -1002,8 +1002,8 @@ function generateCustomReport() {
             }
         }
 
-        function syncFromAudit(clientId) {
-            const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+      async function syncFromAudit(clientId) {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
             
             if (!client) {
@@ -1012,7 +1012,7 @@ function generateCustomReport() {
             }
             
             const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = localStorage.getItem(draftKey);
+            const savedDraft = await cloudStorage.getItem(draftKey);
             
             if (!savedDraft) {
                 alert('⚠️ No audit data found for this client.\n\nPlease ensure an audit has been completed first, or use "🚛 Manage Fleet" to add vehicles manually.');
@@ -1044,7 +1044,7 @@ function generateCustomReport() {
                 if (index !== -1) {
                     allClients[index].fleet = fleet;
                     allClients[index].fleetSize = fleet.length;
-                    localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
                     
                     alert(`✅ Fleet synced successfully!\n\n${fleet.length} vehicle${fleet.length !== 1 ? 's' : ''} imported from audit data.\n\nYou can now generate weekly forms.`);
                     renderDatabase();
@@ -1055,8 +1055,8 @@ function generateCustomReport() {
             }
         }
     
-	function getFleetForClient(clientId) {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+	async function getFleetForClient(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
 
     if (!client) {
@@ -1070,7 +1070,7 @@ function generateCustomReport() {
     if (!fleet || fleet.length === 0) {
         const companyName = client.company || '';
         const draftKey = 'AUDIT_DRAFT_' + companyName.toUpperCase().replace(/\s+/g, '_');
-        const savedDraft = localStorage.getItem(draftKey);
+        const savedDraft = await cloudStorage.getItem(draftKey);
 
         if (savedDraft) {
             try {
@@ -1093,7 +1093,7 @@ function generateCustomReport() {
                     const index = allClients.findIndex(c => c.id === clientId);
                     if (index !== -1) {
                         allClients[index].fleet = fleet;
-                        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
                     }
                 }
             } catch (e) {
@@ -1118,8 +1118,8 @@ function generateCustomReport() {
     return fleet;
 }
 	
-	function generateWeeklyForm(clientId) {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+async function generateWeeklyForm(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
 
     if (!client) {
@@ -1738,7 +1738,7 @@ function generateCustomReport() {
     URL.revokeObjectURL(url);
     
     // Update client history
-    let allClientsUpdated = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+    let allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const index = allClientsUpdated.findIndex(c => c.id === clientId);
     if (index !== -1) {
         allClientsUpdated[index].lastReportSent = new Date().toISOString();
@@ -1751,7 +1751,7 @@ function generateCustomReport() {
             generated: true,
             vehicles: fleet.length
         });
-        localStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
         console.log('Updated client history:', allClientsUpdated[index].reportHistory);
     }
 }
@@ -1766,8 +1766,8 @@ function closeSuccessModal() {
     document.getElementById('successModal').style.display = 'none';
     renderDatabase();
 }
-  function sendReminder(clientId) {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+ async function sendReminder(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
     
     if (!client) return;
@@ -1777,8 +1777,8 @@ function closeSuccessModal() {
     
     window.location.href = `mailto:${client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
-function sendWeeklyReminders() {
-        const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+ async function sendWeeklyReminders() {
+        const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const weekly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'weekly' && getDaysUntilDue(c) <= 2);
         
         if (weekly.length === 0) {
@@ -1789,8 +1789,8 @@ function sendWeeklyReminders() {
         alert(`📅 ${weekly.length} weekly report${weekly.length > 1 ? 's' : ''} due:\n\n${weekly.map(c => c.company).join('\n')}\n\nGenerate forms and email to clients!`);
     }
 
-  function sendMonthlyReminders() {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+ async function sendMonthlyReminders() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const monthly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'monthly' && getDaysUntilDue(c) <= 7);
     
     if (monthly.length === 0) {
@@ -1801,8 +1801,8 @@ function sendWeeklyReminders() {
     alert('📆 ' + monthly.length + ' monthly report' + (monthly.length > 1 ? 's' : '') + ' due:\n\n' + monthly.map(c => c.company).join('\n') + '\n\nGenerate forms and email to clients!');
 }
 
-     function exportDatabase() {
-    const allClients = JSON.parse(localStorage.getItem('FLEET_CLIENTS')) || [];
+  async  function exportDatabase() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const active = allClients.filter(c => c.status === 'active');
     
     let csv = 'Company,Contact,Email,Fleet Size,Schedule,Next Due,Days Until Due\n';
@@ -1828,8 +1828,8 @@ function sendWeeklyReminders() {
 //Auto backup 
 let backupTimeout;  // <-- declare globally
 
-function autoBackup() {
-  const data = localStorage.getItem('FLEET_CLIENTS');
+async function autoBackup() {
+  const data = await cloudStorage.getItem('FLEET_CLIENTS');
   if (!data) return;
 
   const PROXY_BACKUP_URL = "http://localhost:3000/backup";
@@ -1861,7 +1861,7 @@ function autoBackup() {
 }
 
 // Schedule backups every 30 seconds
-function scheduleBackup() {
+async function scheduleBackup() {
   clearTimeout(backupTimeout);
   backupTimeout = setTimeout(() => {
     autoBackup();
@@ -1869,9 +1869,9 @@ function scheduleBackup() {
   }, 30000); // 30 seconds
 }
 
-// Backup whenever localStorage changes
-const originalSetItem = localStorage.setItem;
-localStorage.setItem = function(key, value) {
+// Backup whenever await cloudStorage changes
+const originalSetItem = await cloudStorage.setItem;
+await cloudStorage.setItem = function(key, value) {
   originalSetItem.apply(this, arguments);
   if (key === 'FLEET_CLIENTS') {
     autoBackup();
@@ -1884,4 +1884,5 @@ console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
