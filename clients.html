@@ -111,7 +111,7 @@
                     })
                 });
 
-                const result = await response.json();
+                const result = response.json();
 
                 if (result.success) {
                     alert(`✅ Backup Complete!\n\n📊 Total Clients: ${backupData.totalClients}\n🟡 Prospects: ${backupData.prospects}\n🟢 Active: ${backupData.active}\n🚛 Total Vehicles: ${backupData.totalVehicles}\n\nFile saved to Google Drive:\n${result.fileName}`);
@@ -303,6 +303,7 @@
 </body>
 
 </html>
+
 
 
 
