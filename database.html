@@ -1828,10 +1828,23 @@ function closeSuccessModal() {
     URL.revokeObjectURL(url);
 }
 
-   // Wait for Firebase to initialize before running
+ // Wait for Firebase to initialize before running
 setTimeout(async () => {
   await initVehicleDatabase();
   await renderDatabase();
+}, 3000);
+  
+  const originalSetItem = window.cloudStorage.setItem;
+  window.cloudStorage.setItem = async function(key, value) {
+    const result = await originalSetItem.call(this, key, value);
+    if (key === 'FLEET_CLIENTS') {
+      autoBackup();
+    }
+    return result;
+  };
+  
+  scheduleBackup();
+  console.log('🛡️ Auto-backup enabled');
 }, 3000);
 	
 //Auto backup 
@@ -1897,6 +1910,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
