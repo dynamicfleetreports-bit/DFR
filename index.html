@@ -101,7 +101,7 @@
             document.body.appendChild(script);
         }
 
-        window.handleResponse = function(response) {
+        window.handleResponse = async function(response) {
             try {
                 const rows = response.table.rows;
                 let existingClients = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
@@ -234,4 +234,5 @@
 </body>
 
 </html>
+
 
