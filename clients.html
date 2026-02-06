@@ -143,10 +143,6 @@ async function backupAllClients() {
     }
 }
 
-
-
-
-
         // RESTORE FUNCTION - Get latest backup from Google Drive
 async function restoreFromGoogleDrive() {
     try {
@@ -218,7 +214,7 @@ if (backupData.history) {
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const backupData = JSON.parse(e.target.result);
                     
@@ -351,6 +347,7 @@ if (backupData.history) {
 </body>
 
 </html>
+
 
 
 
