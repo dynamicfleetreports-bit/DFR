@@ -148,52 +148,69 @@ async function backupAllClients() {
 
 
         // RESTORE FUNCTION - Get latest backup from Google Drive
-        async function restoreFromGoogleDrive() {
-            try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec?action=restore');
-                
-                const result = await response.json();
+async function restoreFromGoogleDrive() {
+    try {
+        const response = await fetch(
+            'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec?action=restore'
+        );
 
-                if (result.success && result.latestBackup) {
-                    const backupData = result.latestBackup.data;
-                    
-                    const confirmMsg = `🔄 Restore Backup from Google Drive?\n\n` +
-                        `📅 Created: ${new Date(result.latestBackup.date).toLocaleString()}\n` +
-                        `📊 Total Clients: ${backupData.totalClients}\n` +
-                        `🟡 Prospects: ${backupData.prospects}\n` +
-                        `🟢 Active: ${backupData.active}\n\n` +
-                        `⚠️ WARNING: This will replace all current client data!\n\n` +
-                        `Continue?`;
+        const result = await response.json();
 
-                    if (confirm(confirmMsg)) {
-                        // Restore clients
-                        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
-                        
-                        // Restore audit data
-                        if (backupData.audits) {
-                            Object.keys(backupData.audits).forEach(clientId => {
-                                await cloudStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
-                            });
-                        }
-                        
-                        // Restore history data
-                        if (backupData.history) {
-                            Object.keys(backupData.history).forEach(clientId => {
-                                await cloudStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
-                            });
-                        }
-                        
-                        alert(`✅ Restore Complete!\n\n${backupData.totalClients} clients restored with full audit data.`);
-                        location.reload();
+        if (result.success && result.latestBackup) {
+            const backupData = result.latestBackup.data;
+
+            const confirmMsg =
+                `🔄 Restore Backup from Google Drive?\n\n` +
+                `📅 Created: ${new Date(result.latestBackup.date).toLocaleString()}\n` +
+                `📊 Total Clients: ${backupData.totalClients}\n` +
+                `🟡 Prospects: ${backupData.prospects}\n` +
+                `🟢 Active: ${backupData.active}\n\n` +
+                `⚠️ WARNING: This will replace all current client data!\n\n` +
+                `Continue?`;
+
+            if (confirm(confirmMsg)) {
+
+                // Restore clients
+                await cloudStorage.setItem(
+                    'FLEET_CLIENTS',
+                    JSON.stringify(backupData.clients)
+                );
+
+                // Restore audit data
+                if (backupData.audits) {
+                    for (const clientId of Object.keys(backupData.audits)) {
+                        await cloudStorage.setItem(
+                            `AUDIT_FINAL_${clientId}`,
+                            JSON.stringify(backupData.audits[clientId])
+                        );
                     }
-                } else {
-                    alert('❌ Restore failed: ' + (result.error || 'No backups found'));
                 }
-            } catch (err) {
-                alert('❌ Restore error: ' + err.message);
-                console.error('Restore error:', err);
+
+                // Restore history data
+                if (backupData.history) {
+                    for (const clientId of Object.keys(backupData.history)) {
+                        await cloudStorage.setItem(
+                            `AUDIT_HISTORY_${clientId}`,
+                            JSON.stringify(backupData.history[clientId])
+                        );
+                    }
+                }
+
+                alert(
+                    `✅ Restore Complete!\n\n${backupData.totalClients} clients restored with full audit data.`
+                );
+
+                location.reload();
             }
+        } else {
+            alert('❌ Restore failed: ' + (result.error || 'No backups found'));
         }
+    } catch (err) {
+        alert('❌ Restore error: ' + err.message);
+        console.error('Restore error:', err);
+    }
+}
+
 
         // Keep the file upload restore as backup option
        async function restoreFromFile(event) {
@@ -326,6 +343,7 @@ async function backupAllClients() {
 </body>
 
 </html>
+
 
 
 
