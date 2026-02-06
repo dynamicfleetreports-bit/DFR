@@ -235,19 +235,27 @@ if (backupData.history) {
                     if (confirm(confirmMsg)) {
                         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(backupData.clients));
                         
-                        // Restore audit data if available
-                        if (backupData.audits) {
-                            Object.keys(backupData.audits).forEach(clientId => {
-                                await cloudStorage.setItem(`AUDIT_FINAL_${clientId}`, JSON.stringify(backupData.audits[clientId]));
-                            });
-                        }
-                        
-                        // Restore history data if available
-                        if (backupData.history) {
-                            Object.keys(backupData.history).forEach(clientId => {
-                                await cloudStorage.setItem(`AUDIT_HISTORY_${clientId}`, JSON.stringify(backupData.history[clientId]));
-                            });
-                        }
+                    // Restore audit data if available
+if (backupData.audits) {
+    for (const clientId of Object.keys(backupData.audits)) {
+        await cloudStorage.setItem(
+            `AUDIT_FINAL_${clientId}`,
+            JSON.stringify(backupData.audits[clientId])
+        );
+    }
+}
+
+// Restore history data if available
+if (backupData.history) {
+    for (const clientId of Object.keys(backupData.history)) {
+        await cloudStorage.setItem(
+            `AUDIT_HISTORY_${clientId}`,
+            JSON.stringify(backupData.history[clientId])
+        );
+    }
+}
+
+
                         
                         alert(`✅ Restore Complete!\n\n${backupData.totalClients} clients restored.`);
                         location.reload();
@@ -343,6 +351,7 @@ if (backupData.history) {
 </body>
 
 </html>
+
 
 
 
