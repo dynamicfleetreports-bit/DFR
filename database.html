@@ -589,7 +589,7 @@ function deleteFromSheet(companyName) {
         document.getElementById('editForm').onsubmit = function(e) {
             e.preventDefault();
             const id = document.getElementById('editId').value;
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || []);
             const index = allClients.findIndex(c => c.id === id);
             
             if (index !== -1) {
@@ -1884,6 +1884,7 @@ console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
 
 
