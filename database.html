@@ -1876,21 +1876,22 @@ async function scheduleBackup() {
   }, 30000); // 30 seconds
 }
 
-// Backup whenever await cloudStorage changes
-const originalSetItem = await cloudStorage.setItem;
-await cloudStorage.setItem = function(key, value) {
-  originalSetItem.apply(this, arguments);
+// Backup whenever cloudStorage changes
+const originalSetItem = cloudStorage.setItem;
+cloudStorage.setItem = async function(key, value) {
+  const result = await originalSetItem.apply(this, arguments);
   if (key === 'FLEET_CLIENTS') {
     autoBackup();
   }
+  return result;
 };
-
 // Start auto-backup
 scheduleBackup();
 console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
 
 
