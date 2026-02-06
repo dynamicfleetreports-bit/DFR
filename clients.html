@@ -62,8 +62,9 @@
         let allClientsData = [];
 
         // BACKUP FUNCTION - Save all clients to Google Drive
-  async function backupAllClients() {
+async function backupAllClients() {
     try {
+        // Load all clients
         const data = await cloudStorage.getItem('FLEET_CLIENTS');
         const allClients = JSON.parse(data || '[]');
 
@@ -72,11 +73,12 @@
             return;
         }
 
-        // Collect audit data for each client
+        // Prepare backup containers
         const auditsData = {};
         const historyData = {};
         let totalVehicles = 0;
 
+        // Loop through each client
         for (const client of allClients) {
             const auditKey = `AUDIT_FINAL_${client.id}`;
             const historyKey = `AUDIT_HISTORY_${client.id}`;
@@ -87,12 +89,13 @@
             if (audit) auditsData[client.id] = JSON.parse(audit);
             if (history) historyData[client.id] = JSON.parse(history);
 
-            // Count vehicles in fleet
+            // Count vehicles
             if (client.fleet && Array.isArray(client.fleet)) {
                 totalVehicles += client.fleet.length;
             }
         }
 
+        // Build final backup object
         const backupData = {
             timestamp: new Date().toISOString(),
             totalClients: allClients.length,
@@ -106,6 +109,7 @@
             appName: 'Fleet Intelligence System'
         };
 
+        // Send to Google Apps Script
         const response = await fetch(
             'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec',
             {
@@ -119,16 +123,27 @@
 
         const result = await response.json();
 
+        // Handle result
         if (result.success) {
-            alert(`✅ Backup Complete!\n\n📊 Total Clients: ${backupData.totalClients}\n🟡 Prospects: ${backupData.prospects}\n🟢 Active: ${backupData.active}\n🚛 Total Vehicles: ${backupData.totalVehicles}\n\nFile saved to Google Drive:\n${result.fileName}`);
+            alert(
+                `✅ Backup Complete!\n\n` +
+                `📊 Total Clients: ${backupData.totalClients}\n` +
+                `🟡 Prospects: ${backupData.prospects}\n` +
+                `🟢 Active: ${backupData.active}\n` +
+                `🚛 Total Vehicles: ${backupData.totalVehicles}\n\n` +
+                `File saved to Google Drive:\n${result.fileName}`
+            );
         } else {
             alert('❌ Backup failed: ' + result.error);
         }
+
     } catch (err) {
         alert('❌ Backup error: ' + err.message);
         console.error('Backup error:', err);
     }
 }
+
+
 
 
 
@@ -311,6 +326,7 @@
 </body>
 
 </html>
+
 
 
 
