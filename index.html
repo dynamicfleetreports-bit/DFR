@@ -104,7 +104,7 @@
         window.handleResponse = async function(response) {
             try {
                 const rows = response.table.rows;
-                let existingClients = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+                let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
                 
                 let filteredClients = existingClients.filter(c => c.status === 'active');
                 let newProspects = [];
@@ -234,5 +234,6 @@
 </body>
 
 </html>
+
 
 
