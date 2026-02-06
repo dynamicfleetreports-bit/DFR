@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Migration Tool</title>
+    <script type="module" src="firebase-helper.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { color: #0f0; text-transform: uppercase; }
+        textarea {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            text-transform: uppercase;
+        }
+        button:hover { background: #0a0; }
+        #status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border: 1px solid #0f0;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Firebase Data Migration Tool</h1>
+    <p>Paste your localStorage data below (the JSON you copied from console):</p>
+    
+    <textarea id="dataInput" placeholder='Paste the JSON here...'></textarea>
+    
+    <button onclick="migrateData()">🚀 Migrate to Firebase</button>
+    
+    <div id="status">Waiting for data...</div>
+
+    <script type="module">
+        // Wait for Firebase to initialize
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        window.migrateData = async function() {
+            const statusDiv = document.getElementById('status');
+            const input = document.getElementById('dataInput').value.trim();
+            
+            if (!input) {
+                statusDiv.innerText = '❌ Error: Please paste your localStorage data first!';
+                return;
+            }
+            
+            try {
+                statusDiv.innerText = '🔄 Parsing data...\n';
+                const localStorageData = JSON.parse(input);
+                
+                statusDiv.innerText += `✅ Found ${Object.keys(localStorageData).length} items in localStorage\n\n`;
+                statusDiv.innerText += '🔄 Migrating to Firebase...\n';
+                
+                let migrated = 0;
+                let skipped = 0;
+                
+                for (const [key, value] of Object.entries(localStorageData)) {
+                    try {
+                        // Skip certain keys that don't need migration
+                        if (key.startsWith('_') || key === 'debug') {
+                            skipped++;
+                            continue;
+                        }
+                        
+                        await window.cloudStorage.setItem(key, value);
+                        statusDiv.innerText += `  ✅ ${key}\n`;
+                        migrated++;
+                        
+                        // Small delay to avoid rate limits
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                    } catch (error) {
+                        statusDiv.innerText += `  ❌ ${key} - Error: ${error.message}\n`;
+                    }
+                }
+                
+                statusDiv.innerText += `\n✅ MIGRATION COMPLETE!\n`;
+                statusDiv.innerText += `   Migrated: ${migrated}\n`;
+                statusDiv.innerText += `   Skipped: ${skipped}\n\n`;
+                statusDiv.innerText += `🎉 Your data is now in Firebase!\n`;
+                statusDiv.innerText += `You can now use your app at:\n`;
+                statusDiv.innerText += `https://dynamicfleetreports-bit.github.io/DFR/database.html`;
+                
+            } catch (error) {
+                statusDiv.innerText = `❌ Error: ${error.message}\n\nMake sure you pasted valid JSON.`;
+                console.error('Migration error:', error);
+            }
+        };
+    </script>
+</body>
+</html>
