@@ -82,7 +82,6 @@
                     
                     const audit = await cloudStorage.getItem(auditKey);
                     const history = await cloudStorage.getItem(historyKey);
-                    
                     if (audit) auditsData[client.id] = JSON.parse(audit);
                     if (history) historyData[client.id] = JSON.parse(history);
                     
@@ -305,3 +304,4 @@
 </body>
 
 </html>
+
