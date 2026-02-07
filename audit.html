@@ -967,11 +967,26 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
         await cloudStorage.setItem(historyKey, JSON.stringify(history));
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         autoSaveAuditDraft();
-        
-        alert('✅ Audit Complete!\n\nActual Fleet Size: ' + actualFleetSize + ' vehicles\nTotal Wholesale Loss: R ' + (sEffW + sSpeedW).toLocaleString() + '\nTotal Retail Loss: R ' + (sEffR + sSpeedR).toLocaleString() + '\n\nClient record updated. You can now convert to Active or run another audit.');
+
+		let toastType = '';
+let finalMessage = '';
+
+if (allClients[clientIndex].status === 'active') {
+    toastType = 'active';
+    finalMessage = 'This client is already ACTIVE. Audit results saved successfully.';
+} else {
+    toastType = 'prospect';
+    finalMessage = 'Client record updated. You can now convert this client to ACTIVE.';
+}
+
+showAuditToast(
+    toastType,
+    'Audit Complete!',
+    `Fleet Size: ${actualFleetSize} vehicles • Wholesale Loss: R ${(sEffW + sSpeedW).toLocaleString()} • Retail Loss: R ${(sEffR + sSpeedR).toLocaleString()}\n${finalMessage}`
+);
     } else {
-        alert('❌ Client not found in system');
-    }
+    showAuditToast('prospect', 'Client Not Found', 'The selected client does not exist in the system.');
+}
 	 }
 
    async function generateReport() {
@@ -1073,19 +1088,73 @@ setInterval(async () => {
 
         await cloudStorage.setItem(draftKey, JSON.stringify(draft));
 
-        let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-        const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-        if(clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
-            updateClientAuditStatus('in-progress');
-        }
-    }
+let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
+if (clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
+    updateClientAuditStatus('in-progress');
+}
+
+showDraftStatus('Draft Auto-Saved');
+}   // ← closes autoSaveAuditDraft()
+
+// Autosave every 30 seconds
+setInterval(() => {
+    autoSaveAuditDraft();
 }, 30000);
+
+	function showAuditToast(type, title, message) {
+    const toast = document.getElementById('audit-toast');
+    const inner = document.getElementById('audit-toast-inner');
+
+    // Reset classes
+    inner.className = "px-6 py-4 rounded-xl shadow-xl border text-white";
+
+    // Color themes
+    if (type === 'active') {
+        inner.classList.add(
+            "bg-emerald-600", "border-emerald-400/40"
+        );
+    } else if (type === 'prospect') {
+        inner.classList.add(
+            "bg-orange-600", "border-orange-400/40"
+        );
+    }
+
+    // Set content
+    document.getElementById('audit-toast-title').textContent = title;
+    document.getElementById('audit-toast-body').textContent = message;
+
+    // Animate in
+    toast.classList.remove("hidden");
+    setTimeout(() => {
+        toast.classList.remove("translate-x-full");
+    }, 10);
+
+    // Auto-hide after 6 seconds
+    setTimeout(() => {
+        toast.classList.add("translate-x-full");
+        setTimeout(() => toast.classList.add("hidden"), 500);
+    }, 6000);
+}
+
 
 
 
 </script>
+		
+<div id="audit-toast" class="hidden fixed top-6 right-6 z-[5000] 
+    transform translate-x-full transition-all duration-500">
+    <div id="audit-toast-inner" 
+        class="px-6 py-4 rounded-xl shadow-xl border text-white">
+        <p id="audit-toast-title" class="font-black text-lg"></p>
+        <p id="audit-toast-body" class="text-sm mt-1 opacity-90"></p>
+    </div>
+</div>
+
+
 </body>
 </html>
+
 
 
 
