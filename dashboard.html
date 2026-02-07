@@ -163,9 +163,17 @@
             }
 
             // Generate weekly data and initialize charts
-            allWeeklyData = await generateWeeklyData();
-            updateSummaryCards();
-            initCharts();
+           // Wait for audit data to load before generating weekly data
+await cloudStorage.getItem(`AUDIT_FINAL_${currentClientID}`);
+
+allWeeklyData = await generateWeeklyData();
+
+console.log("Weekly data in onload:", allWeeklyData);
+
+updateSummaryCards();
+initCharts();
+
+
         };
 
        async function generateWeeklyData() {
@@ -686,5 +694,6 @@
 </body>
 
 </html>
+
 
 
