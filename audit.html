@@ -1073,7 +1073,7 @@ showAuditToast(
 }
 
 setInterval(async () => {
-    if(Object.keys(auditData).length > 0) {
+    if (Object.keys(auditData).length > 0) {
         const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
         const draft = {
             auditData: auditData,
@@ -1088,19 +1088,19 @@ setInterval(async () => {
 
         await cloudStorage.setItem(draftKey, JSON.stringify(draft));
 
-let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-if (clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
-    updateClientAuditStatus('in-progress');
-}
+        let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const clientIndex = allClients.findIndex(
+            c => c.company.toUpperCase() === currentClientName.toUpperCase()
+        );
 
-showDraftStatus('Draft Auto-Saved');
-}   // ← closes autoSaveAuditDraft()
+        if (clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
+            updateClientAuditStatus('in-progress');
+        }
 
-// Autosave every 30 seconds
-setInterval(() => {
-    autoSaveAuditDraft();
+        showDraftStatus('Draft Auto-Saved');
+    }   
 }, 30000);
+
 
 	function showAuditToast(type, title, message) {
     const toast = document.getElementById('audit-toast');
@@ -1154,6 +1154,7 @@ setInterval(() => {
 
 </body>
 </html>
+
 
 
 
