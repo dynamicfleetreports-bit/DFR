@@ -125,37 +125,40 @@
             }
         };
 
-        document.getElementById('intakeForm').onsubmit = async (e) => {
-            e.preventDefault();
-            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            
-            const clientData = {
-                id: editId ? parseInt(editId) : Date.now(),
-                company: document.getElementById('company').value.toUpperCase(),
-                city: document.getElementById('city').value.toUpperCase(),
-                contactName: document.getElementById('contactName').value,
-                contactTel: document.getElementById('contactTel').value,
-                email: document.getElementById('email').value,
-                fleetSize: parseInt(document.getElementById('fleetSize').value),
-                fuelPrice: document.getElementById('fuelPrice').value,
-                speedLimit: document.getElementById('speedLimit').value,
-                currentCons: document.getElementById('currentCons').value,
-                targetCons: document.getElementById('targetCons').value,
-                status: 'prospect' // Default for New Intake
-            };
+     document.getElementById('intakeForm').onsubmit = async (e) => {
+    e.preventDefault();
+    let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
 
-            if (editId) {
-                const index = clients.findIndex(c => c.id == editId);
-                clients[index] = clientData;
-            } else {
-                clients.push(clientData);
-            }
+    const clientData = {
+        id: editId ? parseInt(editId) : Date.now(),
+        company: document.getElementById('company').value.toUpperCase(),
+        city: document.getElementById('city').value.toUpperCase(),
+        contactName: document.getElementById('contactName').value,
+        contactTel: document.getElementById('contactTel').value,
+        email: document.getElementById('email').value,
+        fleetSize: parseInt(document.getElementById('fleetSize').value),
+        fuelPrice: document.getElementById('fuelPrice').value,
+        speedLimit: document.getElementById('speedLimit').value,
+        currentCons: document.getElementById('currentCons').value,
+        targetCons: document.getElementById('targetCons').value,
+        status: 'prospect'
+    };
 
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-            window.location.href = 'index.html';
-        };
+    if (editId) {
+        const index = clients.findIndex(c => c.id == editId);
+        clients[index] = clientData;
+    } else {
+        clients.push(clientData);
+    }
+
+    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+    window.location.href = 'index.html';
+};
+
+
     </script>
 </body>
 
 </html>
+
 
