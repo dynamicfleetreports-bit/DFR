@@ -256,31 +256,23 @@
 
         } else {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-
-            // ✅ FIXED: async-safe draft detection
-            const clientsWithDrafts = [];
-            for (const c of allClients) {
-                const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-                const draft = await cloudStorage.getItem(draftKey);
-                if (draft !== null) {
-                    clientsWithDrafts.push(c);
-                }
-            }
-
-            if (clientsWithDrafts.length > 0) {
-                currentClientName = clientsWithDrafts[0].company;
-                document.getElementById('client-name').textContent = currentClientName.toUpperCase();
-                await cloudStorage.setItem('currentAuditClient', currentClientName);
-                loadAuditDraft(currentClientName);
-            }
-        }
+// async-safe draft detection
+const clientsWithDrafts = [];
+for (const c of allClients) {
+    const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
+    const draft = await cloudStorage.getItem(draftKey);
+    if (draft !== null) {
+        clientsWithDrafts.push(c);
     }
-
-    console.log('Current client:', currentClientName);
 }
 
-
-            
+if (clientsWithDrafts.length > 0) {
+    currentClientName = clientsWithDrafts[0].company;
+    document.getElementById('client-name').textContent = currentClientName.toUpperCase();
+    await cloudStorage.setItem('currentAuditClient', currentClientName);
+    loadAuditDraft(currentClientName);
+}
+       
         async function loadAuditDraft(clientName) {
             const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
             const savedDraft = await cloudStorage.getItem(draftKey);
@@ -1101,6 +1093,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
