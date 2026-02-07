@@ -225,48 +225,49 @@
 	async function initAudit() {
     const urlParams = new URLSearchParams(window.location.search);
     const clientFromUrl = urlParams.get('client');
-    
-    if(clientFromUrl) {
+
+    if (clientFromUrl) {
         const decodedClient = decodeURIComponent(clientFromUrl);
         currentClientName = decodedClient;
         document.getElementById('client-name').textContent = decodedClient.toUpperCase();
         await cloudStorage.setItem('currentAuditClient', decodedClient);
-        
+
         const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const currentClient = allClients.find(c => c.company.toUpperCase() === decodedClient.toUpperCase());
-        
-        if(currentClient) {
-            if(currentClient.speedLimit) document.getElementById('master-speed').value = currentClient.speedLimit;
-            if(currentClient.fuelPrice) {
+
+        if (currentClient) {
+            if (currentClient.speedLimit) document.getElementById('master-speed').value = currentClient.speedLimit;
+            if (currentClient.fuelPrice) {
                 document.getElementById('price-w').value = currentClient.fuelPrice;
                 document.getElementById('price-r').value = parseFloat(currentClient.fuelPrice) + 2.35;
             }
-            if(currentClient.targetCons) document.getElementById('master-target').value = currentClient.targetCons;
+            if (currentClient.targetCons) document.getElementById('master-target').value = currentClient.targetCons;
+
             loadAuditDraft(decodedClient);
         }
+
     } else {
         const savedCompany = await cloudStorage.getItem('currentAuditClient');
-        if(savedCompany) {
+
+        if (savedCompany) {
             currentClientName = savedCompany;
             document.getElementById('client-name').textContent = savedCompany.toUpperCase();
             loadAuditDraft(savedCompany);
+
         } else {
-            // No client in URL or await cloudStorage - check if there are any drafts
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const clientsWithDrafts = allClients.filter(c => {
-             const clientsWithDrafts = [];
 
-for (const c of allClients) {
-    const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-    const draft = await cloudStorage.getItem(draftKey);
-    if (draft !== null) {
-        clientsWithDrafts.push(c);
-    }
-}
+            // ✅ FIXED: async-safe draft detection
+            const clientsWithDrafts = [];
+            for (const c of allClients) {
+                const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
+                const draft = await cloudStorage.getItem(draftKey);
+                if (draft !== null) {
+                    clientsWithDrafts.push(c);
+                }
+            }
 
-            
             if (clientsWithDrafts.length > 0) {
-                // Use the most recent one
                 currentClientName = clientsWithDrafts[0].company;
                 document.getElementById('client-name').textContent = currentClientName.toUpperCase();
                 await cloudStorage.setItem('currentAuditClient', currentClientName);
@@ -274,9 +275,11 @@ for (const c of allClients) {
             }
         }
     }
-    
-    console.log('Current client:', currentClientName); // Debug line
+
+    console.log('Current client:', currentClientName);
 }
+
+
             
         async function loadAuditDraft(clientName) {
             const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
@@ -1069,7 +1072,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     }
 }
 
-setInterval(() => {
+setInterval(async () => {
     if(Object.keys(auditData).length > 0) {
         const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
         const draft = {
@@ -1082,9 +1085,9 @@ setInterval(() => {
             auditPeriod: document.getElementById('audit-period').innerText,
             savedAt: new Date().toISOString()
         };
+
         await cloudStorage.setItem(draftKey, JSON.stringify(draft));
-        
-        // Only set to in-progress if not already complete
+
         let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
         if(clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
@@ -1093,9 +1096,12 @@ setInterval(() => {
     }
 }, 30000);
 
+
+
 </script>
 </body>
 </html>
+
 
 
 
