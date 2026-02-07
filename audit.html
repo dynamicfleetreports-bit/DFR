@@ -989,7 +989,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     }
 }
 
-   await function generateReport() {
+   async function generateReport() {
     const companyName = currentClientName || "Unknown Client";
     const fleetSize = Object.keys(auditData).length;
     
@@ -1101,6 +1101,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
