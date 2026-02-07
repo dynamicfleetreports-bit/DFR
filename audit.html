@@ -383,7 +383,7 @@
             
             activeMode = mode;
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 const text = e.target.result;
                 const delim = text.includes(';') ? ';' : ',';
                 activeRows = text.split(/\r?\n/).filter(l => l.trim()).map(r => r.split(delim));
@@ -1069,6 +1069,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
