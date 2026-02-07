@@ -325,6 +325,54 @@ for (const c of allClients) {
         savedAt: new Date().toISOString()
 		
     };
+            
+        async function loadAuditDraft(clientName) {
+            const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
+            const savedDraft = await cloudStorage.getItem(draftKey);
+            
+            if(savedDraft) {
+                try {
+                    const draft = JSON.parse(savedDraft);
+                    auditData = draft.auditData || {};
+			if(Object.keys(auditData).length > 0) {
+                       document.getElementById('stat-usage').innerText = '✓';
+                       document.getElementById('stat-usage').classList.replace('text-red-500', 'text-emerald-500');
+                       document.getElementById('stat-speed').innerText = '✓';
+                       document.getElementById('stat-speed').classList.replace('text-red-500', 'text-emerald-500');
+}
+
+		    if(draft.speedLimit) document.getElementById('master-speed').value = draft.speedLimit;
+                    if(draft.priceW) document.getElementById('price-w').value = draft.priceW;
+                    if(draft.priceR) document.getElementById('price-r').value = draft.priceR;
+                    if(draft.target) document.getElementById('master-target').value = draft.target;
+                    if(draft.auditDate) document.getElementById('date-label').innerText = draft.auditDate;
+                    if(draft.auditPeriod) document.getElementById('audit-period').innerText = draft.auditPeriod;
+                    
+                    if(Object.keys(auditData).length > 0) {
+                        renderGrid();
+                        showDraftStatus('Draft Loaded - ' + new Date(draft.savedAt).toLocaleString());
+                    }
+                } catch(e) {
+                    console.error('Error loading draft:', e);
+                }
+            }
+	}
+
+     async function autoSaveAuditDraft() {
+    if(!currentClientName) return;
+    
+    const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
+    const draft = {
+        auditData: auditData,
+        speedLimit: document.getElementById('master-speed').value,
+        priceW: document.getElementById('price-w').value,
+        priceR: document.getElementById('price-r').value,
+        target: document.getElementById('master-target').value,
+        auditDate: document.getElementById('date-label').innerText,
+        auditPeriod: document.getElementById('audit-period').innerText,  
+        savedAt: new Date().toISOString()
+		
+    };
     
     await cloudStorage.setItem(draftKey, JSON.stringify(draft));
     
@@ -1048,6 +1096,7 @@ setInterval(() => {
 </script>
 </body>
 </html>
+
 
 
 
