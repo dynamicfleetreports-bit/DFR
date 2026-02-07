@@ -1098,8 +1098,10 @@ setInterval(async () => {
         }
 
         showDraftStatus('Draft Auto-Saved');
-    }   
-}, 30000);
+    }   // ← closes the IF block correctly
+}, 30000);   // ← closes the interval correctly
+
+
 
 
 	function showAuditToast(type, title, message) {
@@ -1154,6 +1156,7 @@ setInterval(async () => {
 
 </body>
 </html>
+
 
 
 
