@@ -254,9 +254,16 @@
             // No client in URL or await cloudStorage - check if there are any drafts
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientsWithDrafts = allClients.filter(c => {
-                const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-                return await cloudStorage.getItem(draftKey) !== null;
-            });
+             const clientsWithDrafts = [];
+
+for (const c of allClients) {
+    const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
+    const draft = await cloudStorage.getItem(draftKey);
+    if (draft !== null) {
+        clientsWithDrafts.push(c);
+    }
+}
+
             
             if (clientsWithDrafts.length > 0) {
                 // Use the most recent one
@@ -1041,5 +1048,6 @@ setInterval(() => {
 </script>
 </body>
 </html>
+
 
 
