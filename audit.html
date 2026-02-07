@@ -281,9 +281,9 @@
 
 
 
-     async function autoSaveAuditDraft() {
-    if(!currentClientName) return;
-    
+   async function autoSaveAuditDraft() {
+    if (!currentClientName) return;
+
     const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
     const draft = {
         auditData: auditData,
@@ -292,11 +292,28 @@
         priceR: document.getElementById('price-r').value,
         target: document.getElementById('master-target').value,
         auditDate: document.getElementById('date-label').innerText,
-        auditPeriod: document.getElementById('audit-period').innerText,  
+        auditPeriod: document.getElementById('audit-period').innerText,
         savedAt: new Date().toISOString()
-		
     };
-	 }        
+
+    // Save the draft
+    await cloudStorage.setItem(draftKey, JSON.stringify(draft));
+
+    // Update client audit status if not complete
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const clientIndex = allClients.findIndex(
+        c => c.company.toUpperCase() === currentClientName.toUpperCase()
+    );
+
+    if (clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') {
+        updateClientAuditStatus('in-progress');
+    }
+
+    // Show autosave status
+    showDraftStatus('Draft Auto-Saved');
+}
+
+
         async function loadAuditDraft(clientName) {
             const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
             const savedDraft = await cloudStorage.getItem(draftKey);
@@ -1069,6 +1086,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
