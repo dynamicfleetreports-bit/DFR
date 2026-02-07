@@ -1833,7 +1833,7 @@ function closeSuccessModal() {
 setTimeout(async () => {
   await initVehicleDatabase();
   await renderDatabase();
-}, 3000);
+}, 5000);
   
 	
 //Auto backup 
@@ -1843,7 +1843,7 @@ async function autoBackup() {
   const data = await cloudStorage.getItem('FLEET_CLIENTS');
   if (!data) return;
 
-  const PROXY_BACKUP_URL = "http://localhost:3000/backup";
+  const PROXY_BACKUP_URL = "http://localhost:5000/backup";
 
   fetch(PROXY_BACKUP_URL, {
     method: "POST",
@@ -1877,7 +1877,7 @@ async function scheduleBackup() {
   backupTimeout = setTimeout(() => {
     autoBackup();
     scheduleBackup(); // Schedule next backup
-  }, 30000); // 30 seconds
+  }, 50000); // 30 seconds
 }
 
 // Wait for Firebase to initialize, then set up auto-backup
@@ -1898,10 +1898,11 @@ setTimeout(() => {
   
   scheduleBackup();
   console.log('🛡️ Auto-backup enabled');
-}, 3000);
+}, 5000);
 </script>
 </body>
 </html>
+
 
 
 
