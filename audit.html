@@ -296,7 +296,7 @@
         savedAt: new Date().toISOString()
 		
     };
-            
+	 }        
         async function loadAuditDraft(clientName) {
             const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
             const savedDraft = await cloudStorage.getItem(draftKey);
@@ -955,7 +955,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     } else {
         alert('❌ Client not found in system');
     }
-}
+	 }
 
    async function generateReport() {
     const companyName = currentClientName || "Unknown Client";
@@ -1069,6 +1069,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
