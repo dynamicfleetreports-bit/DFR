@@ -1843,33 +1843,8 @@ async function autoBackup() {
   // Use "Backup to Google Drive" button for manual backups
   return;
 }
-  fetch(PROXY_BACKUP_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      action: "backup",
-      data: JSON.parse(data)   // send parsed JSON to proxy
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(result => {
-    if (result.success) {
-      console.log('✅ Backup saved:', result.fileName);
-    } else {
-      console.error('❌ Backup failed:', result.error);
-    }
-  })
-  .catch(err => console.error('❌ Backup error:', err.message));
-}
 
-// Schedule backups every 30 seconds
+  // Schedule backups every 30 seconds
 async function scheduleBackup() {
   clearTimeout(backupTimeout);
   backupTimeout = setTimeout(() => {
@@ -1900,6 +1875,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
