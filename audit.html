@@ -256,54 +256,30 @@
 
         } else {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-// async-safe draft detection
-const clientsWithDrafts = [];
-for (const c of allClients) {
-    const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-    const draft = await cloudStorage.getItem(draftKey);
-    if (draft !== null) {
-        clientsWithDrafts.push(c);
-    }
-}
 
-if (clientsWithDrafts.length > 0) {
-    currentClientName = clientsWithDrafts[0].company;
-    document.getElementById('client-name').textContent = currentClientName.toUpperCase();
-    await cloudStorage.setItem('currentAuditClient', currentClientName);
-    loadAuditDraft(currentClientName);
-}
-       
-        async function loadAuditDraft(clientName) {
-            const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = await cloudStorage.getItem(draftKey);
-            
-            if(savedDraft) {
-                try {
-                    const draft = JSON.parse(savedDraft);
-                    auditData = draft.auditData || {};
-			if(Object.keys(auditData).length > 0) {
-                       document.getElementById('stat-usage').innerText = '✓';
-                       document.getElementById('stat-usage').classList.replace('text-red-500', 'text-emerald-500');
-                       document.getElementById('stat-speed').innerText = '✓';
-                       document.getElementById('stat-speed').classList.replace('text-red-500', 'text-emerald-500');
-}
-
-		    if(draft.speedLimit) document.getElementById('master-speed').value = draft.speedLimit;
-                    if(draft.priceW) document.getElementById('price-w').value = draft.priceW;
-                    if(draft.priceR) document.getElementById('price-r').value = draft.priceR;
-                    if(draft.target) document.getElementById('master-target').value = draft.target;
-                    if(draft.auditDate) document.getElementById('date-label').innerText = draft.auditDate;
-                    if(draft.auditPeriod) document.getElementById('audit-period').innerText = draft.auditPeriod;
-                    
-                    if(Object.keys(auditData).length > 0) {
-                        renderGrid();
-                        showDraftStatus('Draft Loaded - ' + new Date(draft.savedAt).toLocaleString());
-                    }
-                } catch(e) {
-                    console.error('Error loading draft:', e);
+            // async-safe draft detection
+            const clientsWithDrafts = [];
+            for (const c of allClients) {
+                const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
+                const draft = await cloudStorage.getItem(draftKey);
+                if (draft !== null) {
+                    clientsWithDrafts.push(c);
                 }
             }
-	}
+
+            if (clientsWithDrafts.length > 0) {
+                currentClientName = clientsWithDrafts[0].company;
+                document.getElementById('client-name').textContent = currentClientName.toUpperCase();
+                await cloudStorage.setItem('currentAuditClient', currentClientName);
+                loadAuditDraft(currentClientName);
+            }
+        }
+    }
+
+    console.log('Current client:', currentClientName);
+}
+
+
 
      async function autoSaveAuditDraft() {
     if(!currentClientName) return;
@@ -1093,6 +1069,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
