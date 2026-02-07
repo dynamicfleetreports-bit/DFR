@@ -410,7 +410,7 @@
             }
         }
 
-        function launchMapper(input, mode) {
+       async function launchMapper(input, mode) {
             if (!input.files || !input.files[0]) return;
             
             activeMode = mode;
@@ -989,7 +989,7 @@ if(v.duration > 300 && actualMaxSpeed > limit + 1) {
     }
 }
 
-      function generateReport() {
+   await function generateReport() {
     const companyName = currentClientName || "Unknown Client";
     const fleetSize = Object.keys(auditData).length;
     
@@ -1101,6 +1101,7 @@ setInterval(async () => {
 </script>
 </body>
 </html>
+
 
 
 
