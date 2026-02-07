@@ -125,7 +125,7 @@
             }
         };
 
-        document.getElementById('intakeForm').onsubmit = (e) => {
+        document.getElementById('intakeForm').onsubmit = async (e) => {
             e.preventDefault();
             let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             
@@ -158,3 +158,4 @@
 </body>
 
 </html>
+
