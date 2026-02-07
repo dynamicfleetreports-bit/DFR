@@ -1838,13 +1838,11 @@ setTimeout(async () => {
 	
 //Auto backup 
 let backupTimeout;  // <-- declare globally
-
 async function autoBackup() {
-  const data = await cloudStorage.getItem('FLEET_CLIENTS');
-  if (!data) return;
-
-  const PROXY_BACKUP_URL = "http://localhost:5000/backup";
-
+  // Auto-backup disabled - data is already in Firebase cloud
+  // Use "Backup to Google Drive" button for manual backups
+  return;
+}
   fetch(PROXY_BACKUP_URL, {
     method: "POST",
     headers: {
@@ -1902,6 +1900,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
