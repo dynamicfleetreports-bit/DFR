@@ -419,7 +419,7 @@
 
 
 
-    <script>
+ <script>
     const reportData = {
         client: 'TANJA TRANSPORT',
         generatedDate: new Date().toISOString(),
@@ -442,7 +442,12 @@
         updatePeriodDate();
         renderTable();
         updateProgress();
-    }
+		
+		// Generate dynamic email based on client name
+const email = 'dynamicfleetreports+' + reportData.client.replace(/\s+/g, '').toLowerCase() + '@gmail.com';
+document.querySelector('.footer strong').textContent = email;
+
+   }
 
     function updatePeriodDate() {
         const type = document.getElementById('report-frequency').value;
@@ -467,36 +472,23 @@
         let html = '';
 
         reportData.vehicles.forEach((v, index) => {
-            html += `
-                <tr data-index="${index}">
-                    <td class="locked-cell">${index + 1}</td>
-                    <td class="locked-cell">${v.reg}</td>
-                    <td class="locked-cell">${v.type}</td>
-                    <td class="locked-cell">${v.make}</td>
-                    <td class="locked-cell">${v.model}</td>
-                    <td class="locked-cell">${v.year}</td>
-                    <td class="locked-cell">${v.usedFor}</td>
-                    <td class="locked-cell">${v.targetKmL}</td>
-                    <td class="editable-cell" style="text-align: center;">
-                        <input type="checkbox" id="update-${index}">
-                    </td>
-                    <td class="editable-cell" style="text-align: center;">
-                        <input type="checkbox" id="remove-${index}">
-                    </td>
-                    <td class="editable-cell">
-                        <input type="number" id="endOdo-${index}" placeholder="Odo" oninput="updateProgress()">
-                    </td>
-                    <td class="editable-cell">
-                        <input type="number" id="totalKm-${index}" placeholder="KM" oninput="updateProgress()">
-                    </td>
-                    <td class="editable-cell">
-                        <input type="number" id="fuelUsed-${index}" placeholder="Liters" oninput="updateProgress()">
-                    </td>
-                    <td class="editable-cell">
-                        <input type="text" id="notes-${index}" placeholder="Changes...">
-                    </td>
-                </tr>
-            `;
+            html +=
+                '<tr data-index="' + index + '">' +
+                    '<td class="locked-cell">' + (index + 1) + '</td>' +
+                    '<td class="locked-cell">' + v.reg + '</td>' +
+                    '<td class="locked-cell">' + v.type + '</td>' +
+                    '<td class="locked-cell">' + v.make + '</td>' +
+                    '<td class="locked-cell">' + v.model + '</td>' +
+                    '<td class="locked-cell">' + v.year + '</td>' +
+                    '<td class="locked-cell">' + v.usedFor + '</td>' +
+                    '<td class="locked-cell">' + v.targetKmL + '</td>' +
+                    '<td class="editable-cell" style="text-align: center;"><input type="checkbox" id="update-' + index + '"></td>' +
+                    '<td class="editable-cell" style="text-align: center;"><input type="checkbox" id="remove-' + index + '"></td>' +
+                    '<td class="editable-cell"><input type="number" id="endOdo-' + index + '" placeholder="Odo" oninput="updateProgress()"></td>' +
+                    '<td class="editable-cell"><input type="number" id="totalKm-' + index + '" placeholder="KM" oninput="updateProgress()"></td>' +
+                    '<td class="editable-cell"><input type="number" id="fuelUsed-' + index + '" placeholder="Liters" oninput="updateProgress()"></td>' +
+                    '<td class="editable-cell"><input type="text" id="notes-' + index + '" placeholder="Changes..."></td>' +
+                '</tr>';
         });
 
         tbody.innerHTML = html;
@@ -508,24 +500,23 @@
 
         const row = document.createElement('div');
         row.className = 'new-vehicle-row';
-        row.id = `new-vehicle-${id}`;
-        row.innerHTML = `
-            <input type="text" placeholder="Registration" id="new-reg-${id}">
-            <select id="new-type-${id}">
-                <option>Heavy</option>
-                <option>Medium</option>
-            </select>
-            <input type="text" placeholder="Make" id="new-make-${id}">
-            <input type="text" placeholder="Model" id="new-model-${id}">
-            <input type="text" placeholder="Year" id="new-year-${id}">
-            <select id="new-used-${id}">
-                <option>Long Distance</option>
-                <option>Local Full</option>
-                <option>Local 50%</option>
-            </select>
-            <input type="number" placeholder="Target km/L" id="new-target-${id}" value="2.3">
-            <button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('new-vehicle-${id}').remove()">Remove</button>
-        `;
+        row.id = 'new-vehicle-' + id;
+        row.innerHTML =
+            '<input type="text" placeholder="Registration" id="new-reg-' + id + '">' +
+            '<select id="new-type-' + id + '">' +
+                '<option>Heavy</option>' +
+                '<option>Medium</option>' +
+            '</select>' +
+            '<input type="text" placeholder="Make" id="new-make-' + id + '">' +
+            '<input type="text" placeholder="Model" id="new-model-' + id + '">' +
+            '<input type="text" placeholder="Year" id="new-year-' + id + '">' +
+            '<select id="new-used-' + id + '">' +
+                '<option>Long Distance</option>' +
+                '<option>Local Full</option>' +
+                '<option>Local 50%</option>' +
+            '</select>' +
+            '<input type="number" placeholder="Target km/L" id="new-target-' + id + '" value="2.3">' +
+            '<button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById(\'new-vehicle-' + id + '\').remove()">Remove</button>';
         container.appendChild(row);
     }
 
@@ -534,9 +525,9 @@
         const total = reportData.vehicles.length;
 
         reportData.vehicles.forEach((v, index) => {
-            const endOdo = document.getElementById(`endOdo-${index}`).value;
-            const totalKm = document.getElementById(`totalKm-${index}`).value;
-            const fuelUsed = document.getElementById(`fuelUsed-${index}`).value;
+            const endOdo = document.getElementById('endOdo-' + index).value;
+            const totalKm = document.getElementById('totalKm-' + index).value;
+            const fuelUsed = document.getElementById('fuelUsed-' + index).value;
 
             if ((endOdo || totalKm) && fuelUsed) {
                 completed++;
@@ -561,15 +552,21 @@
         };
 
         reportData.vehicles.forEach((v, index) => {
-            const update = document.getElementById(`update-${index}`).checked;
-            const remove = document.getElementById(`remove-${index}`).checked;
-            const notes = document.getElementById(`notes-${index}`).value;
+            const update = document.getElementById('update-' + index).checked;
+            const remove = document.getElementById('remove-' + index).checked;
+            const notes = document.getElementById('notes-' + index).value;
 
             const vehicleData = {
-                ...v,
-                endOdo: document.getElementById(`endOdo-${index}`).value || '',
-                totalKm: document.getElementById(`totalKm-${index}`).value || '',
-                fuelUsed: document.getElementById(`fuelUsed-${index}`).value || '',
+                reg: v.reg,
+                type: v.type,
+                make: v.make,
+                model: v.model,
+                year: v.year,
+                usedFor: v.usedFor,
+                targetKmL: v.targetKmL,
+                endOdo: document.getElementById('endOdo-' + index).value || '',
+                totalKm: document.getElementById('totalKm-' + index).value || '',
+                fuelUsed: document.getElementById('fuelUsed-' + index).value || '',
                 notes: notes
             };
 
@@ -580,16 +577,17 @@
         });
 
         for (let i = 0; i < newVehicleCounter; i++) {
-            const reg = document.getElementById(`new-reg-${i}`)?.value;
+            const regEl = document.getElementById('new-reg-' + i);
+            const reg = regEl ? regEl.value : null;
             if (reg) {
                 submissionData.newVehicles.push({
                     reg: reg,
-                    type: document.getElementById(`new-type-${i}`).value,
-                    make: document.getElementById(`new-make-${i}`).value,
-                    model: document.getElementById(`new-model-${i}`).value,
-                    year: document.getElementById(`new-year-${i}`).value,
-                    usedFor: document.getElementById(`new-used-${i}`).value,
-                    targetKmL: document.getElementById(`new-target-${i}`).value
+                    type: document.getElementById('new-type-' + i).value,
+                    make: document.getElementById('new-make-' + i).value,
+                    model: document.getElementById('new-model-' + i).value,
+                    year: document.getElementById('new-year-' + i).value,
+                    usedFor: document.getElementById('new-used-' + i).value,
+                    targetKmL: document.getElementById('new-target-' + i).value
                 });
             }
         }
@@ -599,7 +597,7 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         const type = submissionData.reportType.charAt(0).toUpperCase() + submissionData.reportType.slice(1);
-        const filename = `FleetData_${reportData.client.replace(/\s+/g, '_')}_${type}_${new Date().toISOString().split('T')[0]}.json`;
+        const filename = 'FleetData_' + reportData.client.replace(/\s+/g, '_') + '_' + type + '_' + new Date().toISOString().split('T')[0] + '.json';
         a.href = url;
         a.download = filename;
         a.click();
@@ -618,5 +616,6 @@
 </body>
 
 </html>
+
 
 
