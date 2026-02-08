@@ -216,7 +216,7 @@
             -webkit-appearance: none;
         }
         input[type="checkbox"] {
-            width: 18px;
+            width: 18px;no there 
             height: 18px;
             cursor: pointer;
             accent-color: #10b981;
@@ -303,35 +303,6 @@
     color: rgba(226, 232, 240, 0.6);
     font-size: 0.75rem;
 }
-	.footer .actions .btn {
-  font-size: 0.875rem;   /* restore normal size */
-  font-weight: 900;      /* keep bold look */
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-/* Make sure each button keeps its intended colors */
-.footer .actions .btn-primary {
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: #020617;
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-}
-
-.footer .actions .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.footer .actions .btn-add {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 2px dashed rgba(59, 130, 246, 0.5);
-}
-
 	
         select {
             background: #0f172a;
@@ -430,22 +401,21 @@
             </table>
         </div>
 
-        <div class="add-vehicle-section">
-  <h3>➕ Add New Vehicles</h3>
-  <div id="new-vehicles-container"></div>
+    <div class="add-vehicle-section">
+    <h3>➕ Add New Vehicles</h3>
+    <div id="new-vehicles-container"></div>
+    <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
 </div>
 
-<footer class="footer">
-  <div class="actions">
-    <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
+<div class="actions">
     <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
     <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
-  </div>
-  <p>
-    Email this file to: <strong>reports@fleetintel.co.za</strong><br>
+</div>
+
+<div class="footer">
+    Email this file to: <strong>${client.email || 'reports@fleetintel.co.za'}</strong><br>
     For support, contact your account manager
-  </p>
-</footer>
+</div>
 
 
 
@@ -648,4 +618,5 @@
 </body>
 
 </html>
+
 
