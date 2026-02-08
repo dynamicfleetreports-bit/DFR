@@ -401,21 +401,23 @@
         </div>
 
         <div class="add-vehicle-section">
-            <h3>➕ Add New Vehicles</h3>
-            <div id="new-vehicles-container"></div>
-            <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
-        </div>
+  <h3>➕ Add New Vehicles</h3>
+  <div id="new-vehicles-container"></div>
+</div>
 
-        <div class="actions">
-            <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
-            <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
-        </div>
+<footer class="footer">
+  <div class="actions">
+    <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
+    <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
+    <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
+  </div>
+  <p>
+    Email this file to: <strong>reports@fleetintel.co.za</strong><br>
+    For support, contact your account manager
+  </p>
+</footer>
 
-        <div class="footer">
-            Email this file to: <strong>reports@fleetintel.co.za</strong><br>
-            For support, contact your account manager
-        </div>
-    </div>
+
 
     <script>
     const reportData = {
@@ -614,4 +616,5 @@
     window.onload = initForm;
 </script>
 </body>
+
 </html>
