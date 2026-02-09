@@ -1762,10 +1762,10 @@ async function generateAndSaveReport() {
             vehicles: fleet.length
         });
     }
-}
+
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
         console.log('Updated client history:', allClientsUpdated[index].reportHistory);
-    }
+    
 }
 
 function showSuccessModal(clientName, period) {
@@ -1879,6 +1879,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
