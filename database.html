@@ -1732,11 +1732,36 @@ async function generateWeeklyForm(clientId) {
     }
 
     window.onload = initForm;
-   <\/script>
+		<\/script>
 </body>
 </html>`;
 
-
+ // Download the form
+    const blob = new Blob([formHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = client.company.replace(/\s+/g, '_') + '_' + reportType + '_' + new Date().toISOString().split('T')[0] + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    // Update client history
+    let allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const index = allClientsUpdated.findIndex(c => c.id === clientId);
+    if (index !== -1) {
+        allClientsUpdated[index].lastReportSent = new Date().toISOString();
+        if (!allClientsUpdated[index].reportHistory) {
+            allClientsUpdated[index].reportHistory = [];
+        }
+        allClientsUpdated[index].reportHistory.push({
+            date: new Date().toISOString(),
+            type: reportType,
+            generated: true,
+            vehicles: fleet.length
+        });
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
+    }
+}
 
 function showSuccessModal(clientName, period) {
     document.getElementById('successClient').innerText = clientName;
@@ -1849,6 +1874,7 @@ setTimeout(() => {
 </script>
 </body>
 </html>
+
 
 
 
