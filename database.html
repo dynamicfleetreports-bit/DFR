@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script type="module" src="firebase-helper.js"></script>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Fleet Intel | Active Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,7 +23,7 @@
         .alert-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         .alert-item:hover { opacity: 0.7; }
         
-        .filter-bar { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .filter-bar { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-between; align-items: center; }
         .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
         .filter-btn.active { background: #60a5fa; color: #020617; }
         .filter-btn:hover { background: rgba(255,255,255,0.1); }
@@ -56,16 +56,16 @@
         .history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
 		
 		#successModal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .success-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 2px solid #10b981; border-radius: 2rem; width: 100%; max-width: 500px; padding: 3rem; text-align: center; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .success-icon { font-size: 4rem; margin-bottom: 1rem; }
-        .success-title { font-size: 1.5rem; font-weight: 900; color: #10b981; margin-bottom: 1rem; text-transform: uppercase; font-style: italic; }
-        .success-details { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; text-align: left; }
-        .success-detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .success-detail-row:last-child { border-bottom: none; }
-        .success-steps { text-align: left; margin: 1.5rem 0; }
-        .success-step { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; margin: 0.5rem 0; background: rgba(255,255,255,0.03); border-radius: 0.75rem; font-size: 13px; }
-        .success-step-num { background: #10b981; color: #020617; font-weight: 900; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.success-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 2px solid #10b981; border-radius: 2rem; width: 100%; max-width: 500px; padding: 3rem; text-align: center; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.success-icon { font-size: 4rem; margin-bottom: 1rem; }
+.success-title { font-size: 1.5rem; font-weight: 900; color: #10b981; margin-bottom: 1rem; text-transform: uppercase; font-style: italic; }
+.success-details { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; text-align: left; }
+.success-detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.success-detail-row:last-child { border-bottom: none; }
+.success-steps { text-align: left; margin: 1.5rem 0; }
+.success-step { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; margin: 0.5rem 0; background: rgba(255,255,255,0.03); border-radius: 0.75rem; font-size: 13px; }
+.success-step-num { background: #10b981; color: #020617; font-weight: 900; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -187,11 +187,12 @@
         </div>
     </div>
 	
-    <!-- Fleet Management Modal -->
+	<!-- Fleet Management Modal -->
     <div id="fleetModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
         <div class="modal-card" style="max-width: 1400px; width: 100%;">
             <h2 class="text-2xl font-black italic uppercase text-white mb-6">Fleet Management: <span id="fleetClientName" class="text-blue-400"></span></h2>
             <input type="hidden" id="fleetClientId">
+            
             <div style="overflow-x: auto; margin-bottom: 2rem;">
                 <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
                     <thead>
@@ -210,6 +211,7 @@
                     <tbody id="fleetTableBody"></tbody>
                 </table>
             </div>
+            
             <div class="flex gap-3">
                 <button onclick="addVehicleRow()" class="action-btn primary">➕ Add Vehicle</button>
                 <button onclick="saveFleet()" class="flex-1 action-btn success">💾 Save Fleet</button>
@@ -218,52 +220,67 @@
         </div>
     </div>
 
-    <!-- Custom Report Modal -->
-    <div id="customReportModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
-        <div class="modal-card" style="max-width: 700px;">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Custom <span class="text-yellow-400">Report</span></h2>
-            <input type="hidden" id="reportClientId">
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label>Start Date</label><input type="date" id="reportStartDate"></div>
-                    <div><label>End Date</label><input type="date" id="reportEndDate"></div>
+  <!-- Custom Report Modal -->
+<div id="customReportModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+    <div class="modal-card" style="max-width: 700px;">
+        <h2 class="text-2xl font-black italic uppercase text-white mb-6">Custom <span class="text-yellow-400">Report</span></h2>
+        <input type="hidden" id="reportClientId">
+        
+        <div class="space-y-4">
+            <!-- Date Range -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" id="reportStartDate">
                 </div>
                 <div>
-                    <label>Report Focus</label>
-                    <select id="reportFocus">
-                        <option value="combined">Combined (Speed + Efficiency)</option>
-                        <option value="speed">Speed Violations Only</option>
-                        <option value="efficiency">Fuel Efficiency Only</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Vehicles</label>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 1rem; max-height: 200px; overflow-y: auto;">
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="selectAllVehicles" onchange="toggleAllVehicles()" checked style="width: 18px; height: 18px;">
-                                <span style="font-weight: 700; color: #60a5fa;">Select All Vehicles</span>
-                            </label>
-                        </div>
-                        <div id="vehicleCheckboxes" style="display: grid; gap: 0.5rem;"></div>
-                    </div>
-                </div>
-                <div>
-                    <label>Export Format</label>
-                    <select id="reportFormat">
-                        <option value="pdf">PDF Report</option>
-                        <option value="csv">CSV Data Export</option>
-                    </select>
+                    <label>End Date</label>
+                    <input type="date" id="reportEndDate">
                 </div>
             </div>
-            <div class="flex gap-3 pt-6">
-                <button onclick="closeCustomReportModal()" class="flex-1 action-btn">Cancel</button>
-                <button onclick="generateCustomReport()" class="flex-1 action-btn success">📊 Generate Report</button>
+            
+            <!-- Report Focus -->
+            <div>
+                <label>Report Focus</label>
+                <select id="reportFocus">
+                    <option value="combined">Combined (Speed + Efficiency)</option>
+                    <option value="speed">Speed Violations Only</option>
+                    <option value="efficiency">Fuel Efficiency Only</option>
+                </select>
+            </div>
+            
+            <!-- Vehicle Selection -->
+            <div>
+                <label>Vehicles</label>
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="selectAllVehicles" onchange="toggleAllVehicles()" checked style="width: 18px; height: 18px;">
+                            <span style="font-weight: 700; color: #60a5fa;">Select All Vehicles</span>
+                        </label>
+                    </div>
+                    <div id="vehicleCheckboxes" style="display: grid; gap: 0.5rem;"></div>
+                </div>
+            </div>
+            
+            <!-- Export Format -->
+            <div>
+                <label>Export Format</label>
+                <select id="reportFormat">
+                    <option value="pdf">PDF Report</option>
+                    <option value="csv">CSV Data Export</option>
+                </select>
             </div>
         </div>
+        
+        <div class="flex gap-3 pt-6">
+            <button onclick="closeCustomReportModal()" class="flex-1 action-btn">Cancel</button>
+            <button onclick="generateCustomReport()" class="flex-1 action-btn success">📊 Generate Report</button>
+        </div>
     </div>
+</div>
 
-    <!-- Success Modal -->
+   <!-- Success Modal -->
     <div id="successModal">
         <div class="success-card">
             <div class="success-icon">✅</div>
@@ -280,18 +297,29 @@
             </div>
             <div class="success-steps">
                 <p style="font-weight: 900; text-transform: uppercase; font-size: 10px; opacity: 0.5; margin-bottom: 1rem; letter-spacing: 0.1em;">📧 Next Steps</p>
-                <div class="success-step"><div class="success-step-num">1</div><span>Email HTML file to client</span></div>
-                <div class="success-step"><div class="success-step-num">2</div><span>Client fills and downloads JSON</span></div>
-                <div class="success-step"><div class="success-step-num">3</div><span>Client emails JSON back</span></div>
-                <div class="success-step"><div class="success-step-num">4</div><span>You import for audit</span></div>
+                <div class="success-step">
+                    <div class="success-step-num">1</div>
+                    <span>Email HTML file to client</span>
+                </div>
+                <div class="success-step">
+                    <div class="success-step-num">2</div>
+                    <span>Client fills and downloads JSON</span>
+                </div>
+                <div class="success-step">
+                    <div class="success-step-num">3</div>
+                    <span>Client emails JSON back</span>
+                </div>
+                <div class="success-step">
+                    <div class="success-step-num">4</div>
+                    <span>You import for audit</span>
+                </div>
             </div>
             <button onclick="closeSuccessModal()" class="action-btn success" style="width: 100%; margin-top: 1rem;">Got It!</button>
         </div>
     </div>
-
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyplZ3ID9E4v-J1WS55n_obOKBWJVQkwQzD3XYvXzpkNVz5AUy5FsVti8o2AIEQTgo/exec';
-        let currentFilter = 'all';
+	const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyplZ3ID9E4v-J1WS55n_obOKBWJVQkwQzD3XYvXzpkNVz5AUy5FsVti8o2AIEQTgo/exec'
+	        let currentFilter = 'all';
         const BACKUP_URL = 'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec';
 
         async function initVehicleDatabase() {
@@ -318,22 +346,26 @@
         function getNextDueDate(client) {
             const lastSent = client.lastReportSent ? new Date(client.lastReportSent) : new Date();
             const schedule = client.reportSchedule || 'monthly';
+            
             if (schedule === 'weekly') {
                 lastSent.setDate(lastSent.getDate() + 7);
             } else {
                 lastSent.setMonth(lastSent.getMonth() + 1);
             }
+            
             return lastSent;
         }
 
         function getDaysUntilDue(client) {
             const nextDue = getNextDueDate(client);
             const now = new Date();
-            return Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+            const diff = Math.ceil((nextDue - now) / (1000 * 60 * 60 * 24));
+            return diff;
         }
 
         function getClientStatus(client) {
             const daysUntil = getDaysUntilDue(client);
+            
             if (daysUntil < 0) return 'overdue';
             if (daysUntil <= 2) return 'due-soon';
             if (client.reportSchedule === 'weekly') return 'weekly';
@@ -342,18 +374,24 @@
 
         async function renderDatabase() {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            console.log('Clients in storage:', allClients);
+			console.log('Clients in storage:', allClients);
             const active = allClients.filter(c => c.status === 'active');
             const container = document.getElementById('database-grid');
-            if (!container) { console.error('❌ database-grid not found in DOM'); return; }
-
+			if (!container) {
+    console.error('❌ database-grid not found in DOM');
+    return;
+}
             const sortBy = document.getElementById('sortBy').value;
-
+            
+            let weeklyCount = active.filter(c => c.reportSchedule === 'weekly').length;
+            let monthlyCount = active.filter(c => c.reportSchedule === 'monthly').length;
+            let overdueCount = active.filter(c => getDaysUntilDue(c) < 0).length;
+            
             document.getElementById('stat-total').innerText = active.length;
-            document.getElementById('stat-weekly').innerText = active.filter(c => c.reportSchedule === 'weekly').length;
-            document.getElementById('stat-monthly').innerText = active.filter(c => c.reportSchedule === 'monthly').length;
-            document.getElementById('stat-overdue').innerText = active.filter(c => getDaysUntilDue(c) < 0).length;
-
+            document.getElementById('stat-weekly').innerText = weeklyCount;
+            document.getElementById('stat-monthly').innerText = monthlyCount;
+            document.getElementById('stat-overdue').innerText = overdueCount;
+            
             let sortedClients = [...active];
             if (sortBy === 'nextDue') {
                 sortedClients.sort((a, b) => getDaysUntilDue(a) - getDaysUntilDue(b));
@@ -362,7 +400,7 @@
             } else {
                 sortedClients.sort((a, b) => (a.company || '').localeCompare(b.company || ''));
             }
-
+            
             let filteredClients = sortedClients.filter(client => {
                 if (currentFilter === 'all') return true;
                 if (currentFilter === 'weekly') return client.reportSchedule === 'weekly';
@@ -370,101 +408,157 @@
                 if (currentFilter === 'overdue') return getDaysUntilDue(client) < 0;
                 return true;
             });
-
+            
             generateAlerts(active);
-
+            
             if (filteredClients.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-20 text-center opacity-20 font-black uppercase text-xs">No clients found</div>';
+                container.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-black uppercase text-xs">No clients found</div>`;
                 return;
             }
-
+            
             container.innerHTML = filteredClients.map(client => {
                 const status = getClientStatus(client);
                 const daysUntil = getDaysUntilDue(client);
-                const statusClass = 'status-' + status;
+                const statusClass = `status-${status}`;
                 const cardClass = status === 'overdue' ? 'overdue' : status === 'due-soon' ? 'due-soon' : '';
-
+                
                 let dueText = '';
-                if (daysUntil < 0) dueText = 'Overdue by ' + Math.abs(daysUntil) + ' days';
+                if (daysUntil < 0) dueText = `Overdue by ${Math.abs(daysUntil)} days`;
                 else if (daysUntil === 0) dueText = 'Due Today!';
                 else if (daysUntil === 1) dueText = 'Due Tomorrow';
-                else dueText = 'Due in ' + daysUntil + ' days';
-
+                else dueText = `Due in ${daysUntil} days`;
+                
                 const history = client.reportHistory || [];
-                const fleetSize = client.fleet ? client.fleet.length : (client.vehicles ? client.vehicles.length : (client.fleetSize || 0));
-                const dueColor = daysUntil < 0 ? 'text-red-400' : daysUntil <= 2 ? 'text-yellow-400' : '';
-                const notesHtml = client.notes ? '<div class="text-[9px] text-yellow-400/60 italic mb-4">📝 ' + client.notes.substring(0, 50) + (client.notes.length > 50 ? '...' : '') + '</div>' : '';
-                const historyBtn = history.length > 0 ? '<button onclick="viewHistory(\'' + client.id + '\')" class="action-btn col-span-2">📊 View History</button>' : '';
-
-                return '<div class="client-card ' + cardClass + '">' +
-                    '<div class="flex justify-between items-start mb-4">' +
-                        '<span class="status-badge ' + statusClass + '">' + (client.reportSchedule || 'monthly').toUpperCase() + '</span>' +
-                        '<div class="flex gap-3">' +
-                            '<button onclick="openEdit(\'' + client.id + '\')" class="text-white/20 hover:text-blue-400 transition text-xs">⚙️</button>' +
-                            '<button onclick="openNotes(\'' + client.id + '\')" class="text-white/20 hover:text-yellow-400 transition text-xs">📝</button>' +
-                            '<button onclick="deleteClient(\'' + client.id + '\')" class="text-white/20 hover:text-red-400 transition text-xs">🗑️</button>' +
-                        '</div>' +
-                    '</div>' +
-                    '<h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">' + client.company + '</h3>' +
-                    '<p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">' + (client.contactName || 'No Contact') + '</p>' +
-                    '<div class="space-y-2 mb-4 border-t border-white/5 pt-4">' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Next Report</span><span class="' + dueColor + '">' + dueText + '</span></div>' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Fleet Size</span><span>' + fleetSize + ' Units</span></div>' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Reports Sent</span><span>' + history.length + ' Total</span></div>' +
-                    '</div>' +
-                    notesHtml +
-                    '<div class="grid grid-cols-2 gap-2">' +
-                        '<button onclick="generateWeeklyForm(\'' + client.id + '\')" class="action-btn success col-span-2">📋 Generate Weekly Form</button>' +
-                        '<button onclick="syncFromAudit(\'' + client.id + '\')" class="action-btn primary">📥 Sync from Audit</button>' +
-                        '<button onclick="manageFleet(\'' + client.id + '\')" class="action-btn primary">🚛 Manage Fleet</button>' +
-                        '<button onclick="openAudit(\'' + client.company + '\')" class="action-btn col-span-2" style="background: #60a5fa; color: #020617;">📊 View/Run Audit</button>' +
-                        '<button onclick="openCustomReport(\'' + client.id + '\')" class="action-btn warning col-span-2">📈 Custom Report</button>' +
-                        historyBtn +
-                        '<button onclick="sendReminder(\'' + client.id + '\')" class="action-btn warning col-span-2">✉️ Send Reminder</button>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
+                
+                return `
+                    <div class="client-card ${cardClass}">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="status-badge ${statusClass}">${(client.reportSchedule || 'monthly').toUpperCase()}</span>
+                           <div class="flex gap-3">
+    <button onclick="openEdit('${client.id}')" class="text-white/20 hover:text-blue-400 transition text-xs">⚙️</button>
+    <button onclick="openNotes('${client.id}')" class="text-white/20 hover:text-yellow-400 transition text-xs">📝</button>
+    <button onclick="deleteClient('${client.id}')" class="text-white/20 hover:text-red-400 transition text-xs">🗑️</button>
+</div>
+                        </div>
+                        
+                        <h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">${client.company}</h3>
+                        <p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">${client.contactName || 'No Contact'}</p>
+                        
+                        <div class="space-y-2 mb-4 border-t border-white/5 pt-4">
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="uppercase text-white/30">Next Report</span>
+                                <span class="${daysUntil < 0 ? 'text-red-400' : daysUntil <= 2 ? 'text-yellow-400' : ''}">${dueText}</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold">
+    <span class="uppercase text-white/30">Fleet Size</span>
+    <span>${client.fleet ? client.fleet.length : (client.vehicles ? client.vehicles.length : (client.fleetSize || 0))} Units</span>
+</div>
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="uppercase text-white/30">Reports Sent</span>
+                                <span>${history.length} Total</span>
+                            </div>
+                        </div>
+                        
+                        ${client.notes ? `<div class="text-[9px] text-yellow-400/60 italic mb-4">📝 ${client.notes.substring(0, 50)}${client.notes.length > 50 ? '...' : ''}</div>` : ''}
+                        
+                  <div class="grid grid-cols-2 gap-2">
+    <button onclick="generateWeeklyForm('${client.id}')" class="action-btn success col-span-2">
+        📋 Generate Weekly Form
+    </button>
+    <button onclick="syncFromAudit('${client.id}')" class="action-btn primary">
+        📥 Sync from Audit
+    </button>
+    <button onclick="manageFleet('${client.id}')" class="action-btn primary">
+        🚛 Manage Fleet
+    </button>
+    <button onclick="openAudit('${client.company}')" class="action-btn col-span-2" style="background: #60a5fa; color: #020617;">
+        📊 View/Run Audit
+    </button>
+    <button onclick="openCustomReport('${client.id}')" class="action-btn warning col-span-2">
+        📈 Custom Report
+    </button>
+    ${history.length > 0 ? `
+    <button onclick="viewHistory('${client.id}')" class="action-btn col-span-2">
+        📊 View History
+    </button>
+    ` : ''}
+    <button onclick="sendReminder('${client.id}')" class="action-btn warning col-span-2">
+        ✉️ Send Reminder
+    </button>
+</div>
+                </div>
+            `;
+        }).join('');
+    }
+	
+async function deleteClient(id) {
+    if (confirm("⚠️ Delete this active client?\n\nThis will:\n• Remove from database\n• Delete from Google Sheet\n• Remove all fleet data\n\nThis cannot be undone!")) {
+        let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const client = clients.find(c => c.id == id);
+        
+        if(client) {
+            const companyName = client.company;
+            deleteFromSheet(companyName);
         }
+        
+        clients = clients.filter(c => c.id != id);
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+        renderDatabase();
+    }
+}
 
-        async function deleteClient(id) {
-            if (confirm("⚠️ Delete this active client?\n\nThis will:\n• Remove from database\n• Delete from Google Sheet\n• Remove all fleet data\n\nThis cannot be undone!")) {
-                let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                const client = clients.find(c => c.id == id);
-                if (client) deleteFromSheet(client.company);
-                clients = clients.filter(c => c.id != id);
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-                renderDatabase();
+function deleteFromSheet(companyName) {
+    return new Promise((resolve, reject) => {
+        const callback = 'sheetCallback_' + Date.now();
+        
+        window[callback] = function(data) {
+            delete window[callback];
+            const script = document.getElementById(callback);
+            if (script) script.remove();
+            
+            if (data.success) {
+                console.log('✅ Deleted from sheet:', companyName);
+                resolve(data);
+            } else {
+                console.log('⚠️ Not found in sheet:', companyName);
+                resolve(data);
             }
-        }
-
-        function deleteFromSheet(companyName) {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'sheetCallback_' + Date.now();
-                window[callbackName] = function(data) {
-                    delete window[callbackName];
-                    const el = document.getElementById(callbackName);
-                    if (el) el.remove();
-                    console.log(data.success ? '✅ Deleted from sheet: ' + companyName : '⚠️ Not found in sheet: ' + companyName);
-                    resolve(data);
-                };
-                const script = document.createElement('script');
-                script.id = callbackName;
-                script.src = APPS_SCRIPT_URL + '?company=' + encodeURIComponent(companyName) + '&action=delete&callback=' + callbackName;
-                script.onerror = () => { delete window[callbackName]; reject('Script failed'); };
-                document.body.appendChild(script);
-            });
-        }
+        };
+        
+        const script = document.createElement('script');
+        script.id = callback;
+        script.src = `${APPS_SCRIPT_URL}?company=${encodeURIComponent(companyName)}&action=delete&callback=${callback}`;
+        script.onerror = () => {
+            delete window[callback];
+            reject('Script failed');
+        };
+        
+        document.body.appendChild(script);
+    });
+}
 
         function generateAlerts(clients) {
             const alertsList = document.getElementById('alerts-list');
             const alertsPanel = document.getElementById('alerts-panel');
             let alerts = [];
+            
             const overdue = clients.filter(c => getDaysUntilDue(c) < 0);
             const dueSoon = clients.filter(c => getDaysUntilDue(c) >= 0 && getDaysUntilDue(c) <= 2);
-            if (overdue.length > 0) alerts.push('<div class="alert-item text-red-400" onclick="filterClients(\'overdue\', event)">🚨 ' + overdue.length + ' client' + (overdue.length > 1 ? 's' : '') + ' overdue - Click to view</div>');
-            if (dueSoon.length > 0) alerts.push('<div class="alert-item text-yellow-400">⏰ ' + dueSoon.length + ' report' + (dueSoon.length > 1 ? 's' : '') + ' due in next 2 days</div>');
-            if (alerts.length > 0) { alertsList.innerHTML = alerts.join(''); alertsPanel.style.display = 'block'; }
-            else { alertsPanel.style.display = 'none'; }
+            
+            if (overdue.length > 0) {
+                alerts.push(`<div class="alert-item text-red-400" onclick="filterClients('overdue', event)">🚨 ${overdue.length} client${overdue.length > 1 ? 's' : ''} overdue - Click to view</div>`);
+            }
+            
+            if (dueSoon.length > 0) {
+                alerts.push(`<div class="alert-item text-yellow-400">⏰ ${dueSoon.length} report${dueSoon.length > 1 ? 's' : ''} due in next 2 days</div>`);
+            }
+            
+            if (alerts.length > 0) {
+                alertsList.innerHTML = alerts.join('');
+                alertsPanel.style.display = 'block';
+            } else {
+                alertsPanel.style.display = 'none';
+            }
         }
 
         function filterClients(filter, event) {
@@ -478,6 +572,7 @@
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
+            
             document.getElementById('editId').value = id;
             document.getElementById('editName').value = client.company || '';
             document.getElementById('editContact').value = client.contactName || '';
@@ -488,13 +583,16 @@
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
 
         document.getElementById('editForm').onsubmit = async function(e) {
             e.preventDefault();
             const id = document.getElementById('editId').value;
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS') || '[]');
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === id);
+            
             if (index !== -1) {
                 allClients[index] = {
                     ...allClients[index],
@@ -515,17 +613,21 @@
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
+            
             document.getElementById('notesId').value = id;
             document.getElementById('notesText').value = client.notes || '';
             document.getElementById('notesModal').style.display = 'flex';
         }
 
-        function closeNotesModal() { document.getElementById('notesModal').style.display = 'none'; }
+        function closeNotesModal() {
+            document.getElementById('notesModal').style.display = 'none';
+        }
 
         async function saveNotes() {
             const id = document.getElementById('notesId').value;
             let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === id);
+            
             if (index !== -1) {
                 allClients[index].notes = document.getElementById('notesText').value;
                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
@@ -534,459 +636,1151 @@
             }
         }
 
-        async function viewHistory(id) {
+       async function viewHistory(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
+            
+            console.log('Viewing history for:', client.company, client.reportHistory); // Debug
             const history = client.reportHistory || [];
             const content = document.getElementById('historyContent');
+            
             if (history.length === 0) {
-                content.innerHTML = '<p class="text-center text-white/30 py-10 font-bold">No report history yet.</p>';
+                content.innerHTML = '<p class="text-center text-white/30 py-10 font-bold">No report history yet. Generate your first form to start tracking!</p>';
             } else {
-                content.innerHTML = history.map(h =>
-                    '<div class="history-item">' +
-                        '<div class="flex justify-between mb-2">' +
-                            '<span class="font-black text-emerald-400 text-sm">' + new Date(h.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) + '</span>' +
-                            '<span class="text-xs text-white/50 uppercase font-bold">' + (h.type || 'Report') + '</span>' +
-                        '</div>' +
-                        '<div class="text-sm text-white/70">✓ ' + (h.vehicles || 0) + ' vehicles • Form Generated</div>' +
-                    '</div>'
-                ).join('');
+                content.innerHTML = history.map(h => `
+                    <div class="history-item">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-black text-emerald-400 text-sm">${new Date(h.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                            <span class="text-xs text-white/50 uppercase font-bold">${h.type || 'Report'}</span>
+                        </div>
+                        <div class="text-sm text-white/70">✓ ${h.vehicles || 0} vehicles • Form Generated</div>
+                    </div>
+                `).join('');
             }
+            
             document.getElementById('historyModal').style.display = 'flex';
         }
 
-        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
-
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+			
+	 // Fleet Management Functions
         let currentFleetData = [];
-
+        
         async function manageFleet(clientId) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
             if (!client) return;
+            
             document.getElementById('fleetClientId').value = clientId;
             document.getElementById('fleetClientName').textContent = client.company;
+            
+            // Load existing fleet or create empty array
             currentFleetData = client.fleet || [];
+            
             renderFleetTable();
             document.getElementById('fleetModal').style.display = 'flex';
         }
+        
+async function openCustomReport(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
+    
+    if (!client) {
+        alert('❌ Client not found!');
+        return;
+    }
+    
+    const fleet = client.fleet || [];
+    
+    if (fleet.length === 0) {
+        alert('⚠️ No fleet data available!\n\nPlease add vehicles first using "🚛 Manage Fleet" or "📥 Sync from Audit".');
+        return;
+    }
+    
+    document.getElementById('reportClientId').value = clientId;
+    
+// Set default dates
+const endDate = new Date();
+const startDate = new Date(Date.now() - 30*24*60*60*1000);
+document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
+document.getElementById('reportEndDate').value = endDate.toISOString().split('T')[0];
 
-        async function openCustomReport(clientId) {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const client = allClients.find(c => c.id === clientId);
-            if (!client) { alert('❌ Client not found!'); return; }
-            const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = await cloudStorage.getItem(draftKey);
-            if (!savedDraft) { alert('⚠️ No audit data found!\n\nPlease run an audit first.'); return; }
-            try {
-                const draft = JSON.parse(savedDraft);
-                const auditData = draft.auditData || {};
-                const vehicles = Object.keys(auditData);
-                if (vehicles.length === 0) { alert('⚠️ No vehicles in audit data.'); return; }
-                document.getElementById('reportClientId').value = clientId;
-                const endDate = new Date();
-                const startDate = new Date(Date.now() - 30*24*60*60*1000);
-                document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
-                document.getElementById('reportEndDate').value = endDate.toISOString().split('T')[0];
-                document.getElementById('vehicleCheckboxes').innerHTML = vehicles.map(key => {
-                    const v = auditData[key];
-                    return '<label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 0.5rem; cursor: pointer;">' +
-                        '<input type="checkbox" class="vehicle-checkbox" value="' + key + '" checked style="width: 16px; height: 16px;">' +
-                        '<span style="font-size: 13px; font-weight: 600;">' + v.reg + ' <span style="opacity: 0.5;">(' + (v.type || 'Heavy') + ')</span></span>' +
-                        '</label>';
-                }).join('');
-                document.getElementById('customReportModal').style.display = 'flex';
-            } catch(e) { console.error('Error:', e); alert('❌ Error loading audit data.'); }
+    // Populate vehicle checkboxes
+    const checkboxContainer = document.getElementById('vehicleCheckboxes');
+    checkboxContainer.innerHTML = fleet.map((v, idx) => `
+        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 0.5rem; cursor: pointer;">
+            <input type="checkbox" class="vehicle-checkbox" value="${idx}" checked style="width: 16px; height: 16px;">
+            <span style="font-size: 13px; font-weight: 600;">${v.reg} <span style="opacity: 0.5;">(${v.make} ${v.model})</span></span>
+        </label>
+    `).join('');
+    
+    document.getElementById('customReportModal').style.display = 'flex';
+}
+
+function closeCustomReportModal() {
+    document.getElementById('customReportModal').style.display = 'none';
+}
+
+function toggleAllVehicles() {
+    const selectAll = document.getElementById('selectAllVehicles').checked;
+    document.querySelectorAll('.vehicle-checkbox').forEach(cb => {
+        cb.checked = selectAll;
+    });
+}
+
+async function generateCustomReport() {
+    const clientId = document.getElementById('reportClientId').value;
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
+    
+    if (!client) return;
+    
+    const startDate = document.getElementById('reportStartDate').value;
+    const endDate = document.getElementById('reportEndDate').value;
+    const focus = document.getElementById('reportFocus').value;
+    const format = document.getElementById('reportFormat').value;
+    
+    // Get selected vehicles
+    const selectedVehicles = [];
+    document.querySelectorAll('.vehicle-checkbox:checked').forEach(cb => {
+        const idx = parseInt(cb.value);
+        if (client.fleet[idx]) {
+            selectedVehicles.push(client.fleet[idx]);
         }
+    });
+    
+    if (selectedVehicles.length === 0) {
+        alert('⚠️ Please select at least one vehicle!');
+        return;
+    }
+    
+    // For now, alert with summary (we'll build full PDF generation next)
+    const summary = '📊 Custom Report Generated!\n\n' +
+        'Client: ' + client.company + '\n' +
+        'Period: ' + startDate + ' to ' + endDate + '\n' +
+        'Focus: ' + focus + '\n' +
+        'Vehicles: ' + selectedVehicles.length + ' selected\n' +
+        'Format: ' + format.toUpperCase() + '\n\n' +
+        '🚧 Full report generation coming next!\n' +
+        'For now, use "📊 View/Run Audit" to generate standard reports.';
+    
+    alert(summary);
+    closeCustomReportModal();
+}
 
-        function closeCustomReportModal() { document.getElementById('customReportModal').style.display = 'none'; }
+       function openAudit(clientName) {
+           window.location.href = 'audit.html?client=' + encodeURIComponent(clientName);
+       }
 
-        function toggleAllVehicles() {
-            const selectAll = document.getElementById('selectAllVehicles').checked;
-            document.querySelectorAll('.vehicle-checkbox').forEach(cb => { cb.checked = selectAll; });
+        function closeFleetModal() {
+            document.getElementById('fleetModal').style.display = 'none';
         }
-
-        async function generateCustomReport() {
-            const clientId = document.getElementById('reportClientId').value;
-            const startDate = document.getElementById('reportStartDate').value;
-            const endDate = document.getElementById('reportEndDate').value;
-            const focus = document.getElementById('reportFocus').value;
-            const format = document.getElementById('reportFormat').value;
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const client = allClients.find(c => c.id === clientId);
-            if (!client) { alert('⚠️ Client not found'); return; }
-            const selectedVehicleKeys = Array.from(document.querySelectorAll('.vehicle-checkbox:checked')).map(cb => cb.value);
-            if (selectedVehicleKeys.length === 0) { alert('⚠️ Please select at least one vehicle'); return; }
-            const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            const draft = JSON.parse(await cloudStorage.getItem(draftKey));
-            if (!draft || !draft.auditData) { alert('⚠️ No audit data found.'); return; }
-            const fullAuditData = draft.auditData;
-            const filteredData = {};
-            selectedVehicleKeys.forEach(key => { if (fullAuditData[key]) filteredData[key] = fullAuditData[key]; });
-            const target = parseFloat(draft.target) || 2.3;
-            const limit = parseFloat(draft.speedLimit) || 80;
-            const fleet = Object.keys(filteredData).map(k => {
-                const v = filteredData[k];
-                return { reg: v.reg, type: v.type, gpsDist: v.gps, mK: parseFloat(v.odo)||0, mL: parseFloat(v.liters)||0, violations: v.speeds ? v.speeds.filter(s => s > limit).length : 0, duration: v.duration||0, maxSpeed: v.maxSpeed||0, speeds: v.speeds||[] };
-            });
-            const dateRangeText = startDate + ' - ' + endDate;
-            const reportPayload = { client: { company: client.company, town: client.city || 'Cape Town', target }, month: dateRangeText, fleet, speedLimit: limit, wPrice: 21.50, isActive: client.status === 'active', customReport: { focus, vehicleCount: selectedVehicleKeys.length, totalVehicles: Object.keys(fullAuditData).length, dateRange: { from: startDate, to: endDate }, format } };
-            await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
-            closeCustomReportModal();
-            if (format === 'pdf') {
-                const reportWindow = window.open('report-custom.html', '_blank');
-                if (!reportWindow) alert('⚠️ Pop-up blocked!');
-            } else {
-                let csv = 'Registration,Type,GPS KM,Manual KM,Liters,Violations,Max Speed\n';
-                fleet.forEach(v => { csv += v.reg + ',' + v.type + ',' + v.gpsDist + ',' + v.mK + ',' + v.mL + ',' + v.violations + ',' + v.maxSpeed + '\n'; });
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = client.company + '_' + dateRangeText + '_Report.csv'; a.click();
-                URL.revokeObjectURL(url);
-            }
-        }
-
-        function openAudit(clientName) { window.location.href = 'audit.html?client=' + encodeURIComponent(clientName); }
-        function closeFleetModal() { document.getElementById('fleetModal').style.display = 'none'; }
-
+        
         function renderFleetTable() {
             const tbody = document.getElementById('fleetTableBody');
+            
             if (currentFleetData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.3); font-weight: 900; text-transform: uppercase; font-size: 11px;">No vehicles added yet. Click "➕ Add Vehicle" to get started.</td></tr>';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.3); font-weight: 900; text-transform: uppercase; font-size: 11px;">
+                            No vehicles added yet. Click "➕ Add Vehicle" to get started.
+                        </td>
+                    </tr>
+                `;
                 return;
             }
-            tbody.innerHTML = currentFleetData.map((v, idx) =>
-                '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">' +
-                    '<td style="padding: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 700;">' + (idx + 1) + '</td>' +
-                    '<td style="padding: 0.75rem;"><input type="text" value="' + (v.reg||'') + '" onchange="updateFleetField(' + idx + ', \'reg\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="ABC123GP"></td>' +
-                    '<td style="padding: 0.75rem;"><select onchange="updateFleetField(' + idx + ', \'type\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;"><option value="Heavy"' + (v.type==='Heavy'?' selected':'') + '>Heavy</option><option value="Medium"' + (v.type==='Medium'?' selected':'') + '>Medium</option></select></td>' +
-                    '<td style="padding: 0.75rem;"><input type="text" value="' + (v.make||'') + '" onchange="updateFleetField(' + idx + ', \'make\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="Volvo"></td>' +
-                    '<td style="padding: 0.75rem;"><input type="text" value="' + (v.model||'') + '" onchange="updateFleetField(' + idx + ', \'model\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="FH440"></td>' +
-                    '<td style="padding: 0.75rem;"><input type="text" value="' + (v.year||'') + '" onchange="updateFleetField(' + idx + ', \'year\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="2022"></td>' +
-                    '<td style="padding: 0.75rem;"><select onchange="updateFleetField(' + idx + ', \'usedFor\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;"><option value="Long Distance"' + (v.usedFor==='Long Distance'?' selected':'') + '>Long Distance</option><option value="Local Full"' + (v.usedFor==='Local Full'?' selected':'') + '>Local Full</option><option value="Local 50%"' + (v.usedFor==='Local 50%'?' selected':'') + '>Local 50%</option></select></td>' +
-                    '<td style="padding: 0.75rem;"><input type="number" step="0.1" value="' + (v.targetKmL||'2.3') + '" onchange="updateFleetField(' + idx + ', \'targetKmL\', this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="2.3"></td>' +
-                    '<td style="padding: 0.75rem; text-align: center;"><button onclick="removeVehicle(' + idx + ')" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:11px;font-weight:900;cursor:pointer;">🗑️</button></td>' +
-                '</tr>'
-            ).join('');
+            
+            tbody.innerHTML = currentFleetData.map((v, idx) => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 700;">${idx + 1}</td>
+                    <td style="padding: 0.75rem;">
+                        <input type="text" value="${v.reg || ''}" 
+                               onchange="updateFleetField(${idx}, 'reg', this.value)"
+                               style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;"
+                               placeholder="ABC123GP">
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <select onchange="updateFleetField(${idx}, 'type', this.value)"
+                                style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;">
+                            <option value="Heavy" ${v.type === 'Heavy' ? 'selected' : ''}>Heavy</option>
+                            <option value="Medium" ${v.type === 'Medium' ? 'selected' : ''}>Medium</option>
+                        </select>
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <input type="text" value="${v.make || ''}" 
+                               onchange="updateFleetField(${idx}, 'make', this.value)"
+                               style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;"
+                               placeholder="Volvo">
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <input type="text" value="${v.model || ''}" 
+                               onchange="updateFleetField(${idx}, 'model', this.value)"
+                               style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;"
+                               placeholder="FH440">
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <input type="text" value="${v.year || ''}" 
+                               onchange="updateFleetField(${idx}, 'year', this.value)"
+                               style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;"
+                               placeholder="2022">
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <select onchange="updateFleetField(${idx}, 'usedFor', this.value)"
+                                style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;">
+                            <option value="Long Distance" ${v.usedFor === 'Long Distance' ? 'selected' : ''}>Long Distance</option>
+                            <option value="Local Full" ${v.usedFor === 'Local Full' ? 'selected' : ''}>Local Full</option>
+                            <option value="Local 50%" ${v.usedFor === 'Local 50%' ? 'selected' : ''}>Local 50%</option>
+                        </select>
+                    </td>
+                    <td style="padding: 0.75rem;">
+                        <input type="number" step="0.1" value="${v.targetKmL || '2.3'}" 
+                               onchange="updateFleetField(${idx}, 'targetKmL', this.value)"
+                               style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem; color: white; font-size: 13px;"
+                               placeholder="2.3">
+                    </td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button onclick="removeVehicle(${idx})" 
+                                style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 11px; font-weight: 900; cursor: pointer;">
+                            🗑️
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
-
-        function addVehicleRow() { currentFleetData.push({ reg:'', type:'Heavy', make:'', model:'', year:'', usedFor:'Long Distance', targetKmL:'2.3' }); renderFleetTable(); }
-        function updateFleetField(index, field, value) { if (currentFleetData[index]) currentFleetData[index][field] = value; }
-        function removeVehicle(index) { if (confirm('Remove this vehicle from the fleet?')) { currentFleetData.splice(index, 1); renderFleetTable(); } }
-
+        
+        function addVehicleRow() {
+            currentFleetData.push({
+                reg: '',
+                type: 'Heavy',
+                make: '',
+                model: '',
+                year: '',
+                usedFor: 'Long Distance',
+                targetKmL: '2.3'
+            });
+            renderFleetTable();
+        }
+        
+        function updateFleetField(index, field, value) {
+            if (currentFleetData[index]) {
+                currentFleetData[index][field] = value;
+            }
+        }
+        
+        function removeVehicle(index) {
+            if (confirm('Remove this vehicle from the fleet?')) {
+                currentFleetData.splice(index, 1);
+                renderFleetTable();
+            }
+        }
+        
         async function saveFleet() {
             const clientId = document.getElementById('fleetClientId').value;
             let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === clientId);
+            
             if (index !== -1) {
                 const validVehicles = currentFleetData.filter(v => v.reg && v.reg.trim() !== '');
-                if (validVehicles.length === 0) { alert('⚠️ Please add at least one vehicle with a registration number.'); return; }
+                
+                if (validVehicles.length === 0) {
+                    alert('⚠️ Please add at least one vehicle with a registration number.');
+                    return;
+                }
+                
                 allClients[index].fleet = validVehicles;
                 allClients[index].fleetSize = validVehicles.length;
                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                
                 closeFleetModal();
                 renderDatabase();
-                alert('✅ Fleet saved! ' + validVehicles.length + ' vehicle' + (validVehicles.length !== 1 ? 's' : '') + ' registered.');
+                alert(`✅ Fleet saved! ${validVehicles.length} vehicle${validVehicles.length !== 1 ? 's' : ''} registered.`);
             }
         }
 
         async function syncFromAudit(clientId) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
-            if (!client) { alert('❌ Client not found!'); return; }
+            
+            if (!client) {
+                alert('❌ Client not found!');
+                return;
+            }
+            
             const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
             const savedDraft = await cloudStorage.getItem(draftKey);
-            if (!savedDraft) { alert('⚠️ No audit data found for this client.'); return; }
+            
+            if (!savedDraft) {
+                alert('⚠️ No audit data found for this client.\n\nPlease ensure an audit has been completed first, or use "🚛 Manage Fleet" to add vehicles manually.');
+                return;
+            }
+            
             try {
                 const draft = JSON.parse(savedDraft);
-                if (!draft.auditData || Object.keys(draft.auditData).length === 0) { alert('⚠️ Audit data is empty.'); return; }
+                
+                if (!draft.auditData || Object.keys(draft.auditData).length === 0) {
+                    alert('⚠️ Audit data is empty.\n\nPlease complete an audit first, or use "🚛 Manage Fleet" to add vehicles manually.');
+                    return;
+                }
+                
                 const fleet = Object.keys(draft.auditData).map(key => {
                     const v = draft.auditData[key];
-                    return { reg: v.reg||key, type: v.type||'Heavy', make: v.make||'', model: v.model||'', year: v.year||'', usedFor: v.usedFor||'Long Distance', targetKmL: v.targetKmL||'2.3' };
+                    return {
+                        reg: v.reg || key,
+                        type: v.type || 'Heavy',
+                        make: v.make || '',
+                        model: v.model || '',
+                        year: v.year || '',
+                        usedFor: v.usedFor || 'Long Distance',
+                        targetKmL: v.targetKmL || '2.3'
+                    };
                 });
+                
                 const index = allClients.findIndex(c => c.id === clientId);
                 if (index !== -1) {
                     allClients[index].fleet = fleet;
                     allClients[index].fleetSize = fleet.length;
                     await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                    alert('✅ Fleet synced! ' + fleet.length + ' vehicle' + (fleet.length !== 1 ? 's' : '') + ' imported.');
+                    
+                    alert(`✅ Fleet synced successfully!\n\n${fleet.length} vehicle${fleet.length !== 1 ? 's' : ''} imported from audit data.\n\nYou can now generate weekly forms.`);
                     renderDatabase();
                 }
-            } catch(e) { console.error('Error syncing:', e); alert('❌ Error syncing data.'); }
-        }
-
-        async function generateWeeklyForm(clientId) {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const client = allClients.find(c => c.id === clientId);
-            if (!client) { alert('❌ Client not found!'); return; }
-            const fleet = client.fleet || [];
-            if (!fleet || fleet.length === 0) { alert('⚠️ No fleet data found!\n\nPlease use "🚛 Manage Fleet" or "📥 Sync from Audit" first.'); return; }
-            // Build form HTML safely using array join to avoid any script-tag parsing issues
-            const STAG = '<' + 'script>';
-            const ETAG = '<' + '/script>';
-
-            const reportType = client.reportSchedule || 'weekly';
-
-            const vehicleRows = fleet.map((v, i) =>
-                '<tr>' +
-                '<td style="text-align:center;color:rgba(255,255,255,0.3);font-weight:900">' + (i+1) + '</td>' +
-                '<td class="locked-cell">' + v.reg + '</td>' +
-                '<td class="locked-cell">' + v.type + '</td>' +
-                '<td class="locked-cell">' + v.make + '</td>' +
-                '<td class="locked-cell">' + v.model + '</td>' +
-                '<td class="locked-cell">' + v.year + '</td>' +
-                '<td class="locked-cell">' + v.usedFor + '</td>' +
-                '<td class="locked-cell">' + v.targetKmL + '</td>' +
-                '<td class="editable-cell" style="text-align:center;"><input type="checkbox" id="update-' + i + '"></td>' +
-                '<td class="editable-cell" style="text-align:center;"><input type="checkbox" id="remove-' + i + '"></td>' +
-                '<td class="editable-cell"><input type="number" id="endOdo-' + i + '" placeholder="Odo" oninput="updateProgress()"></td>' +
-                '<td class="editable-cell"><input type="number" id="totalKm-' + i + '" placeholder="KM" oninput="updateProgress()"></td>' +
-                '<td class="editable-cell"><input type="number" id="fuelUsed-' + i + '" placeholder="Liters" oninput="updateProgress()"></td>' +
-                '<td class="editable-cell"><input type="text" id="notes-' + i + '" placeholder="Changes..."></td>' +
-                '</tr>'
-            ).join('');
-
-            const vehiclesData = JSON.stringify(fleet.map(v => ({
-                reg: v.reg, type: v.type, make: v.make, model: v.model,
-                year: v.year, usedFor: v.usedFor, targetKmL: v.targetKmL
-            })));
-
-            const formParts = [];
-            formParts.push('<!DOCTYPE html>');
-            formParts.push('<html lang="en">');
-            formParts.push('<head>');
-            formParts.push('<meta charset="UTF-8">');
-            formParts.push('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
-            formParts.push('<title>' + client.company + ' - ' + reportType + ' Report</title>');
-            formParts.push('<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">');
-            formParts.push('<style>');
-            formParts.push('* { margin: 0; padding: 0; box-sizing: border-box; }');
-            formParts.push("body { font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #e2e8f0; padding: 2rem; min-height: 100vh; }");
-            formParts.push('.container { max-width: 1800px; margin: 0 auto; background: rgba(15,23,42,0.8); backdrop-filter: blur(20px); border-radius: 2rem; border: 1px solid rgba(16,185,129,0.2); padding: 3rem; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }');
-            formParts.push('.header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid rgba(16,185,129,0.3); }');
-            formParts.push('.title { font-size: 2.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; background: linear-gradient(135deg,#10b981,#34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }');
-            formParts.push('.info-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 1.5rem; margin-bottom: 2rem; }');
-            formParts.push('.info-card { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); padding: 1.5rem; border-radius: 1rem; }');
-            formParts.push('.info-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: rgba(16,185,129,0.8); letter-spacing: 0.1em; margin-bottom: 0.5rem; }');
-            formParts.push('.info-value { font-size: 1.25rem; font-weight: 900; color: #10b981; }');
-            formParts.push('.report-type { background: rgba(251,191,36,0.1); border: 2px solid #fbbf24; padding: 1rem 1.5rem; border-radius: 1rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }');
-            formParts.push('.report-type label { color: #fbbf24; font-weight: 900; font-size: 0.875rem; text-transform: uppercase; }');
-            formParts.push('.report-type select { flex: 1; background: #0f172a; border: 2px solid #fbbf24; color: #fbbf24; padding: 0.75rem; border-radius: 0.5rem; font-weight: 900; font-size: 0.875rem; outline: none; }');
-            formParts.push('.instructions { background: linear-gradient(135deg,rgba(251,191,36,0.1),rgba(245,158,11,0.05)); border-left: 4px solid #fbbf24; padding: 1.5rem; border-radius: 0.75rem; margin-bottom: 2rem; }');
-            formParts.push('.instructions h3 { color: #fbbf24; font-weight: 900; font-size: 1rem; text-transform: uppercase; margin-bottom: 0.75rem; }');
-            formParts.push('.instructions ul { list-style: none; color: #fde68a; }');
-            formParts.push('.instructions li { margin-bottom: 0.5rem; padding-left: 1.5rem; position: relative; }');
-            formParts.push('.instructions li:before { content: "\2192"; position: absolute; left: 0; color: #fbbf24; font-weight: bold; }');
-            formParts.push('.progress-section { margin-bottom: 2rem; }');
-            formParts.push('.progress-bar { background: rgba(15,23,42,0.6); height: 12px; border-radius: 999px; overflow: hidden; margin-top: 1rem; }');
-            formParts.push('.progress-fill { background: linear-gradient(90deg,#10b981,#34d399); height: 100%; transition: width 0.3s; width: 0%; }');
-            formParts.push('.progress-text { font-size: 0.875rem; color: rgba(16,185,129,0.8); font-weight: 700; }');
-            formParts.push('.data-table { background: rgba(30,41,59,0.4); border-radius: 1.5rem; padding: 1.5rem; overflow-x: auto; margin-bottom: 2rem; }');
-            formParts.push('table { width: 100%; border-collapse: separate; border-spacing: 0; }');
-            formParts.push('thead th { background: #10b981; color: #020617; padding: 1rem 0.5rem; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; z-index: 10; }');
-            formParts.push('thead th:first-child { border-radius: 0.5rem 0 0 0; } thead th:last-child { border-radius: 0 0.5rem 0 0; }');
-            formParts.push('tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); } tbody tr:hover { background: rgba(16,185,129,0.05); }');
-            formParts.push('tbody td { padding: 0.75rem 0.5rem; color: #e2e8f0; font-size: 0.875rem; }');
-            formParts.push('.locked-cell { background: rgba(15,23,42,0.8); color: rgba(226,232,240,0.6); } .editable-cell { background: rgba(255,255,255,0.05); }');
-            formParts.push("input[type=\"number\"], input[type=\"text\"] { width: 100%; padding: 0.6rem; background: #0f172a; border: 2px solid rgba(16,185,129,0.3); border-radius: 0.5rem; color: white; font-size: 0.8rem; font-family: 'Outfit', sans-serif; font-weight: 600; outline: none; transition: all 0.2s; }");
-            formParts.push('input[type="number"]:focus, input[type="text"]:focus { border-color: #10b981; background: #1e293b; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }');
-            formParts.push('input::placeholder { color: rgba(226,232,240,0.3); }');
-            formParts.push('input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }');
-            formParts.push('input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #10b981; }');
-            formParts.push('.add-vehicle-section { background: rgba(59,130,246,0.1); border: 2px dashed rgba(59,130,246,0.3); border-radius: 1.5rem; padding: 2rem; margin-bottom: 2rem; }');
-            formParts.push(".add-vehicle-section h3 { color: #3b82f6; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 1.5rem; }");
-            formParts.push('.new-vehicle-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: rgba(15,23,42,0.6); border-radius: 0.75rem; }');
-            formParts.push('.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }');
-            formParts.push(".btn { padding: 1.25rem; border: none; border-radius: 1rem; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; }");
-            formParts.push('.btn-primary { background: linear-gradient(135deg,#10b981,#059669); color: #020617; box-shadow: 0 10px 30px rgba(16,185,129,0.3); }');
-            formParts.push('.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(16,185,129,0.4); }');
-            formParts.push('.btn-secondary { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); } .btn-secondary:hover { background: rgba(255,255,255,0.1); }');
-            formParts.push('.btn-add { background: rgba(59,130,246,0.2); color: #3b82f6; border: 2px dashed rgba(59,130,246,0.5); padding: 0.75rem; font-size: 0.8rem; } .btn-add:hover { background: rgba(59,130,246,0.3); }');
-            formParts.push('.footer { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; color: rgba(226,232,240,0.5); font-size: 0.75rem; }');
-            formParts.push("select { background: #0f172a; border: 2px solid rgba(16,185,129,0.3); color: white; padding: 0.6rem; border-radius: 0.5rem; font-size: 0.8rem; font-family: 'Outfit', sans-serif; outline: none; width: 100%; }");
-            formParts.push('@media (max-width: 768px) { .container { padding: 1.5rem; } .title { font-size: 1.75rem; } .actions { grid-template-columns: 1fr; } }');
-            formParts.push('</style>');
-            formParts.push('</head>');
-            formParts.push('<body>');
-            formParts.push('<div class="container">');
-            formParts.push('<div class="header">');
-            formParts.push('<h1 class="title">' + client.company + '</h1>');
-            formParts.push('<p style="color:rgba(226,232,240,0.6);font-size:0.875rem;">Fleet Report - Submit your data</p>');
-            formParts.push('</div>');
-            formParts.push('<div class="info-grid">');
-            formParts.push('<div class="info-card"><div class="info-label">Client</div><div class="info-value">' + client.company + '</div></div>');
-            formParts.push('<div class="info-card"><div class="info-label">Generated</div><div class="info-value">' + new Date().toLocaleDateString() + '</div></div>');
-            formParts.push('<div class="info-card"><div class="info-label">Vehicles</div><div class="info-value">' + fleet.length + ' Units</div></div>');
-            formParts.push('</div>');
-            formParts.push('<div class="report-type">');
-            formParts.push('<label for="report-frequency">Report Type:</label>');
-            formParts.push('<select id="report-frequency" onchange="updatePeriodDate()">');
-            formParts.push('<option value="weekly"' + (reportType === 'weekly' ? ' selected' : '') + '>Weekly Report (Ends Sunday)</option>');
-            formParts.push('<option value="monthly"' + (reportType === 'monthly' ? ' selected' : '') + '>Monthly Report (Month End)</option>');
-            formParts.push('</select>');
-            formParts.push('<div style="flex:1;"><span style="color:rgba(226,232,240,0.6);font-size:0.75rem;display:block;">Period Ending:</span><span id="period-date" style="color:#fbbf24;font-weight:900;font-size:1rem;">-</span></div>');
-            formParts.push('</div>');
-            formParts.push('<div class="instructions"><h3>📋 Instructions</h3><ul>');
-            formParts.push('<li>Review vehicle details - check boxes if updates or removals needed</li>');
-            formParts.push('<li>Complete <strong>End Odo</strong>, <strong>Total KM</strong>, and <strong>Fuel Used</strong> columns</li>');
-            formParts.push('<li>You can fill either End Odo OR Total KM (or both for verification)</li>');
-            formParts.push('<li>Add new vehicles in the section below the table</li>');
-            formParts.push('<li>Click <strong>Submit Report</strong> when complete</li>');
-            formParts.push('</ul></div>');
-            formParts.push('<div class="progress-section"><div class="progress-text">Progress: <span id="completed-count">0</span> of <span id="total-count">' + fleet.length + '</span> vehicles completed</div><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div></div>');
-            formParts.push('<div class="data-table"><table><thead><tr>');
-            formParts.push('<th style="width:30px;">#</th><th style="width:150px;">Registration</th><th style="width:80px;">Type</th><th style="width:100px;">Make</th><th style="width:100px;">Model</th><th style="width:60px;">Year</th><th style="width:120px;">Used For</th><th style="width:80px;">Target km/L</th><th style="width:50px;">Update?</th><th style="width:50px;">Remove?</th><th style="width:120px;">End Odo</th><th style="width:110px;">Total KM</th><th style="width:110px;">Fuel Used (L)</th><th style="width:150px;">Notes</th>');
-            formParts.push('</tr></thead><tbody id="table-body">');
-            formParts.push(vehicleRows);
-            formParts.push('</tbody></table></div>');
-            formParts.push('<div class="add-vehicle-section"><h3>➕ Add New Vehicles</h3><div id="new-vehicles-container"></div></div>');
-            formParts.push('<footer class="footer"><div class="actions">');
-            formParts.push('<button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>');
-            formParts.push('<button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>');
-            formParts.push('<button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>');
-            formParts.push('</div><p>Email this file to: <strong>' + (client.email || 'reports@fleetintel.co.za') + '</strong><br>For support, contact your account manager</p></footer>');
-            formParts.push('</div>');
-            formParts.push(STAG);
-            formParts.push('const reportData = { client: ' + JSON.stringify(client.company) + ', generatedDate: new Date().toISOString(), reportType: ' + JSON.stringify(reportType) + ', vehicles: ' + vehiclesData + ' };');
-            formParts.push('let newVehicleCounter = 0;');
-            formParts.push('function initForm() { updatePeriodDate(); updateProgress(); }');
-            formParts.push('function updatePeriodDate() {');
-            formParts.push('  const type = document.getElementById("report-frequency").value;');
-            formParts.push('  const today = new Date(); let periodEnd;');
-            formParts.push('  if (type === "weekly") { const d = today.getDay(); const days = d===0?0:7-d; periodEnd = new Date(today); periodEnd.setDate(today.getDate()+days-7); }');
-            formParts.push('  else { periodEnd = new Date(today.getFullYear(), today.getMonth(), 0); }');
-            formParts.push('  document.getElementById("period-date").textContent = periodEnd.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();');
-            formParts.push('}');
-            formParts.push('function addNewVehicleRow() {');
-            formParts.push('  const container = document.getElementById("new-vehicles-container");');
-            formParts.push('  const id = newVehicleCounter++;');
-            formParts.push('  const row = document.createElement("div");');
-            formParts.push('  row.className = "new-vehicle-row"; row.id = "new-vehicle-" + id;');
-            formParts.push('  row.innerHTML = '<input type="text" placeholder="Registration" id="new-reg-'+id+'">' + '<select id="new-type-'+id+'"><option>Heavy</option><option>Medium</option></select>' + '<input type="text" placeholder="Make" id="new-make-'+id+'">' + '<input type="text" placeholder="Model" id="new-model-'+id+'">' + '<input type="text" placeholder="Year" id="new-year-'+id+'">' + '<select id="new-used-'+id+'"><option>Long Distance</option><option>Local Full</option><option>Local 50%</option></select>' + '<input type="number" placeholder="Target km/L" id="new-target-'+id+'" value="2.3">' + '<button onclick="document.getElementById(\'new-vehicle-'+id+'\').remove()" style="padding:0.5rem;background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;cursor:pointer;">Remove</button>';');
-            formParts.push('  container.appendChild(row);');
-            formParts.push('}');
-            formParts.push('function updateProgress() {');
-            formParts.push('  let completed = 0;');
-            formParts.push('  reportData.vehicles.forEach((v,i) => { if((document.getElementById("endOdo-"+i).value || document.getElementById("totalKm-"+i).value) && document.getElementById("fuelUsed-"+i).value) completed++; });');
-            formParts.push('  document.getElementById("completed-count").textContent = completed;');
-            formParts.push('  document.getElementById("progress-fill").style.width = ((completed/reportData.vehicles.length)*100)+"%";');
-            formParts.push('}');
-            formParts.push('function submitReport() {');
-            formParts.push('  const sub = { client: reportData.client, reportType: document.getElementById("report-frequency").value, periodEnding: document.getElementById("period-date").textContent, submittedAt: new Date().toISOString(), vehicles:[], updates:[], removals:[], newVehicles:[] };');
-            formParts.push('  reportData.vehicles.forEach((v,i) => {');
-            formParts.push('    const notes = document.getElementById("notes-"+i).value;');
-            formParts.push('    sub.vehicles.push({...v, endOdo:document.getElementById("endOdo-"+i).value||"", totalKm:document.getElementById("totalKm-"+i).value||"", fuelUsed:document.getElementById("fuelUsed-"+i).value||"", notes});');
-            formParts.push('    if(document.getElementById("update-"+i).checked) sub.updates.push({reg:v.reg,notes});');
-            formParts.push('    if(document.getElementById("remove-"+i).checked) sub.removals.push({reg:v.reg,notes});');
-            formParts.push('  });');
-            formParts.push('  for(let i=0;i<newVehicleCounter;i++){const r=document.getElementById("new-reg-"+i);if(r&&r.value)sub.newVehicles.push({reg:r.value,type:document.getElementById("new-type-"+i).value,make:document.getElementById("new-make-"+i).value,model:document.getElementById("new-model-"+i).value,year:document.getElementById("new-year-"+i).value,usedFor:document.getElementById("new-used-"+i).value,targetKmL:document.getElementById("new-target-"+i).value});}');
-            formParts.push('  const blob = new Blob([JSON.stringify(sub,null,2)],{type:"application/json"});');
-            formParts.push('  const url = window.URL.createObjectURL(blob); const a = document.createElement("a");');
-            formParts.push('  a.href=url; a.download="FleetData_"+reportData.client.replace(/\s+/g,"_")+"_"+sub.reportType.charAt(0).toUpperCase()+sub.reportType.slice(1)+"_"+new Date().toISOString().split("T")[0]+".json"; a.click();');
-            formParts.push('  alert("✅ Report submitted!\n\nPlease email this file to your fleet manager.");');
-            formParts.push('}');
-            formParts.push('function clearForm() { if(confirm("Clear all entered data?")) location.reload(); }');
-            formParts.push('window.onload = initForm;');
-            formParts.push(ETAG);
-            formParts.push('</body>');
-            formParts.push('</html>');
-
-            const formHTML = formParts.join('\n');
-
-            // Download the form
-            const blob = new Blob([formHTML], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = client.company.replace(/\s+/g, '_') + '_' + reportType + '_' + new Date().toISOString().split('T')[0] + '.html';
-            a.click();
-            URL.revokeObjectURL(url);
-
-            // Update client history
-            let allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const index = allClientsUpdated.findIndex(c => c.id === clientId);
-            if (index !== -1) {
-                allClientsUpdated[index].lastReportSent = new Date().toISOString();
-                if (!allClientsUpdated[index].reportHistory) allClientsUpdated[index].reportHistory = [];
-                allClientsUpdated[index].reportHistory.push({ date: new Date().toISOString(), type: reportType, generated: true, vehicles: fleet.length });
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
+            } catch (e) {
+                console.error('Error syncing from audit:', e);
+                alert('❌ Error syncing data. Please try again or contact support.');
             }
-            renderDatabase();
+        }
+    
+	function getFleetForClient(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
+
+    if (!client) {
+        alert('❌ Client not found!');
+        return null;
+    }
+
+    let fleet = client.fleet || client.vehicles || [];
+
+    // Try to recover fleet from audit draft
+    if (!fleet || fleet.length === 0) {
+        const companyName = client.company || '';
+        const draftKey = 'AUDIT_DRAFT_' + companyName.toUpperCase().replace(/\s+/g, '_');
+        const savedDraft = await cloudStorage.getItem(draftKey);
+
+        if (savedDraft) {
+            try {
+                const draft = JSON.parse(savedDraft);
+
+                if (draft.auditData && Object.keys(draft.auditData).length > 0) {
+                    fleet = Object.keys(draft.auditData).map(key => {
+                        const v = draft.auditData[key];
+                        return {
+                            reg: v.reg || key,
+                            type: v.type || 'Heavy',
+                            make: v.make || '',
+                            model: v.model || '',
+                            year: v.year || '',
+                            usedFor: v.usedFor || 'Long Distance',
+                            targetKmL: v.targetKmL || '2.3'
+                        };
+                    });
+
+                    const index = allClients.findIndex(c => c.id === clientId);
+                    if (index !== -1) {
+                        allClients[index].fleet = fleet;
+                        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                    }
+                }
+            } catch (e) {
+                console.error('Error parsing audit data:', e);
+            }
+        }
+    }
+
+    // Final check
+    if (!fleet || fleet.length === 0) {
+        if (confirm(
+            '⚠️ No fleet data found!\n\n' +
+            '1. Use "📥 Sync from Audit"\n' +
+            '2. Or add vehicles manually\n\n' +
+            'Would you like to manage fleet now?'
+        )) {
+            manageFleet(clientId);
+        }
+        return null;
+    }
+
+    return fleet;
+}
+	
+	async function generateWeeklyForm(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
+
+    if (!client) {
+        alert('❌ Client not found!');
+        return;
+    }
+
+    const fleet = getFleetForClient(clientId);
+    if (!fleet) return;
+
+    console.log('Generating weekly form for client:', client);
+
+    const reportType = client.reportSchedule || 'weekly';
+        
+    // Generate vehicle rows with pre-filled data
+        
+   const vehicleRows = fleet.map((v, i) => 
+        `<tr>
+            <td style="text-align:center;color:rgba(255,255,255,0.3);font-weight:900">${i + 1}</td>
+            <td class="locked-cell">${v.reg}</td>
+            <td class="locked-cell">${v.type}</td>
+            <td class="locked-cell">${v.make}</td>
+            <td class="locked-cell">${v.model}</td>
+            <td class="locked-cell">${v.year}</td>
+            <td class="locked-cell">${v.usedFor}</td>
+            <td class="locked-cell">${v.targetKmL}</td>
+            <td class="editable-cell" style="text-align: center;">
+                <input type="checkbox" id="update-${i}">
+            </td>
+            <td class="editable-cell" style="text-align: center;">
+                <input type="checkbox" id="remove-${i}">
+            </td>
+            <td class="editable-cell">
+                <input type="number" id="endOdo-${i}" placeholder="Odo" oninput="updateProgress()">
+            </td>
+            <td class="editable-cell">
+                <input type="number" id="totalKm-${i}" placeholder="KM" oninput="updateProgress()">
+            </td>
+            <td class="editable-cell">
+                <input type="number" id="fuelUsed-${i}" placeholder="Liters" oninput="updateProgress()">
+            </td>
+            <td class="editable-cell">
+                <input type="text" id="notes-${i}" placeholder="Changes...">
+            </td>
+        </tr>`
+    ).join('');
+    
+    // Generate JavaScript data for the form
+    const vehiclesData = fleet.map(v => 
+        `{ reg: '${v.reg}', type: '${v.type}', make: '${v.make}', model: '${v.model}', year: '${v.year}', usedFor: '${v.usedFor}', targetKmL: '${v.targetKmL}' }`
+    ).join(',\n                ');
+
+    const formHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${client.company} - ${reportType} Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            color: #e2e8f0; 
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1800px; 
+            margin: 0 auto; 
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+        }
+        .logo { max-width: 200px; margin-bottom: 1.5rem; }
+        .title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-style: italic;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .info-card {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 1.5rem;
+            border-radius: 1rem;
+        }
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: rgba(16, 185, 129, 0.8);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        .info-value {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #10b981;
+        }
+        .report-type {
+            background: rgba(251, 191, 36, 0.1);
+            border: 2px solid #fbbf24;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .report-type label {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+        .report-type select {
+            flex: 1;
+            background: #0f172a;
+            border: 2px solid #fbbf24;
+            color: #fbbf24;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 900;
+            font-size: 0.875rem;
+            outline: none;
+        }
+        .instructions {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05));
+            border-left: 4px solid #fbbf24;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        .instructions h3 {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .instructions ul {
+            list-style: none;
+            color: #fde68a;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .instructions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #fbbf24;
+            font-weight: bold;
+        }
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+        .progress-bar {
+            background: rgba(15, 23, 42, 0.6);
+            height: 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            height: 100%;
+            transition: width 0.3s;
+            width: 0%;
+        }
+        .progress-text {
+            font-size: 0.875rem;
+            color: rgba(16, 185, 129, 0.8);
+            font-weight: 700;
+        }
+        .data-table {
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        thead th {
+            background: #10b981;
+            color: #020617;
+            padding: 1rem 0.5rem;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        thead th:first-child { border-radius: 0.5rem 0 0 0; }
+        thead th:last-child { border-radius: 0 0.5rem 0 0; }
+        tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        tbody tr:hover {
+            background: rgba(16, 185, 129, 0.05);
+        }
+        tbody td {
+            padding: 0.75rem 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+        }
+        .locked-cell {
+            background: rgba(15, 23, 42, 0.8);
+            color: rgba(226, 232, 240, 0.6);
+        }
+        .editable-cell { background: rgba(255, 255, 255, 0.05); }
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 0.6rem;
+            background: #0f172a;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s;
+        
+        input[type="number"]:focus, input[type="text"]:focus {
+            border-color: #10b981;
+            background: #1e293b;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        input::placeholder { color: rgba(226, 232, 240, 0.3); }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #10b981;
+        }
+        .add-vehicle-section {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px dashed rgba(59, 130, 246, 0.3);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .add-vehicle-section h3 {
+            color: #3b82f6;
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .new-vehicle-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 0.75rem;
+        }
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .btn {
+            padding: 1.25rem;
+            border: none;
+            border-radius: 1rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #020617;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-add {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 2px dashed rgba(59, 130, 246, 0.5);
+            padding: 0.75rem;
+            font-size: 0.8rem;
+        }
+        .btn-add:hover { background: rgba(59, 130, 246, 0.3); }
+        .footer {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(226, 232, 240, 0.5);
+            font-size: 0.75rem;
+        }
+        select {
+            background: #0f172a;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            color: white;
+            padding: 0.6rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1.5rem; }
+            .title { font-size: 1.75rem; }
+            .actions { grid-template-columns: 1fr; }
+        }
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">${client.company}</h1>
+            <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Fleet Report - Submit your data</p>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-label">Client</div>
+                <div class="info-value">${client.company}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Generated</div>
+                <div class="info-value" id="generated-date">${new Date().toLocaleDateString()}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Vehicles</div>
+                <div class="info-value"><span id="vehicle-count">${fleet.length}</span> Units</div>
+            </div>
+        </div>
+
+        <div class="report-type">
+            <label for="report-frequency">Report Type:</label>
+            <select id="report-frequency" onchange="updatePeriodDate()">
+                <option value="weekly" ${reportType === 'weekly' ? 'selected' : ''}>Weekly Report (Ends Sunday)</option>
+                <option value="monthly" ${reportType === 'monthly' ? 'selected' : ''}>Monthly Report (Month End)</option>
+            </select>
+            <div style="flex: 1;">
+                <span style="color: rgba(226, 232, 240, 0.6); font-size: 0.75rem; display: block;">Period Ending:</span>
+                <span id="period-date" style="color: #fbbf24; font-weight: 900; font-size: 1rem;">-</span>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>📋 Instructions</h3>
+            <ul>
+                <li>Review vehicle details - check boxes if updates or removals needed</li>
+                <li>Complete <strong>End Odo</strong>, <strong>Total KM</strong>, and <strong>Fuel Used</strong> columns</li>
+                <li>You can fill either End Odo OR Total KM (or both for verification)</li>
+                <li>Add new vehicles in the section below the table</li>
+                <li>Click <strong>Submit Report</strong> when complete</li>
+            </ul>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-text">
+                Progress: <span id="completed-count">0</span> of <span id="total-count">${fleet.length}</span> vehicles completed
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 30px;">#</th>
+                        <th style="width: 150px;">Registration</th>
+                        <th style="width: 80px;">Type</th>
+                        <th style="width: 100px;">Make</th>
+                        <th style="width: 100px;">Model</th>
+                        <th style="width: 60px;">Year</th>
+                        <th style="width: 120px;">Used For</th>
+                        <th style="width: 80px;">Target km/L</th>
+                        <th style="width: 50px;">Update?</th>
+                        <th style="width: 50px;">Remove?</th>
+                        <th style="width: 120px;">End Odo</th>
+                        <th style="width: 110px;">Total KM</th>
+                        <th style="width: 110px;">Fuel Used (L)</th>
+                        <th style="width: 150px;">Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    ${vehicleRows}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="add-vehicle-section">
+            <h3>➕ Add New Vehicles</h3>
+            <div id="new-vehicles-container"></div>
+            <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
+            <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
+        </div>
+
+        <div class="footer">
+            Email this file to: <strong>${client.email || 'reports@fleetintel.co.za'}</strong><br>
+            For support, contact your account manager
+        </div>
+    </div>
+
+    <script>
+    const reportData = {
+        client: '${client.company}',
+        generatedDate: new Date().toISOString(),
+        reportType: '${reportType}',
+        vehicles: [
+            ${vehiclesData}
+        ]
+    };
+        let newVehicleCounter = 0;
+
+        function initForm() {
+            updatePeriodDate();
+            updateProgress();
         }
 
-        function showSuccessModal(clientName, period) {
-            document.getElementById('successClient').innerText = clientName;
-            document.getElementById('successPeriod').innerText = period.toUpperCase();
-            document.getElementById('successModal').style.display = 'flex';
+        function updatePeriodDate() {
+            const type = document.getElementById('report-frequency').value;
+            const today = new Date();
+            let periodEnd;
+
+            if (type === 'weekly') {
+                const dayOfWeek = today.getDay();
+                const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+                periodEnd = new Date(today);
+                periodEnd.setDate(today.getDate() + daysToSunday - 7);
+            } else {
+                periodEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+            }
+
+            const formatted = periodEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+            document.getElementById('period-date').textContent = formatted;
         }
 
-        function closeSuccessModal() { document.getElementById('successModal').style.display = 'none'; renderDatabase(); }
-
-        async function sendReminder(clientId) {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const client = allClients.find(c => c.id === clientId);
-            if (!client) return;
-            const subject = (client.reportSchedule === 'weekly' ? 'Weekly' : 'Monthly') + ' Vehicle Data Required - ' + client.company;
-            const body = 'Hi ' + (client.contactName || 'there') + ',\n\nYour ' + client.reportSchedule + ' fleet report is due.\n\nPlease fill out the form I sent and return the data file.\n\nThank you!';
-            window.location.href = 'mailto:' + client.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        function addNewVehicleRow() {
+            const container = document.getElementById('new-vehicles-container');
+            const id = newVehicleCounter++;
+            
+            const row = document.createElement('div');
+            row.className = 'new-vehicle-row';
+            row.id = 'new-vehicle-' + id;
+            row.innerHTML = \`
+                <input type="text" placeholder="Registration" id="new-reg-\${id}">
+                <select id="new-type-\${id}">
+                    <option>Heavy</option>
+                    <option>Medium</option>
+                </select>
+                <input type="text" placeholder="Make" id="new-make-\${id}">
+                <input type="text" placeholder="Model" id="new-model-\${id}">
+                <input type="text" placeholder="Year" id="new-year-\${id}">
+                <select id="new-used-\${id}">
+                    <option>Long Distance</option>
+                    <option>Local Full</option>
+                    <option>Local 50%</option>
+                </select>
+                <input type="number" placeholder="Target km/L" id="new-target-\${id}" value="2.3">
+                <button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('new-vehicle-\${id}').remove()">Remove</button>
+            \`;
+            container.appendChild(row);
         }
 
-        async function sendWeeklyReminders() {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const weekly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'weekly' && getDaysUntilDue(c) <= 2);
-            if (weekly.length === 0) { alert('No weekly reports due!'); return; }
-            alert('📅 ' + weekly.length + ' weekly report' + (weekly.length > 1 ? 's' : '') + ' due:\n\n' + weekly.map(c => c.company).join('\n') + '\n\nGenerate forms and email to clients!');
-        }
+        function updateProgress() {
+            let completed = 0;
+            const total = reportData.vehicles.length;
 
-        async function sendMonthlyReminders() {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const monthly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'monthly' && getDaysUntilDue(c) <= 7);
-            if (monthly.length === 0) { alert('No monthly reports due this week!'); return; }
-            alert('📆 ' + monthly.length + ' monthly report' + (monthly.length > 1 ? 's' : '') + ' due:\n\n' + monthly.map(c => c.company).join('\n') + '\n\nGenerate forms and email to clients!');
-        }
+            reportData.vehicles.forEach((v, index) => {
+                const endOdo = document.getElementById('endOdo-' + index).value;
+                const totalKm = document.getElementById('totalKm-' + index).value;
+                const fuelUsed = document.getElementById('fuelUsed-' + index).value;
 
-        async function exportDatabase() {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const active = allClients.filter(c => c.status === 'active');
-            let csv = 'Company,Contact,Email,Fleet Size,Schedule,Next Due,Days Until Due\n';
-            active.forEach(c => {
-                csv += '"' + c.company + '","' + (c.contactName||'') + '","' + (c.email||'') + '",' + (c.fleetSize||0) + ',"' + (c.reportSchedule||'monthly') + '","' + getNextDueDate(c).toLocaleDateString() + '",' + getDaysUntilDue(c) + '\n';
+                if ((endOdo || totalKm) && fuelUsed) {
+                    completed++;
+                }
             });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv';
-            a.click();
-            URL.revokeObjectURL(url);
+
+            const percentage = (completed / total) * 100;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('progress-fill').style.width = percentage + '%';
         }
 
-        // Wait for Firebase to initialize before running
-        setTimeout(async () => {
-            await initVehicleDatabase();
-            await renderDatabase();
-        }, 5000);
-
-        let backupTimeout;
-        async function autoBackup() { return; } // Data is in Firebase cloud
-
-        async function scheduleBackup() {
-            clearTimeout(backupTimeout);
-            backupTimeout = setTimeout(() => { autoBackup(); scheduleBackup(); }, 50000);
-        }
-
-        setTimeout(() => {
-            if (!window.cloudStorage) { console.error('❌ cloudStorage not available'); return; }
-            const originalSetItem = window.cloudStorage.setItem;
-            window.cloudStorage.setItem = async function(key, value) {
-                const result = await originalSetItem.call(this, key, value);
-                if (key === 'FLEET_CLIENTS') autoBackup();
-                return result;
+        function submitReport() {
+            const submissionData = {
+                client: reportData.client,
+                reportType: document.getElementById('report-frequency').value,
+                periodEnding: document.getElementById('period-date').textContent,
+                submittedAt: new Date().toISOString(),
+                vehicles: [],
+                updates: [],
+                removals: [],
+                newVehicles: []
             };
-            scheduleBackup();
-            console.log('🛡️ Auto-backup enabled');
-        }, 5000);
-    </script>
+
+            reportData.vehicles.forEach((v, index) => {
+                const update = document.getElementById('update-' + index).checked;
+                const remove = document.getElementById('remove-' + index).checked;
+                const notes = document.getElementById('notes-' + index).value;
+
+                const vehicleData = {
+                    ...v,
+                    endOdo: document.getElementById('endOdo-' + index).value || '',
+                    totalKm: document.getElementById('totalKm-' + index).value || '',
+                    fuelUsed: document.getElementById('fuelUsed-' + index).value || '',
+                    notes: notes
+                };
+
+                submissionData.vehicles.push(vehicleData);
+
+                if (update) submissionData.updates.push({ reg: v.reg, notes });
+                if (remove) submissionData.removals.push({ reg: v.reg, notes });
+            });
+
+            for (let i = 0; i < newVehicleCounter; i++) {
+                const regEl = document.getElementById('new-reg-' + i);
+                const reg = regEl ? regEl.value : null;
+                if (reg) {
+                    submissionData.newVehicles.push({
+                        reg: reg,
+                        type: document.getElementById('new-type-' + i).value,
+                        make: document.getElementById('new-make-' + i).value,
+                        model: document.getElementById('new-model-' + i).value,
+                        year: document.getElementById('new-year-' + i).value,
+                        usedFor: document.getElementById('new-used-' + i).value,
+                        targetKmL: document.getElementById('new-target-' + i).value
+                    });
+                }
+            }
+}
+
+            const dataStr = JSON.stringify(submissionData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const type = submissionData.reportType.charAt(0).toUpperCase() + submissionData.reportType.slice(1);
+            const filename = 'FleetData_' + reportData.client.replace(/\\s+/g, '_') + '_' + type + '_' + new Date().toISOString().split('T')[0] + '.json';
+            a.href = url;
+            a.download = filename;
+            a.click();
+
+            alert('✅ Report submitted successfully!\\n\\nFile: ' + filename + '\\n\\nPlease email this file to your fleet manager.');
+        }
+
+        function clearForm() {
+            if (confirm('Clear all entered data?')) {
+                location.reload();
+            }
+        }
+
+        window.onload = initForm;
+    <\/script>
+</body>
+</html>`;
+
+    // Download the form
+    const blob = new Blob([formHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = client.company.replace(/\s+/g, '_') + '_' + reportType + '_' + new Date().toISOString().split('T')[0] + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    // Update client history
+    let allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const index = allClientsUpdated.findIndex(c => c.id === clientId);
+    if (index !== -1) {
+        allClientsUpdated[index].lastReportSent = new Date().toISOString();
+        if (!allClientsUpdated[index].reportHistory) {
+            allClientsUpdated[index].reportHistory = [];
+        }
+        allClientsUpdated[index].reportHistory.push({
+            date: new Date().toISOString(),
+            type: reportType,
+            generated: true,
+            vehicles: fleet.length
+        });
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
+        console.log('Updated client history:', allClientsUpdated[index].reportHistory);
+    }
+}
+
+function showSuccessModal(clientName, period) {
+    document.getElementById('successClient').innerText = clientName;
+    document.getElementById('successPeriod').innerText = period.toUpperCase();
+    document.getElementById('successModal').style.display = 'flex';
+}
+
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+    renderDatabase();
+}
+  async function sendReminder(clientId) {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
+    
+    if (!client) return;
+    
+    const subject = `${client.reportSchedule === 'weekly' ? 'Weekly' : 'Monthly'} Vehicle Data Required - ${client.company}`;
+    const body = `Hi ${client.contactName || 'there'},\n\nYour ${client.reportSchedule} fleet report is due.\n\nPlease fill out the form I sent and return the data file.\n\nThank you!`;
+    
+    window.location.href = `mailto:${client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+async function sendWeeklyReminders() {
+        const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const weekly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'weekly' && getDaysUntilDue(c) <= 2);
+        
+        if (weekly.length === 0) {
+            alert('No weekly reports due!');
+            return;
+        }
+        
+        alert(`📅 ${weekly.length} weekly report${weekly.length > 1 ? 's' : ''} due:\n\n${weekly.map(c => c.company).join('\n')}\n\nGenerate forms and email to clients!`);
+    }
+
+  async function sendMonthlyReminders() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const monthly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'monthly' && getDaysUntilDue(c) <= 7);
+    
+    if (monthly.length === 0) {
+        alert('No monthly reports due this week!');
+        return;
+    }
+    
+    alert('📆 ' + monthly.length + ' monthly report' + (monthly.length > 1 ? 's' : '') + ' due:\n\n' + monthly.map(c => c.company).join('\n') + '\n\nGenerate forms and email to clients!');
+}
+
+     async function exportDatabase() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const active = allClients.filter(c => c.status === 'active');
+    
+    let csv = 'Company,Contact,Email,Fleet Size,Schedule,Next Due,Days Until Due\n';
+    active.forEach(c => {
+        const daysUntil = getDaysUntilDue(c);
+        const nextDue = getNextDueDate(c).toLocaleDateString();
+        csv += '"' + c.company + '","' + (c.contactName||'') + '","' + (c.email||'') + '",' + (c.fleetSize||0) + ',"' + (c.reportSchedule||'monthly') + '","' + nextDue + '",' + daysUntil + '\n';
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+    // Wait for Firebase to initialize
+    setTimeout(async () => {
+        await initVehicleDatabase();
+        await renderDatabase();
+    }, 3000);
+	
+//Auto backup 
+let backupTimeout;  // <-- declare globally
+
+function autoBackup() {
+  const data = await cloudStorage.getItem('FLEET_CLIENTS');
+  if (!data) return;
+
+  const PROXY_BACKUP_URL = "http://localhost:3000/backup";
+
+  fetch(PROXY_BACKUP_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      action: "backup",
+      data: JSON.parse(data)   // send parsed JSON to proxy
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(result => {
+    if (result.success) {
+      console.log('✅ Backup saved:', result.fileName);
+    } else {
+      console.error('❌ Backup failed:', result.error);
+    }
+  })
+  .catch(err => console.error('❌ Backup error:', err.message));
+}
+
+// Schedule backups every 30 seconds
+function scheduleBackup() {
+  clearTimeout(backupTimeout);
+  backupTimeout = setTimeout(() => {
+    autoBackup();
+    scheduleBackup(); // Schedule next backup
+  }, 30000); // 30 seconds
+}
+
+// cloudStorage (Firebase) handles persistence automatically
+  originalSetItem.apply(this, arguments);
+  if (key === 'FLEET_CLIENTS') {
+    autoBackup();
+  }
+};
+
+// Start auto-backup
+scheduleBackup();
+console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
+</script>
 </body>
 </html>
+
