@@ -583,7 +583,7 @@ function deleteFromSheet(companyName) {
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        function closeEditModal() {
+      async  function closeEditModal() {
             document.getElementById('editModal').style.display = 'none';
         }
 
@@ -953,7 +953,7 @@ async function generateCustomReport() {
             }
         }
     
-	function getFleetForClient(clientId) {
+	 async function getFleetForClient(clientId) {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
 
@@ -1729,7 +1729,7 @@ async function sendWeeklyReminders() {
 //Auto backup 
 let backupTimeout;  // <-- declare globally
 
-function autoBackup() {
+async function autoBackup() {
   const data = await cloudStorage.getItem('FLEET_CLIENTS');
   if (!data) return;
 
@@ -1783,4 +1783,5 @@ console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
 </script>
 </body>
 </html>
+
 
