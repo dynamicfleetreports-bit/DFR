@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module" src="firebase-helper.js"></script>
+	<script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Fleet Intel | Active Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -322,7 +322,7 @@
 	        let currentFilter = 'all';
         const BACKUP_URL = 'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec';
 
-        async function initVehicleDatabase() {
+       async function initVehicleDatabase() {
             const savedDB = await cloudStorage.getItem('VEHICLE_SPECS_DB');
             if (!savedDB) {
                 const defaultDB = {
@@ -372,7 +372,7 @@
             return 'monthly';
         }
 
-        async function renderDatabase() {
+       async function renderDatabase() {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
 			console.log('Clients in storage:', allClients);
             const active = allClients.filter(c => c.status === 'active');
@@ -568,7 +568,7 @@ function deleteFromSheet(companyName) {
             renderDatabase();
         }
 
-        async function openEdit(id) {
+      async function openEdit(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
@@ -583,33 +583,40 @@ function deleteFromSheet(companyName) {
             document.getElementById('editModal').style.display = 'flex';
         }
 
-      async  function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
+async function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
 
-        document.getElementById('editForm').onsubmit = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const index = allClients.findIndex(c => c.id === id);
-            
-            if (index !== -1) {
-                allClients[index] = {
-                    ...allClients[index],
-                    company: document.getElementById('editName').value,
-                    contactName: document.getElementById('editContact').value,
-                    email: document.getElementById('editEmail').value,
-                    fleetSize: parseInt(document.getElementById('editFleet').value),
-                    speedLimit: parseInt(document.getElementById('editSpeed').value),
-                    reportSchedule: document.getElementById('editSchedule').value
-                };
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                closeEditModal();
-                renderDatabase();
-            }
+document.getElementById('editForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('editId').value;
+
+    // Safely parse the stored data
+    let data = await cloudStorage.getItem('FLEET_CLIENTS');
+    let allClients = JSON.parse(data || "[]");
+
+    const index = allClients.findIndex(c => c.id === id);
+
+    if (index !== -1) {
+        allClients[index] = {
+            ...allClients[index],
+            company: document.getElementById('editName').value,
+            contactName: document.getElementById('editContact').value,
+            email: document.getElementById('editEmail').value,
+            fleetSize: parseInt(document.getElementById('editFleet').value),
+            speedLimit: parseInt(document.getElementById('editSpeed').value),
+            reportSchedule: document.getElementById('editSchedule').value
         };
 
-        async function openNotes(id) {
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        closeEditModal();
+        renderDatabase();
+    }
+};
+
+
+
+      async function openNotes(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
@@ -623,7 +630,7 @@ function deleteFromSheet(companyName) {
             document.getElementById('notesModal').style.display = 'none';
         }
 
-        async function saveNotes() {
+       async function saveNotes() {
             const id = document.getElementById('notesId').value;
             let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === id);
@@ -636,7 +643,7 @@ function deleteFromSheet(companyName) {
             }
         }
 
-       async function viewHistory(id) {
+     async function viewHistory(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
             if (!client) return;
@@ -669,7 +676,7 @@ function deleteFromSheet(companyName) {
 	 // Fleet Management Functions
         let currentFleetData = [];
         
-        async function manageFleet(clientId) {
+       async function manageFleet(clientId) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
             if (!client) return;
@@ -693,31 +700,51 @@ async function openCustomReport(clientId) {
         return;
     }
     
-    const fleet = client.fleet || [];
+    // Check for audit data
+    const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
+    const savedDraft = await cloudStorage.getItem(draftKey);
     
-    if (fleet.length === 0) {
-        alert('⚠️ No fleet data available!\n\nPlease add vehicles first using "🚛 Manage Fleet" or "📥 Sync from Audit".');
+    if (!savedDraft) {
+        alert('⚠️ No audit data found!\n\nPlease run an audit first by clicking "📊 View/Run Audit".');
         return;
     }
     
-    document.getElementById('reportClientId').value = clientId;
-    
-// Set default dates
-const endDate = new Date();
-const startDate = new Date(Date.now() - 30*24*60*60*1000);
-document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
-document.getElementById('reportEndDate').value = endDate.toISOString().split('T')[0];
-
-    // Populate vehicle checkboxes
-    const checkboxContainer = document.getElementById('vehicleCheckboxes');
-    checkboxContainer.innerHTML = fleet.map((v, idx) => `
-        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 0.5rem; cursor: pointer;">
-            <input type="checkbox" class="vehicle-checkbox" value="${idx}" checked style="width: 16px; height: 16px;">
-            <span style="font-size: 13px; font-weight: 600;">${v.reg} <span style="opacity: 0.5;">(${v.make} ${v.model})</span></span>
-        </label>
-    `).join('');
-    
-    document.getElementById('customReportModal').style.display = 'flex';
+    try {
+        const draft = JSON.parse(savedDraft);
+        const auditData = draft.auditData || {};
+        const vehicles = Object.keys(auditData);
+        
+        if (vehicles.length === 0) {
+            alert('⚠️ No vehicles in audit data.');
+            return;
+        }
+        
+        document.getElementById('reportClientId').value = clientId;
+        
+        // Set dates
+        const endDate = new Date();
+        const startDate = new Date(Date.now() - 30*24*60*60*1000);
+        document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
+        document.getElementById('reportEndDate').value = endDate.toISOString().split('T')[0];
+        
+        // Populate checkboxes
+        const checkboxContainer = document.getElementById('vehicleCheckboxes');
+        checkboxContainer.innerHTML = vehicles.map(key => {
+            const v = auditData[key];
+            return `
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.02); border-radius: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" class="vehicle-checkbox" value="${key}" checked style="width: 16px; height: 16px;">
+                    <span style="font-size: 13px; font-weight: 600;">${v.reg} <span style="opacity: 0.5;">(${v.type || 'Heavy'})</span></span>
+                </label>
+            `;
+        }).join('');
+        
+        document.getElementById('customReportModal').style.display = 'flex';
+        
+    } catch (e) {
+        console.error('Error:', e);
+        alert('❌ Error loading audit data.');
+    }
 }
 
 function closeCustomReportModal() {
@@ -733,42 +760,125 @@ function toggleAllVehicles() {
 
 async function generateCustomReport() {
     const clientId = document.getElementById('reportClientId').value;
-    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-    const client = allClients.find(c => c.id === clientId);
-    
-    if (!client) return;
-    
     const startDate = document.getElementById('reportStartDate').value;
     const endDate = document.getElementById('reportEndDate').value;
     const focus = document.getElementById('reportFocus').value;
     const format = document.getElementById('reportFormat').value;
     
-    // Get selected vehicles
-    const selectedVehicles = [];
-    document.querySelectorAll('.vehicle-checkbox:checked').forEach(cb => {
-        const idx = parseInt(cb.value);
-        if (client.fleet[idx]) {
-            selectedVehicles.push(client.fleet[idx]);
-        }
-    });
+    // Get client
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.id === clientId);
     
-    if (selectedVehicles.length === 0) {
-        alert('⚠️ Please select at least one vehicle!');
+    if (!client) {
+        alert('⚠️ Client not found');
         return;
     }
     
-    // For now, alert with summary (we'll build full PDF generation next)
-    const summary = '📊 Custom Report Generated!\n\n' +
-        'Client: ' + client.company + '\n' +
-        'Period: ' + startDate + ' to ' + endDate + '\n' +
-        'Focus: ' + focus + '\n' +
-        'Vehicles: ' + selectedVehicles.length + ' selected\n' +
-        'Format: ' + format.toUpperCase() + '\n\n' +
-        '🚧 Full report generation coming next!\n' +
-        'For now, use "📊 View/Run Audit" to generate standard reports.';
+    // Get selected vehicle KEYS (not indices)
+    const selectedVehicleKeys = Array.from(document.querySelectorAll('.vehicle-checkbox:checked'))
+        .map(cb => cb.value);
     
-    alert(summary);
+    if (selectedVehicleKeys.length === 0) {
+        alert('⚠️ Please select at least one vehicle');
+        return;
+    }
+    
+    // Load audit data
+    const draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
+    const draft = JSON.parse(await cloudStorage.getItem(draftKey));
+    
+    if (!draft || !draft.auditData) {
+        alert('⚠️ No audit data found. Please run an audit first.');
+        return;
+    }
+    
+    const fullAuditData = draft.auditData;
+    
+    // Filter to selected vehicles
+    const filteredData = {};
+    selectedVehicleKeys.forEach(key => {
+        if (fullAuditData[key]) {
+            filteredData[key] = fullAuditData[key];
+        }
+    });
+    
+    // Prepare report
+    const target = parseFloat(draft.target) || 2.3;
+    const limit = parseFloat(draft.speedLimit) || 80;
+    
+    const fleet = Object.keys(filteredData).map(k => {
+        const v = filteredData[k];
+        const odoVal = parseFloat(v.odo) || 0;
+        const manualL = parseFloat(v.liters) || 0;
+        const events = v.speeds ? v.speeds.filter(s => s > limit).length : 0;
+        
+        return {
+            reg: v.reg,
+            type: v.type,
+            gpsDist: v.gps,
+            mK: odoVal,
+            mL: manualL,
+            violations: events,
+            duration: v.duration || 0,
+            maxSpeed: v.maxSpeed || 0,
+            speeds: v.speeds || []  // pass raw speed events through
+        };
+    });
+    
+    const dateRangeText = `${startDate} - ${endDate}`;
+    
+    const reportPayload = {
+        client: {
+            company: client.company,
+            town: client.city || "Cape Town",
+            target: target
+        },
+        month: dateRangeText,
+        fleet: fleet,
+        speedLimit: limit,
+        wPrice: 21.50,
+        isActive: client.status === 'active',
+        customReport: {
+            focus: focus,
+            vehicleCount: selectedVehicleKeys.length,
+            totalVehicles: Object.keys(fullAuditData).length,
+            dateRange: { from: startDate, to: endDate },
+            format: format
+        }
+    };
+    
+    // Save to await cloudStorage
+    await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
+    
+    console.log('📊 Custom report generated:', reportPayload);
+    console.log('🚗 Filtered to', selectedVehicleKeys.length, 'of', Object.keys(fullAuditData).length, 'vehicles');
+    
+    // Close modal
     closeCustomReportModal();
+    
+    // Open report or export CSV
+    if (format === 'pdf') {
+        const reportWindow = window.open('report-custom.html', '_blank');
+        if (!reportWindow) {
+            alert('⚠️ Pop-up blocked! Please allow pop-ups.');
+        } else {
+            alert(`✅ Report Generated!\n\nVehicles: ${selectedVehicleKeys.length} of ${Object.keys(fullAuditData).length}\n\n💡 Use Ctrl+P to save as PDF`);
+        }
+    } else {
+        // CSV export
+        let csv = 'Registration,Type,GPS KM,Manual KM,Liters,Violations,Max Speed\n';
+        fleet.forEach(v => {
+            csv += `${v.reg},${v.type},${v.gpsDist},${v.mK},${v.mL},${v.violations},${v.maxSpeed}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${client.company}_${dateRangeText}_Report.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('✅ CSV exported!');
+    }
 }
 
        function openAudit(clientName) {
@@ -877,7 +987,7 @@ async function generateCustomReport() {
             }
         }
         
-        async function saveFleet() {
+      async function saveFleet() {
             const clientId = document.getElementById('fleetClientId').value;
             let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const index = allClients.findIndex(c => c.id === clientId);
@@ -900,7 +1010,7 @@ async function generateCustomReport() {
             }
         }
 
-        async function syncFromAudit(clientId) {
+      async function syncFromAudit(clientId) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === clientId);
             
@@ -953,7 +1063,7 @@ async function generateCustomReport() {
             }
         }
     
-	 async function getFleetForClient(clientId) {
+	async function getFleetForClient(clientId) {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
 
@@ -1016,7 +1126,7 @@ async function generateCustomReport() {
     return fleet;
 }
 	
-	async function generateWeeklyForm(clientId) {
+async function generateWeeklyForm(clientId) {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
 
@@ -1025,7 +1135,8 @@ async function generateCustomReport() {
         return;
     }
 
-    const fleet = getFleetForClient(clientId);
+    const fleet = client.fleet || [];
+	console.log('Fleet data:', fleet, 'Type:', typeof fleet, 'Is array:', Array.isArray(fleet));
     if (!fleet) return;
 
     console.log('Generating weekly form for client:', client);
@@ -1073,7 +1184,6 @@ async function generateCustomReport() {
     const formHTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${client.company} - ${reportType} Report</title>
@@ -1271,7 +1381,7 @@ async function generateCustomReport() {
             font-weight: 600;
             outline: none;
             transition: all 0.2s;
-        
+        }
         input[type="number"]:focus, input[type="text"]:focus {
             border-color: #10b981;
             background: #1e293b;
@@ -1375,7 +1485,7 @@ async function generateCustomReport() {
             .title { font-size: 1.75rem; }
             .actions { grid-template-columns: 1fr; }
         }
-		}
+	
     </style>
 </head>
 <body>
@@ -1458,24 +1568,24 @@ async function generateCustomReport() {
             </table>
         </div>
 
-        <div class="add-vehicle-section">
-            <h3>➕ Add New Vehicles</h3>
-            <div id="new-vehicles-container"></div>
-            <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
-        </div>
+   <div class="add-vehicle-section">
+    <h3>➕ Add New Vehicles</h3>
+    <div id="new-vehicles-container"></div>
+</div>
 
-        <div class="actions">
-            <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
-            <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
-        </div>
+<footer class="footer">
+  <div class="actions">
+    <button class="btn btn-add" onclick="addNewVehicleRow()">+ Add Another Vehicle</button>
+    <button class="btn btn-primary" onclick="submitReport()">✓ Submit Report</button>
+    <button class="btn btn-secondary" onclick="clearForm()">↻ Reset Form</button>
+  </div>
+  <p>
+    Email this file to: <strong>${client.email || 'reports@fleetintel.co.za'}</strong><br>
+    For support, contact your account manager
+  </p>
+</footer>
 
-        <div class="footer">
-            Email this file to: <strong>${client.email || 'reports@fleetintel.co.za'}</strong><br>
-            For support, contact your account manager
-        </div>
-    </div>
-
-    <script>
+  <script>
     const reportData = {
         client: '${client.company}',
         generatedDate: new Date().toISOString(),
@@ -1484,172 +1594,175 @@ async function generateCustomReport() {
             ${vehiclesData}
         ]
     };
-        let newVehicleCounter = 0;
+    let newVehicleCounter = 0;
 
-        function initForm() {
-            updatePeriodDate();
-            updateProgress();
+    function initForm() {
+        updatePeriodDate();
+        updateProgress();
+    }
+
+    function updatePeriodDate() {
+        const type = document.getElementById('report-frequency').value;
+        const today = new Date();
+        let periodEnd;
+
+        if (type === 'weekly') {
+            const dayOfWeek = today.getDay();
+            const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+            periodEnd = new Date(today);
+            periodEnd.setDate(today.getDate() + daysToSunday - 7);
+        } else {
+            periodEnd = new Date(today.getFullYear(), today.getMonth(), 0);
         }
 
-        function updatePeriodDate() {
-            const type = document.getElementById('report-frequency').value;
-            const today = new Date();
-            let periodEnd;
+        const formatted = periodEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        document.getElementById('period-date').textContent = formatted;
+    }
 
-            if (type === 'weekly') {
-                const dayOfWeek = today.getDay();
-                const daysToSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
-                periodEnd = new Date(today);
-                periodEnd.setDate(today.getDate() + daysToSunday - 7);
-            } else {
-                periodEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+    function addNewVehicleRow() {
+        const container = document.getElementById('new-vehicles-container');
+        const id = newVehicleCounter++;
+
+        const row = document.createElement('div');
+        row.className = 'new-vehicle-row';
+        row.id = 'new-vehicle-' + id;
+        row.innerHTML = \`
+            <input type="text" placeholder="Registration" id="new-reg-${id}">
+            <select id="new-type-${id}">
+                <option>Heavy</option>
+                <option>Medium</option>
+            </select>
+            <input type="text" placeholder="Make" id="new-make-${id}">
+            <input type="text" placeholder="Model" id="new-model-${id}">
+            <input type="text" placeholder="Year" id="new-year-${id}">
+            <select id="new-used-${id}">
+                <option>Long Distance</option>
+                <option>Local Full</option>
+                <option>Local 50%</option>
+            </select>
+            <input type="number" placeholder="Target km/L" id="new-target-${id}" value="2.3">
+            <button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('new-vehicle-${id}').remove()">Remove</button>
+        `;
+        container.appendChild(row);
+    }
+
+    function updateProgress() {
+        let completed = 0;
+        const total = reportData.vehicles.length;
+
+        reportData.vehicles.forEach((v, index) => {
+            const endOdo = document.getElementById('endOdo-' + index).value;
+            const totalKm = document.getElementById('totalKm-' + index).value;
+            const fuelUsed = document.getElementById('fuelUsed-' + index).value;
+
+            if ((endOdo || totalKm) && fuelUsed) {
+                completed++;
             }
+        });
 
-            const formatted = periodEnd.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-            document.getElementById('period-date').textContent = formatted;
-        }
+        const percentage = (completed / total) * 100;
+        document.getElementById('completed-count').textContent = completed;
+        document.getElementById('progress-fill').style.width = percentage + '%';
+    }
 
-        function addNewVehicleRow() {
-            const container = document.getElementById('new-vehicles-container');
-            const id = newVehicleCounter++;
-            
-            const row = document.createElement('div');
-            row.className = 'new-vehicle-row';
-            row.id = 'new-vehicle-' + id;
-            row.innerHTML = \`
-                <input type="text" placeholder="Registration" id="new-reg-\${id}">
-                <select id="new-type-\${id}">
-                    <option>Heavy</option>
-                    <option>Medium</option>
-                </select>
-                <input type="text" placeholder="Make" id="new-make-\${id}">
-                <input type="text" placeholder="Model" id="new-model-\${id}">
-                <input type="text" placeholder="Year" id="new-year-\${id}">
-                <select id="new-used-\${id}">
-                    <option>Long Distance</option>
-                    <option>Local Full</option>
-                    <option>Local 50%</option>
-                </select>
-                <input type="number" placeholder="Target km/L" id="new-target-\${id}" value="2.3">
-                <button class="btn-secondary" style="padding: 0.5rem;" onclick="document.getElementById('new-vehicle-\${id}').remove()">Remove</button>
-            \`;
-            container.appendChild(row);
-        }
+    function submitReport() {
+        const submissionData = {
+            client: reportData.client,
+            reportType: document.getElementById('report-frequency').value,
+            periodEnding: document.getElementById('period-date').textContent,
+            submittedAt: new Date().toISOString(),
+            vehicles: [],
+            updates: [],
+            removals: [],
+            newVehicles: []
+        };
 
-        function updateProgress() {
-            let completed = 0;
-            const total = reportData.vehicles.length;
+        reportData.vehicles.forEach((v, index) => {
+            const update = document.getElementById('update-' + index).checked;
+            const remove = document.getElementById('remove-' + index).checked;
+            const notes = document.getElementById('notes-' + index).value;
 
-            reportData.vehicles.forEach((v, index) => {
-                const endOdo = document.getElementById('endOdo-' + index).value;
-                const totalKm = document.getElementById('totalKm-' + index).value;
-                const fuelUsed = document.getElementById('fuelUsed-' + index).value;
-
-                if ((endOdo || totalKm) && fuelUsed) {
-                    completed++;
-                }
-            });
-
-            const percentage = (completed / total) * 100;
-            document.getElementById('completed-count').textContent = completed;
-            document.getElementById('progress-fill').style.width = percentage + '%';
-        }
-
-        function submitReport() {
-            const submissionData = {
-                client: reportData.client,
-                reportType: document.getElementById('report-frequency').value,
-                periodEnding: document.getElementById('period-date').textContent,
-                submittedAt: new Date().toISOString(),
-                vehicles: [],
-                updates: [],
-                removals: [],
-                newVehicles: []
+            const vehicleData = {
+                ...v,
+                endOdo: document.getElementById('endOdo-' + index).value || '',
+                totalKm: document.getElementById('totalKm-' + index).value || '',
+                fuelUsed: document.getElementById('fuelUsed-' + index).value || '',
+                notes: notes
             };
 
-            reportData.vehicles.forEach((v, index) => {
-                const update = document.getElementById('update-' + index).checked;
-                const remove = document.getElementById('remove-' + index).checked;
-                const notes = document.getElementById('notes-' + index).value;
+            submissionData.vehicles.push(vehicleData);
 
-                const vehicleData = {
-                    ...v,
-                    endOdo: document.getElementById('endOdo-' + index).value || '',
-                    totalKm: document.getElementById('totalKm-' + index).value || '',
-                    fuelUsed: document.getElementById('fuelUsed-' + index).value || '',
-                    notes: notes
-                };
+            if (update) submissionData.updates.push({ reg: v.reg, notes });
+            if (remove) submissionData.removals.push({ reg: v.reg, notes });
+        });
 
-                submissionData.vehicles.push(vehicleData);
-
-                if (update) submissionData.updates.push({ reg: v.reg, notes });
-                if (remove) submissionData.removals.push({ reg: v.reg, notes });
-            });
-
-            for (let i = 0; i < newVehicleCounter; i++) {
-                const regEl = document.getElementById('new-reg-' + i);
-                const reg = regEl ? regEl.value : null;
-                if (reg) {
-                    submissionData.newVehicles.push({
-                        reg: reg,
-                        type: document.getElementById('new-type-' + i).value,
-                        make: document.getElementById('new-make-' + i).value,
-                        model: document.getElementById('new-model-' + i).value,
-                        year: document.getElementById('new-year-' + i).value,
-                        usedFor: document.getElementById('new-used-' + i).value,
-                        targetKmL: document.getElementById('new-target-' + i).value
-                    });
-                }
-            }
-}
-
-            const dataStr = JSON.stringify(submissionData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const type = submissionData.reportType.charAt(0).toUpperCase() + submissionData.reportType.slice(1);
-            const filename = 'FleetData_' + reportData.client.replace(/\\s+/g, '_') + '_' + type + '_' + new Date().toISOString().split('T')[0] + '.json';
-            a.href = url;
-            a.download = filename;
-            a.click();
-
-            alert('✅ Report submitted successfully!\\n\\nFile: ' + filename + '\\n\\nPlease email this file to your fleet manager.');
-        }
-
-        function clearForm() {
-            if (confirm('Clear all entered data?')) {
-                location.reload();
+        for (let i = 0; i < newVehicleCounter; i++) {
+            const regEl = document.getElementById('new-reg-' + i);
+            const reg = regEl ? regEl.value : null;
+            if (reg) {
+                submissionData.newVehicles.push({
+                    reg: reg,
+                    type: document.getElementById('new-type-' + i).value,
+                    make: document.getElementById('new-make-' + i).value,
+                    model: document.getElementById('new-model-' + i).value,
+                    year: document.getElementById('new-year-' + i).value,
+                    usedFor: document.getElementById('new-used-' + i).value,
+                    targetKmL: document.getElementById('new-target-' + i).value
+                });
             }
         }
 
-        window.onload = initForm;
-    <\/script>
-</body>
-</html>`;
+        const dataStr = JSON.stringify(submissionData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const type = submissionData.reportType.charAt(0).toUpperCase() + submissionData.reportType.slice(1);
+        const filename = 'FleetData_' + reportData.client.replace(/\s+/g, '_') + '_' + type + '_' + new Date().toISOString().split('T')[0] + '.json';
+        a.href = url;
+        a.download = filename;
+        a.click();
 
+        alert('✅ Report submitted successfully!\n\nFile: ' + filename + '\n\nPlease email this file to your fleet manager.');
+    }
+
+    function clearForm() {
+        if (confirm('Clear all entered data?')) {
+            location.reload();
+        }
+    }
+
+    window.onload = initForm;
+  
+
+async function generateAndSaveReport() {
     // Download the form
     const blob = new Blob([formHTML], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = client.company.replace(/\s+/g, '_') + '_' + reportType + '_' + new Date().toISOString().split('T')[0] + '.html';
+    a.download =
+        client.company.replace(/\s+/g, '_') + '_' +
+        reportType + '_' +
+        new Date().toISOString().split('T')[0] + '.html';
     a.click();
     URL.revokeObjectURL(url);
-    
+
     // Update client history
-    let allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    let allClientsUpdated =
+        JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+
     const index = allClientsUpdated.findIndex(c => c.id === clientId);
     if (index !== -1) {
         allClientsUpdated[index].lastReportSent = new Date().toISOString();
-        if (!allClientsUpdated[index].reportHistory) {
-            allClientsUpdated[index].reportHistory = [];
-        }
+        allClientsUpdated[index].reportHistory ??= [];
         allClientsUpdated[index].reportHistory.push({
             date: new Date().toISOString(),
             type: reportType,
             generated: true,
             vehicles: fleet.length
         });
+    }
+}
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
         console.log('Updated client history:', allClientsUpdated[index].reportHistory);
     }
@@ -1665,7 +1778,7 @@ function closeSuccessModal() {
     document.getElementById('successModal').style.display = 'none';
     renderDatabase();
 }
-  async function sendReminder(clientId) {
+ async function sendReminder(clientId) {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const client = allClients.find(c => c.id === clientId);
     
@@ -1676,7 +1789,7 @@ function closeSuccessModal() {
     
     window.location.href = `mailto:${client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
-async function sendWeeklyReminders() {
+ async function sendWeeklyReminders() {
         const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         const weekly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'weekly' && getDaysUntilDue(c) <= 2);
         
@@ -1688,7 +1801,7 @@ async function sendWeeklyReminders() {
         alert(`📅 ${weekly.length} weekly report${weekly.length > 1 ? 's' : ''} due:\n\n${weekly.map(c => c.company).join('\n')}\n\nGenerate forms and email to clients!`);
     }
 
-  async function sendMonthlyReminders() {
+ async function sendMonthlyReminders() {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const monthly = allClients.filter(c => c.status === 'active' && c.reportSchedule === 'monthly' && getDaysUntilDue(c) <= 7);
     
@@ -1700,7 +1813,7 @@ async function sendWeeklyReminders() {
     alert('📆 ' + monthly.length + ' monthly report' + (monthly.length > 1 ? 's' : '') + ' due:\n\n' + monthly.map(c => c.company).join('\n') + '\n\nGenerate forms and email to clients!');
 }
 
-     async function exportDatabase() {
+  async  function exportDatabase() {
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const active = allClients.filter(c => c.status === 'active');
     
@@ -1720,68 +1833,86 @@ async function sendWeeklyReminders() {
     URL.revokeObjectURL(url);
 }
 
-    // Wait for Firebase to initialize
-    setTimeout(async () => {
-        await initVehicleDatabase();
-        await renderDatabase();
-    }, 3000);
+ // Wait for Firebase to initialize before running
+setTimeout(async () => {
+  await initVehicleDatabase();
+  await renderDatabase();
+}, 5000);
+  
 	
 //Auto backup 
 let backupTimeout;  // <-- declare globally
-
 async function autoBackup() {
-  const data = await cloudStorage.getItem('FLEET_CLIENTS');
-  if (!data) return;
-
-  const PROXY_BACKUP_URL = "http://localhost:3000/backup";
-
-  fetch(PROXY_BACKUP_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      action: "backup",
-      data: JSON.parse(data)   // send parsed JSON to proxy
-    })
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(result => {
-    if (result.success) {
-      console.log('✅ Backup saved:', result.fileName);
-    } else {
-      console.error('❌ Backup failed:', result.error);
-    }
-  })
-  .catch(err => console.error('❌ Backup error:', err.message));
+  // Auto-backup disabled - data is already in Firebase cloud
+  // Use "Backup to Google Drive" button for manual backups
+  return;
 }
 
-// Schedule backups every 30 seconds
-function scheduleBackup() {
+  // Schedule backups every 30 seconds
+async function scheduleBackup() {
   clearTimeout(backupTimeout);
   backupTimeout = setTimeout(() => {
     autoBackup();
     scheduleBackup(); // Schedule next backup
-  }, 30000); // 30 seconds
+  }, 50000); // 30 seconds
 }
 
-// cloudStorage (Firebase) handles persistence automatically
-  originalSetItem.apply(this, arguments);
-  if (key === 'FLEET_CLIENTS') {
-    autoBackup();
+// Wait for Firebase to initialize, then set up auto-backup
+setTimeout(() => {
+  if (!window.cloudStorage) {
+    console.error('❌ cloudStorage not available');
+    return;
   }
-};
-
-// Start auto-backup
-scheduleBackup();
-console.log('🛡️ Auto-backup enabled - saves every 30 seconds');
+  
+  const originalSetItem = window.cloudStorage.setItem;
+  window.cloudStorage.setItem = async function(key, value) {
+    const result = await originalSetItem.call(this, key, value);
+    if (key === 'FLEET_CLIENTS') {
+      autoBackup();
+    }
+    return result;
+  };
+  
+  scheduleBackup();
+  console.log('🛡️ Auto-backup enabled');
+}, 5000);
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
