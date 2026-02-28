@@ -89,6 +89,7 @@
                 <button onclick="sendWeeklyReminders()" class="action-btn warning">📅 Weekly Reports Due</button>
                 <button onclick="sendMonthlyReminders()" class="action-btn primary">📆 Monthly Reports Due</button>
                 <button onclick="exportDatabase()" class="action-btn">📥 Export</button>
+				<button onclick="syncAllToSheet()" class="action-btn" style="background:#10b981;color:#020617;">☁️ Sync All to Sheet</button>
             </div>
         </header>
 
@@ -294,6 +295,29 @@
         let currentFilter = 'all';
         const BACKUP_URL = 'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec';
 
+		function syncToSheet(client) {
+    return new Promise((resolve, reject) => {
+        const callback = 'sheetCallback_' + Date.now();
+        window[callback] = function(data) {
+            delete window[callback];
+            const script = document.getElementById(callback);
+            if (script) script.remove();
+            resolve(data);
+        };
+        const script = document.createElement('script');
+        script.id = callback;
+        script.src = `${APPS_SCRIPT_URL}?action=add` +
+            `&company=${encodeURIComponent(client.company || '')}` +
+            `&contact=${encodeURIComponent(client.contactName || '')}` +
+            `&email=${encodeURIComponent(client.email || '')}` +
+            `&phone=${encodeURIComponent(client.phone || '')}` +
+            `&fleet=${encodeURIComponent(client.fleetSize || 0)}` +
+            `&status=${encodeURIComponent(client.status || 'active')}` +
+            `&callback=${callback}`;
+        script.onerror = () => { delete window[callback]; resolve({ success: false }); };
+        document.body.appendChild(script);
+    });
+}
         async function initVehicleDatabase() {
             const savedDB = await cloudStorage.getItem('VEHICLE_SPECS_DB');
             if (!savedDB) {
@@ -538,11 +562,24 @@
                     reportSchedule: document.getElementById('editSchedule').value
                 };
                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+				syncToSheet(allClients[index]).catch(e => console.log('Sheet sync note:', e));
                 closeEditModal();
                 renderDatabase();
             }
         };
 
+		async function syncAllToSheet() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const active = allClients.filter(c => c.status === 'active');
+    if (active.length === 0) { alert('No active clients to sync.'); return; }
+    if (!confirm(`Sync ${active.length} active clients to Google Sheet?`)) return;
+    let synced = 0;
+    for (const client of active) {
+        await syncToSheet(client);
+        synced++;
+    }
+    alert(`✅ Synced ${synced} clients to Google Sheet!`);
+}
         async function openNotes(id) {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const client = allClients.find(c => c.id === id);
@@ -1126,3 +1163,4 @@
     </script>
 </body>
 </html>
+
