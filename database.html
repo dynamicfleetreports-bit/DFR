@@ -292,6 +292,40 @@
 
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+		function syncToSheet(client) {
+    return new Promise((resolve) => {
+        const callback = 'sheetCallback_' + Date.now();
+        window[callback] = function(data) {
+            delete window[callback];
+            const script = document.getElementById(callback);
+            if (script) script.remove();
+            resolve(data);
+        };
+        const script = document.createElement('script');
+        script.id = callback;
+        script.src = `${APPS_SCRIPT_URL}?action=add` +
+            `&company=${encodeURIComponent(client.company || '')}` +
+            `&contact=${encodeURIComponent(client.contactName || '')}` +
+            `&email=${encodeURIComponent(client.email || '')}` +
+            `&phone=${encodeURIComponent(client.phone || '')}` +
+            `&fleet=${encodeURIComponent(client.fleetSize || 0)}` +
+            `&status=${encodeURIComponent(client.status || 'active')}` +
+            `&callback=${callback}`;
+        script.onerror = () => { delete window[callback]; resolve({ success: false }); };
+        document.body.appendChild(script);
+    });
+}
+
+async function syncAllToSheet() {
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const active = allClients.filter(c => c.status === 'active');
+    if (active.length === 0) { alert('No active clients to sync.'); return; }
+    if (!confirm(`Sync ${active.length} active client(s) to Google Sheet?`)) return;
+    for (const client of active) {
+        await syncToSheet(client);
+    }
+    alert(`✅ Synced ${active.length} client(s) to Google Sheet!`);
+}
         let currentFilter = 'all';
         const BACKUP_URL = 'https://script.google.com/macros/s/AKfycbwuWyGboNTuisBBVLWMJpFZchPaCqUnCd8cE92UzFJ3PIzMPzw1-Zzvv1CfM1sWlVVi/exec';
 
@@ -1163,5 +1197,6 @@
     </script>
 </body>
 </html>
+
 
 
