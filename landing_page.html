@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Outfit', sans-serif;
             background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
@@ -15,61 +15,45 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-        
+
         .hero {
             position: relative;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            padding: 4rem 2rem;
             overflow: hidden;
         }
-        
+
         .truck-bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             object-fit: cover;
             opacity: 0.15;
             filter: blur(2px);
         }
-        
+
         .overlay {
             position: absolute;
             inset: 0;
             background: radial-gradient(circle at center, rgba(2,6,23,0.7) 0%, rgba(2,6,23,0.95) 100%);
         }
-        
-        .container {
+
+        .hero-inner {
             position: relative;
             z-index: 10;
-            max-width: 1200px;
+            max-width: 900px;
             width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
+            text-align: center;
         }
-        
-        @media (max-width: 968px) {
-            .container {
-                grid-template-columns: 1fr;
-                gap: 3rem;
-            }
-        }
-        
-        .content {
-            text-align: left;
-        }
-        
+
         .eyebrow {
             display: inline-block;
             background: rgba(16, 185, 129, 0.1);
             color: #10b981;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.25rem;
             border-radius: 0.5rem;
             font-size: 0.875rem;
             font-weight: 900;
@@ -77,43 +61,40 @@
             letter-spacing: 0.1em;
             margin-bottom: 1.5rem;
         }
-        
+
         h1 {
-            font-size: 4rem;
+            font-size: 4.5rem;
             font-weight: 900;
             line-height: 1;
             margin-bottom: 1.5rem;
             font-style: italic;
             text-transform: uppercase;
         }
-        
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-        }
-        
-        .highlight {
-            color: #10b981;
-        }
-        
+
+        @media (max-width: 768px) { h1 { font-size: 2.75rem; } }
+
+        .highlight { color: #10b981; }
+
         .subheading {
-            font-size: 1.5rem;
-            font-weight: 600;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-            line-height: 1.4;
+            font-size: 1.35rem;
+            font-weight: 500;
+            opacity: 0.85;
+            margin-bottom: 3rem;
+            line-height: 1.5;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
+
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
-            margin: 3rem 0;
+            margin-bottom: 3rem;
         }
-        
-        @media (max-width: 768px) {
-            .stats { grid-template-columns: 1fr; }
-        }
-        
+
+        @media (max-width: 600px) { .stats { grid-template-columns: 1fr; } }
+
         .stat-card {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -121,293 +102,279 @@
             padding: 1.5rem;
             text-align: center;
         }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #ef4444;
-            line-height: 1;
+
+        .stat-number { font-size: 2.5rem; font-weight: 900; color: #ef4444; line-height: 1; }
+        .stat-label { font-size: 0.8rem; opacity: 0.7; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .benefits-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 3rem;
+            text-align: left;
         }
-        
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.7;
-            margin-top: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .form-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-        
-        .form-title {
-            font-size: 2rem;
-            font-weight: 900;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            font-style: italic;
-        }
-        
-        .form-subtitle {
-            opacity: 0.7;
-            margin-bottom: 2rem;
-            font-size: 0.875rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-            opacity: 0.8;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        @media (max-width: 600px) { .benefits-row { grid-template-columns: 1fr; } }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(16,185,129,0.06);
+            border: 1px solid rgba(16,185,129,0.15);
             border-radius: 0.75rem;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s;
+            padding: 0.85rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
         }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #10b981;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        input::placeholder, textarea::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        select option {
-            background: #0f172a;
-            color: white;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 1.25rem;
+
+        .benefit-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+        .cta-btn {
+            display: inline-block;
             background: #10b981;
             color: #020617;
-            border: none;
+            padding: 1.25rem 3rem;
             border-radius: 1rem;
-            font-size: 1.125rem;
+            font-size: 1.2rem;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             cursor: pointer;
+            border: none;
             transition: all 0.3s;
-            margin-top: 1rem;
+            margin-bottom: 1.25rem;
+            animation: pulse 2.5s infinite;
         }
-        
-        .submit-btn:hover {
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 0 16px rgba(16,185,129,0); }
+        }
+
+        .cta-btn:hover {
             background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(16,185,129,0.35);
+            animation: none;
         }
-        
-        .trust-badges {
-            display: flex;
-            gap: 2rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .badge {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
-            opacity: 0.8;
-        }
-        
-        .badge-icon {
-            font-size: 1.5rem;
-        }
-        
-        .benefits {
-            margin: 2rem 0;
-            padding: 1.5rem;
-            background: rgba(16, 185, 129, 0.05);
-            border-left: 4px solid #10b981;
-            border-radius: 0.5rem;
-        }
-        
-        .benefits-title {
-            font-size: 1rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            color: #10b981;
-        }
-        
-        .benefits-list {
-            list-style: none;
-        }
-        
-        .benefits-list li {
-            padding: 0.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 0.875rem;
-        }
-        
-        .check-icon {
-            color: #10b981;
-            font-weight: 900;
-            font-size: 1.25rem;
-        }
-        
-        .urgency {
-            text-align: center;
-            padding: 1rem;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 0.75rem;
-            margin-top: 1.5rem;
-            font-size: 0.875rem;
-            font-weight: 700;
+
+        .urgency-text {
+            display: block;
+            font-size: 0.85rem;
             color: #fca5a5;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .trust-row {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+            opacity: 0.75;
+        }
+
+        .badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; }
+        .badge-icon { font-size: 1.3rem; }
+
+        /* ---- FORM SECTION ---- */
+        .form-section {
+            padding: 5rem 2rem;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .form-section-inner {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-header h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .form-header p { opacity: 0.6; font-size: 0.95rem; }
+
+        .form-embed-wrapper {
+            background: white;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border: 2px solid rgba(16,185,129,0.3);
+        }
+
+        .form-embed-wrapper iframe {
+            display: block;
+            width: 100%;
+            border: none;
+            min-height: 1400px;
+        }
+
+        .form-note {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.8rem;
+            opacity: 0.4;
+        }
+
+        /* ---- NEXT STEPS ---- */
+        .next-steps {
+            max-width: 820px;
+            margin: 4rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 700px) { .next-steps { grid-template-columns: 1fr; } }
+
+        .step-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .step-num-badge {
+            background: #10b981;
+            color: #020617;
+            font-weight: 900;
+            font-size: 0.9rem;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .step-title { font-weight: 900; font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .step-desc { font-size: 0.8rem; opacity: 0.55; line-height: 1.5; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.8rem;
+            opacity: 0.35;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
     </style>
 </head>
 <body>
+
+    <!-- ====== HERO ====== -->
     <section class="hero">
-        <img src="Truck.png" alt="Dynamic Fleet Truck" class="truck-bg">
+        <img src="Truck.png" alt="Fleet truck" class="truck-bg">
         <div class="overlay"></div>
-        
-        <div class="container">
-            <!-- Left: Copy -->
-            <div class="content">
-                <div class="eyebrow">🎁 Free R 8,500 Value</div>
-                <h1>Stop <span class="highlight">Bleeding</span><br>Money</h1>
-                <p class="subheading">Get a FREE forensic fuel audit and discover exactly where your fleet is losing R 45,000+ per month.</p>
-                
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number">73%</div>
-                        <div class="stat-label">Have Hidden Losses</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">R 87k</div>
-                        <div class="stat-label">Avg Monthly Waste</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">60 Days</div>
-                        <div class="stat-label">To See Results</div>
-                    </div>
+
+        <div class="hero-inner">
+            <div class="eyebrow">🎁 Free R 8,500 Value — Limited Spots</div>
+
+            <h1>Stop <span class="highlight">Bleeding</span> Money</h1>
+
+            <p class="subheading">Get a FREE forensic fuel audit and discover exactly where your fleet is losing R 45,000+ per month — with zero obligation.</p>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">73%</div>
+                    <div class="stat-label">Have Hidden Losses</div>
                 </div>
-                
-                <div class="benefits">
-                    <div class="benefits-title">✅ What You'll Get:</div>
-                    <ul class="benefits-list">
-                        <li><span class="check-icon">✓</span> Detailed efficiency score for your entire fleet</li>
-                        <li><span class="check-icon">✓</span> Exact monthly losses broken down by vehicle</li>
-                        <li><span class="check-icon">✓</span> Driver performance rankings</li>
-                        <li><span class="check-icon">✓</span> Step-by-step action plan to fix it</li>
-                        <li><span class="check-icon">✓</span> ROI projections for improvements</li>
-                    </ul>
+                <div class="stat-card">
+                    <div class="stat-number">R 87k</div>
+                    <div class="stat-label">Avg Monthly Waste</div>
                 </div>
-                
-                <div class="trust-badges">
-                    <div class="badge">
-                        <span class="badge-icon">🔒</span>
-                        <span>100% Confidential</span>
-                    </div>
-                    <div class="badge">
-                        <span class="badge-icon">⚡</span>
-                        <span>No Obligations</span>
-                    </div>
-                    <div class="badge">
-                        <span class="badge-icon">🎯</span>
-                        <span>Results in 48hrs</span>
-                    </div>
+                <div class="stat-card">
+                    <div class="stat-number">60 Days</div>
+                    <div class="stat-label">To See Results</div>
                 </div>
             </div>
-            
-            <!-- Right: Form -->
-            <div class="form-card">
-                <div class="form-title">Claim Your Free Audit</div>
-                <div class="form-subtitle">Limited to 10 audits this month • First come, first served</div>
-                
-                <form id="auditForm" action="https://forms.gle/BxeSdqMHq5fh564KA" method="GET" target="_blank">
-                    <div class="form-group">
-                        <label>Your Name *</label>
-                        <input type="text" name="entry.name" required placeholder="John Smith">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Company Name *</label>
-                        <input type="text" name="entry.company" required placeholder="ABC Transport">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email Address *</label>
-                        <input type="email" name="entry.email" required placeholder="john@abctransport.co.za">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Phone Number *</label>
-                        <input type="tel" name="entry.phone" required placeholder="083 123 4567">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Fleet Size *</label>
-                        <select name="entry.fleet" required>
-                            <option value="">Select fleet size</option>
-                            <option value="5-10">5-10 vehicles</option>
-                            <option value="11-25">11-25 vehicles</option>
-                            <option value="26-50">26-50 vehicles</option>
-                            <option value="51-100">51-100 vehicles</option>
-                            <option value="100+">100+ vehicles</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Biggest Challenge (Optional)</label>
-                        <textarea name="entry.challenge" placeholder="E.g., High fuel costs, driver behavior, vehicle inefficiency..."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn">🎁 Get My Free Audit</button>
-                    
-                    <div class="urgency">
-                        ⏰ Only 10 spots available this month
-                    </div>
-                </form>
+
+            <div class="benefits-row">
+                <div class="benefit-item"><span class="benefit-icon">📊</span> Efficiency score per vehicle</div>
+                <div class="benefit-item"><span class="benefit-icon">💸</span> Exact monthly losses identified</div>
+                <div class="benefit-item"><span class="benefit-icon">👤</span> Driver performance rankings</div>
+                <div class="benefit-item"><span class="benefit-icon">🗺️</span> Step-by-step action plan</div>
+                <div class="benefit-item"><span class="benefit-icon">📈</span> ROI projections included</div>
+                <div class="benefit-item"><span class="benefit-icon">⚡</span> Results delivered in 48 hours</div>
+            </div>
+
+            <button class="cta-btn" onclick="scrollToForm()">🎁 Claim My Free Audit Now</button>
+            <span class="urgency-text">⏰ Only 10 spots available this month — first come, first served</span>
+
+            <div class="trust-row">
+                <div class="badge"><span class="badge-icon">🔒</span><span>100% Confidential</span></div>
+                <div class="badge"><span class="badge-icon">✅</span><span>No Obligations</span></div>
+                <div class="badge"><span class="badge-icon">🎯</span><span>Results in 48hrs</span></div>
+                <div class="badge"><span class="badge-icon">🚛</span><span>SA Fleet Specialists</span></div>
             </div>
         </div>
     </section>
-    
+
+    <!-- ====== FORM SECTION ====== -->
+    <section class="form-section" id="auditForm">
+        <div class="form-section-inner">
+
+            <div class="form-header">
+                <h2>Submit Your <span style="color:#10b981;">Free Audit</span> Request</h2>
+                <p>Fill in your details and upload your fleet files — it takes less than 3 minutes and goes straight to our team</p>
+            </div>
+
+            <div class="form-embed-wrapper">
+                <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSeTd7AmmTA1FOVLHvUBEH2w3i-4jPMt-RjbQBBzoZEjNc7MDw/viewform?embedded=true"
+                    width="100%"
+                    frameborder="0"
+                    marginheight="0"
+                    marginwidth="0"
+                    title="Free Fleet Audit Request">
+                    Loading form…
+                </iframe>
+            </div>
+
+            <div class="form-note">
+                🔒 Files upload securely to Google Drive &nbsp;•&nbsp; We receive your submission instantly &nbsp;•&nbsp; Your data is never shared
+            </div>
+
+            <div class="next-steps">
+                <div class="step-card">
+                    <div class="step-num-badge">1</div>
+                    <div class="step-title">We Receive Everything</div>
+                    <div class="step-desc">Your details and fleet files land in our system the moment you hit submit — nothing extra needed.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num-badge">2</div>
+                    <div class="step-title">We Run the Audit</div>
+                    <div class="step-desc">Our team analyses your fleet data and pinpoints every rand being lost.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-num-badge">3</div>
+                    <div class="step-title">You Get Results</div>
+                    <div class="step-desc">Within 48 hours you receive your fleet score, breakdown, and full action plan.</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        © Dynamic Fleet Reporting &nbsp;•&nbsp; dynamicfleetreports@gmail.com &nbsp;•&nbsp; 083 314 9592 &nbsp;•&nbsp; 100% Confidential
+    </footer>
+
     <script>
-        document.getElementById('auditForm').addEventListener('submit', function(e) {
-            // Form will open Google Form in new tab
-            // You can add tracking here if needed
-            console.log('Form submitted');
-        });
+        function scrollToForm() {
+            document.getElementById('auditForm').scrollIntoView({ behavior: 'smooth' });
+        }
     </script>
+
 </body>
 </html>
