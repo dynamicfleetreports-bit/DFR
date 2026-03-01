@@ -5,464 +5,496 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DFR | Fleet Performance Report</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink: #0a0f1e;
-            --ink2: #1e293b;
-            --green: #059669;
-            --green-light: #10b981;
-            --red: #dc2626;
-            --red-light: #ef4444;
-            --gold: #d97706;
-            --blue: #2563eb;
-            --slate: #64748b;
-            --paper: #f8fafc;
+            --ink:          #0a0f1e;
+            --ink2:         #1e293b;
+            --green:        #059669;
+            --green-light:  #10b981;
+            --red:          #dc2626;
+            --red-light:    #ef4444;
+            --gold:         #d97706;
+            --blue:         #2563eb;
+            --slate:        #64748b;
+            --paper:        #f8fafc;
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; background: #e2e8f0; color: var(--ink); margin: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: #cbd5e1; color: var(--ink); }
 
-        /* ── SCREEN WRAPPER ── */
-        .report-wrap { width: 297mm; margin: 10mm auto; }
+        /* ════════════════════════════════
+           SCREEN WRAPPER
+           ════════════════════════════════ */
+        .report-wrap { width: 210mm; margin: 10mm auto; }
 
-        /* ── CONTROL BAR (screen only) ── */
-        .control-bar { background: var(--ink); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0; position: sticky; top: 0; z-index: 100; }
-        .control-bar .brand { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; color: var(--green-light); font-size: 15px; }
-        .control-bar .filename-hint { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 1px; }
-        .ctrl-btn { padding: 8px 20px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none; transition: all 0.2s; }
-
-        /* ── PAGE SECTIONS ── */
-        /* Each .print-page is a logical A4 landscape page */
-        .print-page {
-            background: white;
-            padding: 12mm 12mm 8mm;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 6px;
+        /* ════════════════════════════════
+           CONTROL BAR (screen only)
+           ════════════════════════════════ */
+        .control-bar {
+            background: var(--ink); padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-radius: 10px 10px 0 0; position: sticky; top: 0; z-index: 100;
         }
+        .control-bar .brand { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; color: var(--green-light); font-size: 14px; }
+        .ctrl-btn { padding: 7px 16px; border-radius: 7px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none; }
+        .mode-btns { display: flex; gap: 6px; align-items: center; }
+        .mode-btn { padding: 5px 12px; border-radius: 6px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.5); transition: all 0.2s; }
+        .mode-btn.active { background: var(--green-light); color: var(--ink); border-color: var(--green-light); }
+        .filename-hint { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.35); margin-top: 2px; }
 
-        /* ── HEADER ── */
-        .header-stripe {
+        /* ════════════════════════════════
+           RUNNING PAGE HEADER (every page)
+           ════════════════════════════════ */
+        .page-header {
             background: var(--ink);
-            margin: -12mm -12mm 0;
-            padding: 8mm 12mm 7mm;
+            margin: 0 0 5mm 0;
+            padding: 4mm 6mm;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            border-radius: 6px;
+        }
+        .ph-brand { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 3px; color: var(--green-light); }
+        .ph-client { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.6); }
+        .ph-right { text-align: right; }
+        .ph-period { font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4); }
+        .ph-page { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: rgba(255,255,255,0.3); letter-spacing: 2px; }
+
+        /* ════════════════════════════════
+           PAGE 1 — BOSS PAGE
+           ════════════════════════════════ */
+        .hero-block {
+            background: var(--ink);
+            border-radius: 10px;
+            padding: 6mm;
+            margin-bottom: 4mm;
             position: relative;
             overflow: hidden;
         }
-        .header-stripe::before { content: ''; position: absolute; top: -60px; right: -60px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%); pointer-events: none; }
-        .report-title { color: white; }
-        .report-title .eyebrow { font-size: 9px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--green-light); opacity: 0.8; margin-bottom: 4px; }
-        .report-title h1 { font-family: 'Bebas Neue', sans-serif; font-size: 44px; line-height: 0.9; letter-spacing: 2px; margin: 0; }
-        .report-title h1 span { color: var(--green-light); }
-        .report-title .client-name { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.7); margin-top: 6px; text-transform: uppercase; letter-spacing: 2px; }
-        .header-right { text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
-        .active-badge { background: var(--green); color: white; padding: 5px 14px; border-radius: 999px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 6px; }
-        .period-badge { background: rgba(255,255,255,0.12); color: white; padding: 8px 18px; border-radius: 10px; }
-        .period-badge .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
-        .period-badge .value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; }
+        .hero-block::before {
+            content: '';
+            position: absolute; top: -40px; right: -40px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%);
+        }
+        .hero-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4mm; position: relative; z-index: 1; }
+        .hero-title { color: white; }
+        .hero-title .eyebrow { font-size: 8px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--green-light); opacity: 0.8; margin-bottom: 3px; }
+        .hero-title h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 0.9; letter-spacing: 2px; }
+        .hero-title h1 span { color: var(--green-light); }
+        .hero-title .client-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
+        .hero-badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+        .active-badge { background: var(--green); color: white; padding: 4px 12px; border-radius: 999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .period-badge { background: rgba(255,255,255,0.1); color: white; padding: 6px 14px; border-radius: 8px; text-align: right; }
+        .period-badge .lbl { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; display: block; }
+        .period-badge .val { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; display: block; }
 
-        /* ── HERO TILES ── */
-        .hero-bar {
+        /* ── Hero tiles 4x2 grid ── */
+        .hero-tiles {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
-            gap: 8px;
-            margin: 6mm 0 6mm;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            position: relative; z-index: 1;
         }
         .hero-tile {
-            background: white;
-            border-radius: 10px;
-            padding: 12px 8px 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-top: 2px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 8px 6px;
             text-align: center;
-            border-top: 3px solid #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
         }
-        .hero-tile.t-green       { border-top-color: var(--green);  background: #f0fdf4; }
-        .hero-tile.t-red         { border-top-color: var(--red);    background: #fff1f2; }
-        .hero-tile.t-dark        { border-top-color: var(--ink);    background: var(--ink); }
-        .hero-tile.t-delta-good  { border-top-color: var(--green);  background: #f0fdf4; }
-        .hero-tile.t-delta-bad   { border-top-color: var(--red);    background: #fff1f2; }
-        .hero-tile.t-neutral     { border-top-color: var(--slate);  background: var(--paper); }
+        .hero-tile.t-loss {
+            background: rgba(220,38,38,0.15);
+            border-top-color: var(--red-light);
+            grid-column: span 2;
+        }
+        .hero-tile.t-green { border-top-color: var(--green-light); background: rgba(16,185,129,0.1); }
+        .hero-tile.t-red   { border-top-color: var(--red-light);   background: rgba(220,38,38,0.1); }
+        .hero-tile.t-delta-good { border-top-color: var(--green-light); background: rgba(16,185,129,0.1); }
+        .hero-tile.t-delta-bad  { border-top-color: var(--red-light);   background: rgba(220,38,38,0.1); }
 
-        .tile-icon  { font-size: 16px; line-height: 1; margin-bottom: 1px; }
-        .tile-label { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .hero-tile.t-dark .tile-label        { color: rgba(255,255,255,0.45); }
-        .hero-tile.t-green .tile-label       { color: var(--green); }
-        .hero-tile.t-delta-good .tile-label  { color: var(--green); }
-        .hero-tile.t-red .tile-label         { color: var(--red); }
-        .hero-tile.t-delta-bad .tile-label   { color: var(--red); }
+        .tile-icon  { font-size: 13px; display: block; margin-bottom: 2px; }
+        .tile-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; }
+        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; line-height: 1; display: block; }
+        .hero-tile.t-loss .tile-value { font-size: 28px; color: var(--red-light); }
+        .hero-tile.t-green .tile-value { color: var(--green-light); }
+        .hero-tile.t-red   .tile-value { color: #fca5a5; }
+        .hero-tile.t-delta-good .tile-value { color: var(--green-light); font-size: 16px; }
+        .hero-tile.t-delta-bad  .tile-value { color: #fca5a5; font-size: 16px; }
+        .tile-sub   { font-size: 6.5px; color: rgba(255,255,255,0.3); font-weight: 600; display: block; }
 
-        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--ink); line-height: 1; }
-        .hero-tile.t-green .tile-value       { color: var(--green); }
-        .hero-tile.t-red .tile-value         { color: var(--red); font-size: 20px; }
-        .hero-tile.t-dark .tile-value        { color: var(--red-light); font-size: 26px; }
-        .hero-tile.t-delta-good .tile-value  { color: var(--green); font-size: 18px; }
-        .hero-tile.t-delta-bad .tile-value   { color: var(--red);   font-size: 18px; }
+        /* ── P1 Charts row ── */
+        .p1-charts { display: grid; grid-template-columns: 1fr 1.8fr 1fr; gap: 4mm; margin-bottom: 4mm; }
+        .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 8px; padding: 4mm; }
+        .chart-card-title { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate); margin-bottom: 6px; }
 
-        .tile-sub { font-size: 7px; color: var(--slate); font-weight: 600; }
-        .hero-tile.t-dark .tile-sub       { color: rgba(255,255,255,0.35); }
-        .hero-tile.t-delta-good .tile-sub { color: var(--green); opacity: 0.7; }
-        .hero-tile.t-delta-bad .tile-sub  { color: var(--red);   opacity: 0.7; }
+        /* ── Gauge ── */
+        .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+        .gauge-score { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1; }
+        .gauge-desc  { font-size: 9px; font-weight: 700; }
 
-        /* ── DRIVER OF PERIOD ── */
-        .dotm-card { background: linear-gradient(135deg, var(--ink), var(--ink2)); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 6mm; position: relative; overflow: hidden; }
-        .dotm-card::before { content: '🏆'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 56px; opacity: 0.12; }
-        .dotm-trophy { font-size: 34px; }
-        .dotm-info { flex: 1; }
-        .dotm-eyebrow { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green-light); }
-        .dotm-name { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; color: white; line-height: 1; }
-        .dotm-score-text { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
-        .dotm-stats { display: flex; gap: 16px; }
-        .dotm-stat { text-align: center; }
-        .dotm-stat .val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--green-light); }
-        .dotm-stat .lbl { font-size: 7px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+        /* ── Trend delta ── */
+        .trend-delta .dval { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
+        .trend-delta .dlbl { font-size: 7px; font-weight: 700; color: var(--slate); }
 
-        /* ── CHARTS ROW ── */
-        .charts-row { display: grid; grid-template-columns: 180px 1fr 1fr; gap: 12px; margin-bottom: 6mm; }
-        .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; }
-        .chart-card-title { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); margin-bottom: 8px; }
-        .trend-delta { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-        .trend-delta .delta-val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
-        .trend-delta .delta-label { font-size: 8px; font-weight: 700; color: var(--slate); line-height: 1.3; }
+        /* ── Top 5 podium ── */
+        .podium-item { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; margin-bottom: 4px; }
+        .podium-rank { width: 18px; height: 18px; border-radius: 50%; color: white; font-weight: 900; font-size: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .podium-reg  { font-weight: 900; font-size: 10px; color: #1e40af; font-style: italic; flex: 1; }
+        .podium-bar-wrap { flex: 2; height: 4px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .podium-bar-fill { height: 100%; background: linear-gradient(90deg, var(--red), #f87171); border-radius: 999px; }
+        .podium-loss { font-weight: 900; font-size: 10px; color: var(--red); min-width: 55px; text-align: right; }
 
-        /* ── SECTION TITLE ── */
-        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--ink); text-transform: uppercase; border-bottom: 2px solid var(--green); padding-bottom: 3px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        /* ════════════════════════════════
+           SECTION TITLE
+           ════════════════════════════════ */
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 3px;
+            color: var(--ink); text-transform: uppercase;
+            border-bottom: 2px solid var(--green); padding-bottom: 3px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
         .section-title .accent { color: var(--green); }
 
-        /* ── BONUS SECTION ── */
-        .bonus-section { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid var(--green); border-radius: 14px; padding: 16px 20px; margin-bottom: 6mm; }
-        .bonus-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--ink); margin-bottom: 12px; }
-        .bonus-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-        .bonus-tier { background: white; border-radius: 8px; padding: 10px; text-align: center; }
-        .bonus-tier .tier-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .bonus-tier .tier-count { font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 1; }
-        .bonus-tier .tier-range { font-size: 8px; font-weight: 700; color: var(--slate); }
-        .bonus-roi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .bonus-roi-card { background: white; border-radius: 8px; padding: 10px 14px; }
-        .bonus-roi-card .roi-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .bonus-roi-card .roi-val { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; }
-        .bonus-roi-card.net { background: var(--green); }
-        .bonus-roi-card.net .roi-label { color: rgba(255,255,255,0.7); }
-        .bonus-roi-card.net .roi-val { color: white; }
+        /* ════════════════════════════════
+           PAGE 2 — PEOPLE PAGE
+           ════════════════════════════════ */
+        .dotm-card {
+            background: linear-gradient(135deg, var(--ink), var(--ink2));
+            border-radius: 10px; padding: 10px 16px;
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 5mm; position: relative; overflow: hidden;
+        }
+        .dotm-card::before { content: '🏆'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 48px; opacity: 0.1; }
+        .dotm-trophy { font-size: 28px; }
+        .dotm-info { flex: 1; }
+        .dotm-eyebrow { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green-light); }
+        .dotm-name  { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: white; line-height: 1; }
+        .dotm-sub   { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); }
+        .dotm-stats { display: flex; gap: 14px; }
+        .dotm-stat .val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--green-light); }
+        .dotm-stat .lbl { font-size: 7px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
 
-        /* ── TABLES ── */
-        .audit-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
-        .audit-table thead tr { background: var(--ink); }
-        .audit-table thead th { color: white; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; padding: 7px 4px; border: 1px solid #334155; text-align: center; }
-        .audit-table thead th.left { text-align: left; padding-left: 8px; }
-        .audit-table tbody tr { border-bottom: 1px solid #f1f5f9; page-break-inside: avoid; }
-        .audit-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .audit-table td { padding: 6px 4px; text-align: center; font-weight: 700; }
-        .audit-table td.left { text-align: left; padding-left: 8px; }
-        .audit-table td.reg { font-style: italic; font-weight: 900; color: #1e40af; border-left: 3px solid #3b82f6; }
-        .audit-table td.red { color: var(--red); }
-        .audit-table td.green { color: var(--green); }
-        .audit-table td.muted { color: var(--slate); font-weight: 600; }
-        .audit-table td.total-loss { font-style: italic; font-weight: 900; color: var(--red); }
-        .score-pill { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 8px; font-weight: 900; }
-
-        /* ── LEAGUE TABLE ── */
-        .league-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
-        .league-table thead tr { background: var(--ink2); }
-        .league-table thead th { color: white; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; padding: 7px 6px; text-align: center; }
-        .league-table thead th.left { text-align: left; }
-        .league-table tbody tr { border-bottom: 1px solid #f1f5f9; page-break-inside: avoid; }
-        .league-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .league-table td { padding: 6px 6px; text-align: center; font-weight: 700; }
-        .league-table td.left { text-align: left; }
-        .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; font-weight: 900; }
-        .tier-bar { height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden; width: 60px; display: inline-block; }
+        /* ════════════════════════════════
+           TABLES
+           ════════════════════════════════ */
+        .dfr-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
+        .dfr-table thead tr { background: var(--ink); }
+        .dfr-table thead th {
+            color: white; font-size: 7px; font-weight: 900; text-transform: uppercase;
+            letter-spacing: 0.5px; padding: 6px 5px; border: 1px solid #334155; text-align: center;
+        }
+        .dfr-table thead th.left { text-align: left; padding-left: 8px; }
+        .dfr-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+        .dfr-table tbody tr:nth-child(even) { background: #f8fafc; }
+        .dfr-table td { padding: 5px 4px; text-align: center; font-weight: 700; }
+        .dfr-table td.left { text-align: left; padding-left: 8px; }
+        .dfr-table td.reg { font-style: italic; font-weight: 900; color: #1e40af; border-left: 3px solid #3b82f6; }
+        .dfr-table td.red   { color: var(--red); }
+        .dfr-table td.green { color: var(--green); }
+        .dfr-table td.muted { color: var(--slate); font-weight: 600; }
+        .dfr-table td.loss  { font-style: italic; font-weight: 900; color: var(--red); }
+        .score-pill { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 7.5px; font-weight: 900; }
+        .tier-bar { height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden; width: 50px; display: inline-block; vertical-align: middle; }
         .tier-bar-fill { height: 100%; border-radius: 999px; }
+        .table-note { font-size: 7.5px; color: var(--slate); font-weight: 600; font-style: italic; margin-top: 5px; }
 
-        /* ── ACTION REPORT ── */
-        .action-section { border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; page-break-inside: avoid; }
-        .action-section.critical { background: #fff1f2; border-left: 4px solid var(--red); }
-        .action-section.speeding { background: #fff7ed; border-left: 4px solid #f97316; }
+        /* ════════════════════════════════
+           ACTION REPORT
+           ════════════════════════════════ */
+        .action-section { border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
+        .action-section.critical   { background: #fff1f2; border-left: 4px solid var(--red); }
+        .action-section.speeding   { background: #fff7ed; border-left: 4px solid #f97316; }
         .action-section.efficiency { background: #eff6ff; border-left: 4px solid #3b82f6; }
         .action-section.acceptable { background: #f0fdf4; border-left: 4px solid var(--green); }
-        .action-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .action-icon { font-size: 18px; }
-        .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; }
-        .action-bullets { font-size: 9px; font-weight: 600; color: #475569; margin-left: 26px; margin-bottom: 6px; }
-        .action-bullets li { margin-bottom: 1px; }
-        .action-inner-table { width: 100%; border-collapse: collapse; font-size: 9px; }
-        .action-inner-table th { padding: 5px 8px; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: white; text-align: center; }
+        .action-header { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+        .action-icon  { font-size: 16px; }
+        .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; }
+        .action-bullets { font-size: 8.5px; font-weight: 600; color: #475569; margin-left: 23px; margin-bottom: 6px; }
+        .action-bullets li { margin-bottom: 1px; list-style: none; }
+        .action-inner-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
+        .action-inner-table th { padding: 5px 7px; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: white; text-align: center; }
         .action-inner-table th.left { text-align: left; }
-        .action-inner-table td { padding: 5px 8px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.04); }
-        .action-inner-table td.left { text-align: left; }
-        .action-inner-table tbody tr { page-break-inside: avoid; }
+        .action-inner-table td { padding: 4px 7px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .action-inner-table td.left { text-align: left; font-style: italic; }
 
-        /* ── FOOTER ── */
-        .report-footer { border-top: 3px solid var(--green); margin-top: 8mm; padding-top: 5mm; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; }
-        .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: var(--ink); }
-        .footer-brand .sub { font-family: 'Outfit', sans-serif; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); display: block; }
-        .footer-contact { font-size: 9px; font-weight: 700; color: var(--slate); text-align: right; line-height: 1.8; }
+        /* ════════════════════════════════
+           FOOTER
+           ════════════════════════════════ */
+        .report-footer {
+            border-top: 3px solid var(--green); margin-top: 8mm; padding-top: 5mm;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px;
+        }
+        .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--ink); }
+        .footer-brand .sub { font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); display: block; }
+        .footer-contact { font-size: 8.5px; font-weight: 700; color: var(--slate); text-align: right; line-height: 1.9; }
         .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .footer-qr canvas { border: 2px solid white; border-radius: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .footer-qr .qr-label { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .footer-micro { font-size: 7px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 3mm; }
+        .footer-qr canvas { border: 2px solid white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
+        .footer-qr .qr-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
+        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 3mm; }
 
-        /* ════════════════════════════════════════════
-           PRINT STYLES — this is where page breaks live
-           ════════════════════════════════════════════ */
+        /* ════════════════════════════════
+           PAGE SPACING (screen)
+           ════════════════════════════════ */
+        .print-section { background: white; padding: 8mm; margin-bottom: 4px; }
+
+        /* ════════════════════════════════
+           PRINT STYLES
+           ════════════════════════════════ */
         @media print {
-            @page { size: A4 landscape; margin: 8mm; }
+            @page { size: A4 portrait; margin: 8mm; }
 
             body { background: white !important; }
-
             .report-wrap { width: 100% !important; margin: 0 !important; }
-
-            /* Hide screen-only elements */
             .control-bar { display: none !important; }
 
-            /* Each print-page starts on a new page */
-            .print-page {
+            .print-section {
                 padding: 0 !important;
                 margin: 0 !important;
                 box-shadow: none !important;
-                page-break-after: always;
-                page-break-inside: avoid;
             }
-            .print-page:last-of-type { page-break-after: auto; }
 
-            /* Keep table rows together */
-            tr { page-break-inside: avoid; }
+            /* Natural page breaks — let content flow, break before each new section */
+            .page-break-before { page-break-before: always; break-before: page; }
+
+            /* Tables flow naturally across pages — header repeats */
             thead { display: table-header-group; }
+            tr    { page-break-inside: avoid; break-inside: avoid; }
 
-            /* Keep action sections together */
-            .action-section { page-break-inside: avoid; }
-            .bonus-section { page-break-inside: avoid; }
-            .dotm-card { page-break-inside: avoid; }
-            .charts-row { page-break-inside: avoid; }
+            /* Keep these blocks together */
+            .action-section { page-break-inside: avoid; break-inside: avoid; }
+            .dotm-card      { page-break-inside: avoid; break-inside: avoid; }
+            .podium-item    { page-break-inside: avoid; break-inside: avoid; }
+            .hero-block     { page-break-inside: avoid; break-inside: avoid; }
+            .p1-charts      { page-break-inside: avoid; break-inside: avoid; }
 
-            /* Force colours to print */
+            /* Section titles stay with their content */
+            .section-title  { page-break-after: avoid; break-after: avoid; }
+
+            /* Hide mode buttons in print */
+            .mode-btns { display: none !important; }
+
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
+
+        /* ── Mode visibility ── */
+        .exec-only, .summary-only, .full-only { display: block; }
     </style>
 </head>
 <body>
 <div class="report-wrap">
 
-    <!-- Control Bar (screen only) -->
+    <!-- ══════════════════════════════════
+         CONTROL BAR
+         ══════════════════════════════════ -->
     <div class="control-bar">
         <div>
             <div class="brand">DFR — Active Client Report</div>
-            <div class="filename-hint">Suggested filename: <span id="suggestedFilename">loading...</span></div>
+            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span></div>
         </div>
-        <div style="display:flex;gap:10px;">
+        <div class="mode-btns">
+            <span style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;margin-right:4px;">MODE:</span>
+            <button class="mode-btn active" onclick="setMode('executive')" id="btn-executive">Executive</button>
+            <button class="mode-btn" onclick="setMode('summary')" id="btn-summary">Summary</button>
+            <button class="mode-btn" onclick="setMode('full')" id="btn-full">Full Report</button>
+        </div>
+        <div style="display:flex;gap:8px;">
             <button onclick="window.print()" class="ctrl-btn" style="background:#10b981;color:#0a0f1e;">💾 Save PDF</button>
             <button onclick="emailReport()" class="ctrl-btn" style="background:#3b82f6;color:white;">📧 Email</button>
-            <button onclick="window.close()" class="ctrl-btn" style="background:#334155;color:white;">✕ Close</button>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         PAGE 1: Header + Hero + Driver of Period + Charts
-         ═══════════════════════════════════════════ -->
-    <div class="print-page">
-        <div class="header-stripe">
-            <div class="report-title">
-                <div class="eyebrow">Dynamic Fleet Reporting — Active Client</div>
-                <h1>FLEET <span>PERFORMANCE</span> REPORT</h1>
-                <div class="client-name" id="repClient">Client Name</div>
+    <!-- ══════════════════════════════════
+         PAGE 1 — THE BOSS PAGE
+         ══════════════════════════════════ -->
+    <div class="print-section">
+
+        <!-- Running header -->
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph1-client">—</div>
+            <div class="ph-right">
+                <div class="ph-period" id="ph1-period">—</div>
+                <div class="ph-page">Page 1</div>
             </div>
-            <div class="header-right">
-                <div class="active-badge">✓ Active Client</div>
-                <div class="period-badge">
-                    <div class="label" id="reportFreqLabel">Monthly Report</div>
-                    <div class="value" id="repPeriod">JAN 2026</div>
+        </div>
+
+        <!-- Hero block -->
+        <div class="hero-block">
+            <div class="hero-top">
+                <div class="hero-title">
+                    <div class="eyebrow">Dynamic Fleet Reporting — Active Client</div>
+                    <h1>FLEET <span>PERFORMANCE</span> REPORT</h1>
+                    <div class="client-name" id="repClient">—</div>
                 </div>
-                <div style="color:rgba(255,255,255,0.4);font-size:9px;font-weight:700;margin-top:3px;">Issued: <span id="repDate"></span></div>
+                <div class="hero-badges">
+                    <div class="active-badge">✓ Active Client</div>
+                    <div class="period-badge">
+                        <span class="lbl" id="reportFreqLabel">Monthly Report</span>
+                        <span class="val" id="repPeriod">—</span>
+                    </div>
+                    <div style="color:rgba(255,255,255,0.3);font-size:7.5px;font-weight:700;text-align:right;">Issued: <span id="repDate">—</span></div>
+                </div>
+            </div>
+
+            <!-- 4x2 Hero Tiles -->
+            <div class="hero-tiles">
+                <div class="hero-tile">
+                    <span class="tile-icon">🛣️</span>
+                    <span class="tile-label">Total Distance</span>
+                    <span class="tile-value" id="statKM">—</span>
+                    <span class="tile-sub">Kilometres</span>
+                </div>
+                <div class="hero-tile">
+                    <span class="tile-icon">⛽</span>
+                    <span class="tile-label">Total Fuel Used</span>
+                    <span class="tile-value" id="statFuel">—</span>
+                    <span class="tile-sub">Litres</span>
+                </div>
+                <div class="hero-tile t-green">
+                    <span class="tile-icon">📊</span>
+                    <span class="tile-label">Fleet km/L</span>
+                    <span class="tile-value" id="statEff">—</span>
+                    <span class="tile-sub">Avg efficiency</span>
+                </div>
+                <div class="hero-tile t-red">
+                    <span class="tile-icon">💧</span>
+                    <span class="tile-label">Litres Wasted</span>
+                    <span class="tile-value" id="statWasted">—</span>
+                    <span class="tile-sub">Inefficiency</span>
+                </div>
+                <div class="hero-tile t-red">
+                    <span class="tile-icon">🚨</span>
+                    <span class="tile-label">Speed Violations</span>
+                    <span class="tile-value" id="statEvents">—</span>
+                    <span class="tile-sub">Recorded events</span>
+                </div>
+                <div class="hero-tile">
+                    <span class="tile-icon">📉</span>
+                    <span class="tile-label">Efficiency Loss</span>
+                    <span class="tile-value" id="statEffLoss">—</span>
+                    <span class="tile-sub">Wholesale</span>
+                </div>
+                <div class="hero-tile t-loss">
+                    <span class="tile-icon">💰</span>
+                    <span class="tile-label">Total Money Lost This Period</span>
+                    <span class="tile-value" id="statTotal">—</span>
+                    <span class="tile-sub" id="statTotalSub">—</span>
+                </div>
+                <div class="hero-tile" id="deltaCard">
+                    <span class="tile-icon" id="deltaIcon">📈</span>
+                    <span class="tile-label">vs Last Period</span>
+                    <span class="tile-value" id="statDelta">—</span>
+                    <span class="tile-sub" id="statDeltaSub">No prior data</span>
+                </div>
             </div>
         </div>
 
-        <!-- Hero Tiles -->
-        <div class="hero-bar">
-
-            <div class="hero-tile t-neutral">
-                <div class="tile-icon">🛣️</div>
-                <div class="tile-label">Total Distance</div>
-                <div class="tile-value" id="statKM">—</div>
-                <div class="tile-sub">Kilometres</div>
+        <!-- Charts row -->
+        <div class="p1-charts">
+            <!-- Loss doughnut + gauge stacked -->
+            <div class="chart-card">
+                <div class="chart-card-title">Loss Distribution</div>
+                <canvas id="lossChart" height="130"></canvas>
+                <div style="border-top:1px solid #e2e8f0;margin-top:8px;padding-top:8px;">
+                    <div class="chart-card-title">Fleet Health Score</div>
+                    <canvas id="gaugeChart" width="140" height="72"></canvas>
+                    <div class="gauge-wrap" style="margin-top:2px;">
+                        <div class="gauge-score" id="gaugeScore">—</div>
+                        <div class="gauge-desc"  id="gaugeDesc">—</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="hero-tile t-neutral">
-                <div class="tile-icon">⛽</div>
-                <div class="tile-label">Total Fuel Used</div>
-                <div class="tile-value" id="statFuel">—</div>
-                <div class="tile-sub">Litres</div>
+            <!-- Trend chart -->
+            <div class="chart-card">
+                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
+                <div class="trend-delta" style="margin-bottom:6px;">
+                    <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
+                    <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
+                </div>
+                <canvas id="trendChart" height="155"></canvas>
             </div>
 
-            <div class="hero-tile t-green">
-                <div class="tile-icon">📊</div>
-                <div class="tile-label">Fleet km/L</div>
-                <div class="tile-value" id="statEff">—</div>
-                <div class="tile-sub">Avg efficiency</div>
+            <!-- Top 5 -->
+            <div class="chart-card">
+                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
+                <div id="podium"></div>
             </div>
-
-            <div class="hero-tile t-red">
-                <div class="tile-icon">💧</div>
-                <div class="tile-label">Litres Wasted</div>
-                <div class="tile-value" id="statWasted">—</div>
-                <div class="tile-sub">Inefficiency</div>
-            </div>
-
-            <div class="hero-tile t-red">
-                <div class="tile-icon">🚨</div>
-                <div class="tile-label">Speed Violations</div>
-                <div class="tile-value" id="statEvents">—</div>
-                <div class="tile-sub">Recorded events</div>
-            </div>
-
-            <div class="hero-tile t-neutral">
-                <div class="tile-icon">📉</div>
-                <div class="tile-label">Efficiency Loss</div>
-                <div class="tile-value" id="statEffLoss">—</div>
-                <div class="tile-sub">Wholesale</div>
-            </div>
-
-            <div class="hero-tile t-dark">
-                <div class="tile-icon">💰</div>
-                <div class="tile-label">Total Money Lost</div>
-                <div class="tile-value" id="statTotal">—</div>
-                <div class="tile-sub">This period</div>
-            </div>
-
-            <div class="hero-tile t-neutral" id="deltaCard">
-                <div class="tile-icon" id="deltaIcon">📈</div>
-                <div class="tile-label">vs Last Period</div>
-                <div class="tile-value" id="statDelta">—</div>
-                <div class="tile-sub" id="statDeltaSub">No prior data</div>
-            </div>
-
         </div>
 
-        <!-- Driver of the Period -->
+    </div><!-- /PAGE 1 -->
+
+    <!-- ══════════════════════════════════
+         PAGE 2 — PEOPLE PAGE
+         ══════════════════════════════════ -->
+    <div class="print-section page-break-before summary-only full-only" id="page2">
+
+        <!-- Running header -->
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph2-client">—</div>
+            <div class="ph-right">
+                <div class="ph-period" id="ph2-period">—</div>
+                <div class="ph-page">Page 2</div>
+            </div>
+        </div>
+
+        <!-- Driver of Period -->
         <div class="dotm-card" id="dotmCard">
             <div class="dotm-trophy">🏆</div>
             <div class="dotm-info">
                 <div class="dotm-eyebrow">Driver of the Period</div>
                 <div class="dotm-name" id="dotmName">—</div>
-                <div class="dotm-score-text" id="dotmScoreText">—</div>
+                <div class="dotm-sub"  id="dotmSub">—</div>
             </div>
             <div class="dotm-stats">
                 <div class="dotm-stat"><div class="val" id="dotmEff">—</div><div class="lbl">km/L</div></div>
                 <div class="dotm-stat"><div class="val" id="dotmViol">—</div><div class="lbl">Violations</div></div>
-                <div class="dotm-stat"><div class="val" id="dotmScore2">—</div><div class="lbl">Score</div></div>
+                <div class="dotm-stat"><div class="val" id="dotmScore">—</div><div class="lbl">Score</div></div>
             </div>
         </div>
 
-        <!-- Charts Row -->
-        <div class="charts-row">
-            <div class="chart-card">
-                <div class="chart-card-title">Loss Distribution</div>
-                <canvas id="lossChart" height="140"></canvas>
-                <div style="margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px;">
-                    <div class="chart-card-title">Fleet Health Score</div>
-                    <canvas id="gaugeChart" width="156" height="80"></canvas>
-                    <div style="text-align:center;">
-                        <span id="gaugeScore" style="font-family:'Bebas Neue',sans-serif;font-size:32px;"></span>
-                        <span id="gaugeDesc" style="font-size:9px;font-weight:700;display:block;margin-top:-2px;"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
-                <div class="trend-delta">
-                    <span class="delta-val" id="trendDelta" style="color:var(--green);">—</span>
-                    <span class="delta-label" id="trendDeltaLabel">vs previous period</span>
-                </div>
-                <canvas id="trendChart" height="150"></canvas>
-            </div>
-            <div class="chart-card">
-                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
-                <div id="podium" style="display:flex;flex-direction:column;gap:6px;"></div>
-            </div>
-        </div>
-    </div><!-- /PAGE 1 -->
-
-    <!-- ═══════════════════════════════════════════
-         PAGE 2: Bonus + Driver League
-         ═══════════════════════════════════════════ -->
-    <div class="print-page">
-        <!-- Bonus Section -->
-        <div class="bonus-section">
-            <div class="bonus-title">🏆 Performance Incentive Summary</div>
-            <div class="bonus-grid">
-                <div class="bonus-tier" style="border-top:3px solid #d97706;">
-                    <div class="tier-label" style="color:#d97706;">Elite</div>
-                    <div class="tier-count" id="bonusElite" style="color:#d97706;">0</div>
-                    <div class="tier-range">95–100% · R500/period</div>
-                </div>
-                <div class="bonus-tier" style="border-top:3px solid var(--green);">
-                    <div class="tier-label" style="color:var(--green);">High Performer</div>
-                    <div class="tier-count" id="bonusHigh" style="color:var(--green);">0</div>
-                    <div class="tier-range">90–94% · R300/period</div>
-                </div>
-                <div class="bonus-tier" style="border-top:3px solid var(--blue);">
-                    <div class="tier-label" style="color:var(--blue);">Good Driver</div>
-                    <div class="tier-count" id="bonusGood" style="color:var(--blue);">0</div>
-                    <div class="tier-range">80–89% · R150/period</div>
-                </div>
-                <div class="bonus-tier" style="border-top:3px solid var(--red);">
-                    <div class="tier-label" style="color:var(--red);">Needs Training</div>
-                    <div class="tier-count" id="bonusPoor" style="color:var(--red);">0</div>
-                    <div class="tier-range">Below 80%</div>
-                </div>
-            </div>
-            <div class="bonus-roi-row">
-                <div class="bonus-roi-card">
-                    <div class="roi-label">Bonus Payout</div>
-                    <div class="roi-val" id="bonusCost" style="color:var(--ink);">R 0</div>
-                </div>
-                <div class="bonus-roi-card">
-                    <div class="roi-label">Savings from Top Drivers</div>
-                    <div class="roi-val" id="bonusSavings" style="color:var(--green);">R 0</div>
-                </div>
-                <div class="bonus-roi-card net">
-                    <div class="roi-label">Net ROI on Bonuses</div>
-                    <div class="roi-val" id="bonusROI">R 0</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Driver League Table -->
+        <!-- Driver League -->
         <div class="section-title">Driver <span class="accent">Performance</span> League</div>
-        <table class="league-table">
+        <table class="dfr-table">
             <thead>
                 <tr>
-                    <th style="width:30px;">#</th>
+                    <th style="width:26px;">#</th>
                     <th class="left">Vehicle</th>
                     <th>Type</th>
                     <th>Actual km</th>
                     <th>Litres</th>
                     <th>Act km/L</th>
-                    <th>Violations</th>
-                    <th>Duration (min)</th>
-                    <th>Max Speed</th>
-                    <th>Period Loss</th>
                     <th>Score</th>
                     <th>Tier</th>
                 </tr>
             </thead>
             <tbody id="leagueBody"></tbody>
         </table>
+
     </div><!-- /PAGE 2 -->
 
-    <!-- ═══════════════════════════════════════════
-         PAGE 3: Full Vehicle Breakdown Table
-         ═══════════════════════════════════════════ -->
-    <div class="print-page">
+    <!-- ══════════════════════════════════
+         PAGES 3+ — VEHICLE BREAKDOWN
+         (flows naturally across pages)
+         ══════════════════════════════════ -->
+    <div class="print-section page-break-before full-only" id="page3">
+
+        <!-- Running header -->
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph3-client">—</div>
+            <div class="ph-right">
+                <div class="ph-period" id="ph3-period">—</div>
+                <div class="ph-page">Vehicle Detail</div>
+            </div>
+        </div>
+
         <div class="section-title">Full Vehicle <span class="accent">Breakdown</span></div>
-        <table class="audit-table">
+        <table class="dfr-table">
             <thead>
                 <tr>
                     <th class="left">Registration</th>
@@ -473,9 +505,6 @@
                     <th>Target km/L</th>
                     <th>Wasted L</th>
                     <th>Eff. Loss</th>
-                    <th>Violations</th>
-                    <th>Duration (min)</th>
-                    <th>Max Speed</th>
                     <th>Speed Loss</th>
                     <th style="background:#7f1d1d;">Total Loss</th>
                     <th>Score</th>
@@ -483,14 +512,27 @@
             </thead>
             <tbody id="repBody"></tbody>
         </table>
-    </div><!-- /PAGE 3 -->
+        <div class="table-note">* Speed violations and max speed detail available in Driver Performance League. Score reflects efficiency, violations, duration and peak speed.</div>
 
-    <!-- ═══════════════════════════════════════════
-         PAGE 4: Vehicle Action Report + Footer
-         ═══════════════════════════════════════════ -->
-    <div class="print-page">
+    </div><!-- /PAGE 3+ -->
+
+    <!-- ══════════════════════════════════
+         LAST PAGE — ACTION REPORT + FOOTER
+         ══════════════════════════════════ -->
+    <div class="print-section page-break-before summary-only full-only" id="page-action">
+
+        <!-- Running header -->
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph4-client">—</div>
+            <div class="ph-right">
+                <div class="ph-period" id="ph4-period">—</div>
+                <div class="ph-page">Action Report</div>
+            </div>
+        </div>
+
         <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
-        <div id="actionReport" style="margin-bottom:6mm;"></div>
+        <div id="actionReport" style="margin-bottom:8mm;"></div>
 
         <!-- Footer -->
         <div class="report-footer">
@@ -501,353 +543,334 @@
                 </div>
             </div>
             <div class="footer-qr">
-                <canvas id="qrCanvas" width="64" height="64"></canvas>
+                <canvas id="qrCanvas" width="60" height="60"></canvas>
                 <div class="qr-label">Scan to discover more</div>
             </div>
             <div class="footer-contact">
                 📞 083 314 9592<br>
-                ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8beff2e5eae6e2e8ede7eeeefff9eefbe4f9fff8cbece6eae2e7a5e8e4e6">[email&#160;protected]</a><br>
+                ✉️ dynamicfleetreports@gmail.com<br>
                 🌐 dynamicfleetreports-bit.github.io/DFR/discover
             </div>
         </div>
         <div class="footer-micro">
             Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp;
-            Dynamic Fleet Reporting Master Audit Engine v2.0 &nbsp;|&nbsp;
+            Dynamic Fleet Reporting Audit Engine v2.0 &nbsp;|&nbsp;
             CONFIDENTIAL — Active Client Document
         </div>
-    </div><!-- /PAGE 4 -->
+
+    </div><!-- /ACTION + FOOTER -->
 
 </div><!-- /report-wrap -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-function drawQR(canvasId, url) {
-    const canvas = document.getElementById(canvasId);
+<script>
+// ── Mode control ──────────────────────────────────────────────
+let currentMode = 'executive';
+
+function setMode(mode) {
+    currentMode = mode;
+    ['executive','summary','full'].forEach(m => {
+        document.getElementById('btn-' + m).classList.toggle('active', m === mode);
+    });
+    // Page 2 (people) — shown in summary + full
+    const p2 = document.getElementById('page2');
+    if (p2) p2.style.display = (mode === 'summary' || mode === 'full') ? 'block' : 'none';
+    // Page 3 (breakdown) — full only
+    const p3 = document.getElementById('page3');
+    if (p3) p3.style.display = mode === 'full' ? 'block' : 'none';
+    // Action report — summary + full
+    const pa = document.getElementById('page-action');
+    if (pa) pa.style.display = (mode === 'summary' || mode === 'full') ? 'block' : 'none';
+}
+
+// ── QR ────────────────────────────────────────────────────────
+function drawQR(id, url) {
+    const canvas = document.getElementById(id);
     const ctx = canvas.getContext('2d');
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    img.onerror = () => { ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0,0,canvas.width,canvas.height); };
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${encodeURIComponent(url)}&color=0a0f1e&bgcolor=ffffff&margin=2`;
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}&color=0a0f1e&bgcolor=ffffff&margin=2`;
 }
 
-function drawGauge(canvasId, score) {
-    const canvas = document.getElementById(canvasId);
-    const ctx = canvas.getContext('2d');
-    const cx = canvas.width/2, cy = canvas.height - 8, r = Math.min(cx - 8, cy - 4);
-    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.lineWidth = 11; ctx.strokeStyle = '#e2e8f0'; ctx.stroke();
+// ── Gauge ─────────────────────────────────────────────────────
+function drawGauge(id, score) {
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    const cx = c.width/2, cy = c.height - 6, r = Math.min(cx - 6, cy - 4);
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.lineWidth = 10; ctx.strokeStyle = '#e2e8f0'; ctx.stroke();
     const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626';
-    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, Math.PI + (Math.PI * score/100));
-    ctx.lineWidth = 11; ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, Math.PI + Math.PI * score / 100);
+    ctx.lineWidth = 10; ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.stroke();
     return color;
 }
 
-// Build suggested filename: CLIENT_NOV2025
-function buildFilename(clientName, period) {
-    const clean = clientName.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '');
-    // Try to extract month/year from period string e.g. "01 NOV 2025 - 30 NOV 2025" or "NOV 2025"
-    const monthMap = {JAN:'JAN',FEB:'FEB',MAR:'MAR',APR:'APR',MAY:'MAY',JUN:'JUN',JUL:'JUL',AUG:'AUG',SEP:'SEP',OCT:'OCT',NOV:'NOV',DEC:'DEC'};
+// ── Filename ──────────────────────────────────────────────────
+function buildFilename(name, period) {
+    const clean = name.toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const months = {JAN:'JAN',FEB:'FEB',MAR:'MAR',APR:'APR',MAY:'MAY',JUN:'JUN',JUL:'JUL',AUG:'AUG',SEP:'SEP',OCT:'OCT',NOV:'NOV',DEC:'DEC'};
     const parts = period.toUpperCase().split(/[\s\-\/]+/);
-    let month = '', year = '';
-    parts.forEach(p => {
-        if (monthMap[p]) month = p;
-        if (/^\d{4}$/.test(p)) year = p;
-    });
-    const periodPart = (month && year) ? month + year : period.replace(/[^A-Z0-9]/gi,'').toUpperCase();
-    return `${clean}_${periodPart}`;
+    let mo = '', yr = '';
+    parts.forEach(p => { if (months[p]) mo = p; if (/^\d{4}$/.test(p)) yr = p; });
+    return `${clean}_${mo||''}${yr||''}`;
 }
 
 function emailReport() {
-    const client = document.getElementById('repClient').innerText;
-    const subject = encodeURIComponent('Fleet Performance Report — ' + client);
-    const body = encodeURIComponent('Please find attached your fleet performance report.\n\nBest regards,\nDynamic Fleet Reporting');
-    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    const c = document.getElementById('repClient').innerText;
+    window.location.href = `mailto:?subject=${encodeURIComponent('Fleet Performance Report — ' + c)}&body=${encodeURIComponent('Please find attached your fleet performance report.\n\nBest regards,\nDynamic Fleet Reporting')}`;
 }
 
-function waitForCloudStorage(cb, attempts = 0) {
+// ── Tier helpers ──────────────────────────────────────────────
+const tierInfo  = s => s >= 95 ? ['#92400e','#fef3c7','🏆 Elite']
+                     : s >= 90 ? ['#065f46','#d1fae5','⭐ High']
+                     : s >= 80 ? ['#1e40af','#dbeafe','👍 Good']
+                     :           ['#991b1b','#fee2e2','⚠️ Training'];
+const scorePill = (s, has) => {
+    if (!has) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>';
+    const [col, bg] = tierInfo(s);
+    return `<span class="score-pill" style="background:${bg};color:${col};">${s}%</span>`;
+};
+
+// ── Cloud storage wait ────────────────────────────────────────
+function waitForCloudStorage(cb, n=0) {
     if (typeof cloudStorage !== 'undefined') cb();
-    else if (attempts < 50) setTimeout(() => waitForCloudStorage(cb, attempts + 1), 100);
+    else if (n < 50) setTimeout(() => waitForCloudStorage(cb, n+1), 100);
     else console.error('cloudStorage unavailable');
 }
 
+// ── MAIN ─────────────────────────────────────────────────────
 waitForCloudStorage(async () => {
     const raw = await cloudStorage.getItem('AUDIT_FINAL');
     if (!raw) { alert('No audit data found. Please generate from the audit page.'); return; }
 
-    const data = JSON.parse(raw);
-    const fleet = Object.values(data.fleet);
-    const client = data.client;
-    const target = parseFloat(client.target) || 2.3;
-    const speedLimit = data.speedLimit || 80;
+    const data      = JSON.parse(raw);
+    const fleet     = Object.values(data.fleet);
+    const client    = data.client;
+    const target    = parseFloat(client.target) || 2.3;
+    const speedLimit= data.speedLimit || 80;
+    const results   = data.auditResults || {};
+    const wPrice    = data.fuelPrice || 21.50;
 
-    // ✅ Read pre-calculated results from payload — figures match audit screen exactly
-    const results = data.auditResults || {};
-    const wPrice = data.fuelPrice || 21.50;
-
-    // History for trend — still needs FLEET_CLIENTS for client id
-    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-    const clientData = allClients.find(c => c.company === client.company);
-    const historyKey = `AUDIT_HISTORY_${clientData?.id}`;
-    const history = JSON.parse(await cloudStorage.getItem(historyKey)) || [];
-    history.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // History
+    const allClients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const clientData  = allClients.find(c => c.company === client.company);
+    const historyKey  = `AUDIT_HISTORY_${clientData?.id}`;
+    const history     = (JSON.parse(await cloudStorage.getItem(historyKey)) || []).sort((a,b) => new Date(a.date)-new Date(b.date));
 
     // ── Header ──
-    document.getElementById('repClient').innerText = client.company;
-    document.getElementById('repPeriod').innerText = data.month;
     const now = new Date();
-    const fmt = d => d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
-    document.getElementById('repDate').innerText = fmt(now);
-    document.getElementById('reportCreated').innerText = now.toLocaleString('en-GB', {
-        day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false
-    }).toUpperCase();
+    const fmtDate = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    const fmtFull = d => d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase();
 
-    // ── Dynamic filename ──
-    const filename = buildFilename(client.company, data.month);
-    document.title = filename;
-    document.getElementById('suggestedFilename').innerText = filename + '.pdf';
+    ['repClient','ph1-client','ph2-client','ph3-client','ph4-client'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = client.company;
+    });
+    ['ph1-period','ph2-period','ph3-period','ph4-period'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = data.month;
+    });
+    document.getElementById('repPeriod').innerText = data.month;
+    document.getElementById('repDate').innerText   = fmtDate(now);
+    document.getElementById('reportCreated').innerText = fmtFull(now);
 
-    // ── Detect report frequency ──
+    // Filename + title
+    const fname = buildFilename(client.company, data.month);
+    document.title = fname;
+    document.getElementById('suggestedFilename').innerText = fname + '.pdf';
+
+    // Frequency label
     if (history.length >= 2) {
-        const last2 = history.slice(-2);
-        const daysDiff = (new Date(last2[1].date) - new Date(last2[0].date)) / (1000*60*60*24);
-        document.getElementById('reportFreqLabel').innerText = daysDiff <= 10 ? 'Weekly Report' : daysDiff <= 20 ? 'Bi-Weekly Report' : 'Monthly Report';
+        const diff = (new Date(history[history.length-1].date) - new Date(history[history.length-2].date)) / 86400000;
+        document.getElementById('reportFreqLabel').innerText = diff <= 10 ? 'Weekly Report' : diff <= 20 ? 'Bi-Weekly Report' : 'Monthly Report';
     }
 
     // ── Process fleet ──
-    // Hero bar totals come from saved auditResults ONLY — they match the audit screen exactly.
-    // Per-vehicle losses also come from saved vehicles array.
-    // Only score, eWaste, actEff are recalculated (for table display).
     let totalWasted = 0, totalEvents = 0, totalScore = 0;
-    let eliteCount = 0, highCount = 0, goodCount = 0, poorCount = 0, bonusSavings = 0;
-
-    // Build fast lookup map from saved per-vehicle results
-    const savedVehicleMap = {};
-    if (results.vehicles) {
-        results.vehicles.forEach(sv => { savedVehicleMap[sv.reg] = sv; });
-    }
+    const savedMap = {};
+    if (results.vehicles) results.vehicles.forEach(sv => savedMap[sv.reg] = sv);
 
     const processed = fleet.map(v => {
         const km  = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
         const lit = parseFloat(v.mL) || 0;
-        const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
-        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - (km / target)) : 0;
+        const actEff = (lit > 0 && km > 0) ? (km/lit) : 0;
+        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - km/target) : 0;
         const events = v.violations || 0;
+        const sv     = savedMap[v.reg];
+        const eLoss  = sv ? (sv.eLoss||0) : eWaste * wPrice;
+        const sLoss  = sv ? (sv.sLoss||0) : events * (v.type==='Heavy'?1.5:1.1) * wPrice;
+        const tLoss  = sv ? (sv.tLoss||0) : eLoss + sLoss;
 
-        // Use saved per-vehicle losses — exact match to audit screen
-        const sv = savedVehicleMap[v.reg];
-        const eLoss = sv ? (sv.eLoss || 0) : (eWaste * wPrice);
-        const sLoss = sv ? (sv.sLoss || 0) : (events * (v.type === 'Heavy' ? 1.5 : 1.1) * wPrice);
-        const tLoss = sv ? (sv.tLoss || 0) : (eLoss + sLoss);
-
-        // Score calculation
         let score = 100;
-        if (lit > 0 && actEff > 0 && actEff < target) score -= Math.min(40, ((target - actEff) / target) * 40);
-        if (events > 0) score -= Math.min(30, events * 0.3);
-        if (v.duration > 300) score -= Math.min(20, (v.duration / 60 / 30) * 20);
-        if (v.maxSpeed > speedLimit + 20) score -= Math.min(10, (v.maxSpeed - speedLimit - 20) * 0.5);
-        score = Math.max(0, Math.min(100, Math.round(score)));
+        if (lit>0 && actEff>0 && actEff<target) score -= Math.min(40,((target-actEff)/target)*40);
+        if (events>0) score -= Math.min(30, events*0.3);
+        if (v.duration>300) score -= Math.min(20,(v.duration/60/30)*20);
+        if (v.maxSpeed>speedLimit+20) score -= Math.min(10,(v.maxSpeed-speedLimit-20)*0.5);
+        score = Math.max(0,Math.min(100,Math.round(score)));
         totalScore += score;
-
         totalWasted += eWaste;
         totalEvents += events;
-
-        if (score >= 95) { eliteCount++; bonusSavings += tLoss; }
-        else if (score >= 90) { highCount++; bonusSavings += tLoss; }
-        else if (score >= 80) { goodCount++; bonusSavings += tLoss; }
-        else poorCount++;
-
         return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score };
     });
 
-    const byScore = [...processed].sort((a, b) => b.score - a.score);
-    const byLoss  = [...processed].sort((a, b) => b.tLoss - a.tLoss);
+    const byScore = [...processed].sort((a,b) => b.score - a.score);
+    const byLoss  = [...processed].sort((a,b) => b.tLoss - a.tLoss);
+    const avgScore = processed.length > 0 ? Math.round(totalScore/processed.length) : 0;
 
-    const avgScore = processed.length > 0 ? Math.round(totalScore / processed.length) : 0;
+    const totalLoss = results.wholesaleTotalLoss != null ? results.wholesaleTotalLoss : processed.reduce((s,v)=>s+v.tLoss,0);
+    const effLoss   = results.wholesaleEffLoss   != null ? results.wholesaleEffLoss   : processed.reduce((s,v)=>s+v.eLoss,0);
+    const speedLoss = results.wholesaleSpeedLoss != null ? results.wholesaleSpeedLoss : processed.reduce((s,v)=>s+v.sLoss,0);
+    const fleetKM   = results.totalKM    != null ? results.totalKM    : processed.reduce((s,v)=>s+v.km,0);
+    const fleetFuel = results.totalLiters!= null ? results.totalLiters: processed.reduce((s,v)=>s+v.lit,0);
+    const avgKmL    = fleetFuel > 0 ? (fleetKM/fleetFuel).toFixed(2) : '—';
 
-    // Hero bar totals: always from saved results — exact match to audit screen
-    const totalLoss = results.wholesaleTotalLoss != null ? results.wholesaleTotalLoss : processed.reduce((s, v) => s + v.tLoss, 0);
-    const effLoss   = results.wholesaleEffLoss   != null ? results.wholesaleEffLoss   : processed.reduce((s, v) => s + v.eLoss, 0);
-    const speedLoss = results.wholesaleSpeedLoss != null ? results.wholesaleSpeedLoss : processed.reduce((s, v) => s + v.sLoss, 0);
-    const fleetKM   = results.totalKM   != null ? results.totalKM   : processed.reduce((s, v) => s + v.km,  0);
-    const fleetFuel = results.totalLiters != null ? results.totalLiters : processed.reduce((s, v) => s + v.lit, 0);
-    const avgKmL    = fleetFuel > 0 ? (fleetKM / fleetFuel).toFixed(2) : '—';
-
-    // ── Hero bar ──
-    document.getElementById('statKM').innerText    = Math.round(fleetKM).toLocaleString();
-    document.getElementById('statFuel').innerText  = Math.round(fleetFuel).toLocaleString();
-    document.getElementById('statEff').innerText   = avgKmL;
-    document.getElementById('statWasted').innerText = Math.round(totalWasted).toLocaleString();
-    document.getElementById('statEvents').innerText = totalEvents.toLocaleString();
+    // ── Hero tiles ──
+    document.getElementById('statKM').innerText      = Math.round(fleetKM).toLocaleString();
+    document.getElementById('statFuel').innerText    = Math.round(fleetFuel).toLocaleString();
+    document.getElementById('statEff').innerText     = avgKmL;
+    document.getElementById('statWasted').innerText  = Math.round(totalWasted).toLocaleString();
+    document.getElementById('statEvents').innerText  = totalEvents.toLocaleString();
     document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
-    document.getElementById('statTotal').innerText = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('statTotal').innerText   = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('statTotalSub').innerText= data.month;
 
-    // Delta vs last period
+    // Delta
     if (history.length >= 2) {
-        const prev = history[history.length - 2].fuelLoss;
-        const delta = totalLoss - prev;
-        const improved = delta < 0;
+        const prev    = history[history.length-2].fuelLoss;
+        const delta   = totalLoss - prev;
+        const good    = delta < 0;
         const deltaEl = document.getElementById('statDelta');
-        deltaEl.innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
-        deltaEl.style.color = improved ? 'var(--green)' : 'var(--red)';
-        document.getElementById('statDeltaSub').innerText = (improved ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
-        const dc = document.getElementById('deltaCard');
-        dc.className = 'hero-tile ' + (improved ? 't-delta-good' : 't-delta-bad');
-        document.getElementById('deltaIcon').innerText = improved ? '📉' : '📈';
-
-        document.getElementById('trendDelta').innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
-        document.getElementById('trendDelta').style.color = improved ? 'var(--green)' : 'var(--red)';
-        document.getElementById('trendDeltaLabel').innerText = (improved ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
+        deltaEl.innerText = (good ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
+        document.getElementById('statDeltaSub').innerText = (good ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
+        document.getElementById('deltaCard').className = 'hero-tile ' + (good ? 't-delta-good' : 't-delta-bad');
+        document.getElementById('deltaIcon').innerText = good ? '📉' : '📈';
+        document.getElementById('trendDelta').innerText = (good ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
+        document.getElementById('trendDelta').style.color = good ? 'var(--green-light)' : 'var(--red-light)';
+        document.getElementById('trendDeltaLabel').innerText = (good ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
     } else {
-        document.getElementById('statDelta').innerText = 'First';
-        document.getElementById('statDeltaSub').innerText = 'No prior data yet';
-        document.getElementById('trendDelta').innerText = 'First report';
+        document.getElementById('statDelta').innerText   = 'First';
+        document.getElementById('statDeltaSub').innerText= 'No prior data yet';
+        document.getElementById('trendDelta').innerText  = 'First report';
         document.getElementById('trendDeltaLabel').innerText = 'No trend data yet';
     }
 
     // ── Gauge ──
-    const gaugeColor = drawGauge('gaugeChart', avgScore);
+    const gColor = drawGauge('gaugeChart', avgScore);
     document.getElementById('gaugeScore').innerText = avgScore + '%';
-    document.getElementById('gaugeScore').style.color = gaugeColor;
-    const gaugeDescText = avgScore >= 90 ? 'Excellent' : avgScore >= 80 ? 'Good' : avgScore >= 70 ? 'Fair' : avgScore >= 60 ? 'Poor' : 'Critical';
-    document.getElementById('gaugeDesc').innerText = gaugeDescText;
-    document.getElementById('gaugeDesc').style.color = gaugeColor;
+    document.getElementById('gaugeScore').style.color = gColor;
+    document.getElementById('gaugeDesc').innerText  = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
+    document.getElementById('gaugeDesc').style.color = gColor;
 
     // ── Loss doughnut ──
     new Chart(document.getElementById('lossChart'), {
         type: 'doughnut',
-        data: { labels: ['Efficiency','Speeding'], datasets: [{ data: [effLoss, speedLoss], backgroundColor: ['#0f172a','#ef4444'], borderWidth: 0 }] },
-        options: { cutout: '70%', plugins: { legend: { position: 'bottom', labels: { font: { weight:'bold', family:'Outfit', size:8 }, padding: 6 } } } }
+        data: { labels:['Efficiency','Speeding'], datasets:[{ data:[effLoss,speedLoss], backgroundColor:['#0f172a','#ef4444'], borderWidth:0 }] },
+        options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ font:{weight:'bold',family:'Outfit',size:8}, padding:6 } } } }
     });
 
     // ── Trend chart ──
-    const trendLabels = history.map(h => h.week);
-    const trendValues = history.map(h => h.fuelLoss);
+    const tLabels = history.map(h => h.week);
+    const tValues = history.map(h => h.fuelLoss);
     new Chart(document.getElementById('trendChart'), {
         type: 'bar',
-        data: {
-            labels: trendLabels,
-            datasets: [{ label: 'Total Loss (R)', data: trendValues,
-                backgroundColor: trendValues.map((v,i) => i === trendValues.length-1 ? '#dc2626' : '#cbd5e1'),
-                borderRadius: 5, borderSkipped: false }]
-        },
-        options: { responsive: true, plugins: { legend: { display: false } },
-            scales: {
-                y: { ticks: { callback: v => 'R'+(v/1000).toFixed(0)+'k', font:{size:8} }, grid:{color:'#f1f5f9'} },
-                x: { ticks: { font:{size:8} }, grid:{display:false} }
+        data: { labels:tLabels, datasets:[{ data:tValues,
+            backgroundColor: tValues.map((_,i) => i===tValues.length-1 ? '#dc2626' : '#cbd5e1'),
+            borderRadius:4, borderSkipped:false }] },
+        options: { responsive:true, plugins:{ legend:{display:false} },
+            scales:{
+                y:{ ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k',font:{size:8}}, grid:{color:'#f1f5f9'} },
+                x:{ ticks:{font:{size:8}}, grid:{display:false} }
             }
         }
     });
 
     // ── Podium ──
-    const maxLoss = byLoss[0]?.tLoss || 1;
+    const maxL = byLoss[0]?.tLoss || 1;
     document.getElementById('podium').innerHTML = byLoss.slice(0,5).map((v,i) => `
-        <div style="display:flex;align-items:center;gap:8px;background:white;border:1px solid #e2e8f0;border-radius:7px;padding:7px 10px;">
-            <div style="width:22px;height:22px;border-radius:50%;background:${['#7f1d1d','#dc2626','#f97316','#d97706','#64748b'][i]};color:white;font-weight:900;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
-            <div style="font-weight:900;font-size:11px;color:#1e40af;font-style:italic;flex:1;">${v.reg}</div>
-            <div style="flex:2;height:5px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="width:${(v.tLoss/maxLoss*100).toFixed(0)}%;height:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:999px;"></div></div>
-            <div style="font-weight:900;font-size:11px;color:#dc2626;min-width:65px;text-align:right;">R ${Math.round(v.tLoss).toLocaleString()}</div>
+        <div class="podium-item">
+            <div class="podium-rank" style="background:${['#7f1d1d','#dc2626','#f97316','#d97706','#64748b'][i]}">${i+1}</div>
+            <div class="podium-reg">${v.reg}</div>
+            <div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:${(v.tLoss/maxL*100).toFixed(0)}%"></div></div>
+            <div class="podium-loss">R ${Math.round(v.tLoss).toLocaleString()}</div>
         </div>`).join('');
 
     // ── Driver of Period ──
     const top = byScore[0];
     if (top && top.actEff > 0) {
         document.getElementById('dotmName').innerText = top.reg;
-        document.getElementById('dotmScoreText').innerText = 'Performance Score: ' + top.score + '%';
-        document.getElementById('dotmEff').innerText = top.actEff.toFixed(2);
+        document.getElementById('dotmSub').innerText  = 'Performance Score: ' + top.score + '%';
+        document.getElementById('dotmEff').innerText  = top.actEff.toFixed(2);
         document.getElementById('dotmViol').innerText = top.violations || 0;
-        document.getElementById('dotmScore2').innerText = top.score + '%';
+        document.getElementById('dotmScore').innerText= top.score + '%';
     } else {
         document.getElementById('dotmCard').style.display = 'none';
     }
 
-    // ── Bonus ──
-    document.getElementById('bonusElite').innerText = eliteCount;
-    document.getElementById('bonusHigh').innerText = highCount;
-    document.getElementById('bonusGood').innerText = goodCount;
-    document.getElementById('bonusPoor').innerText = poorCount;
-    const totalBonus = (eliteCount*500)+(highCount*300)+(goodCount*150);
-    document.getElementById('bonusCost').innerText    = 'R ' + totalBonus.toLocaleString();
-    document.getElementById('bonusSavings').innerText = 'R ' + Math.round(bonusSavings).toLocaleString();
-    document.getElementById('bonusROI').innerText     = 'R ' + Math.round(bonusSavings - totalBonus).toLocaleString();
-
-    // ── Score helpers ──
-    const tierInfo = s => s >= 95 ? ['#92400e','#fef3c7','🏆 Elite'] : s >= 90 ? ['#065f46','#d1fae5','⭐ High'] : s >= 80 ? ['#1e40af','#dbeafe','👍 Good'] : ['#991b1b','#fee2e2','⚠️ Training'];
-    const scorePill = (s, hasData) => {
-        if (!hasData) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>';
-        const [col, bg] = tierInfo(s);
-        const ico = s >= 95 ? ' 🏆' : s >= 90 ? ' ⭐' : '';
-        return `<span class="score-pill" style="background:${bg};color:${col};">${s}%${ico}</span>`;
-    };
-
-    // ── League table ──
-    document.getElementById('leagueBody').innerHTML = byScore.map((v, i) => {
-        const [col, bg, tier] = tierInfo(v.score);
-        const barColor = v.score >= 80 ? '#059669' : v.score >= 60 ? '#d97706' : '#dc2626';
+    // ── League table (8 cols — no duration, no period loss) ──
+    document.getElementById('leagueBody').innerHTML = byScore.map((v,i) => {
+        const [col,bg,tier] = tierInfo(v.score);
+        const bColor = v.score>=80?'#059669':v.score>=60?'#d97706':'#dc2626';
         return `<tr>
-            <td><div class="rank-badge" style="background:${bg};color:${col};">${i+1}</div></td>
-            <td class="left" style="font-style:italic;font-weight:900;color:#1e40af;">${v.reg}</td>
+            <td><div style="width:20px;height:20px;border-radius:50%;background:${bg};color:${col};font-weight:900;font-size:9px;display:flex;align-items:center;justify-content:center;">${i+1}</div></td>
+            <td class="left reg">${v.reg}</td>
             <td class="muted" style="font-size:8px;">${v.type||'Heavy'}</td>
             <td>${v.km.toFixed(0)}</td>
-            <td class="muted">${v.lit > 0 ? v.lit.toFixed(1) : '—'}</td>
-            <td class="${v.actEff > 0 && v.actEff < target ? 'red' : v.actEff > 0 ? 'green' : 'muted'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '—'}</td>
-            <td class="${v.violations > 0 ? 'red' : 'muted'}">${v.violations||0}</td>
-            <td class="muted">${v.duration ? (v.duration/60).toFixed(1) : '—'}</td>
-            <td class="${v.maxSpeed > speedLimit ? 'red' : 'muted'}">${v.maxSpeed||'—'}</td>
-            <td class="total-loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
-            <td><div class="tier-bar"><div class="tier-bar-fill" style="width:${v.score}%;background:${barColor};"></div></div></td>
+            <td class="muted">${v.lit>0?v.lit.toFixed(1):'—'}</td>
+            <td class="${v.actEff>0&&v.actEff<target?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
+            <td><div class="tier-bar"><div class="tier-bar-fill" style="width:${v.score}%;background:${bColor};"></div></div></td>
             <td><span class="score-pill" style="background:${bg};color:${col};">${tier}</span></td>
         </tr>`;
     }).join('');
 
-    // ── Full breakdown table ──
+    // ── Full breakdown (11 cols — no violations, no max speed) ──
     document.getElementById('repBody').innerHTML = byLoss.map(v => `
         <tr>
             <td class="left reg">${v.reg}</td>
             <td class="muted">${v.gpsDist.toFixed(0)}</td>
             <td>${v.km.toFixed(0)}</td>
-            <td class="muted">${v.lit > 0 ? v.lit.toFixed(1) : '—'}</td>
-            <td class="${v.actEff > 0 && v.actEff < target ? 'red' : v.actEff > 0 ? 'green' : 'muted'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '—'}</td>
+            <td class="muted">${v.lit>0?v.lit.toFixed(1):'—'}</td>
+            <td class="${v.actEff>0&&v.actEff<target?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
             <td class="muted">${target}</td>
-            <td class="${v.eWaste > 0 ? 'red' : 'muted'}">${v.eWaste > 0 ? v.eWaste.toFixed(1) : '—'}</td>
+            <td class="${v.eWaste>0?'red':'muted'}">${v.eWaste>0?v.eWaste.toFixed(1):'—'}</td>
             <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
-            <td class="${v.violations > 0 ? 'red' : 'muted'}">${v.violations||0}</td>
-            <td class="muted">${v.duration ? (v.duration/60).toFixed(1) : '—'}</td>
-            <td class="${v.maxSpeed > speedLimit ? 'red' : 'muted'}">${v.maxSpeed||'—'}</td>
             <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
-            <td class="total-loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
-            <td>${scorePill(v.score, v.actEff > 0)}</td>
+            <td class="loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
+            <td>${scorePill(v.score, v.actEff>0)}</td>
         </tr>`).join('');
 
     // ── Action report ──
-    const critical  = byLoss.filter(v => v.actEff > 0 && v.actEff < target && (v.violations||0) > 5);
-    const speedOnly = byLoss.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations||0) > 5);
-    const effOnly   = byLoss.filter(v => v.actEff > 0 && v.actEff < target && (v.violations||0) <= 5);
-    const acceptable= byLoss.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations||0) <= 5);
+    const critical  = byLoss.filter(v => v.actEff>0 && v.actEff<target && (v.violations||0)>5);
+    const speedOnly = byLoss.filter(v => (v.actEff>=target||v.actEff===0) && (v.violations||0)>5);
+    const effOnly   = byLoss.filter(v => v.actEff>0 && v.actEff<target && (v.violations||0)<=5);
+    const acceptable= byLoss.filter(v => (v.actEff>=target||v.actEff===0) && (v.violations||0)<=5);
 
-    const actionTable = (items, thBg) => `
+    const aTable = (items, bg) => `
         <table class="action-inner-table">
-            <thead><tr style="background:${thBg};">
+            <thead><tr style="background:${bg};">
                 <th class="left">Vehicle</th><th>Score</th><th>Violations</th><th>Efficiency</th><th>Period Loss</th>
             </tr></thead>
-            <tbody>${items.map(v => `
+            <tbody>${items.map(v=>`
                 <tr>
-                    <td class="left" style="font-weight:900;font-style:italic;">${v.reg}</td>
-                    <td style="font-weight:900;">${v.score}%</td>
+                    <td class="left">${v.reg}</td>
+                    <td>${v.score}%</td>
                     <td>${v.violations||0}</td>
-                    <td>${v.actEff > 0 ? v.actEff.toFixed(2)+' km/L' : '—'}</td>
-                    <td style="font-weight:900;color:#dc2626;">R ${Math.round(v.tLoss).toLocaleString()}</td>
+                    <td>${v.actEff>0?v.actEff.toFixed(2)+' km/L':'—'}</td>
+                    <td style="color:#dc2626;font-weight:900;">R ${Math.round(v.tLoss).toLocaleString()}</td>
                 </tr>`).join('')}
             </tbody>
         </table>`;
 
     let html = '';
-    if (critical.length)   html += `<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${actionTable(critical,'#7f1d1d')}</div>`;
-    if (speedOnly.length)  html += `<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${actionTable(speedOnly,'#c2410c')}</div>`;
-    if (effOnly.length)    html += `<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${actionTable(effOnly,'#1d4ed8')}</div>`;
-    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:10px;color:#047857;font-weight:600;margin-left:26px;">onitor for consistency.</p></div>`;
+    if (critical.length)   html += `<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${aTable(critical,'#7f1d1d')}</div>`;
+    if (speedOnly.length)  html += `<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${aTable(speedOnly,'#c2410c')}</div>`;
+    if (effOnly.length)    html += `<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${aTable(effOnly,'#1d4ed8')}</div>`;
+    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:9px;color:#047857;font-weight:600;margin-left:23px;">Continue current practices. Monitor for consistency.</p></div>`;
     document.getElementById('actionReport').innerHTML = html;
 
     // ── QR ──
     drawQR('qrCanvas', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+
+    // ── Init mode ──
+    setMode('executive');
 });
 </script>
 </body>
