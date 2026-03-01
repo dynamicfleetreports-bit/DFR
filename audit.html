@@ -966,7 +966,7 @@
             };
             
             await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
-            const reportWindow = window.open('report-final.html', '_blank');
+            const reportWindow = window.open(isActive ? 'report-active.html' : 'report-prospect.html', '_blank');
             if (!reportWindow || reportWindow.closed || typeof reportWindow.closed == 'undefined') {
                 alert('⚠️ Pop-up blocked! Please allow pop-ups for this site, then try again.');
             }
@@ -1020,3 +1020,4 @@
 
 </body>
 </html>
+
