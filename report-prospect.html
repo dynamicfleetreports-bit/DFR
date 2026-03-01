@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFR | Forensic Fleet Audit Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0a0f1e;
+            --ink2: #1e293b;
+            --green: #059669;
+            --green-light: #10b981;
+            --red: #dc2626;
+            --red-light: #ef4444;
+            --gold: #d97706;
+            --slate: #64748b;
+            --paper: #f8fafc;
+            --paper2: #f1f5f9;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #e2e8f0; color: var(--ink); margin: 0; }
+        
+        .report-wrap { width: 297mm; margin: 10mm auto; }
+
+        /* ── CONTROL BAR ── */
+        .control-bar {
+            background: var(--ink);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .control-bar .brand { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; color: var(--green-light); font-size: 16px; }
+        .ctrl-btn { padding: 8px 20px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none; transition: all 0.2s; }
+
+        /* ── PAGE ── */
+        .page { background: white; padding: 14mm 14mm 10mm; position: relative; overflow: hidden; }
+        .page + .page { border-top: 3px solid var(--paper2); }
+
+        /* ── HEADER STRIPE ── */
+        .header-stripe {
+            background: var(--ink);
+            margin: -14mm -14mm 0;
+            padding: 10mm 14mm 8mm;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            position: relative;
+            overflow: hidden;
+        }
+        .header-stripe::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .header-stripe::after {
+            content: 'CONFIDENTIAL';
+            position: absolute;
+            bottom: 18px; right: 50%;
+            transform: translateX(50%);
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 11px;
+            letter-spacing: 8px;
+            color: rgba(255,255,255,0.08);
+        }
+        .report-title { color: white; }
+        .report-title .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--green-light); opacity: 0.8; margin-bottom: 6px; }
+        .report-title h1 { font-family: 'Bebas Neue', sans-serif; font-size: 52px; line-height: 0.9; letter-spacing: 2px; margin: 0; }
+        .report-title h1 span { color: var(--green-light); }
+        .report-title .client-name { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.7); margin-top: 8px; text-transform: uppercase; letter-spacing: 2px; }
+        .header-meta { text-align: right; }
+        .period-badge { background: var(--green); color: white; padding: 10px 20px; border-radius: 10px 10px 0 0; }
+        .period-badge .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; }
+        .period-badge .value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+        .issued-badge { background: rgba(255,255,255,0.08); color: white; padding: 8px 20px; border-radius: 0 0 10px 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .issued-badge .label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; }
+        .issued-badge .value { font-size: 13px; font-weight: 700; }
+
+        /* ── HERO SUMMARY BAR ── */
+        .hero-bar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0;
+            margin: 8mm -14mm 8mm;
+            border-top: 4px solid var(--green);
+            border-bottom: 4px solid var(--green);
+        }
+        .hero-stat {
+            padding: 14px 10px;
+            text-align: center;
+            border-right: 1px solid #e2e8f0;
+            background: var(--paper);
+        }
+        .hero-stat:last-child { border-right: none; }
+        .hero-stat.highlight {
+            background: var(--ink);
+            border-right: none;
+        }
+        .hero-stat .stat-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate); display: block; margin-bottom: 4px; }
+        .hero-stat.highlight .stat-label { color: rgba(255,255,255,0.5); }
+        .hero-stat .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--ink); line-height: 1; display: block; }
+        .hero-stat.highlight .stat-value { color: var(--red-light); font-size: 30px; }
+        .hero-stat .stat-sub { font-size: 8px; color: var(--slate); font-weight: 600; display: block; margin-top: 2px; }
+        .hero-stat.highlight .stat-sub { color: rgba(255,255,255,0.4); }
+
+        /* ── SECTION TITLE ── */
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: var(--ink); text-transform: uppercase; border-bottom: 2px solid var(--green); padding-bottom: 4px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .section-title .accent { color: var(--green); }
+
+        /* ── CHARTS ROW ── */
+        .charts-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; margin-bottom: 8mm; }
+        .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+        .chart-card-title { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); margin-bottom: 12px; }
+
+        /* ── PODIUM ── */
+        .podium-list { display: flex; flex-direction: column; gap: 8px; }
+        .podium-item {
+            display: flex; align-items: center; gap: 12px;
+            background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+            padding: 10px 14px;
+        }
+        .podium-rank { width: 28px; height: 28px; border-radius: 50%; background: var(--red); color: white; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .podium-rank.r1 { background: #7f1d1d; }
+        .podium-rank.r2 { background: var(--red); }
+        .podium-rank.r3 { background: #f97316; }
+        .podium-rank.r4 { background: var(--gold); }
+        .podium-rank.r5 { background: var(--slate); }
+        .podium-reg { font-weight: 900; font-size: 13px; color: #1e40af; font-style: italic; flex: 1; }
+        .podium-bar-wrap { flex: 2; height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+        .podium-bar-fill { height: 100%; background: linear-gradient(90deg, var(--red), #f87171); border-radius: 999px; }
+        .podium-loss { font-weight: 900; font-size: 13px; color: var(--red); min-width: 80px; text-align: right; }
+
+        /* ── TABLE ── */
+        .audit-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .audit-table thead tr { background: var(--ink); }
+        .audit-table thead th { color: white; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 9px 6px; border: 1px solid #334155; text-align: center; }
+        .audit-table thead th.left { text-align: left; padding-left: 12px; }
+        .audit-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+        .audit-table tbody tr:nth-child(even) { background: #f8fafc; }
+        .audit-table tbody tr:hover { background: #ecfdf5; }
+        .audit-table td { padding: 8px 6px; text-align: center; font-weight: 700; }
+        .audit-table td.left { text-align: left; padding-left: 12px; }
+        .audit-table td.reg { font-style: italic; font-weight: 900; color: #1e40af; border-left: 4px solid #3b82f6; }
+        .audit-table td.red { color: var(--red); }
+        .audit-table td.green { color: var(--green); }
+        .audit-table td.muted { color: var(--slate); font-weight: 600; }
+        .audit-table td.total-loss { font-style: italic; font-weight: 900; color: var(--red); }
+        .score-pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; font-weight: 900; }
+
+        /* ── ACTION REPORT ── */
+        .action-section { border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; }
+        .action-section.critical { background: #fff1f2; border-left: 5px solid var(--red); }
+        .action-section.speeding { background: #fff7ed; border-left: 5px solid #f97316; }
+        .action-section.efficiency { background: #eff6ff; border-left: 5px solid #3b82f6; }
+        .action-section.acceptable { background: #f0fdf4; border-left: 5px solid var(--green); }
+        .action-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .action-icon { font-size: 24px; }
+        .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; }
+        .action-bullets { font-size: 10px; font-weight: 600; color: #475569; margin-left: 34px; }
+        .action-bullets li { margin-bottom: 2px; }
+        .action-inner-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; }
+        .action-inner-table th { padding: 7px 10px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: white; text-align: center; }
+        .action-inner-table th.left { text-align: left; }
+        .action-inner-table td { padding: 7px 10px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .action-inner-table td.left { text-align: left; }
+
+        /* ── CTA ── */
+        .cta-block {
+            background: var(--ink);
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-top: 10mm;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-block::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(5,150,105,0.2) 0%, transparent 70%);
+        }
+        .cta-block::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(220,38,38,0.15) 0%, transparent 70%);
+        }
+        .cta-title { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: white; margin-bottom: 8px; position: relative; z-index: 1; }
+        .cta-title span { color: var(--green-light); }
+        .cta-sub { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 20px; position: relative; z-index: 1; }
+        .cta-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; position: relative; z-index: 1; }
+        .cta-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 16px; backdrop-filter: blur(4px); }
+        .cta-card-icon { font-size: 22px; margin-bottom: 6px; }
+        .cta-card-title { font-weight: 900; font-size: 12px; color: white; margin-bottom: 4px; }
+        .cta-card-sub { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 600; }
+
+        /* ── FOOTER ── */
+        .report-footer {
+            border-top: 3px solid var(--green);
+            margin-top: 10mm;
+            padding-top: 6mm;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 20px;
+        }
+        .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--ink); }
+        .footer-brand .sub { font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); display: block; }
+        .footer-contact { font-size: 10px; font-weight: 700; color: var(--slate); text-align: right; line-height: 1.8; }
+        .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .footer-qr canvas { border: 3px solid white; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .footer-qr .qr-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
+        .footer-micro { font-size: 8px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 4mm; }
+
+        /* ── FLEET HEALTH GAUGE ── */
+        .health-gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 16px; }
+        .gauge-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); margin-bottom: 8px; }
+        .gauge-score { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 1; }
+        .gauge-desc { font-size: 10px; font-weight: 700; margin-top: 4px; }
+
+        /* ── PRINT ── */
+        @media print {
+            @page { size: A4 landscape; margin: 8mm; }
+            body { background: white !important; }
+            .report-wrap { width: 100% !important; margin: 0 !important; }
+            .control-bar { display: none !important; }
+            .page { padding: 0 !important; box-shadow: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="report-wrap">
+
+    <!-- Control Bar -->
+    <div class="control-bar no-print">
+        <div class="brand">DFR — Forensic Preview</div>
+        <div style="display:flex;gap:10px;">
+            <button onclick="window.print()" class="ctrl-btn" style="background:#10b981;color:#0a0f1e;">💾 Save PDF</button>
+            <button onclick="emailReport()" class="ctrl-btn" style="background:#3b82f6;color:white;">📧 Email</button>
+            <button onclick="window.close()" class="ctrl-btn" style="background:#334155;color:white;">✕ Close</button>
+        </div>
+    </div>
+
+    <div class="page">
+
+        <!-- Header -->
+        <div class="header-stripe">
+            <div class="report-title">
+                <div class="eyebrow">Dynamic Fleet Reporting</div>
+                <h1>FORENSIC FLEET <span>AUDIT</span></h1>
+                <div class="client-name" id="repClient">Client Name</div>
+            </div>
+            <div class="header-meta">
+                <div class="period-badge">
+                    <div class="label">Reporting Period</div>
+                    <div class="value" id="repPeriod">JAN 2026</div>
+                </div>
+                <div class="issued-badge">
+                    <div class="label">Report Issued</div>
+                    <div class="value" id="repDate">01 JAN 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hero Summary Bar -->
+        <div class="hero-bar">
+            <div class="hero-stat">
+                <span class="stat-label">Total Distance</span>
+                <span class="stat-value" id="statKM">—</span>
+                <span class="stat-sub">Kilometres</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Total Fuel Used</span>
+                <span class="stat-value" id="statFuel">—</span>
+                <span class="stat-sub">Litres</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Fleet Efficiency</span>
+                <span class="stat-value" id="statEff">—</span>
+                <span class="stat-sub">km / litre avg</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Litres Wasted</span>
+                <span class="stat-value" id="statWasted" style="color:var(--red);">—</span>
+                <span class="stat-sub">Inefficiency</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Speed Violations</span>
+                <span class="stat-value" id="statEvents" style="color:var(--red);">—</span>
+                <span class="stat-sub">Recorded events</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Efficiency Loss</span>
+                <span class="stat-value" id="statEffLoss" style="color:var(--ink2);">—</span>
+                <span class="stat-sub">Wholesale</span>
+            </div>
+            <div class="hero-stat highlight">
+                <span class="stat-label">Total Money Lost</span>
+                <span class="stat-value" id="statTotal">—</span>
+                <span class="stat-sub">This period</span>
+            </div>
+        </div>
+
+        <!-- Charts + Top 5 -->
+        <div class="charts-row">
+            <div>
+                <div class="chart-card" style="margin-bottom:12px;">
+                    <div class="chart-card-title">Loss Distribution</div>
+                    <canvas id="lossChart" height="160"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="health-gauge-wrap">
+                        <div class="gauge-label">Fleet Health Score</div>
+                        <canvas id="gaugeChart" width="140" height="80"></canvas>
+                        <div class="gauge-score" id="gaugeScore" style="color:var(--green);">—</div>
+                        <div class="gauge-desc" id="gaugeDesc" style="color:var(--slate);">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="section-title" style="font-size:14px;">Top 5 <span class="accent">Critical Risk</span> Vehicles</div>
+                <div class="podium-list" id="podium"></div>
+            </div>
+        </div>
+
+        <!-- Vehicle Table -->
+        <div class="section-title">Vehicle <span class="accent">Breakdown</span></div>
+        <table class="audit-table" id="vehicleTable">
+            <thead>
+                <tr>
+                    <th class="left">Registration</th>
+                    <th>GPS km</th>
+                    <th>Actual km</th>
+                    <th>Litres</th>
+                    <th>Actual km/L</th>
+                    <th>Target km/L</th>
+                    <th>Wasted L</th>
+                    <th>Eff. Loss</th>
+                    <th>Violations</th>
+                    <th>Speed Loss</th>
+                    <th style="background:#7f1d1d;">Total Loss</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="repBody"></tbody>
+        </table>
+
+        <!-- Action Report -->
+        <div style="margin-top:8mm;">
+            <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
+            <div id="actionReport"></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-block" id="prospectCTA">
+            <div class="cta-title">Ready to <span>Unlock</span> These Savings?</div>
+            <div class="cta-sub">Partner with Dynamic Fleet Reporting for ongoing monitoring, driver coaching, and continuous optimisation.</div>
+            <div class="cta-cards">
+                <div class="cta-card">
+                    <div class="cta-card-icon">📊</div>
+                    <div class="cta-card-title">Monthly Reporting</div>
+                    <div class="cta-card-sub">Track improvements period over period</div>
+                </div>
+                <div class="cta-card">
+                    <div class="cta-card-icon">🎯</div>
+                    <div class="cta-card-title">Driver Coaching</div>
+                    <div class="cta-card-sub">Behaviour change & incentive programs</div>
+                </div>
+                <div class="cta-card">
+                    <div class="cta-card-icon">💰</div>
+                    <div class="cta-card-title">Guaranteed Savings</div>
+                    <div class="cta-card-sub">ROI-backed fleet intelligence service</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="report-footer">
+            <div>
+                <div class="footer-brand">
+                    Dynamic Fleet Reporting
+                    <span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing</span>
+                </div>
+            </div>
+            <div class="footer-qr">
+                <canvas id="qrCanvas" width="72" height="72"></canvas>
+                <div class="qr-label">Scan to discover more</div>
+            </div>
+            <div class="footer-contact">
+                📞 083 314 9592<br>
+                ✉️ dynamicfleetreports@gmail.com<br>
+                🌐 dynamicfleetreports-bit.github.io/DFR/discover
+            </div>
+        </div>
+        <div class="footer-micro">
+            Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; 
+            Dynamic Fleet Reporting Master Audit Engine v2.0 &nbsp;|&nbsp; 
+            CONFIDENTIAL — For authorised recipients only
+        </div>
+
+    </div><!-- /page -->
+</div><!-- /report-wrap -->
+
+<script>
+// ── QR CODE (pure canvas, no library needed) ──────────────────────────
+function drawQR(canvasId, url) {
+    // Use Google Charts QR API as an image fallback
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.onerror = () => {
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '7px Outfit';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR', canvas.width/2, canvas.height/2);
+    };
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=144x144&data=${encodeURIComponent(url)}&color=0a0f1e&bgcolor=ffffff&margin=2`;
+}
+
+// ── GAUGE CHART ───────────────────────────────────────────────────────
+function drawGauge(score) {
+    const canvas = document.getElementById('gaugeChart');
+    const ctx = canvas.getContext('2d');
+    const cx = canvas.width / 2, cy = canvas.height - 10;
+    const r = 60;
+    // Background arc
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, 0, false);
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.stroke();
+    // Score arc
+    const pct = score / 100;
+    const endAngle = Math.PI + (Math.PI * pct);
+    const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, endAngle, false);
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = color;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    return color;
+}
+
+function emailReport() {
+    const client = document.getElementById('repClient').innerText;
+    const subject = encodeURIComponent('Fleet Audit Report — ' + client);
+    const body = encodeURIComponent('Please find attached the fleet audit report for ' + client + '.\n\nBest regards,\nDynamic Fleet Reporting');
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+}
+
+// ── WAIT FOR CLOUD STORAGE ────────────────────────────────────────────
+function waitForCloudStorage(cb, attempts = 0) {
+    if (typeof cloudStorage !== 'undefined') cb();
+    else if (attempts < 50) setTimeout(() => waitForCloudStorage(cb, attempts + 1), 100);
+    else console.error('cloudStorage unavailable');
+}
+
+waitForCloudStorage(async () => {
+    const raw = await cloudStorage.getItem('AUDIT_FINAL');
+    if (!raw) { alert('No audit data found. Please generate from the audit page.'); return; }
+
+    const data = JSON.parse(raw);
+    const fleet = Object.values(data.fleet);
+    const client = data.client;
+    const target = parseFloat(client.target) || 2.3;
+    const speedLimit = data.speedLimit || 80;
+
+    // Saved results
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const clientData = allClients.find(c => c.company === client.company);
+    const results = clientData?.auditResults || {};
+    const wPrice = clientData?.fuelPrice || 21.50;
+
+    // Header
+    document.getElementById('repClient').innerText = client.company;
+    document.getElementById('repPeriod').innerText = data.month;
+    const now = new Date();
+    const fmt = d => d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+    document.getElementById('repDate').innerText = fmt(now);
+    document.getElementById('reportCreated').innerText = now.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }).toUpperCase();
+
+    // Process fleet
+    let totalKM = 0, totalFuel = 0, totalWasted = 0, totalEvents = 0, totalEffLoss = 0, totalSpeedLoss = 0, totalScore = 0;
+
+    const processed = fleet.map(v => {
+        const km = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
+        const lit = parseFloat(v.mL) || 0;
+        const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
+        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - (km / target)) : 0;
+        const events = v.violations || 0;
+        const penalty = v.type === 'Heavy' ? 1.5 : 1.1;
+
+        let eLoss = 0, sLoss = 0, tLoss = 0;
+        if (results.vehicles) {
+            const sv = results.vehicles.find(x => x.reg === v.reg);
+            if (sv) { eLoss = sv.eLoss || 0; sLoss = sv.sLoss || 0; tLoss = sv.tLoss || 0; }
+        } else {
+            eLoss = eWaste * wPrice;
+            sLoss = events * penalty * wPrice;
+            tLoss = eLoss + sLoss;
+        }
+
+        let score = 100;
+        if (lit > 0 && actEff > 0 && actEff < target) score -= Math.min(40, ((target - actEff) / target) * 40);
+        if (events > 0) score -= Math.min(30, events * 0.3);
+        if (v.duration > 300) score -= Math.min(20, (v.duration / 60 / 30) * 20);
+        if (v.maxSpeed > speedLimit + 20) score -= Math.min(10, (v.maxSpeed - speedLimit - 20) * 0.5);
+        score = Math.max(0, Math.min(100, Math.round(score)));
+        totalScore += score;
+
+        totalKM += km;
+        totalFuel += lit;
+        totalWasted += eWaste;
+        totalEvents += events;
+        totalEffLoss += eLoss;
+        totalSpeedLoss += sLoss;
+
+        return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score };
+    }).sort((a, b) => b.tLoss - a.tLoss);
+
+    const avgScore = Math.round(totalScore / processed.length);
+    const totalLoss = results.wholesaleTotalLoss || (totalEffLoss + totalSpeedLoss);
+    const effLoss = results.wholesaleEffLoss || totalEffLoss;
+    const speedLoss = results.wholesaleSpeedLoss || totalSpeedLoss;
+    const fleetKM = results.totalKM || totalKM;
+    const fleetFuel = results.totalLiters || totalFuel;
+    const avgKmL = fleetFuel > 0 ? (fleetKM / fleetFuel).toFixed(2) : '—';
+
+    // Hero bar
+    document.getElementById('statKM').innerText = Math.round(fleetKM).toLocaleString();
+    document.getElementById('statFuel').innerText = Math.round(fleetFuel).toLocaleString();
+    document.getElementById('statEff').innerText = avgKmL;
+    document.getElementById('statWasted').innerText = Math.round(totalWasted).toLocaleString();
+    document.getElementById('statEvents').innerText = totalEvents.toLocaleString();
+    document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
+    document.getElementById('statTotal').innerText = 'R ' + Math.round(totalLoss).toLocaleString();
+
+    // Score + gauge
+    const gaugeColor = drawGauge(avgScore);
+    document.getElementById('gaugeScore').innerText = avgScore + '%';
+    document.getElementById('gaugeScore').style.color = gaugeColor;
+    document.getElementById('gaugeDesc').innerText = avgScore >= 90 ? 'Excellent' : avgScore >= 80 ? 'Good' : avgScore >= 70 ? 'Fair' : avgScore >= 60 ? 'Poor' : 'Critical';
+    document.getElementById('gaugeDesc').style.color = gaugeColor;
+
+    // Doughnut chart
+    new Chart(document.getElementById('lossChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Efficiency', 'Speeding'],
+            datasets: [{ data: [effLoss, speedLoss], backgroundColor: ['#0f172a', '#ef4444'], borderWidth: 0 }]
+        },
+        options: { cutout: '72%', plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', family: 'Outfit', size: 9 }, padding: 8 } } } }
+    });
+
+    // Podium
+    const maxLoss = processed[0]?.tLoss || 1;
+    document.getElementById('podium').innerHTML = processed.slice(0, 5).map((v, i) => `
+        <div class="podium-item">
+            <div class="podium-rank r${i+1}">${i+1}</div>
+            <div class="podium-reg">${v.reg}</div>
+            <div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:${(v.tLoss/maxLoss*100).toFixed(0)}%"></div></div>
+            <div class="podium-loss">R ${Math.round(v.tLoss).toLocaleString()}</div>
+        </div>
+    `).join('');
+
+    // Score helper
+    const scorePill = (s, hasData) => {
+        if (!hasData) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>';
+        const bg = s >= 95 ? '#fef3c7' : s >= 90 ? '#d1fae5' : s >= 80 ? '#dbeafe' : s >= 70 ? '#ffedd5' : '#fee2e2';
+        const col = s >= 95 ? '#92400e' : s >= 90 ? '#065f46' : s >= 80 ? '#1e40af' : s >= 70 ? '#9a3412' : '#991b1b';
+        const ico = s >= 95 ? ' 🏆' : s >= 90 ? ' ⭐' : '';
+        return `<span class="score-pill" style="background:${bg};color:${col};">${s}%${ico}</span>`;
+    };
+
+    // Table
+    document.getElementById('repBody').innerHTML = processed.map(v => `
+        <tr>
+            <td class="left reg">${v.reg}</td>
+            <td class="muted">${v.gpsDist.toFixed(0)}</td>
+            <td>${v.km.toFixed(0)}</td>
+            <td class="muted">${v.lit > 0 ? v.lit.toFixed(1) : '—'}</td>
+            <td class="${v.actEff > 0 && v.actEff < target ? 'red' : v.actEff > 0 ? 'green' : 'muted'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '—'}</td>
+            <td class="muted">${target}</td>
+            <td class="${v.eWaste > 0 ? 'red' : 'muted'}">${v.eWaste > 0 ? v.eWaste.toFixed(1) : '—'}</td>
+            <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
+            <td class="${v.violations > 0 ? 'red' : 'muted'}">${v.violations || 0}</td>
+            <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
+            <td class="total-loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
+            <td>${scorePill(v.score, v.actEff > 0)}</td>
+        </tr>
+    `).join('');
+
+    // Action Report
+    const critical = processed.filter(v => v.actEff > 0 && v.actEff < target && (v.violations || 0) > 5);
+    const speedOnly = processed.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations || 0) > 5);
+    const effOnly = processed.filter(v => v.actEff > 0 && v.actEff < target && (v.violations || 0) <= 5);
+    const acceptable = processed.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations || 0) <= 5);
+
+    const actionTable = (items, thBg) => `
+        <table class="action-inner-table">
+            <thead><tr style="background:${thBg};">
+                <th class="left">Vehicle</th><th>Score</th><th>Violations</th><th>Efficiency</th><th>Period Loss</th>
+            </tr></thead>
+            <tbody>${items.map(v => `
+                <tr>
+                    <td class="left" style="font-weight:900;font-style:italic;">${v.reg}</td>
+                    <td style="font-weight:900;">${v.score}%</td>
+                    <td>${v.violations || 0}</td>
+                    <td>${v.actEff > 0 ? v.actEff.toFixed(2) + ' km/L' : '—'}</td>
+                    <td style="font-weight:900;color:#dc2626;">R ${Math.round(v.tLoss).toLocaleString()}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+
+    let html = '';
+    if (critical.length) html += `<div class="action-section critical">
+        <div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues (Efficiency + Speeding)</span></div>
+        <ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management investigation recommended</li></ul>
+        ${actionTable(critical, '#7f1d1d')}</div>`;
+    if (speedOnly.length) html += `<div class="action-section speeding">
+        <div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div>
+        <ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>
+        ${actionTable(speedOnly, '#c2410c')}</div>`;
+    if (effOnly.length) html += `<div class="action-section efficiency">
+        <div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div>
+        <ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver training on fuel efficiency</li><li>• Settings verification</li></ul>
+        ${actionTable(effOnly, '#1d4ed8')}</div>`;
+    if (acceptable.length) html += `<div class="action-section acceptable">
+        <div class="action-header"><span class="action-icon">✅</span>
+        <span class="action-title" style="color:#065f46;">Acceptable Performance — ${acceptable.length} Vehicle${acceptable.length > 1 ? 's' : ''} Meeting Standards</span></div>
+        <p style="font-size:11px;color:#047857;font-weight:600;margin-left:34px;">Continue current practices. Monitor for consistency.</p>
+        </div>`;
+    document.getElementById('actionReport').innerHTML = html;
+
+    // QR
+    drawQR('qrCanvas', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+});
+</script>
+</body>
+</html>

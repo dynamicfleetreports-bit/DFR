@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFR | Monthly Performance Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0a0f1e;
+            --ink2: #1e293b;
+            --green: #059669;
+            --green-light: #10b981;
+            --red: #dc2626;
+            --red-light: #ef4444;
+            --gold: #d97706;
+            --blue: #2563eb;
+            --slate: #64748b;
+            --paper: #f8fafc;
+            --paper2: #f1f5f9;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: #e2e8f0; color: var(--ink); margin: 0; }
+        .report-wrap { width: 297mm; margin: 10mm auto; }
+
+        .control-bar { background: var(--ink); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-radius: 12px 12px 0 0; position: sticky; top: 0; z-index: 100; }
+        .control-bar .brand { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; color: var(--green-light); font-size: 16px; }
+        .ctrl-btn { padding: 8px 20px; border-radius: 8px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none; transition: all 0.2s; }
+
+        .page { background: white; padding: 14mm 14mm 10mm; position: relative; overflow: hidden; }
+
+        /* ── HEADER ── */
+        .header-stripe { background: var(--ink); margin: -14mm -14mm 0; padding: 10mm 14mm 8mm; display: flex; justify-content: space-between; align-items: flex-end; position: relative; overflow: hidden; }
+        .header-stripe::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%); pointer-events: none; }
+        .report-title { color: white; }
+        .report-title .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--green-light); opacity: 0.8; margin-bottom: 6px; }
+        .report-title h1 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; line-height: 0.9; letter-spacing: 2px; margin: 0; }
+        .report-title h1 span { color: var(--green-light); }
+        .report-title .client-name { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.7); margin-top: 8px; text-transform: uppercase; letter-spacing: 2px; }
+        .header-right { text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+        .active-badge { background: var(--green); color: white; padding: 6px 16px; border-radius: 999px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; display: inline-block; margin-bottom: 8px; }
+        .period-badge { background: rgba(255,255,255,0.12); color: white; padding: 10px 20px; border-radius: 10px; }
+        .period-badge .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
+        .period-badge .value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; }
+
+        /* ── HERO BAR ── */
+        .hero-bar { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; margin: 8mm -14mm 8mm; border-top: 4px solid var(--green); border-bottom: 4px solid var(--green); }
+        .hero-stat { padding: 14px 8px; text-align: center; border-right: 1px solid #e2e8f0; background: var(--paper); }
+        .hero-stat:last-child { border-right: none; }
+        .hero-stat.highlight { background: var(--ink); }
+        .hero-stat.positive { background: #f0fdf4; }
+        .hero-stat .stat-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); display: block; margin-bottom: 4px; }
+        .hero-stat.highlight .stat-label { color: rgba(255,255,255,0.5); }
+        .hero-stat.positive .stat-label { color: var(--green); }
+        .hero-stat .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--ink); line-height: 1; display: block; }
+        .hero-stat.highlight .stat-value { color: var(--red-light); font-size: 28px; }
+        .hero-stat.positive .stat-value { color: var(--green); }
+        .hero-stat .stat-sub { font-size: 8px; color: var(--slate); font-weight: 600; display: block; margin-top: 2px; }
+        .hero-stat.highlight .stat-sub { color: rgba(255,255,255,0.4); }
+        .hero-stat.positive .stat-sub { color: var(--green); opacity: 0.7; }
+        .delta-up { color: var(--green) !important; }
+        .delta-down { color: var(--red) !important; }
+
+        /* ── SECTION TITLE ── */
+        .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px; color: var(--ink); text-transform: uppercase; border-bottom: 2px solid var(--green); padding-bottom: 4px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .section-title .accent { color: var(--green); }
+
+        /* ── CHARTS ROW ── */
+        .charts-row { display: grid; grid-template-columns: 200px 1fr 1fr; gap: 14px; margin-bottom: 8mm; }
+        .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; }
+        .chart-card-title { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); margin-bottom: 10px; }
+
+        /* ── TREND CHART ── */
+        .trend-delta { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .trend-delta .delta-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; }
+        .trend-delta .delta-label { font-size: 9px; font-weight: 700; color: var(--slate); line-height: 1.3; }
+
+        /* ── TABLE ── */
+        .audit-table { width: 100%; border-collapse: collapse; font-size: 9.5px; }
+        .audit-table thead tr { background: var(--ink); }
+        .audit-table thead th { color: white; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 8px 5px; border: 1px solid #334155; text-align: center; }
+        .audit-table thead th.left { text-align: left; padding-left: 10px; }
+        .audit-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+        .audit-table tbody tr:nth-child(even) { background: #f8fafc; }
+        .audit-table tbody tr:hover { background: #ecfdf5; }
+        .audit-table td { padding: 7px 5px; text-align: center; font-weight: 700; }
+        .audit-table td.left { text-align: left; padding-left: 10px; }
+        .audit-table td.reg { font-style: italic; font-weight: 900; color: #1e40af; border-left: 4px solid #3b82f6; }
+        .audit-table td.red { color: var(--red); }
+        .audit-table td.green { color: var(--green); }
+        .audit-table td.muted { color: var(--slate); font-weight: 600; }
+        .audit-table td.total-loss { font-style: italic; font-weight: 900; color: var(--red); }
+        .score-pill { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 900; }
+
+        /* ── BONUS SECTION ── */
+        .bonus-section { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border: 2px solid var(--green); border-radius: 16px; padding: 20px 24px; margin-bottom: 8mm; }
+        .bonus-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--ink); margin-bottom: 14px; }
+        .bonus-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+        .bonus-tier { background: white; border-radius: 10px; padding: 12px; text-align: center; }
+        .bonus-tier .tier-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .bonus-tier .tier-count { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 1; }
+        .bonus-tier .tier-range { font-size: 9px; font-weight: 700; color: var(--slate); }
+        .bonus-roi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .bonus-roi-card { background: white; border-radius: 10px; padding: 12px 16px; }
+        .bonus-roi-card .roi-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
+        .bonus-roi-card .roi-val { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1px; }
+        .bonus-roi-card.net { background: var(--green); }
+        .bonus-roi-card.net .roi-label { color: rgba(255,255,255,0.7); }
+        .bonus-roi-card.net .roi-val { color: white; }
+
+        /* ── DRIVER LEAGUE ── */
+        .league-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        .league-table thead tr { background: var(--ink2); }
+        .league-table thead th { color: white; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; padding: 8px 10px; text-align: center; }
+        .league-table thead th.left { text-align: left; }
+        .league-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+        .league-table tbody tr:nth-child(even) { background: #f8fafc; }
+        .league-table td { padding: 8px 10px; text-align: center; font-weight: 700; }
+        .league-table td.left { text-align: left; }
+        .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; font-size: 11px; font-weight: 900; }
+        .tier-bar { height: 6px; border-radius: 999px; background: #e2e8f0; overflow: hidden; width: 80px; display: inline-block; }
+        .tier-bar-fill { height: 100%; border-radius: 999px; }
+
+        /* ── DRIVER OF MONTH ── */
+        .dotm-card { background: linear-gradient(135deg, var(--ink), var(--ink2)); border-radius: 14px; padding: 18px 22px; display: flex; align-items: center; gap: 20px; margin-bottom: 8mm; position: relative; overflow: hidden; }
+        .dotm-card::before { content: '🏆'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 64px; opacity: 0.15; }
+        .dotm-trophy { font-size: 40px; }
+        .dotm-info { flex: 1; }
+        .dotm-eyebrow { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green-light); }
+        .dotm-name { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px; color: white; line-height: 1; }
+        .dotm-score { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); }
+        .dotm-stats { display: flex; gap: 20px; }
+        .dotm-stat { text-align: center; }
+        .dotm-stat .val { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--green-light); }
+        .dotm-stat .lbl { font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ── ACTION REPORT ── */
+        .action-section { border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+        .action-section.critical { background: #fff1f2; border-left: 5px solid var(--red); }
+        .action-section.speeding { background: #fff7ed; border-left: 5px solid #f97316; }
+        .action-section.efficiency { background: #eff6ff; border-left: 5px solid #3b82f6; }
+        .action-section.acceptable { background: #f0fdf4; border-left: 5px solid var(--green); }
+        .action-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .action-icon { font-size: 22px; }
+        .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; }
+        .action-bullets { font-size: 10px; font-weight: 600; color: #475569; margin-left: 32px; }
+        .action-inner-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 9.5px; }
+        .action-inner-table th { padding: 6px 8px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: white; text-align: center; }
+        .action-inner-table th.left { text-align: left; }
+        .action-inner-table td { padding: 6px 8px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .action-inner-table td.left { text-align: left; }
+
+        /* ── FOOTER ── */
+        .report-footer { border-top: 3px solid var(--green); margin-top: 10mm; padding-top: 6mm; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; }
+        .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; color: var(--ink); }
+        .footer-brand .sub { font-family: 'Outfit', sans-serif; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); display: block; }
+        .footer-contact { font-size: 10px; font-weight: 700; color: var(--slate); text-align: right; line-height: 1.8; }
+        .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .footer-qr canvas { border: 3px solid white; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .footer-qr .qr-label { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
+        .footer-micro { font-size: 8px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 4mm; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 8mm; }
+            body { background: white !important; }
+            .report-wrap { width: 100% !important; margin: 0 !important; }
+            .control-bar { display: none !important; }
+            .page { padding: 0 !important; box-shadow: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="report-wrap">
+
+    <div class="control-bar no-print">
+        <div class="brand">DFR — Active Client Report</div>
+        <div style="display:flex;gap:10px;">
+            <button onclick="window.print()" class="ctrl-btn" style="background:#10b981;color:#0a0f1e;">💾 Save PDF</button>
+            <button onclick="emailReport()" class="ctrl-btn" style="background:#3b82f6;color:white;">📧 Email</button>
+            <button onclick="window.close()" class="ctrl-btn" style="background:#334155;color:white;">✕ Close</button>
+        </div>
+    </div>
+
+    <div class="page">
+
+        <!-- Header -->
+        <div class="header-stripe">
+            <div class="report-title">
+                <div class="eyebrow">Dynamic Fleet Reporting — Active Client</div>
+                <h1>FLEET <span>PERFORMANCE</span> REPORT</h1>
+                <div class="client-name" id="repClient">Client Name</div>
+            </div>
+            <div class="header-right">
+                <div class="active-badge">✓ Active Client</div>
+                <div class="period-badge">
+                    <div class="label" id="reportFreqLabel">Reporting Period</div>
+                    <div class="value" id="repPeriod">JAN 2026</div>
+                </div>
+                <div style="color:rgba(255,255,255,0.4);font-size:10px;font-weight:700;margin-top:4px;">Issued: <span id="repDate"></span></div>
+            </div>
+        </div>
+
+        <!-- Hero Bar (8 stats including savings delta) -->
+        <div class="hero-bar">
+            <div class="hero-stat">
+                <span class="stat-label">Total Distance</span>
+                <span class="stat-value" id="statKM">—</span>
+                <span class="stat-sub">Kilometres</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Total Fuel Used</span>
+                <span class="stat-value" id="statFuel">—</span>
+                <span class="stat-sub">Litres</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Fleet km/L</span>
+                <span class="stat-value" id="statEff">—</span>
+                <span class="stat-sub">Avg efficiency</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Litres Wasted</span>
+                <span class="stat-value" id="statWasted" style="color:var(--red);">—</span>
+                <span class="stat-sub">Inefficiency</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Speed Violations</span>
+                <span class="stat-value" id="statEvents" style="color:var(--red);">—</span>
+                <span class="stat-sub">Recorded events</span>
+            </div>
+            <div class="hero-stat">
+                <span class="stat-label">Efficiency Loss</span>
+                <span class="stat-value" id="statEffLoss">—</span>
+                <span class="stat-sub">Wholesale</span>
+            </div>
+            <div class="hero-stat highlight">
+                <span class="stat-label">Total Money Lost</span>
+                <span class="stat-value" id="statTotal">—</span>
+                <span class="stat-sub">This period</span>
+            </div>
+            <div class="hero-stat positive" id="deltaCard">
+                <span class="stat-label">vs Last Period</span>
+                <span class="stat-value" id="statDelta">—</span>
+                <span class="stat-sub" id="statDeltaSub">No prior data</span>
+            </div>
+        </div>
+
+        <!-- Driver of the Month -->
+        <div class="dotm-card" id="dotmCard">
+            <div class="dotm-trophy">🏆</div>
+            <div class="dotm-info">
+                <div class="dotm-eyebrow">Driver of the Period</div>
+                <div class="dotm-name" id="dotmName">—</div>
+                <div class="dotm-score" id="dotmScore">—</div>
+            </div>
+            <div class="dotm-stats">
+                <div class="dotm-stat"><div class="val" id="dotmEff">—</div><div class="lbl">km/L</div></div>
+                <div class="dotm-stat"><div class="val" id="dotmViol">—</div><div class="lbl">Violations</div></div>
+                <div class="dotm-stat"><div class="val" id="dotmScore2">—</div><div class="lbl">Score</div></div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+            <div>
+                <div class="chart-card">
+                    <div class="chart-card-title">Loss Distribution</div>
+                    <canvas id="lossChart" height="160"></canvas>
+                    <div style="margin-top:10px;">
+                        <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--slate);margin-bottom:4px;">Fleet Health Score</div>
+                        <canvas id="gaugeChart" width="160" height="85"></canvas>
+                        <div style="text-align:center;">
+                            <span id="gaugeScore" style="font-family:'Bebas Neue',sans-serif;font-size:36px;"></span>
+                            <span id="gaugeDesc" style="font-size:10px;font-weight:700;display:block;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
+                <div class="trend-delta">
+                    <span class="delta-val" id="trendDelta" style="color:var(--green);">—</span>
+                    <span class="delta-label" id="trendDeltaLabel">vs previous period</span>
+                </div>
+                <canvas id="trendChart" height="160"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
+                <div id="podium" style="display:flex;flex-direction:column;gap:7px;"></div>
+            </div>
+        </div>
+
+        <!-- Performance Bonus Summary -->
+        <div class="bonus-section">
+            <div class="bonus-title">🏆 Performance Incentive Summary</div>
+            <div class="bonus-grid">
+                <div class="bonus-tier" style="border-top:3px solid #d97706;">
+                    <div class="tier-label" style="color:#d97706;">Elite</div>
+                    <div class="tier-count" id="bonusElite" style="color:#d97706;">0</div>
+                    <div class="tier-range">95–100% · R500/period</div>
+                </div>
+                <div class="bonus-tier" style="border-top:3px solid var(--green);">
+                    <div class="tier-label" style="color:var(--green);">High Performer</div>
+                    <div class="tier-count" id="bonusHigh" style="color:var(--green);">0</div>
+                    <div class="tier-range">90–94% · R300/period</div>
+                </div>
+                <div class="bonus-tier" style="border-top:3px solid var(--blue);">
+                    <div class="tier-label" style="color:var(--blue);">Good Driver</div>
+                    <div class="tier-count" id="bonusGood" style="color:var(--blue);">0</div>
+                    <div class="tier-range">80–89% · R150/period</div>
+                </div>
+                <div class="bonus-tier" style="border-top:3px solid var(--red);">
+                    <div class="tier-label" style="color:var(--red);">Needs Training</div>
+                    <div class="tier-count" id="bonusPoor" style="color:var(--red);">0</div>
+                    <div class="tier-range">Below 80%</div>
+                </div>
+            </div>
+            <div class="bonus-roi-row">
+                <div class="bonus-roi-card">
+                    <div class="roi-label">Bonus Payout</div>
+                    <div class="roi-val" id="bonusCost" style="color:var(--ink);">R 0</div>
+                </div>
+                <div class="bonus-roi-card">
+                    <div class="roi-label">Savings from Top Drivers</div>
+                    <div class="roi-val" id="bonusSavings" style="color:var(--green);">R 0</div>
+                </div>
+                <div class="bonus-roi-card net">
+                    <div class="roi-label">Net ROI on Bonuses</div>
+                    <div class="roi-val" id="bonusROI">R 0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Driver League Table -->
+        <div class="section-title">Driver <span class="accent">Performance</span> League</div>
+        <table class="league-table" style="margin-bottom:8mm;">
+            <thead>
+                <tr>
+                    <th style="width:36px;">#</th>
+                    <th class="left">Vehicle</th>
+                    <th>Type</th>
+                    <th>Actual km</th>
+                    <th>Litres</th>
+                    <th>Act km/L</th>
+                    <th>Violations</th>
+                    <th>Duration (min)</th>
+                    <th>Max Speed</th>
+                    <th>Period Loss</th>
+                    <th>Score</th>
+                    <th>Tier</th>
+                </tr>
+            </thead>
+            <tbody id="leagueBody"></tbody>
+        </table>
+
+        <!-- Full Vehicle Table -->
+        <div class="section-title">Full Vehicle <span class="accent">Breakdown</span></div>
+        <table class="audit-table" style="margin-bottom:8mm;">
+            <thead>
+                <tr>
+                    <th class="left">Registration</th>
+                    <th>GPS km</th>
+                    <th>Actual km</th>
+                    <th>Litres</th>
+                    <th>Act km/L</th>
+                    <th>Target km/L</th>
+                    <th>Wasted L</th>
+                    <th>Eff. Loss</th>
+                    <th>Violations</th>
+                    <th>Duration (min)</th>
+                    <th>Max Speed</th>
+                    <th>Speed Loss</th>
+                    <th style="background:#7f1d1d;">Total Loss</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="repBody"></tbody>
+        </table>
+
+        <!-- Action Report -->
+        <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
+        <div id="actionReport" style="margin-bottom:8mm;"></div>
+
+        <!-- Footer -->
+        <div class="report-footer">
+            <div>
+                <div class="footer-brand">
+                    Dynamic Fleet Reporting
+                    <span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing</span>
+                </div>
+            </div>
+            <div class="footer-qr">
+                <canvas id="qrCanvas" width="72" height="72"></canvas>
+                <div class="qr-label">Scan to discover more</div>
+            </div>
+            <div class="footer-contact">
+                📞 083 314 9592<br>
+                ✉️ dynamicfleetreports@gmail.com<br>
+                🌐 dynamicfleetreports-bit.github.io/DFR/discover
+            </div>
+        </div>
+        <div class="footer-micro">
+            Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp;
+            Dynamic Fleet Reporting Master Audit Engine v2.0 &nbsp;|&nbsp;
+            CONFIDENTIAL — Active Client Document
+        </div>
+
+    </div>
+</div>
+
+<script>
+function drawQR(canvasId, url) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.onerror = () => {
+        ctx.fillStyle = '#f1f5f9'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#64748b'; ctx.font = '7px Outfit'; ctx.textAlign = 'center';
+        ctx.fillText('QR', canvas.width/2, canvas.height/2);
+    };
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=144x144&data=${encodeURIComponent(url)}&color=0a0f1e&bgcolor=ffffff&margin=2`;
+}
+
+function drawGauge(canvasId, score) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const cx = canvas.width/2, cy = canvas.height - 10, r = Math.min(cx, cy) - 10;
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.lineWidth = 12; ctx.strokeStyle = '#e2e8f0'; ctx.stroke();
+    const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626';
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, Math.PI + (Math.PI * score/100));
+    ctx.lineWidth = 12; ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.stroke();
+    return color;
+}
+
+function emailReport() {
+    const client = document.getElementById('repClient').innerText;
+    const subject = encodeURIComponent('Fleet Performance Report — ' + client);
+    const body = encodeURIComponent('Please find attached your fleet performance report.\n\nBest regards,\nDynamic Fleet Reporting');
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+}
+
+function waitForCloudStorage(cb, attempts = 0) {
+    if (typeof cloudStorage !== 'undefined') cb();
+    else if (attempts < 50) setTimeout(() => waitForCloudStorage(cb, attempts + 1), 100);
+    else console.error('cloudStorage unavailable');
+}
+
+waitForCloudStorage(async () => {
+    const raw = await cloudStorage.getItem('AUDIT_FINAL');
+    if (!raw) { alert('No audit data found.'); return; }
+
+    const data = JSON.parse(raw);
+    const fleet = Object.values(data.fleet);
+    const client = data.client;
+    const target = parseFloat(client.target) || 2.3;
+    const speedLimit = data.speedLimit || 80;
+
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const clientData = allClients.find(c => c.company === client.company);
+    const results = clientData?.auditResults || {};
+    const wPrice = clientData?.fuelPrice || 21.50;
+
+    // History for trend
+    const historyKey = `AUDIT_HISTORY_${clientData?.id}`;
+    const history = JSON.parse(await cloudStorage.getItem(historyKey)) || [];
+    history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Header
+    document.getElementById('repClient').innerText = client.company;
+    document.getElementById('repPeriod').innerText = data.month;
+    const now = new Date();
+    const fmt = d => d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    document.getElementById('repDate').innerText = fmt(now);
+    document.getElementById('reportCreated').innerText = now.toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase();
+
+    // Detect frequency label from history gaps
+    if (history.length >= 2) {
+        const last2 = history.slice(-2);
+        const daysDiff = (new Date(last2[1].date) - new Date(last2[0].date)) / (1000*60*60*24);
+        document.getElementById('reportFreqLabel').innerText = daysDiff <= 10 ? 'Weekly Report' : daysDiff <= 20 ? 'Bi-Weekly Report' : 'Monthly Report';
+    }
+
+    // Process fleet
+    let totalKM = 0, totalFuel = 0, totalWasted = 0, totalEvents = 0, totalEffLoss = 0, totalSpeedLoss = 0, totalScore = 0;
+    let eliteCount = 0, highCount = 0, goodCount = 0, poorCount = 0, bonusSavings = 0;
+
+    const processed = fleet.map(v => {
+        const km = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
+        const lit = parseFloat(v.mL) || 0;
+        const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
+        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - (km/target)) : 0;
+        const events = v.violations || 0;
+        const penalty = v.type === 'Heavy' ? 1.5 : 1.1;
+
+        let eLoss = 0, sLoss = 0, tLoss = 0;
+        if (results.vehicles) {
+            const sv = results.vehicles.find(x => x.reg === v.reg);
+            if (sv) { eLoss = sv.eLoss||0; sLoss = sv.sLoss||0; tLoss = sv.tLoss||0; }
+        } else {
+            eLoss = eWaste * wPrice; sLoss = events * penalty * wPrice; tLoss = eLoss + sLoss;
+        }
+
+        let score = 100;
+        if (lit > 0 && actEff > 0 && actEff < target) score -= Math.min(40, ((target - actEff)/target)*40);
+        if (events > 0) score -= Math.min(30, events * 0.3);
+        if (v.duration > 300) score -= Math.min(20, (v.duration/60/30)*20);
+        if (v.maxSpeed > speedLimit+20) score -= Math.min(10, (v.maxSpeed-speedLimit-20)*0.5);
+        score = Math.max(0, Math.min(100, Math.round(score)));
+        totalScore += score;
+
+        totalKM += km; totalFuel += lit; totalWasted += eWaste;
+        totalEvents += events; totalEffLoss += eLoss; totalSpeedLoss += sLoss;
+
+        if (score >= 95) { eliteCount++; bonusSavings += tLoss; }
+        else if (score >= 90) { highCount++; bonusSavings += tLoss; }
+        else if (score >= 80) { goodCount++; bonusSavings += tLoss; }
+        else poorCount++;
+
+        return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score };
+    }).sort((a, b) => b.score - a.score);
+
+    const avgScore = Math.round(totalScore / processed.length);
+    const totalLoss = results.wholesaleTotalLoss || (totalEffLoss + totalSpeedLoss);
+    const effLoss = results.wholesaleEffLoss || totalEffLoss;
+    const speedLoss = results.wholesaleSpeedLoss || totalSpeedLoss;
+    const fleetKM = results.totalKM || totalKM;
+    const fleetFuel = results.totalLiters || totalFuel;
+    const avgKmL = fleetFuel > 0 ? (fleetKM/fleetFuel).toFixed(2) : '—';
+
+    // Hero bar
+    document.getElementById('statKM').innerText = Math.round(fleetKM).toLocaleString();
+    document.getElementById('statFuel').innerText = Math.round(fleetFuel).toLocaleString();
+    document.getElementById('statEff').innerText = avgKmL;
+    document.getElementById('statWasted').innerText = Math.round(totalWasted).toLocaleString();
+    document.getElementById('statEvents').innerText = totalEvents.toLocaleString();
+    document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
+    document.getElementById('statTotal').innerText = 'R ' + Math.round(totalLoss).toLocaleString();
+
+    // Delta vs last period
+    if (history.length >= 2) {
+        const prev = history[history.length - 2].fuelLoss;
+        const delta = totalLoss - prev;
+        const improved = delta < 0;
+        const deltaEl = document.getElementById('statDelta');
+        deltaEl.innerText = (improved ? '↓ ' : '↑ ') + 'R ' + Math.abs(Math.round(delta)).toLocaleString();
+        deltaEl.style.color = improved ? 'var(--green)' : 'var(--red)';
+        document.getElementById('statDeltaSub').innerText = (improved ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
+        document.getElementById('deltaCard').className = 'hero-stat ' + (improved ? 'positive' : '');
+        if (!improved) document.getElementById('deltaCard').style.background = '#fff1f2';
+
+        // Trend delta label
+        const trendDeltaEl = document.getElementById('trendDelta');
+        trendDeltaEl.innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
+        trendDeltaEl.style.color = improved ? 'var(--green)' : 'var(--red)';
+        document.getElementById('trendDeltaLabel').innerText = (improved ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
+    } else {
+        document.getElementById('statDelta').innerText = 'First Report';
+        document.getElementById('statDeltaSub').innerText = 'No prior data yet';
+        document.getElementById('trendDelta').innerText = 'First report';
+        document.getElementById('trendDeltaLabel').innerText = 'No trend data yet';
+    }
+
+    // Gauge
+    const gaugeColor = drawGauge('gaugeChart', avgScore);
+    document.getElementById('gaugeScore').innerText = avgScore + '%';
+    document.getElementById('gaugeScore').style.color = gaugeColor;
+    document.getElementById('gaugeDesc').innerText = avgScore >= 90 ? 'Excellent' : avgScore >= 80 ? 'Good' : avgScore >= 70 ? 'Fair' : avgScore >= 60 ? 'Poor' : 'Critical';
+    document.getElementById('gaugeDesc').style.color = gaugeColor;
+
+    // Loss doughnut
+    new Chart(document.getElementById('lossChart'), {
+        type: 'doughnut',
+        data: { labels: ['Efficiency', 'Speeding'], datasets: [{ data: [effLoss, speedLoss], backgroundColor: ['#0f172a','#ef4444'], borderWidth: 0 }] },
+        options: { cutout: '72%', plugins: { legend: { position: 'bottom', labels: { font: { weight: 'bold', family: 'Outfit', size: 9 }, padding: 6 } } } }
+    });
+
+    // Trend chart
+    const trendLabels = history.map(h => h.week);
+    const trendValues = history.map(h => h.fuelLoss);
+    new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: {
+            labels: trendLabels,
+            datasets: [{
+                label: 'Total Loss (R)',
+                data: trendValues,
+                backgroundColor: trendValues.map((v, i) => i === trendValues.length-1 ? '#dc2626' : '#cbd5e1'),
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { ticks: { callback: v => 'R ' + (v/1000).toFixed(0) + 'k', font: { size: 9 } }, grid: { color: '#f1f5f9' } },
+                x: { ticks: { font: { size: 9 } }, grid: { display: false } }
+            }
+        }
+    });
+
+    // Podium
+    const byLoss = [...processed].sort((a,b) => b.tLoss - a.tLoss);
+    const maxLoss = byLoss[0]?.tLoss || 1;
+    document.getElementById('podium').innerHTML = byLoss.slice(0,5).map((v,i) => `
+        <div style="display:flex;align-items:center;gap:10px;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:${['#7f1d1d','#dc2626','#f97316','#d97706','#64748b'][i]};color:white;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
+            <div style="font-weight:900;font-size:12px;color:#1e40af;font-style:italic;flex:1;">${v.reg}</div>
+            <div style="flex:2;height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden;"><div style="width:${(v.tLoss/maxLoss*100).toFixed(0)}%;height:100%;background:linear-gradient(90deg,#dc2626,#f87171);border-radius:999px;"></div></div>
+            <div style="font-weight:900;font-size:12px;color:#dc2626;min-width:70px;text-align:right;">R ${Math.round(v.tLoss).toLocaleString()}</div>
+        </div>`).join('');
+
+    // Driver of the Month
+    const top = processed[0];
+    if (top && top.actEff > 0) {
+        document.getElementById('dotmName').innerText = top.reg;
+        document.getElementById('dotmScore').innerText = 'Performance Score: ' + top.score + '%';
+        document.getElementById('dotmEff').innerText = top.actEff.toFixed(2);
+        document.getElementById('dotmViol').innerText = top.violations || 0;
+        document.getElementById('dotmScore2').innerText = top.score + '%';
+    } else {
+        document.getElementById('dotmCard').style.display = 'none';
+    }
+
+    // Bonus section
+    document.getElementById('bonusElite').innerText = eliteCount;
+    document.getElementById('bonusHigh').innerText = highCount;
+    document.getElementById('bonusGood').innerText = goodCount;
+    document.getElementById('bonusPoor').innerText = poorCount;
+    const totalBonus = (eliteCount*500) + (highCount*300) + (goodCount*150);
+    document.getElementById('bonusCost').innerText = 'R ' + totalBonus.toLocaleString();
+    document.getElementById('bonusSavings').innerText = 'R ' + Math.round(bonusSavings).toLocaleString();
+    document.getElementById('bonusROI').innerText = 'R ' + Math.round(bonusSavings - totalBonus).toLocaleString();
+
+    // Score helpers
+    const tierLabel = s => s >= 95 ? ['#92400e','#fef3c7','🏆 Elite'] : s >= 90 ? ['#065f46','#d1fae5','⭐ High'] : s >= 80 ? ['#1e40af','#dbeafe','👍 Good'] : ['#991b1b','#fee2e2','⚠️ Training'];
+    const scorePill = (s, hasData) => {
+        if (!hasData) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>';
+        const [col, bg, _] = tierLabel(s);
+        const ico = s >= 95 ? ' 🏆' : s >= 90 ? ' ⭐' : '';
+        return `<span class="score-pill" style="background:${bg};color:${col};">${s}%${ico}</span>`;
+    };
+
+    // League table (sorted by score desc)
+    document.getElementById('leagueBody').innerHTML = processed.map((v, i) => {
+        const [col, bg, tier] = tierLabel(v.score);
+        const barW = v.score;
+        const barColor = v.score >= 80 ? '#059669' : v.score >= 60 ? '#d97706' : '#dc2626';
+        return `<tr>
+            <td><div class="rank-badge" style="background:${bg};color:${col};">${i+1}</div></td>
+            <td class="left" style="font-style:italic;font-weight:900;color:#1e40af;">${v.reg}</td>
+            <td class="muted" style="font-size:9px;">${v.type||'Heavy'}</td>
+            <td>${v.km.toFixed(0)}</td>
+            <td class="muted">${v.lit > 0 ? v.lit.toFixed(1) : '—'}</td>
+            <td class="${v.actEff > 0 && v.actEff < target ? 'red' : v.actEff > 0 ? 'green' : 'muted'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '—'}</td>
+            <td class="${v.violations > 0 ? 'red' : 'muted'}">${v.violations||0}</td>
+            <td class="muted">${v.duration ? (v.duration/60).toFixed(1) : '—'}</td>
+            <td class="${v.maxSpeed > speedLimit ? 'red' : 'muted'}">${v.maxSpeed || '—'}</td>
+            <td class="total-loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
+            <td><div class="tier-bar"><div class="tier-bar-fill" style="width:${barW}%;background:${barColor};"></div></div></td>
+            <td><span class="score-pill" style="background:${bg};color:${col};">${tier}</span></td>
+        </tr>`;
+    }).join('');
+
+    // Full table
+    document.getElementById('repBody').innerHTML = processed.sort((a,b) => b.tLoss - a.tLoss).map(v => `
+        <tr>
+            <td class="left reg">${v.reg}</td>
+            <td class="muted">${v.gpsDist.toFixed(0)}</td>
+            <td>${v.km.toFixed(0)}</td>
+            <td class="muted">${v.lit > 0 ? v.lit.toFixed(1) : '—'}</td>
+            <td class="${v.actEff > 0 && v.actEff < target ? 'red' : v.actEff > 0 ? 'green' : 'muted'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '—'}</td>
+            <td class="muted">${target}</td>
+            <td class="${v.eWaste > 0 ? 'red' : 'muted'}">${v.eWaste > 0 ? v.eWaste.toFixed(1) : '—'}</td>
+            <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
+            <td class="${v.violations > 0 ? 'red' : 'muted'}">${v.violations||0}</td>
+            <td class="muted">${v.duration ? (v.duration/60).toFixed(1) : '—'}</td>
+            <td class="${v.maxSpeed > speedLimit ? 'red' : 'muted'}">${v.maxSpeed||'—'}</td>
+            <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
+            <td class="total-loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
+            <td>${scorePill(v.score, v.actEff > 0)}</td>
+        </tr>`).join('');
+
+    // Action report
+    const critical = processed.filter(v => v.actEff > 0 && v.actEff < target && (v.violations||0) > 5);
+    const speedOnly = processed.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations||0) > 5);
+    const effOnly = processed.filter(v => v.actEff > 0 && v.actEff < target && (v.violations||0) <= 5);
+    const acceptable = processed.filter(v => (v.actEff >= target || v.actEff === 0) && (v.violations||0) <= 5);
+
+    const actionTable = (items, thBg) => `
+        <table class="action-inner-table"><thead><tr style="background:${thBg};">
+            <th class="left">Vehicle</th><th>Score</th><th>Violations</th><th>Efficiency</th><th>Period Loss</th>
+        </tr></thead><tbody>${items.map(v => `
+            <tr><td class="left" style="font-weight:900;font-style:italic;">${v.reg}</td>
+            <td style="font-weight:900;">${v.score}%</td><td>${v.violations||0}</td>
+            <td>${v.actEff > 0 ? v.actEff.toFixed(2)+' km/L' : '—'}</td>
+            <td style="font-weight:900;color:#dc2626;">R ${Math.round(v.tLoss).toLocaleString()}</td></tr>`).join('')}
+        </tbody></table>`;
+
+    let html = '';
+    if (critical.length) html += `<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${actionTable(critical,'#7f1d1d')}</div>`;
+    if (speedOnly.length) html += `<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${actionTable(speedOnly,'#c2410c')}</div>`;
+    if (effOnly.length) html += `<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${actionTable(effOnly,'#1d4ed8')}</div>`;
+    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:11px;color:#047857;font-weight:600;margin-left:32px;">Continue current practices. Monitor for consistency.</p></div>`;
+    document.getElementById('actionReport').innerHTML = html;
+
+    // QR
+    drawQR('qrCanvas', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+});
+</script>
+</body>
+</html>
