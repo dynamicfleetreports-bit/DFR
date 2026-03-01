@@ -66,30 +66,47 @@
         .period-badge .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
         .period-badge .value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; }
 
-        /* ── HERO BAR — fits 8 cols in A4 landscape ── */
+       /* ── HERO TILES ── */
         .hero-bar {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
-            gap: 0;
-            margin: 6mm -12mm 6mm;
-            border-top: 3px solid var(--green);
-            border-bottom: 3px solid var(--green);
+            gap: 8px;
+            margin: 6mm 0 6mm;
         }
-        .hero-stat { padding: 10px 6px; text-align: center; border-right: 1px solid #e2e8f0; background: var(--paper); }
-        .hero-stat:last-child { border-right: none; }
-        .hero-stat.highlight { background: var(--ink); }
-        .hero-stat.positive { background: #f0fdf4; }
-        .hero-stat.negative { background: #fff1f2; }
-        .hero-stat .stat-label { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); display: block; margin-bottom: 3px; }
-        .hero-stat.highlight .stat-label { color: rgba(255,255,255,0.5); }
-        .hero-stat.positive .stat-label { color: var(--green); }
-        .hero-stat.negative .stat-label { color: var(--red); }
-        .hero-stat .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--ink); line-height: 1; display: block; }
-        .hero-stat.highlight .stat-value { color: var(--red-light); font-size: 26px; }
-        .hero-stat.positive .stat-value { color: var(--green); font-size: 20px; }
-        .hero-stat.negative .stat-value { color: var(--red); font-size: 20px; }
-        .hero-stat .stat-sub { font-size: 7px; color: var(--slate); font-weight: 600; display: block; margin-top: 2px; }
-        .hero-stat.highlight .stat-sub { color: rgba(255,255,255,0.4); }
+        .hero-tile {
+            background: white;
+            border-radius: 10px;
+            padding: 12px 10px 10px;
+            text-align: center;
+            border-top: 3px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        .hero-tile.t-green  { border-top-color: var(--green); background: #f0fdf4; }
+        .hero-tile.t-red    { border-top-color: var(--red);   background: #fff1f2; }
+        .hero-tile.t-dark   { border-top-color: var(--ink);   background: var(--ink); }
+        .hero-tile.t-delta-good { border-top-color: var(--green); background: #f0fdf4; }
+        .hero-tile.t-delta-bad  { border-top-color: var(--red);   background: #fff1f2; }
+        .hero-tile.t-neutral { border-top-color: var(--slate); background: var(--paper); }
+
+        .tile-icon  { font-size: 16px; line-height: 1; margin-bottom: 2px; }
+        .tile-label { font-size: 7px; font-weight: 900; text-transform: uppercase;
+                      letter-spacing: 1px; color: var(--slate); }
+        .hero-tile.t-dark .tile-label { color: rgba(255,255,255,0.45); }
+        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px;
+                      letter-spacing: 1px; color: var(--ink); line-height: 1; }
+        .hero-tile.t-green  .tile-value { color: var(--green); }
+        .hero-tile.t-red    .tile-value { color: var(--red); font-size: 20px; }
+        .hero-tile.t-dark   .tile-value { color: var(--red-light); font-size: 26px; }
+        .hero-tile.t-delta-good .tile-value { color: var(--green); font-size: 18px; }
+        .hero-tile.t-delta-bad  .tile-value { color: var(--red);   font-size: 18px; }
+        .tile-sub   { font-size: 7px; color: var(--slate); font-weight: 600; }
+        .hero-tile.t-dark .tile-sub { color: rgba(255,255,255,0.35); }
+        .hero-tile.t-delta-good .tile-sub { color: var(--green); opacity: 0.7; }
+        .hero-tile.t-delta-bad  .tile-sub { color: var(--red);   opacity: 0.7; }
 
         /* ── DRIVER OF PERIOD ── */
         .dotm-card { background: linear-gradient(135deg, var(--ink), var(--ink2)); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 6mm; position: relative; overflow: hidden; }
@@ -263,48 +280,66 @@
             </div>
         </div>
 
-        <!-- Hero Bar -->
+           <!-- Hero Tiles -->
         <div class="hero-bar">
-            <div class="hero-stat">
-                <span class="stat-label">Total Distance</span>
-                <span class="stat-value" id="statKM">—</span>
-                <span class="stat-sub">Kilometres</span>
+
+            <div class="hero-tile t-neutral">
+                <div class="tile-icon">🛣️</div>
+                <div class="tile-label">Total Distance</div>
+                <div class="tile-value" id="statKM">—</div>
+                <div class="tile-sub">Kilometres</div>
             </div>
-            <div class="hero-stat">
-                <span class="stat-label">Total Fuel Used</span>
-                <span class="stat-value" id="statFuel">—</span>
-                <span class="stat-sub">Litres</span>
+
+            <div class="hero-tile t-neutral">
+                <div class="tile-icon">⛽</div>
+                <div class="tile-label">Total Fuel Used</div>
+                <div class="tile-value" id="statFuel">—</div>
+                <div class="tile-sub">Litres</div>
             </div>
-            <div class="hero-stat">
-                <span class="stat-label">Fleet km/L</span>
-                <span class="stat-value" id="statEff">—</span>
-                <span class="stat-sub">Avg efficiency</span>
+
+            <div class="hero-tile t-green">
+                <div class="tile-icon">📊</div>
+                <div class="tile-label">Fleet km/L</div>
+                <div class="tile-value" id="statEff">—</div>
+                <div class="tile-sub">Avg efficiency</div>
             </div>
-            <div class="hero-stat">
-                <span class="stat-label">Litres Wasted</span>
-                <span class="stat-value" id="statWasted" style="color:var(--red);">—</span>
-                <span class="stat-sub">Inefficiency</span>
+
+            <div class="hero-tile t-red">
+                <div class="tile-icon">💧</div>
+                <div class="tile-label">Litres Wasted</div>
+                <div class="tile-value" id="statWasted">—</div>
+                <div class="tile-sub">Inefficiency</div>
             </div>
-            <div class="hero-stat">
-                <span class="stat-label">Speed Violations</span>
-                <span class="stat-value" id="statEvents" style="color:var(--red);">—</span>
-                <span class="stat-sub">Recorded events</span>
+
+            <div class="hero-tile t-red">
+                <div class="tile-icon">🚨</div>
+                <div class="tile-label">Speed Violations</div>
+                <div class="tile-value" id="statEvents">—</div>
+                <div class="tile-sub">Recorded events</div>
             </div>
-            <div class="hero-stat">
-                <span class="stat-label">Efficiency Loss</span>
-                <span class="stat-value" id="statEffLoss">—</span>
-                <span class="stat-sub">Wholesale</span>
+
+            <div class="hero-tile t-neutral">
+                <div class="tile-icon">📉</div>
+                <div class="tile-label">Efficiency Loss</div>
+                <div class="tile-value" id="statEffLoss">—</div>
+                <div class="tile-sub">Wholesale</div>
             </div>
-            <div class="hero-stat highlight">
-                <span class="stat-label">Total Money Lost</span>
-                <span class="stat-value" id="statTotal">—</span>
-                <span class="stat-sub">This period</span>
+
+            <div class="hero-tile t-dark">
+                <div class="tile-icon">💰</div>
+                <div class="tile-label">Total Money Lost</div>
+                <div class="tile-value" id="statTotal">—</div>
+                <div class="tile-sub">This period</div>
             </div>
-            <div class="hero-stat" id="deltaCard">
-                <span class="stat-label">vs Last Period</span>
-                <span class="stat-value" id="statDelta">—</span>
-                <span class="stat-sub" id="statDeltaSub">No prior data</span>
+
+            <!-- Delta tile — class is set dynamically by JS -->
+            <div class="hero-tile t-neutral" id="deltaCard">
+                <div class="tile-icon" id="deltaIcon">📈</div>
+                <div class="tile-label">vs Last Period</div>
+                <div class="tile-value" id="statDelta">—</div>
+                <div class="tile-sub" id="statDeltaSub">No prior data</div>
             </div>
+
         </div>
 
         <!-- Driver of the Period -->
@@ -643,14 +678,14 @@ waitForCloudStorage(async () => {
         deltaEl.innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
         deltaEl.style.color = improved ? 'var(--green)' : 'var(--red)';
         document.getElementById('statDeltaSub').innerText = (improved ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
-        const dc = document.getElementById('deltaCard');
-        dc.className = 'hero-stat ' + (improved ? 'positive' : 'negative');
+         document.getElementById('deltaCard').className = 'hero-tile ' + (improved ? 't-delta-good' : 't-delta-bad');
+        document.getElementById('deltaIcon').innerText = improved ? '📉' : '📈';
 
         document.getElementById('trendDelta').innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
         document.getElementById('trendDelta').style.color = improved ? 'var(--green)' : 'var(--red)';
         document.getElementById('trendDeltaLabel').innerText = (improved ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
     } else {
-        document.getElementById('statDelta').innerText = 'First';
+         document.getElementById('statDelta').innerText = 'First report';
         document.getElementById('statDeltaSub').innerText = 'No prior data yet';
         document.getElementById('trendDelta').innerText = 'First report';
         document.getElementById('trendDeltaLabel').innerText = 'No trend data yet';
