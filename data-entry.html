@@ -20,30 +20,21 @@
             padding: 0.75rem 1rem; 
             align-items: center;
         }
-        
-        .table-header { 
-            border-bottom: 2px solid #10b981; 
-            margin-bottom: 0.5rem; 
-        }
-        
-        .table-row { 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        
+        .table-header { border-bottom: 2px solid #10b981; margin-bottom: 0.5rem; }
+        .table-row { border-bottom: 1px solid rgba(255,255,255,0.05); }
         .table-row:hover { background: rgba(16, 185, 129, 0.05); }
-        
         .header-cell { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #10b981; opacity: 0.8; }
         
-        .col-num { width: 40px !important; flex-shrink: 0; }
-        .col-reg { width: 160px !important; flex-shrink: 0; }
-        .col-type { width: 100px !important; flex-shrink: 0; }
-        .col-make { width: 110px !important; flex-shrink: 0; }
+        .col-num   { width: 40px !important; flex-shrink: 0; }
+        .col-reg   { width: 160px !important; flex-shrink: 0; }
+        .col-type  { width: 100px !important; flex-shrink: 0; }
+        .col-make  { width: 110px !important; flex-shrink: 0; }
         .col-model { width: 110px !important; flex-shrink: 0; }
-        .col-year { width: 80px !important; flex-shrink: 0; }
-        .col-used { width: 140px !important; flex-shrink: 0; }
-        .col-kml { width: 80px !important; flex-shrink: 0; }
-        .col-odo { width: 120px !important; flex-shrink: 0; }
-        .col-liters { width: 120px !important; flex-shrink: 0; }
+        .col-year  { width: 80px !important; flex-shrink: 0; }
+        .col-used  { width: 140px !important; flex-shrink: 0; }
+        .col-kml   { width: 80px !important; flex-shrink: 0; }
+        .col-odo   { width: 120px !important; flex-shrink: 0; }
+        .col-liters{ width: 120px !important; flex-shrink: 0; }
         
         .data-input { background: #0f172a; border: 2px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.6rem; color: white; width: 100%; font-size: 13px; outline: none; transition: all 0.2s; }
         .data-input:focus { border-color: #10b981; background: #1e293b; }
@@ -103,7 +94,12 @@
                     <div class="header-cell col-odo">Actual Odo (km)</div>
                     <div class="header-cell col-liters">Fuel Used (L)</div>
                 </div>
-                <div id="entry-rows"></div>
+                <div id="entry-rows">
+                    <!-- ✅ Loading state shown while cloudStorage initialises -->
+                    <div id="loading-msg" class="py-12 text-center text-slate-500 text-sm font-bold uppercase tracking-widest">
+                        ⏳ Loading vehicles...
+                    </div>
+                </div>
             </div>
 
             <div class="mt-8 flex gap-4">
@@ -131,47 +127,81 @@
         let auditData = {};
         let currentClientName = '';
 
+        // ✅ FIX: Wait for cloudStorage to be available before loading data.
+        // firebase-helper.js loads as a module (async) so cloudStorage may not
+        // exist yet when window.onload fires. Poll until it's ready.
+        function waitForCloudStorage(callback, attempts = 0) {
+            if (typeof cloudStorage !== 'undefined') {
+                callback();
+            } else if (attempts < 50) {
+                // Retry every 100ms for up to 5 seconds
+                setTimeout(() => waitForCloudStorage(callback, attempts + 1), 100);
+            } else {
+                document.getElementById('loading-msg').innerHTML =
+                    '❌ Storage failed to initialise. Please refresh the page.';
+                console.error('cloudStorage never became available');
+            }
+        }
+
         async function loadData() {
             const urlParams = new URLSearchParams(window.location.search);
             const clientFromUrl = urlParams.get('client');
-            
+
             if (clientFromUrl) {
                 currentClientName = decodeURIComponent(clientFromUrl);
             } else {
-                currentClientName =  await cloudStorage.getItem('currentAuditClient') || 'Unknown Client';
+                currentClientName = await cloudStorage.getItem('currentAuditClient') || 'Unknown Client';
             }
 
             document.getElementById('client-name').textContent = currentClientName.toUpperCase();
 
             const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft =  await cloudStorage.getItem(draftKey);
+
+            let savedDraft = null;
+            try {
+                savedDraft = await cloudStorage.getItem(draftKey);
+            } catch(e) {
+                console.error('Error reading draft:', e);
+            }
 
             if (savedDraft) {
                 try {
                     const draft = JSON.parse(savedDraft);
                     auditData = draft.auditData || {};
-                    
+
+                    console.log('Draft loaded. Vehicles found:', Object.keys(auditData).length);
+
                     if (draft.auditPeriod) {
                         document.getElementById('audit-period').textContent = draft.auditPeriod;
                     }
 
-                    // Initialize vehicle details if not present
+                    // Fill in any missing fields with defaults
                     Object.keys(auditData).forEach(key => {
-                        if (!auditData[key].make) auditData[key].make = '';
-                        if (!auditData[key].model) auditData[key].model = '';
-                        if (!auditData[key].year) auditData[key].year = '';
-                        if (!auditData[key].usedFor) auditData[key].usedFor = 'Long Distance';
+                        if (!auditData[key].make)      auditData[key].make = '';
+                        if (!auditData[key].model)     auditData[key].model = '';
+                        if (!auditData[key].year)      auditData[key].year = '';
+                        if (!auditData[key].usedFor)   auditData[key].usedFor = 'Long Distance';
                         if (!auditData[key].targetKmL) auditData[key].targetKmL = '2.3';
                     });
 
+                    if (Object.keys(auditData).length === 0) {
+                        document.getElementById('loading-msg').innerHTML =
+                            '⚠️ Draft found but contains no vehicles. Please re-upload your CSVs on the audit page.';
+                        return;
+                    }
+
                     renderTable();
                 } catch (e) {
-                    console.error('Error loading data:', e);
-                    alert('Error loading audit data. Please return to audit page.');
+                    console.error('Error parsing draft:', e);
+                    document.getElementById('loading-msg').innerHTML =
+                        '❌ Error loading audit data. Please return to the audit page.';
                 }
             } else {
-                alert('No audit data found. Please upload CSV files first.');
-                window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
+                document.getElementById('loading-msg').innerHTML =
+                    '⚠️ No audit data found. Redirecting to upload page...';
+                setTimeout(() => {
+                    window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
+                }, 1500);
             }
         }
 
@@ -196,54 +226,30 @@
                             <option value="Heavy"${v.type === 'Heavy' ? ' selected' : ''}>Heavy</option>
                             <option value="Medium"${v.type === 'Medium' ? ' selected' : ''}>Medium</option>
                         </select>
-                        <input type="text" 
-                               placeholder="Make" 
-                               value="${v.make || ''}" 
-                               data-key="${key}" 
-                               data-field="make"
-                               class="data-input col-make"
-                               oninput="updateValue(this)">
-                        <input type="text" 
-                               placeholder="Model" 
-                               value="${v.model || ''}" 
-                               data-key="${key}" 
-                               data-field="model"
-                               class="data-input col-model"
-                               oninput="updateValue(this)">
-                        <input type="text" 
-                               placeholder="Year" 
-                               value="${v.year || ''}" 
-                               data-key="${key}" 
-                               data-field="year"
-                               class="data-input col-year"
-                               oninput="updateValue(this)">
-                        <select data-key="${key}" data-field="usedFor" class="data-input col-used" onchange="updateValue(this); updateTargetKmL(this)">
+                        <input type="text" placeholder="Make" value="${v.make || ''}" 
+                               data-key="${key}" data-field="make"
+                               class="data-input col-make" oninput="updateValue(this)">
+                        <input type="text" placeholder="Model" value="${v.model || ''}" 
+                               data-key="${key}" data-field="model"
+                               class="data-input col-model" oninput="updateValue(this)">
+                        <input type="text" placeholder="Year" value="${v.year || ''}" 
+                               data-key="${key}" data-field="year"
+                               class="data-input col-year" oninput="updateValue(this)">
+                        <select data-key="${key}" data-field="usedFor" class="data-input col-used" 
+                                onchange="updateValue(this); updateTargetKmL(this)">
                             <option value="Long Distance"${v.usedFor === 'Long Distance' ? ' selected' : ''}>Long Distance</option>
                             <option value="Local Full"${v.usedFor === 'Local Full' ? ' selected' : ''}>Local Full</option>
                             <option value="Local 50%"${v.usedFor === 'Local 50%' ? ' selected' : ''}>Local 50%</option>
                         </select>
-                        <input type="number" 
-                               step="0.1"
-                               placeholder="2.3" 
-                               value="${v.targetKmL || '2.3'}" 
-                               data-key="${key}" 
-                               data-field="targetKmL"
-                               class="data-input col-kml"
-                               oninput="updateValue(this)">
-                        <input type="number" 
-                               placeholder="Enter km" 
-                               value="${v.odo || ''}" 
-                               data-key="${key}" 
-                               data-field="odo"
-                               class="data-input col-odo odo-input"
-                               oninput="updateValue(this)">
-                        <input type="number" 
-                               placeholder="Enter liters" 
-                               value="${v.liters || ''}" 
-                               data-key="${key}" 
-                               data-field="liters"
-                               class="data-input col-liters liters-input"
-                               oninput="updateValue(this)">
+                        <input type="number" step="0.1" placeholder="2.3" value="${v.targetKmL || '2.3'}" 
+                               data-key="${key}" data-field="targetKmL"
+                               class="data-input col-kml" oninput="updateValue(this)">
+                        <input type="number" placeholder="Enter km" value="${v.odo || ''}" 
+                               data-key="${key}" data-field="odo"
+                               class="data-input col-odo odo-input" oninput="updateValue(this)">
+                        <input type="number" placeholder="Enter liters" value="${v.liters || ''}" 
+                               data-key="${key}" data-field="liters"
+                               class="data-input col-liters liters-input" oninput="updateValue(this)">
                     </div>
                 `;
             });
@@ -256,10 +262,8 @@
         function updateValue(input) {
             const key = input.getAttribute('data-key');
             const field = input.getAttribute('data-field');
-            const value = input.value;
-
             if (auditData[key]) {
-                auditData[key][field] = value;
+                auditData[key][field] = input.value;
                 updateProgress();
             }
         }
@@ -268,20 +272,10 @@
             const key = select.getAttribute('data-key');
             const usedFor = select.value;
             const kmLInput = document.querySelector(`input[data-key="${key}"][data-field="targetKmL"]`);
-            
-            // Auto-suggest target km/L based on usage
-            let suggestedKmL = '2.3';
-            if (usedFor === 'Long Distance') {
-                suggestedKmL = '2.3';
-            } else if (usedFor === 'Local Full') {
-                suggestedKmL = '2.1';
-            } else if (usedFor === 'Local 50%') {
-                suggestedKmL = '2.8'; // Better efficiency when running empty half the time
-            }
-            
+            const map = { 'Long Distance': '2.3', 'Local Full': '2.1', 'Local 50%': '2.8' };
             if (kmLInput && !kmLInput.value) {
-                kmLInput.value = suggestedKmL;
-                auditData[key].targetKmL = suggestedKmL;
+                kmLInput.value = map[usedFor] || '2.3';
+                auditData[key].targetKmL = kmLInput.value;
             }
         }
 
@@ -291,80 +285,69 @@
                 total = vehicles.length;
                 completed = vehicles.filter(k => auditData[k].odo && auditData[k].liters).length;
             }
-
             const percentage = total > 0 ? (completed / total) * 100 : 0;
-            
             document.getElementById('progress-text').textContent = `${completed} / ${total}`;
             document.getElementById('progress-fill').style.width = percentage + '%';
         }
 
         function setupNavigation() {
             const inputs = document.querySelectorAll('.odo-input, .liters-input');
-            
             inputs.forEach((input, index) => {
-                input.addEventListener('focus', function() {
-                    this.select();
-                });
-                
+                input.addEventListener('focus', function() { this.select(); });
                 input.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' || e.key === 'Tab') {
                         e.preventDefault();
-                        
-                        if (index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                        }
+                        if (index < inputs.length - 1) inputs[index + 1].focus();
                     }
                 });
             });
         }
 
-       async function saveAndContinue() {
+        async function saveDraft() {
+            if (!currentClientName) return;
             const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft =  await cloudStorage.getItem(draftKey);
-            
+            const savedDraft = await cloudStorage.getItem(draftKey);
             if (savedDraft) {
                 const draft = JSON.parse(savedDraft);
                 draft.auditData = auditData;
                 draft.savedAt = new Date().toISOString();
-                 await cloudStorage.setItem(draftKey, JSON.stringify(draft));
+                await cloudStorage.setItem(draftKey, JSON.stringify(draft));
             }
+        }
 
-            let allClients = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        async function saveAndContinue() {
+            await saveDraft();
+
+            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-            
             if (clientIndex !== -1) {
                 allClients[clientIndex].auditStatus = 'in-progress';
                 allClients[clientIndex].lastEditedDate = new Date().toISOString();
-                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
             }
 
             alert('✅ Data saved successfully!');
             window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
         }
 
-       async function autoFillForTesting() {
+        async function autoFillForTesting() {
             if (!confirm('Auto-fill all empty fields with test data?')) return;
-
-            const makes = ['Volvo', 'Scania', 'MAN', 'Mercedes', 'Isuzu'];
-            const models = ['FH440', 'R450', 'TGX', 'Actros', 'FTR'];
-            const years = ['2020', '2021', '2022', '2023', '2024'];
-            const usage = ['Long Distance', 'Local Full', 'Local 50%'];
-
+            const makes   = ['Volvo', 'Scania', 'MAN', 'Mercedes', 'Isuzu'];
+            const models  = ['FH440', 'R450', 'TGX', 'Actros', 'FTR'];
+            const years   = ['2020', '2021', '2022', '2023', '2024'];
+            const usage   = ['Long Distance', 'Local Full', 'Local 50%'];
             Object.keys(auditData).forEach(key => {
                 const v = auditData[key];
-                if (!v.make) v.make = makes[Math.floor(Math.random() * makes.length)];
-                if (!v.model) v.model = models[Math.floor(Math.random() * models.length)];
-                if (!v.year) v.year = years[Math.floor(Math.random() * years.length)];
-                if (!v.usedFor) v.usedFor = usage[Math.floor(Math.random() * usage.length)];
+                if (!v.make)     v.make     = makes[Math.floor(Math.random() * makes.length)];
+                if (!v.model)    v.model    = models[Math.floor(Math.random() * models.length)];
+                if (!v.year)     v.year     = years[Math.floor(Math.random() * years.length)];
+                if (!v.usedFor)  v.usedFor  = usage[Math.floor(Math.random() * usage.length)];
                 if (!v.targetKmL) {
-                    if (v.usedFor === 'Local 50%') v.targetKmL = '2.8';
-                    else if (v.usedFor === 'Local Full') v.targetKmL = '2.1';
-                    else v.targetKmL = '2.3';
+                    v.targetKmL = v.usedFor === 'Local 50%' ? '2.8' : v.usedFor === 'Local Full' ? '2.1' : '2.3';
                 }
-                if (!v.odo) v.odo = Math.floor(Math.random() * 5000) + 15000;
+                if (!v.odo)    v.odo    = Math.floor(Math.random() * 5000) + 15000;
                 if (!v.liters) v.liters = Math.floor(Math.random() * 2000) + 5000;
             });
-
             renderTable();
             alert('✅ Test data filled! Remember to save.');
         }
@@ -376,21 +359,16 @@
             }
         });
 
-        setInterval(() => {
-            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft =  await cloudStorage.getItem(draftKey);
-            
-            if (savedDraft) {
-                const draft = JSON.parse(savedDraft);
-                draft.auditData = auditData;
-                draft.savedAt = new Date().toISOString();
-                 await cloudStorage.setItem(draftKey, JSON.stringify(draft));
+        // ✅ FIX: setInterval callback must be async to use await
+        setInterval(async () => {
+            if (typeof cloudStorage !== 'undefined' && currentClientName) {
+                await saveDraft();
                 console.log('Auto-saved at', new Date().toLocaleTimeString());
             }
         }, 30000);
 
-        window.onload = loadData;
+        // ✅ FIX: Don't use window.onload — wait for cloudStorage module to be ready first
+        waitForCloudStorage(loadData);
     </script>
 </body>
 </html>
-
