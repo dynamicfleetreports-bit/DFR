@@ -26,7 +26,7 @@
         /* ════════════════════════════════
            SCREEN WRAPPER
            ════════════════════════════════ */
-        .report-wrap { width: 210mm; margin: 10mm auto; }
+        .report-wrap { width: 200mm; margin: 10mm auto; }
 
         /* ════════════════════════════════
            CONTROL BAR (screen only)
@@ -67,7 +67,7 @@
         .hero-block {
             background: var(--ink);
             border-radius: 10px;
-            padding: 6mm;
+            padding: 5mm 5mm 4mm;
             margin-bottom: 4mm;
             position: relative;
             overflow: hidden;
@@ -126,7 +126,8 @@
         .tile-sub   { font-size: 6.5px; color: rgba(255,255,255,0.3); font-weight: 600; display: block; }
 
         /* ── P1 Charts row ── */
-        .p1-charts { display: grid; grid-template-columns: 1fr 1.8fr 1fr; gap: 4mm; margin-bottom: 4mm; }
+        .p1-charts { display: grid; grid-template-columns: 44mm 1fr; gap: 3mm; margin-bottom: 4mm; }
+        .p1-right { display: flex; flex-direction: column; gap: 3mm; }
         .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 8px; padding: 4mm; }
         .chart-card-title { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate); margin-bottom: 6px; }
 
@@ -408,20 +409,20 @@
                 </div>
             </div>
 
-            <!-- Trend chart -->
-            <div class="chart-card">
-                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
-                <div class="trend-delta" style="margin-bottom:6px;">
-                    <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
-                    <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
+            <!-- Right column: trend stacked over top 5 -->
+            <div class="p1-right">
+                <div class="chart-card">
+                    <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
+                    <div class="trend-delta" style="margin-bottom:6px;">
+                        <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
+                        <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
+                    </div>
+                    <canvas id="trendChart" height="120"></canvas>
                 </div>
-                <canvas id="trendChart" height="155"></canvas>
-            </div>
-
-            <!-- Top 5 -->
-            <div class="chart-card">
-                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
-                <div id="podium"></div>
+                <div class="chart-card">
+                    <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
+                    <div id="podium"></div>
+                </div>
             </div>
         </div>
 
@@ -548,7 +549,7 @@
             </div>
             <div class="footer-contact">
                 📞 083 314 9592<br>
-                ✉️ dynamicfleetreports@gmail.com<br>
+                ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d5b1acbbb4b8bcb6b3b9b0b0a1a7b0a5baa7a1a695b2b8b4bcb9fbb6bab8">[email&#160;protected]</a><br>
                 🌐 dynamicfleetreports-bit.github.io/DFR/discover
             </div>
         </div>
@@ -562,7 +563,7 @@
 
 </div><!-- /report-wrap -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Mode control ──────────────────────────────────────────────
 let currentMode = 'executive';
 
