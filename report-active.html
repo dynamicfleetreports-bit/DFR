@@ -66,7 +66,7 @@
         .period-badge .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; }
         .period-badge .value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; }
 
-       /* ── HERO TILES ── */
+        /* ── HERO TILES ── */
         .hero-bar {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -76,7 +76,7 @@
         .hero-tile {
             background: white;
             border-radius: 10px;
-            padding: 12px 10px 10px;
+            padding: 12px 8px 10px;
             text-align: center;
             border-top: 3px solid #e2e8f0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -85,28 +85,32 @@
             align-items: center;
             gap: 2px;
         }
-        .hero-tile.t-green  { border-top-color: var(--green); background: #f0fdf4; }
-        .hero-tile.t-red    { border-top-color: var(--red);   background: #fff1f2; }
-        .hero-tile.t-dark   { border-top-color: var(--ink);   background: var(--ink); }
-        .hero-tile.t-delta-good { border-top-color: var(--green); background: #f0fdf4; }
-        .hero-tile.t-delta-bad  { border-top-color: var(--red);   background: #fff1f2; }
-        .hero-tile.t-neutral { border-top-color: var(--slate); background: var(--paper); }
+        .hero-tile.t-green       { border-top-color: var(--green);  background: #f0fdf4; }
+        .hero-tile.t-red         { border-top-color: var(--red);    background: #fff1f2; }
+        .hero-tile.t-dark        { border-top-color: var(--ink);    background: var(--ink); }
+        .hero-tile.t-delta-good  { border-top-color: var(--green);  background: #f0fdf4; }
+        .hero-tile.t-delta-bad   { border-top-color: var(--red);    background: #fff1f2; }
+        .hero-tile.t-neutral     { border-top-color: var(--slate);  background: var(--paper); }
 
-        .tile-icon  { font-size: 16px; line-height: 1; margin-bottom: 2px; }
-        .tile-label { font-size: 7px; font-weight: 900; text-transform: uppercase;
-                      letter-spacing: 1px; color: var(--slate); }
-        .hero-tile.t-dark .tile-label { color: rgba(255,255,255,0.45); }
-        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px;
-                      letter-spacing: 1px; color: var(--ink); line-height: 1; }
-        .hero-tile.t-green  .tile-value { color: var(--green); }
-        .hero-tile.t-red    .tile-value { color: var(--red); font-size: 20px; }
-        .hero-tile.t-dark   .tile-value { color: var(--red-light); font-size: 26px; }
-        .hero-tile.t-delta-good .tile-value { color: var(--green); font-size: 18px; }
-        .hero-tile.t-delta-bad  .tile-value { color: var(--red);   font-size: 18px; }
-        .tile-sub   { font-size: 7px; color: var(--slate); font-weight: 600; }
-        .hero-tile.t-dark .tile-sub { color: rgba(255,255,255,0.35); }
+        .tile-icon  { font-size: 16px; line-height: 1; margin-bottom: 1px; }
+        .tile-label { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
+        .hero-tile.t-dark .tile-label        { color: rgba(255,255,255,0.45); }
+        .hero-tile.t-green .tile-label       { color: var(--green); }
+        .hero-tile.t-delta-good .tile-label  { color: var(--green); }
+        .hero-tile.t-red .tile-label         { color: var(--red); }
+        .hero-tile.t-delta-bad .tile-label   { color: var(--red); }
+
+        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--ink); line-height: 1; }
+        .hero-tile.t-green .tile-value       { color: var(--green); }
+        .hero-tile.t-red .tile-value         { color: var(--red); font-size: 20px; }
+        .hero-tile.t-dark .tile-value        { color: var(--red-light); font-size: 26px; }
+        .hero-tile.t-delta-good .tile-value  { color: var(--green); font-size: 18px; }
+        .hero-tile.t-delta-bad .tile-value   { color: var(--red);   font-size: 18px; }
+
+        .tile-sub { font-size: 7px; color: var(--slate); font-weight: 600; }
+        .hero-tile.t-dark .tile-sub       { color: rgba(255,255,255,0.35); }
         .hero-tile.t-delta-good .tile-sub { color: var(--green); opacity: 0.7; }
-        .hero-tile.t-delta-bad  .tile-sub { color: var(--red);   opacity: 0.7; }
+        .hero-tile.t-delta-bad .tile-sub  { color: var(--red);   opacity: 0.7; }
 
         /* ── DRIVER OF PERIOD ── */
         .dotm-card { background: linear-gradient(135deg, var(--ink), var(--ink2)); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 6mm; position: relative; overflow: hidden; }
@@ -280,7 +284,7 @@
             </div>
         </div>
 
-           <!-- Hero Tiles -->
+        <!-- Hero Tiles -->
         <div class="hero-bar">
 
             <div class="hero-tile t-neutral">
@@ -332,7 +336,6 @@
                 <div class="tile-sub">This period</div>
             </div>
 
-            <!-- Delta tile — class is set dynamically by JS -->
             <div class="hero-tile t-neutral" id="deltaCard">
                 <div class="tile-icon" id="deltaIcon">📈</div>
                 <div class="tile-label">vs Last Period</div>
@@ -503,7 +506,7 @@
             </div>
             <div class="footer-contact">
                 📞 083 314 9592<br>
-                ✉️ dynamicfleetreports@gmail.com<br>
+                ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8beff2e5eae6e2e8ede7eeeefff9eefbe4f9fff8cbece6eae2e7a5e8e4e6">[email&#160;protected]</a><br>
                 🌐 dynamicfleetreports-bit.github.io/DFR/discover
             </div>
         </div>
@@ -516,7 +519,7 @@
 
 </div><!-- /report-wrap -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 function drawQR(canvasId, url) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext('2d');
@@ -576,12 +579,13 @@ waitForCloudStorage(async () => {
     const target = parseFloat(client.target) || 2.3;
     const speedLimit = data.speedLimit || 80;
 
+    // ✅ Read pre-calculated results from payload — figures match audit screen exactly
+    const results = data.auditResults || {};
+    const wPrice = data.fuelPrice || 21.50;
+
+    // History for trend — still needs FLEET_CLIENTS for client id
     const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
     const clientData = allClients.find(c => c.company === client.company);
-    const results = clientData?.auditResults || {};
-    const wPrice = clientData?.fuelPrice || 21.50;
-
-    // History for trend
     const historyKey = `AUDIT_HISTORY_${clientData?.id}`;
     const history = JSON.parse(await cloudStorage.getItem(historyKey)) || [];
     history.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -609,36 +613,42 @@ waitForCloudStorage(async () => {
     }
 
     // ── Process fleet ──
-    let totalKM = 0, totalFuel = 0, totalWasted = 0, totalEvents = 0;
-    let totalEffLoss = 0, totalSpeedLoss = 0, totalScore = 0;
+    // Hero bar totals come from saved auditResults ONLY — they match the audit screen exactly.
+    // Per-vehicle losses also come from saved vehicles array.
+    // Only score, eWaste, actEff are recalculated (for table display).
+    let totalWasted = 0, totalEvents = 0, totalScore = 0;
     let eliteCount = 0, highCount = 0, goodCount = 0, poorCount = 0, bonusSavings = 0;
 
+    // Build fast lookup map from saved per-vehicle results
+    const savedVehicleMap = {};
+    if (results.vehicles) {
+        results.vehicles.forEach(sv => { savedVehicleMap[sv.reg] = sv; });
+    }
+
     const processed = fleet.map(v => {
-        const km = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
+        const km  = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
         const lit = parseFloat(v.mL) || 0;
         const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
-        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - (km/target)) : 0;
+        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - (km / target)) : 0;
         const events = v.violations || 0;
-        const penalty = v.type === 'Heavy' ? 1.5 : 1.1;
 
-        let eLoss = 0, sLoss = 0, tLoss = 0;
-        if (results.vehicles) {
-            const sv = results.vehicles.find(x => x.reg === v.reg);
-            if (sv) { eLoss = sv.eLoss||0; sLoss = sv.sLoss||0; tLoss = sv.tLoss||0; }
-        } else {
-            eLoss = eWaste * wPrice; sLoss = events * penalty * wPrice; tLoss = eLoss + sLoss;
-        }
+        // Use saved per-vehicle losses — exact match to audit screen
+        const sv = savedVehicleMap[v.reg];
+        const eLoss = sv ? (sv.eLoss || 0) : (eWaste * wPrice);
+        const sLoss = sv ? (sv.sLoss || 0) : (events * (v.type === 'Heavy' ? 1.5 : 1.1) * wPrice);
+        const tLoss = sv ? (sv.tLoss || 0) : (eLoss + sLoss);
 
+        // Score calculation
         let score = 100;
-        if (lit > 0 && actEff > 0 && actEff < target) score -= Math.min(40, ((target - actEff)/target)*40);
+        if (lit > 0 && actEff > 0 && actEff < target) score -= Math.min(40, ((target - actEff) / target) * 40);
         if (events > 0) score -= Math.min(30, events * 0.3);
-        if (v.duration > 300) score -= Math.min(20, (v.duration/60/30)*20);
-        if (v.maxSpeed > speedLimit+20) score -= Math.min(10, (v.maxSpeed-speedLimit-20)*0.5);
+        if (v.duration > 300) score -= Math.min(20, (v.duration / 60 / 30) * 20);
+        if (v.maxSpeed > speedLimit + 20) score -= Math.min(10, (v.maxSpeed - speedLimit - 20) * 0.5);
         score = Math.max(0, Math.min(100, Math.round(score)));
         totalScore += score;
 
-        totalKM += km; totalFuel += lit; totalWasted += eWaste;
-        totalEvents += events; totalEffLoss += eLoss; totalSpeedLoss += sLoss;
+        totalWasted += eWaste;
+        totalEvents += events;
 
         if (score >= 95) { eliteCount++; bonusSavings += tLoss; }
         else if (score >= 90) { highCount++; bonusSavings += tLoss; }
@@ -648,17 +658,18 @@ waitForCloudStorage(async () => {
         return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score };
     });
 
-    // Sort by score desc for league, loss desc for tables
     const byScore = [...processed].sort((a, b) => b.score - a.score);
     const byLoss  = [...processed].sort((a, b) => b.tLoss - a.tLoss);
 
     const avgScore = processed.length > 0 ? Math.round(totalScore / processed.length) : 0;
-    const totalLoss = results.wholesaleTotalLoss || (totalEffLoss + totalSpeedLoss);
-    const effLoss   = results.wholesaleEffLoss   || totalEffLoss;
-    const speedLoss = results.wholesaleSpeedLoss || totalSpeedLoss;
-    const fleetKM   = results.totalKM            || totalKM;
-    const fleetFuel = results.totalLiters        || totalFuel;
-    const avgKmL    = fleetFuel > 0 ? (fleetKM/fleetFuel).toFixed(2) : '—';
+
+    // Hero bar totals: always from saved results — exact match to audit screen
+    const totalLoss = results.wholesaleTotalLoss != null ? results.wholesaleTotalLoss : processed.reduce((s, v) => s + v.tLoss, 0);
+    const effLoss   = results.wholesaleEffLoss   != null ? results.wholesaleEffLoss   : processed.reduce((s, v) => s + v.eLoss, 0);
+    const speedLoss = results.wholesaleSpeedLoss != null ? results.wholesaleSpeedLoss : processed.reduce((s, v) => s + v.sLoss, 0);
+    const fleetKM   = results.totalKM   != null ? results.totalKM   : processed.reduce((s, v) => s + v.km,  0);
+    const fleetFuel = results.totalLiters != null ? results.totalLiters : processed.reduce((s, v) => s + v.lit, 0);
+    const avgKmL    = fleetFuel > 0 ? (fleetKM / fleetFuel).toFixed(2) : '—';
 
     // ── Hero bar ──
     document.getElementById('statKM').innerText    = Math.round(fleetKM).toLocaleString();
@@ -678,14 +689,15 @@ waitForCloudStorage(async () => {
         deltaEl.innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
         deltaEl.style.color = improved ? 'var(--green)' : 'var(--red)';
         document.getElementById('statDeltaSub').innerText = (improved ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
-         document.getElementById('deltaCard').className = 'hero-tile ' + (improved ? 't-delta-good' : 't-delta-bad');
+        const dc = document.getElementById('deltaCard');
+        dc.className = 'hero-tile ' + (improved ? 't-delta-good' : 't-delta-bad');
         document.getElementById('deltaIcon').innerText = improved ? '📉' : '📈';
 
         document.getElementById('trendDelta').innerText = (improved ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
         document.getElementById('trendDelta').style.color = improved ? 'var(--green)' : 'var(--red)';
         document.getElementById('trendDeltaLabel').innerText = (improved ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
     } else {
-         document.getElementById('statDelta').innerText = 'First report';
+        document.getElementById('statDelta').innerText = 'First';
         document.getElementById('statDeltaSub').innerText = 'No prior data yet';
         document.getElementById('trendDelta').innerText = 'First report';
         document.getElementById('trendDeltaLabel').innerText = 'No trend data yet';
@@ -831,7 +843,7 @@ waitForCloudStorage(async () => {
     if (critical.length)   html += `<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${actionTable(critical,'#7f1d1d')}</div>`;
     if (speedOnly.length)  html += `<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${actionTable(speedOnly,'#c2410c')}</div>`;
     if (effOnly.length)    html += `<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${actionTable(effOnly,'#1d4ed8')}</div>`;
-    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:10px;color:#047857;font-weight:600;margin-left:26px;">Continue current practices. Monitor for consistency.</p></div>`;
+    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:10px;color:#047857;font-weight:600;margin-left:26px;">onitor for consistency.</p></div>`;
     document.getElementById('actionReport').innerHTML = html;
 
     // ── QR ──
