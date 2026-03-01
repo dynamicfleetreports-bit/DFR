@@ -48,7 +48,7 @@
            ════════════════════════════════ */
         .page-header {
             background: var(--ink);
-            margin: 0 0 5mm 0;
+            margin: 0 0 3mm 0;
             padding: 4mm 6mm;
             display: flex;
             justify-content: space-between;
@@ -225,7 +225,7 @@
            FOOTER
            ════════════════════════════════ */
         .report-footer {
-            border-top: 3px solid var(--green); margin-top: 8mm; padding-top: 5mm;
+            border-top: 3px solid var(--green); margin-top: 2mm; padding-top: 2mm;
             display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px;
         }
         .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--ink); }
@@ -234,7 +234,7 @@
         .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .footer-qr canvas { border: 2px solid white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         .footer-qr .qr-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 3mm; }
+        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 1mm; }
 
         /* ════════════════════════════════
            PAGE SPACING (screen)
@@ -247,7 +247,6 @@
         @media print {
             @page { size: A4 portrait; margin: 10mm 10mm 10mm 10mm; }
 
-
             body { background: white !important; }
             .report-wrap { width: 100% !important; margin: 0 !important; }
             .control-bar { display: none !important; }
@@ -257,6 +256,10 @@
                 margin: 0 !important;
                 box-shadow: none !important;
             }
+            /* Tighter spacing on action page in print */
+            #page-action .page-header { margin-bottom: 2mm !important; }
+            #page-action .section-title { margin-bottom: 5px !important; }
+            #page-action .action-section { margin-bottom: 4px !important; padding: 7px 12px !important; }
 
             /* Natural page breaks — let content flow, break before each new section */
             .page-break-before { page-break-before: always; break-before: page; }
@@ -294,7 +297,7 @@
     <div class="control-bar">
         <div>
             <div class="brand">DFR — Active Client Report</div>
-            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span></div>
+            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span> &nbsp;|&nbsp; ⚠️ Uncheck "Headers and footers" in print dialog</div>
         </div>
         <div class="mode-btns">
             <span style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;margin-right:4px;">MODE:</span>
@@ -391,6 +394,23 @@
                     <span class="tile-value" id="statDelta">—</span>
                     <span class="tile-sub" id="statDeltaSub">No prior data</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Executive footer strip — QR + contact (shows on all modes) -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:3mm 4mm;background:var(--paper);border-radius:8px;margin-bottom:3mm;border:1px solid #e2e8f0;">
+            <div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--ink);">Dynamic Fleet Reporting</div>
+                <div style="font-size:7.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:1.5px;">Professional Fleet Intelligence &amp; Forensic Auditing</div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:center;font-size:8px;font-weight:700;color:var(--slate);">
+                <span>📞 083 314 9592</span>
+                <span>✉️ dynamicfleetreports@gmail.com</span>
+                <span>🌐 dynamicfleetreports-bit.github.io/DFR/discover</span>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                <canvas id="qrCanvasP1" width="48" height="48" style="border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.12);"></canvas>
+                <div style="font-size:6px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--slate);">Scan to discover</div>
             </div>
         </div>
 
@@ -534,32 +554,16 @@
         </div>
 
         <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
-        <div id="actionReport" style="margin-bottom:8mm;"></div>
+        <div id="actionReport" style="margin-bottom:2mm;"></div>
 
-        <!-- Footer -->
-        <div class="report-footer">
-            <div>
-                <div class="footer-brand">
-                    Dynamic Fleet Reporting
-                    <span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing</span>
-                </div>
+        <!-- Slim closing bar -->
+        <div style="border-top:3px solid var(--green);margin-top:3mm;padding-top:3mm;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--ink);">Dynamic Fleet Reporting</div>
+            <div style="font-size:7px;color:#cbd5e1;font-weight:600;">
+                Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Audit Engine v2.0 &nbsp;|&nbsp; CONFIDENTIAL
             </div>
-            <div class="footer-qr">
-                <canvas id="qrCanvas" width="60" height="60"></canvas>
-                <div class="qr-label">Scan to discover more</div>
-            </div>
-            <div class="footer-contact">
-                📞 083 314 9592<br>
-                ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d5b1acbbb4b8bcb6b3b9b0b0a1a7b0a5baa7a1a695b2b8b4bcb9fbb6bab8">[email&#160;protected]</a><br>
-                🌐 dynamicfleetreports-bit.github.io/DFR/discover
-            </div>
+            <div style="font-size:8px;font-weight:700;color:var(--slate);">📞 083 314 9592 &nbsp;|&nbsp; dynamicfleetreports@gmail.com</div>
         </div>
-        <div class="footer-micro">
-            Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp;
-            Dynamic Fleet Reporting Audit Engine v2.0 &nbsp;|&nbsp;
-            CONFIDENTIAL — Active Client Document
-        </div>
-
     </div><!-- /ACTION + FOOTER -->
 
 </div><!-- /report-wrap -->
@@ -869,7 +873,8 @@ waitForCloudStorage(async () => {
     document.getElementById('actionReport').innerHTML = html;
 
     // ── QR ──
-    drawQR('qrCanvas', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+    drawQR('qrCanvas',   'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+    drawQR('qrCanvasP1', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
 
     // ── Init mode ──
     setMode('executive');
