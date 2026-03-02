@@ -26,7 +26,7 @@
         /* ════════════════════════════════
            SCREEN WRAPPER
            ════════════════════════════════ */
-        .report-wrap { width: 200mm; margin: 10mm auto; }
+        .report-wrap { width: 210mm; margin: 10mm auto; }
 
         /* ════════════════════════════════
            CONTROL BAR (screen only)
@@ -48,7 +48,7 @@
            ════════════════════════════════ */
         .page-header {
             background: var(--ink);
-            margin: 0 0 3mm 0;
+            margin: 0 0 5mm 0;
             padding: 4mm 6mm;
             display: flex;
             justify-content: space-between;
@@ -67,7 +67,7 @@
         .hero-block {
             background: var(--ink);
             border-radius: 10px;
-            padding: 5mm 5mm 4mm;
+            padding: 6mm;
             margin-bottom: 4mm;
             position: relative;
             overflow: hidden;
@@ -108,7 +108,6 @@
         .hero-tile.t-loss {
             background: rgba(220,38,38,0.15);
             border-top-color: var(--red-light);
-            grid-column: span 2;
         }
         .hero-tile.t-green { border-top-color: var(--green-light); background: rgba(16,185,129,0.1); }
         .hero-tile.t-red   { border-top-color: var(--red-light);   background: rgba(220,38,38,0.1); }
@@ -118,7 +117,7 @@
         .tile-icon  { font-size: 13px; display: block; margin-bottom: 2px; }
         .tile-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; }
         .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; line-height: 1; display: block; }
-        .hero-tile.t-loss .tile-value { font-size: 28px; color: var(--red-light); }
+        .hero-tile.t-loss .tile-value { font-size: 22px; color: var(--red-light); }
         .hero-tile.t-green .tile-value { color: var(--green-light); }
         .hero-tile.t-red   .tile-value { color: #fca5a5; }
         .hero-tile.t-delta-good .tile-value { color: var(--green-light); font-size: 16px; }
@@ -225,7 +224,7 @@
            FOOTER
            ════════════════════════════════ */
         .report-footer {
-            border-top: 3px solid var(--green); margin-top: 2mm; padding-top: 2mm;
+            border-top: 3px solid var(--green); margin-top: 8mm; padding-top: 5mm;
             display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px;
         }
         .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--ink); }
@@ -234,7 +233,7 @@
         .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .footer-qr canvas { border: 2px solid white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         .footer-qr .qr-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 1mm; }
+        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 3mm; }
 
         /* ════════════════════════════════
            PAGE SPACING (screen)
@@ -245,7 +244,7 @@
            PRINT STYLES
            ════════════════════════════════ */
         @media print {
-            @page { size: A4 portrait; margin: 10mm 10mm 10mm 10mm; }
+            @page { size: A4 portrait; margin: 8mm; }
 
             body { background: white !important; }
             .report-wrap { width: 100% !important; margin: 0 !important; }
@@ -256,10 +255,6 @@
                 margin: 0 !important;
                 box-shadow: none !important;
             }
-            /* Tighter spacing on action page in print */
-            #page-action .page-header { margin-bottom: 2mm !important; }
-            #page-action .section-title { margin-bottom: 5px !important; }
-            #page-action .action-section { margin-bottom: 4px !important; padding: 7px 12px !important; }
 
             /* Natural page breaks — let content flow, break before each new section */
             .page-break-before { page-break-before: always; break-before: page; }
@@ -297,7 +292,7 @@
     <div class="control-bar">
         <div>
             <div class="brand">DFR — Active Client Report</div>
-            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span> &nbsp;|&nbsp; ⚠️ Uncheck "Headers and footers" in print dialog</div>
+            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span></div>
         </div>
         <div class="mode-btns">
             <span style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;margin-right:4px;">MODE:</span>
@@ -397,20 +392,25 @@
             </div>
         </div>
 
-        <!-- Executive footer strip — QR + contact (shows on all modes) -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:3mm 4mm;background:var(--paper);border-radius:8px;margin-bottom:3mm;border:1px solid #e2e8f0;">
+        <!-- Contact strip -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:3mm 5mm;background:#f8fafc;border-radius:8px;margin-bottom:3mm;border:1px solid #e2e8f0;">
             <div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--ink);">Dynamic Fleet Reporting</div>
-                <div style="font-size:7.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:1.5px;">Professional Fleet Intelligence &amp; Forensic Auditing</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:#0a0f1e;">Dynamic Fleet Reporting</div>
+                <div style="font-size:7.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;">Professional Fleet Intelligence &amp; Forensic Auditing</div>
             </div>
-            <div style="display:flex;gap:16px;align-items:center;font-size:8px;font-weight:700;color:var(--slate);">
-                <span>📞 083 314 9592</span>
-                <span>✉️ dynamicfleetreports@gmail.com</span>
-                <span>🌐 dynamicfleetreports-bit.github.io/DFR/discover</span>
+            <div style="display:flex;gap:28px;">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                    <span style="font-size:18px;">📞</span>
+                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;">083 314 9592</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                    <span style="font-size:18px;">✉️</span>
+                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="abcfd2c5cac6c2c8cdc7cecedfd9cedbc4d9dfd8ebccc6cac2c785c8c4c6">[email&#160;protected]</a></span>
+                </div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-                <canvas id="qrCanvasP1" width="48" height="48" style="border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.12);"></canvas>
-                <div style="font-size:6px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--slate);">Scan to discover</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <canvas id="qrCanvasP1" width="54" height="54" style="border-radius:4px;display:block;box-shadow:0 1px 4px rgba(0,0,0,0.15);"></canvas>
+                <div style="font-size:6.5px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#64748b;">Scan to discover</div>
             </div>
         </div>
 
@@ -430,21 +430,21 @@
                 </div>
             </div>
 
-            <!-- Right column: trend stacked over top 5 -->
             <div class="p1-right">
-                <div class="chart-card">
-                    <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
-                    <div class="trend-delta" style="margin-bottom:6px;">
-                        <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
-                        <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
-                    </div>
-                    <canvas id="trendChart" height="120"></canvas>
+            <div class="chart-card">
+                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
+                <div class="trend-delta" style="margin-bottom:6px;">
+                    <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
+                    <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
-                    <div id="podium"></div>
-                </div>
+                <canvas id="trendChart" height="120"></canvas>
             </div>
+
+            <div class="chart-card">
+                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
+                <div id="podium"></div>
+            </div>
+            </div><!-- /p1-right -->
         </div>
 
     </div><!-- /PAGE 1 -->
@@ -554,15 +554,13 @@
         </div>
 
         <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
-        <div id="actionReport" style="margin-bottom:2mm;"></div>
+        <div id="actionReport" style="margin-bottom:8mm;"></div>
 
-        <!-- Slim closing bar -->
-        <div style="border-top:3px solid var(--green);margin-top:3mm;padding-top:3mm;display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:var(--ink);">Dynamic Fleet Reporting</div>
-            <div style="font-size:7px;color:#cbd5e1;font-weight:600;">
-                Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Audit Engine v2.0 &nbsp;|&nbsp; CONFIDENTIAL
-            </div>
-            <div style="font-size:8px;font-weight:700;color:var(--slate);">📞 083 314 9592 &nbsp;|&nbsp; dynamicfleetreports@gmail.com</div>
+        <!-- Slim footer -->
+        <div style="border-top:3px solid #059669;margin-top:3mm;padding-top:3mm;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#0a0f1e;">Dynamic Fleet Reporting</div>
+            <div style="font-size:7px;color:#cbd5e1;font-weight:600;">Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Audit Engine v2.0 &nbsp;|&nbsp; CONFIDENTIAL</div>
+            <div style="font-size:10px;font-weight:900;color:#0a0f1e;">📞 083 314 9592 &nbsp;&nbsp; ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a2c6dbccc3cfcbc1c4cec7c7d6d0c7d2cdd0d6d1e2c5cfc3cbce8cc1cdcf">[email&#160;protected]</a></div>
         </div>
     </div><!-- /ACTION + FOOTER -->
 
@@ -588,14 +586,13 @@ function setMode(mode) {
     if (pa) pa.style.display = (mode === 'summary' || mode === 'full') ? 'block' : 'none';
 }
 
-// ── QR ────────────────────────────────────────────────────────
-function drawQR(id, url) {
+// ── QR — local PNG file (same folder as HTML) ─────────────
+function drawQR(id) {
     const canvas = document.getElementById(id);
-    const ctx = canvas.getContext('2d');
+    if (!canvas) return;
     const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}&color=0a0f1e&bgcolor=ffffff&margin=2`;
+    img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.src = 'qr-discover.png';
 }
 
 // ── Gauge ─────────────────────────────────────────────────────
@@ -873,8 +870,7 @@ waitForCloudStorage(async () => {
     document.getElementById('actionReport').innerHTML = html;
 
     // ── QR ──
-    drawQR('qrCanvas',   'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
-    drawQR('qrCanvasP1', 'https://dynamicfleetreports-bit.github.io/DFR/discover.html');
+    drawQR('qrCanvasP1');
 
     // ── Init mode ──
     setMode('executive');
