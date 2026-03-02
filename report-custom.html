@@ -4,474 +4,402 @@
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Fleet Report</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>DFR | Custom Fleet Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #f1f5f9; color: #0f172a; margin: 0; }
-        .report-page { width: 210mm; min-height: 297mm; padding: 12mm; margin: 10mm auto; background: white; box-shadow: 0 10px 50px rgba(0,0,0,0.1); box-sizing: border-box; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #0f172a; color: white; font-size: 9px; text-transform: uppercase; padding: 10px 6px; border: 1px solid #e2e8f0; letter-spacing: 0.5px; }
-        td { padding: 8px 6px; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; text-align: center; }
-        tr:nth-child(even) { background: #f8fafc; }
-        .hero-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.2rem 1rem; border-radius: 0.8rem; flex: 1; text-align: center; }
-        .hero-card.loss { border-left: 4px solid #dc2626; background: #fef2f2; }
-        .hero-card.highlight { border-left: 4px solid #ef4444; background: #fff7ed; }
+        :root {
+            --ink:#0a0f1e; --green:#059669; --green-light:#10b981;
+            --red:#dc2626; --red-light:#ef4444; --amber:#d97706;
+            --slate:#64748b; --paper:#f8fafc; --blue:#1e40af;
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:"Outfit",sans-serif; background:#cbd5e1; color:var(--ink); }
+        .report-wrap { width:210mm; margin:10mm auto; }
+
+        .control-bar { background:var(--ink); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:10px 10px 0 0; position:sticky; top:0; z-index:100; }
+        .ctrl-btn { padding:7px 16px; border-radius:7px; font-family:"Outfit",sans-serif; font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:1px; cursor:pointer; border:none; }
+        .filename-hint { font-size:9px; font-weight:700; color:rgba(255,255,255,0.35); margin-top:2px; }
+
+        .report-page { background:white; padding:8mm; }
+
+        /* Report header */
+        .rep-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid var(--green); padding-bottom:5mm; margin-bottom:5mm; }
+        .rep-title { font-family:"Bebas Neue",sans-serif; font-size:30px; letter-spacing:3px; color:var(--ink); line-height:1; margin-top:4px; }
+        .rep-title span { color:var(--green); }
+        .rep-client-name { font-size:12px; font-weight:900; text-transform:uppercase; color:var(--slate); margin-top:3px; letter-spacing:1px; }
+        .rep-header-right { display:flex; flex-direction:column; border-radius:8px; overflow:hidden; min-width:130px; }
+        .rep-meta-block { padding:5px 12px; text-align:right; }
+        .rep-meta-block .lbl { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:2px; opacity:0.65; display:block; }
+        .rep-meta-block .val { font-family:"Bebas Neue",sans-serif; font-size:14px; letter-spacing:1px; display:block; }
+        .rep-meta-block.green { background:var(--green); color:white; }
+        .rep-meta-block.dark  { background:var(--ink); color:white; }
+        .rep-meta-block.blue  { background:#1e40af; color:white; }
+
+        /* Scope bar */
+        .scope-bar { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4px 5mm; margin-bottom:4mm; display:flex; justify-content:space-between; align-items:center; }
+        .scope-item .lbl { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); display:block; }
+        .scope-item .val { font-size:11px; font-weight:900; color:var(--ink); }
+
+        /* Hero tiles */
+        .hero-tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:4mm; }
+        .hero-tile { background:var(--paper); border:1px solid #e2e8f0; border-top:2px solid #cbd5e1; border-radius:8px; padding:6px 4px; text-align:center; }
+        .hero-tile.t-red   { background:#fff1f2; border-top-color:var(--red-light); }
+        .hero-tile.t-amber { background:#fffbeb; border-top-color:var(--amber); }
+        .hero-tile.t-loss  { background:linear-gradient(135deg,#7f1d1d,#991b1b); border-top-color:var(--red-light); }
+        .tile-icon  { font-size:13px; display:block; margin-bottom:2px; }
+        .tile-label { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:var(--slate); display:block; }
+        .tile-value { font-family:"Bebas Neue",sans-serif; font-size:20px; color:var(--ink); line-height:1; display:block; }
+        .hero-tile.t-red   .tile-value { color:var(--red); }
+        .hero-tile.t-amber .tile-value { color:var(--amber); }
+        .hero-tile.t-loss  .tile-label { color:rgba(255,255,255,0.5); }
+        .hero-tile.t-loss  .tile-value { color:#fca5a5; font-size:22px; }
+        .tile-sub { font-size:6.5px; color:var(--slate); font-weight:600; display:block; }
+        .hero-tile.t-loss .tile-sub { color:rgba(255,255,255,0.4); }
+
+        /* Chart */
+        .chart-card { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4mm; margin-bottom:4mm; }
+        .chart-card-title { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); margin-bottom:6px; }
+
+        /* Section title */
+        .section-title { font-family:"Bebas Neue",sans-serif; font-size:14px; letter-spacing:3px; color:var(--ink); border-bottom:2px solid var(--green); padding-bottom:3px; margin-bottom:6px; }
+
+        /* Table */
+        .dfr-table { width:100%; border-collapse:collapse; font-size:8.5px; }
+        .dfr-table thead tr { background:var(--ink); }
+        .dfr-table thead th { color:white; font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; padding:6px 5px; border:1px solid #334155; text-align:center; }
+        .dfr-table thead th.left { text-align:left; padding-left:8px; }
+        .dfr-table thead th.red { background:#7f1d1d; }
+        .dfr-table tbody tr { border-bottom:1px solid #f1f5f9; }
+        .dfr-table tbody tr:nth-child(even) { background:#f8fafc; }
+        .dfr-table td { padding:5px 4px; text-align:center; font-weight:700; }
+        .dfr-table td.left { text-align:left; padding-left:8px; }
+        .dfr-table td.reg   { font-style:italic; font-weight:900; color:var(--blue); border-left:3px solid #3b82f6; }
+        .dfr-table td.red   { color:var(--red); }
+        .dfr-table td.amber { color:var(--amber); font-weight:900; }
+        .dfr-table td.green { color:var(--green); }
+        .dfr-table td.muted { color:var(--slate); font-weight:600; }
+        .dfr-table td.loss  { color:var(--red); font-style:italic; font-weight:900; }
+
+        /* Disclaimer */
+        .disclaimer { border:1px solid #e2e8f0; border-radius:8px; padding:4mm; margin-top:5mm; margin-bottom:4mm; background:var(--paper); }
+        .disclaimer h4 { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:var(--slate); margin-bottom:4px; }
+        .disclaimer p  { font-size:8px; color:var(--slate); line-height:1.5; font-weight:600; }
+
+        /* Signatures */
+        .sig-row { display:flex; justify-content:space-between; margin:6mm 0 4mm; }
+        .sig-block { width:45%; }
+        .sig-line  { border-bottom:2px solid var(--ink); height:50px; margin-bottom:3px; }
+        .sig-label { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); }
+        .sig-date  { font-size:7.5px; color:#cbd5e1; margin-top:2px; }
+
+        /* Footer */
+        .rep-footer { border-top:3px solid var(--green); padding-top:3mm; display:flex; justify-content:space-between; align-items:center; }
+        .rep-footer .brand { font-family:"Bebas Neue",sans-serif; font-size:13px; letter-spacing:2px; color:var(--ink); }
+        .rep-footer .sub   { font-size:7.5px; color:var(--slate); font-weight:600; }
+        .rep-footer .contact { font-size:9px; font-weight:900; color:var(--ink); text-align:right; }
+        .rep-footer-micro { text-align:center; margin-top:4px; padding-top:4px; border-top:1px solid #e2e8f0; font-size:7.5px; font-weight:700; color:#cbd5e1; text-transform:uppercase; letter-spacing:1px; }
 
         @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-            body { background: white !important; margin: 0; padding: 0; }
-            .report-page { margin: 0 !important; padding: 8mm !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; min-height: auto !important; }
-            .no-print { display: none !important; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            @page { size:A4 portrait; margin:10mm; }
+            body { background:white !important; }
+            .report-wrap { width:100% !important; margin:0 !important; }
+            .control-bar { display:none !important; }
+            .report-page { padding:0 !important; }
+            thead { display:table-header-group; }
+            tr { page-break-inside:avoid; break-inside:avoid; }
+            .chart-card { page-break-inside:avoid; break-inside:avoid; }
+            .section-title { page-break-after:avoid; break-after:avoid; }
+            * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         }
     </style>
 </head>
 <body>
+<div class="report-wrap">
 
-<!-- Top Control Bar -->
-<div class="no-print bg-slate-900 p-4 flex justify-between items-center text-white sticky top-0 z-50 shadow-lg">
-    <div class="font-black italic uppercase tracking-widest text-emerald-400 text-sm">
-        Custom Fleet Report
-    </div>
-    <div class="flex gap-3">
-        <button onclick="window.print()" class="bg-emerald-500 text-slate-900 px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-emerald-400 transition-all shadow">💾 Save PDF</button>
-        <button onclick="window.print()" class="bg-emerald-600 text-white px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-emerald-500 transition-all shadow">🖨️ Print</button>
-        <button onclick="emailReport()" class="bg-blue-500 text-white px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-blue-400 transition-all shadow">✉️ Email</button>
-        <button onclick="window.close()" class="bg-slate-700 px-5 py-2 rounded-lg font-black text-xs uppercase hover:bg-slate-600 transition-all">✕ Close</button>
-    </div>
-</div>
-
-<div class="report-page">
-
-    <!-- HEADER -->
-    <header class="flex justify-between items-start border-b-4 border-emerald-500 pb-5 mb-6">
+    <div class="control-bar">
         <div>
-            <img src="Logo.png" alt="Dynamic Fleet Reporting" style="max-width: 160px;" class="mb-3">
-            <h1 class="text-4xl font-black uppercase italic tracking-tighter leading-none text-slate-900">
-                CUSTOM FLEET <span class="text-emerald-600">REPORT</span>
-            </h1>
-            <p id="repClient" class="text-lg font-bold uppercase text-slate-500 mt-1">CLIENT NAME</p>
+            <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:3px;color:var(--green-light);font-size:14px;">DFR — Custom Fleet Report</div>
+            <div class="filename-hint">Save as: <span id="suggestedFilename">—</span></div>
         </div>
-        <div class="text-right flex flex-col gap-1">
-            <div class="bg-emerald-600 text-white px-5 py-2 rounded-tl-xl">
-                <p class="text-[9px] font-black uppercase opacity-70">Reporting Period</p>
-                <p id="repPeriod" class="text-base font-black">-</p>
-            </div>
-            <div class="bg-slate-900 text-white px-5 py-2">
-                <p class="text-[9px] font-black uppercase opacity-50">Report Issued</p>
-                <p id="repDate" class="text-base font-black">-</p>
-            </div>
-            <div class="bg-blue-600 text-white px-5 py-2 rounded-br-xl">
-                <p class="text-[9px] font-black uppercase opacity-50">Focus</p>
-                <p id="repFocus" class="text-base font-black">COMBINED</p>
-            </div>
-        </div>
-    </header>
+        <button onclick="window.print()" class="ctrl-btn" style="background:var(--green-light);color:var(--ink);">💾 Save PDF</button>
+    </div>
 
-    <!-- SCOPE BADGE -->
-    <div class="bg-slate-50 border border-slate-200 rounded-lg px-5 py-3 mb-6 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <span class="text-lg">📋</span>
+    <div class="report-page">
+
+        <div class="rep-header">
             <div>
-                <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Scope</p>
-                <p class="text-sm font-black text-slate-700"><span id="selectedCount">0</span> of <span id="totalCount">0</span> vehicles selected</p>
+                <img src="Logo.png" alt="Dynamic Fleet Reporting" style="max-width:140px;display:block;margin-bottom:4px;">
+                <div class="rep-title">Custom Fleet <span>Report</span></div>
+                <div class="rep-client-name" id="repClient">—</div>
+            </div>
+            <div class="rep-header-right">
+                <div class="rep-meta-block green"><span class="lbl">Reporting Period</span><span class="val" id="repPeriod">—</span></div>
+                <div class="rep-meta-block dark"><span class="lbl">Report Issued</span><span class="val" id="repDate">—</span></div>
+                <div class="rep-meta-block blue"><span class="lbl">Focus</span><span class="val" id="repFocus">—</span></div>
             </div>
         </div>
-        <div class="text-right">
-            <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Speed Limit</p>
-            <p class="text-sm font-black text-slate-700"><span id="scopeSpeedLimit">80</span> km/h</p>
+
+        <div class="scope-bar">
+            <div class="scope-item"><span class="lbl">Scope</span><span class="val"><span id="selectedCount">0</span> of <span id="totalCount">0</span> vehicles</span></div>
+            <div class="scope-item"><span class="lbl">Speed Limit</span><span class="val"><span id="scopeSpeedLimit">80</span> km/h</span></div>
+            <div class="scope-item"><span class="lbl">Target Efficiency</span><span class="val"><span id="scopeTarget">2.3</span> km/L</span></div>
+            <div class="scope-item"><span class="lbl">Fuel Price</span><span class="val">R <span id="scopePrice">21.50</span>/L</span></div>
         </div>
-        <div class="text-right">
-            <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest">Target</p>
-            <p class="text-sm font-black text-slate-700"><span id="scopeTarget">2.3</span> km/L</p>
+
+        <div class="hero-tiles" id="heroTiles"></div>
+
+        <div class="chart-card">
+            <div class="chart-card-title" id="chartTitle">Vehicle Comparison</div>
+            <canvas id="reportChart" style="max-height:220px;"></canvas>
         </div>
-    </div>
 
-    <!-- HERO TILES (dynamic per focus) -->
-    <div id="heroTiles" class="flex gap-3 mb-6"></div>
-
-    <!-- CHART -->
-    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-        <h3 class="text-sm font-black uppercase text-slate-600 mb-4" id="chartTitle">Vehicle Comparison</h3>
-        <canvas id="reportChart" style="max-height: 220px;"></canvas>
-    </div>
-
-    <!-- VEHICLE TABLE -->
-    <div class="mb-6">
-        <h3 class="text-sm font-black uppercase text-slate-600 mb-3">Vehicle Details</h3>
-        <table>
+        <div class="section-title" id="tableTitle">Vehicle Details</div>
+        <table class="dfr-table">
             <thead id="tableHead"></thead>
             <tbody id="tableBody"></tbody>
         </table>
-    </div>
 
-    <!-- DISCLAIMER -->
-    <div class="border border-slate-300 rounded-lg p-4 mb-6 bg-slate-50">
-        <h4 class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-2">⚠️ Disclaimer</h4>
-        <p class="text-[9px] text-slate-600 leading-relaxed">
-            This report is generated using telematics data provided by the vehicle tracking service provider. The accuracy of the data is dependent on the provider's systems, device calibration, and network connectivity. Dynamic Fleet Reporting does not guarantee the absolute accuracy of the figures presented herein and accepts no liability for any discrepancies between this report and the actual vehicle performance data.
-        </p>
-        <p class="text-[9px] text-slate-600 leading-relaxed mt-2">
-            This report is intended for <strong>internal use only</strong> and is provided for informational and operational purposes. It may not be used as the sole basis for disciplinary action, legal proceedings, or any binding decision. Dynamic Fleet Reporting shall not be held liable for any outcomes arising from the use of this report, including but not limited to employment disputes, contractual decisions, or any other actions taken based on the data or conclusions contained herein. The recipient assumes full responsibility for any decisions made using this information.
-        </p>
-    </div>
-
-    <!-- SIGNATURE -->
-    <div class="flex justify-between items-end mt-8 mb-2">
-        <div style="width: 45%;">
-            <div class="border-b-2 border-slate-800 mb-2" style="height: 60px;"></div>
-            <p class="text-[9px] font-black uppercase text-slate-500 tracking-widest">Signature — Dynamic Fleet Reporting</p>
-            <p class="text-[8px] text-slate-400 mt-1">Date: _______________</p>
+        <div class="disclaimer">
+            <h4>Disclaimer</h4>
+            <p>This report is generated using telematics data provided by the vehicle tracking service provider. The accuracy of the data is dependent on the provider's systems, device calibration, and network connectivity. Dynamic Fleet Reporting does not guarantee the absolute accuracy of the figures presented herein and accepts no liability for any discrepancies between this report and actual vehicle performance data.</p>
+            <p style="margin-top:4px;">This report is intended for <strong>internal use only</strong> and may not be used as the sole basis for disciplinary action, legal proceedings, or any binding decision. The recipient assumes full responsibility for any decisions made using this information.</p>
         </div>
-        <div style="width: 45%;">
-            <div class="border-b-2 border-slate-800 mb-2" style="height: 60px;"></div>
-            <p class="text-[9px] font-black uppercase text-slate-500 tracking-widest">Signature — Fleet Manager</p>
-            <p class="text-[8px] text-slate-400 mt-1">Date: _______________</p>
-        </div>
-    </div>
 
-    <!-- FOOTER -->
-    <footer class="mt-6 pt-4 border-t-2 border-emerald-500">
-        <div class="flex justify-between items-center">
+        <div class="sig-row">
+            <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-label">Signature — Dynamic Fleet Reporting</div>
+                <div class="sig-date">Date: _______________</div>
+            </div>
+            <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-label">Signature — Fleet Manager</div>
+                <div class="sig-date">Date: _______________</div>
+            </div>
+        </div>
+
+        <div class="rep-footer">
             <div>
-                <p class="text-sm font-black uppercase text-slate-900 tracking-tight">Dynamic Fleet Reporting</p>
-                <p class="text-[9px] text-slate-500 font-bold mt-0.5">Professional Fleet Intelligence & Forensic Auditing Services</p>
+                <div class="brand">Dynamic Fleet Reporting</div>
+                <div class="sub">Professional Fleet Intelligence &amp; Forensic Auditing Services</div>
             </div>
-            <div class="text-right text-[9px] font-bold text-slate-600">
-                <p>📞 083 314 9592</p>
-                <p>✉️ info@fleetintel.co.za</p>
+            <div class="contact">
+                <div>📞 083 314 9592</div>
+                <div class="dfr-email"></div>
             </div>
         </div>
-        <div class="text-center mt-3 pt-2 border-t border-slate-200">
-            <p class="text-[8px] font-bold text-slate-400 uppercase">Report Generated: <span id="reportCreated">-</span> &nbsp;|&nbsp; Confidential</p>
+        <div class="rep-footer-micro">
+            Report Generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Confidential
         </div>
-    </footer>
+
+    </div>
 </div>
 
 <script>
-async function emailReport() {
-    const client = document.getElementById('repClient').innerText;
-    const period = document.getElementById('repPeriod').innerText;
-    const subject = encodeURIComponent(`Custom Fleet Report - ${client} - ${period}`);
-    const body = encodeURIComponent(`Please find attached the custom fleet report for ${client} covering the period ${period}.\n\nKind regards,\nDynamic Fleet Reporting`);
-    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+document.querySelectorAll(".dfr-email").forEach(function(el){
+    el.textContent = ["dynamicfleetreports","gmail.com"].join("@");
+});
+
+function buildFilename(name, period, focus) {
+    var clean = name.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"");
+    var months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    var parts = period.toUpperCase().split(/[\s\-\/]+/);
+    var mo="", yr="";
+    parts.forEach(function(p){ if(months.includes(p)) mo=p; if(/^\d{4}$/.test(p)) yr=p; });
+    return clean + "_CUSTOM_" + focus.toUpperCase() + "_" + mo + yr;
 }
-document.addEventListener('DOMContentLoaded', async () => {
-    const raw = await cloudStorage.getItem('AUDIT_FINAL');
-    if (!raw) {
-        alert('No report data found. Please generate a custom report from the database page.');
-        return;
-    }
 
-    const data = JSON.parse(raw);
-    const fleet = data.fleet || [];
-    const client = data.client;
-    const target = parseFloat(client.target) || 2.3;
-    const speedLimit = data.speedLimit || 80;
-    const customReport = data.customReport || {};
-    const focus = customReport.focus || 'combined';
-    const wPrice = 21.50; // wholesale fuel price
+function waitForCloudStorage(cb, n) {
+    n = n || 0;
+    if (typeof cloudStorage !== "undefined") cb();
+    else if (n < 50) setTimeout(function(){ waitForCloudStorage(cb, n+1); }, 100);
+    else console.error("cloudStorage unavailable");
+}
 
-    // --- HEADER ---
-    document.getElementById('repClient').innerText = client.company;
-    document.getElementById('repPeriod').innerText = data.month;
+waitForCloudStorage(async function() {
+    var raw = await cloudStorage.getItem("AUDIT_FINAL");
+    if (!raw) { alert("No report data found. Please generate from the audit page."); return; }
 
-    const now = new Date();
-    document.getElementById('repDate').innerText = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-    document.getElementById('reportCreated').innerText = now.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+    var data         = JSON.parse(raw);
+    var fleet        = Object.values(data.fleet || {});
+    var client       = data.client;
+    var target       = parseFloat(client.target) || 2.3;
+    var speedLimit   = data.speedLimit || 80;
+    var customReport = data.customReport || {};
+    var focus        = customReport.focus || "combined";
+    var wPrice       = data.fuelPrice || 21.50;
 
-    const focusLabels = { combined: 'COMBINED', speed: 'SPEED ONLY', efficiency: 'EFFICIENCY ONLY' };
-    document.getElementById('repFocus').innerText = focusLabels[focus] || 'COMBINED';
+    var now = new Date();
+    function fmtDate(d) { return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase(); }
+    function fmtFull(d) { return d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).toUpperCase(); }
 
-    // --- SCOPE ---
-    document.getElementById('selectedCount').innerText = customReport.vehicleCount || fleet.length;
-    document.getElementById('totalCount').innerText = customReport.totalVehicles || fleet.length;
-    document.getElementById('scopeSpeedLimit').innerText = speedLimit;
-    document.getElementById('scopeTarget').innerText = target;
+    document.getElementById("repClient").innerText     = client.company;
+    document.getElementById("repPeriod").innerText     = data.month;
+    document.getElementById("repDate").innerText       = fmtDate(now);
+    document.getElementById("reportCreated").innerText = fmtFull(now);
+    document.getElementById("scopeSpeedLimit").innerText = speedLimit;
+    document.getElementById("scopeTarget").innerText     = target;
+    document.getElementById("scopePrice").innerText      = wPrice.toFixed(2);
+    document.getElementById("selectedCount").innerText   = customReport.vehicleCount || fleet.length;
+    document.getElementById("totalCount").innerText      = customReport.totalVehicles || fleet.length;
 
-    // --- PROCESS FLEET (using same logic as audit) ---
-    let totalKM = 0, totalLiters = 0, totalEffLoss = 0, totalSpdLoss = 0, totalLoss = 0;
-    let totalEvents = 0, totalDuration = 0, highestMaxSpeed = 0;
+    var focusLabels = { combined:"COMBINED", speed:"SPEED ONLY", efficiency:"EFFICIENCY ONLY" };
+    document.getElementById("repFocus").innerText = focusLabels[focus] || "COMBINED";
 
-    const processed = fleet.map(v => {
-        const km = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
-        const lit = parseFloat(v.mL) || 0;
-        const actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
-        const wastedL = (lit > 0 && km > 0 && actEff < target) ? (lit - (km / target)) : 0;
-        const effLoss = wastedL * wPrice;
+    var fname = buildFilename(client.company, data.month, focus);
+    document.title = fname;
+    document.getElementById("suggestedFilename").innerText = fname + ".pdf";
 
-        // Speed loss — use per-event calculation matching audit
-        const events = v.violations || 0;
-        let spdLoss = 0;
+    // Process fleet
+    var totalKM=0, totalLiters=0, totalEffLoss=0, totalSpdLoss=0, totalLoss=0;
+    var totalEvents=0, totalDuration=0, highestMaxSpeed=0, totalWasted=0;
+
+    var processed = fleet.map(function(v) {
+        var km      = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
+        var lit     = parseFloat(v.mL) || 0;
+        var actEff  = (lit > 0 && km > 0) ? (km / lit) : 0;
+        var wastedL = (lit > 0 && km > 0 && actEff < target) ? (lit - km / target) : 0;
+        var effLoss = wastedL * wPrice;
+        var events  = v.violations || 0;
+        var spdLoss = 0;
         if (v.speeds && v.speeds.length > 0) {
-            v.speeds.forEach(speed => {
+            v.speeds.forEach(function(speed) {
                 if (speed > speedLimit) {
-                    const speedOver = speed - speedLimit;
-                    const eventDurationHours = 5 / 60;
-                    const eventSpeed = speed * 0.9;
-                    const eventDistance = eventSpeed * eventDurationHours;
-                    const speedPenaltyFactor = 1 + (speedOver / 100);
-                    const baseRate = 1 / target;
-                    const normalFuel = eventDistance * baseRate;
-                    const actualFuel = normalFuel * speedPenaltyFactor;
-                    spdLoss += (actualFuel - normalFuel) * wPrice;
+                    var over = speed - speedLimit;
+                    var dist = speed * 0.9 * (5 / 60);
+                    spdLoss += (dist / target) * (over / 100) * wPrice;
                 }
             });
         } else {
-            // Fallback
-            const penalty = (v.type === 'Heavy' ? 1.5 : 1.1);
-            spdLoss = events * penalty * wPrice;
+            spdLoss = events * (v.type === "Heavy" ? 1.5 : 1.1) * wPrice;
         }
-
-        const tLoss = effLoss + spdLoss;
-        const duration = v.duration || 0;
-        const maxSpeed = v.maxSpeed || 0;
-
-        // Accumulate
-        totalKM += km;
-        totalLiters += lit;
-        totalEffLoss += effLoss;
-        totalSpdLoss += spdLoss;
-        totalLoss += tLoss;
-        totalEvents += events;
+        var tLoss    = effLoss + spdLoss;
+        var duration = v.duration || 0;
+        var maxSpeed = v.maxSpeed || 0;
+        totalKM       += km;
+        totalLiters   += lit;
+        totalEffLoss  += effLoss;
+        totalSpdLoss  += spdLoss;
+        totalLoss     += tLoss;
+        totalEvents   += events;
         totalDuration += duration;
+        totalWasted   += wastedL;
         if (maxSpeed > highestMaxSpeed) highestMaxSpeed = maxSpeed;
-
-        return { ...v, km, lit, actEff, wastedL, effLoss, spdLoss, tLoss, events, duration, maxSpeed };
+        return Object.assign({}, v, {km:km, lit:lit, actEff:actEff, wastedL:wastedL,
+            effLoss:effLoss, spdLoss:spdLoss, tLoss:tLoss, events:events, duration:duration, maxSpeed:maxSpeed});
     });
 
-    const avgConsumption = totalLiters > 0 ? (totalKM / totalLiters) : 0;
+    var avgKmL = totalLiters > 0 ? (totalKM / totalLiters) : 0;
 
-    // --- HERO TILES ---
-    let tilesHTML = '';
-    if (focus === 'speed') {
-        tilesHTML = `
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Event Count</p>
-                <h3 class="text-2xl font-black text-red-600 italic">${totalEvents}</h3>
-            </div>
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Duration</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">${(totalDuration / 60).toFixed(1)} min</h3>
-            </div>
-            <div class="hero-card highlight">
-                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Max Speed</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">${highestMaxSpeed} km/h</h3>
-            </div>
-            <div class="hero-card loss">
-                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Speed Loss</p>
-                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalSpdLoss).toLocaleString()}</h3>
-            </div>
-        `;
-    } else if (focus === 'efficiency') {
-        tilesHTML = `
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Distance</p>
-                <h3 class="text-2xl font-black text-slate-800 italic">${Math.round(totalKM).toLocaleString()} KM</h3>
-            </div>
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fuel Wasted</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">${processed.reduce((s,v) => s + v.wastedL, 0).toFixed(1)} L</h3>
-            </div>
-            <div class="hero-card highlight">
-                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Avg Consumption</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">${avgConsumption.toFixed(2)} km/L</h3>
-            </div>
-            <div class="hero-card loss">
-                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Efficiency Loss</p>
-                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalEffLoss).toLocaleString()}</h3>
-            </div>
-        `;
+    // Hero tiles
+    var t = "";
+    if (focus === "speed") {
+        t += '<div class="hero-tile t-red"><span class="tile-icon">🚨</span><span class="tile-label">Total Violations</span><span class="tile-value">' + totalEvents + '</span><span class="tile-sub">Recorded events</span></div>';
+        t += '<div class="hero-tile t-amber"><span class="tile-icon">⏱️</span><span class="tile-label">Total Duration</span><span class="tile-value">' + (totalDuration/60).toFixed(1) + '</span><span class="tile-sub">Minutes over limit</span></div>';
+        t += '<div class="hero-tile t-amber"><span class="tile-icon">💨</span><span class="tile-label">Highest Speed</span><span class="tile-value">' + highestMaxSpeed + '</span><span class="tile-sub">km/h recorded</span></div>';
+        t += '<div class="hero-tile t-loss"><span class="tile-icon">💰</span><span class="tile-label">Speed Loss</span><span class="tile-value">R ' + Math.round(totalSpdLoss).toLocaleString() + '</span><span class="tile-sub">Wholesale</span></div>';
+    } else if (focus === "efficiency") {
+        t += '<div class="hero-tile"><span class="tile-icon">🛣️</span><span class="tile-label">Total Distance</span><span class="tile-value">' + Math.round(totalKM).toLocaleString() + '</span><span class="tile-sub">Kilometres</span></div>';
+        t += '<div class="hero-tile t-red"><span class="tile-icon">💧</span><span class="tile-label">Fuel Wasted</span><span class="tile-value">' + totalWasted.toFixed(1) + '</span><span class="tile-sub">Litres lost</span></div>';
+        t += '<div class="hero-tile t-amber"><span class="tile-icon">📊</span><span class="tile-label">Avg Consumption</span><span class="tile-value">' + avgKmL.toFixed(2) + '</span><span class="tile-sub">km/L fleet avg</span></div>';
+        t += '<div class="hero-tile t-loss"><span class="tile-icon">💰</span><span class="tile-label">Efficiency Loss</span><span class="tile-value">R ' + Math.round(totalEffLoss).toLocaleString() + '</span><span class="tile-sub">Wholesale</span></div>';
     } else {
-        // combined
-        tilesHTML = `
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Efficiency Loss</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">R ${Math.round(totalEffLoss).toLocaleString()}</h3>
-            </div>
-            <div class="hero-card">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Speed Loss</p>
-                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalSpdLoss).toLocaleString()}</h3>
-            </div>
-            <div class="hero-card highlight">
-                <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest">Max Speed</p>
-                <h3 class="text-2xl font-black text-orange-600 italic">${highestMaxSpeed} km/h</h3>
-            </div>
-            <div class="hero-card loss">
-                <p class="text-[9px] font-black text-red-500 uppercase tracking-widest">Total Loss</p>
-                <h3 class="text-2xl font-black text-red-600 italic">R ${Math.round(totalLoss).toLocaleString()}</h3>
-            </div>
-        `;
+        t += '<div class="hero-tile t-amber"><span class="tile-icon">📉</span><span class="tile-label">Efficiency Loss</span><span class="tile-value">R ' + Math.round(totalEffLoss).toLocaleString() + '</span><span class="tile-sub">Fuel inefficiency</span></div>';
+        t += '<div class="hero-tile t-red"><span class="tile-icon">🚨</span><span class="tile-label">Speed Loss</span><span class="tile-value">R ' + Math.round(totalSpdLoss).toLocaleString() + '</span><span class="tile-sub">Violations cost</span></div>';
+        t += '<div class="hero-tile t-amber"><span class="tile-icon">💨</span><span class="tile-label">Highest Speed</span><span class="tile-value">' + highestMaxSpeed + '</span><span class="tile-sub">km/h recorded</span></div>';
+        t += '<div class="hero-tile t-loss"><span class="tile-icon">💰</span><span class="tile-label">Total Loss</span><span class="tile-value">R ' + Math.round(totalLoss).toLocaleString() + '</span><span class="tile-sub">Combined losses</span></div>';
     }
-    document.getElementById('heroTiles').innerHTML = tilesHTML;
+    document.getElementById("heroTiles").innerHTML = t;
 
-    // --- CHART ---
-    const ctx = document.getElementById('reportChart').getContext('2d');
-    const labels = processed.map(v => v.reg);
-
-    if (focus === 'speed') {
-        document.getElementById('chartTitle').innerText = 'Speed Violations Per Vehicle';
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Violations',
-                    data: processed.map(v => v.events),
-                    backgroundColor: processed.map(v => v.events > 3 ? '#dc2626' : v.events > 1 ? '#f97316' : '#eab308'),
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Outfit', weight: '600', size: 10 } } },
-                    y: { ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
-                }
-            }
+    // Chart
+    var ctx = document.getElementById("reportChart").getContext("2d");
+    var labels = processed.map(function(v){ return v.reg; });
+    if (focus === "speed") {
+        document.getElementById("chartTitle").innerText = "Speed Violations Per Vehicle";
+        new Chart(ctx, { type:"bar",
+            data:{ labels:labels, datasets:[{ label:"Violations",
+                data:processed.map(function(v){ return v.events; }),
+                backgroundColor:processed.map(function(v){ return v.events>3?"#dc2626":v.events>1?"#f97316":"#eab308"; }),
+                borderRadius:4 }] },
+            options:{ indexAxis:"y", plugins:{legend:{display:false}},
+                scales:{ x:{beginAtZero:true,ticks:{precision:0,font:{family:"Outfit",weight:"600",size:9}}},
+                         y:{ticks:{font:{family:"Outfit",weight:"700",size:9}}} } }
         });
-
-    } else if (focus === 'efficiency') {
-        document.getElementById('chartTitle').innerText = 'Actual vs Target Consumption (km/L)';
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Actual km/L',
-                        data: processed.map(v => v.actEff > 0 ? parseFloat(v.actEff.toFixed(2)) : 0),
-                        backgroundColor: processed.map(v => v.actEff > 0 && v.actEff < target ? '#ef4444' : '#10b981'),
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Target km/L',
-                        data: processed.map(() => target),
-                        backgroundColor: '#cbd5e1',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                plugins: { legend: { labels: { font: { family: 'Outfit', weight: '600', size: 10 } } } },
-                scales: {
-                    x: { beginAtZero: true, ticks: { font: { family: 'Outfit', weight: '600', size: 10 } } },
-                    y: { ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
-                }
-            }
+    } else if (focus === "efficiency") {
+        document.getElementById("chartTitle").innerText = "Actual vs Target Consumption (km/L)";
+        new Chart(ctx, { type:"bar",
+            data:{ labels:labels, datasets:[
+                { label:"Actual km/L", data:processed.map(function(v){ return v.actEff>0?parseFloat(v.actEff.toFixed(2)):0; }),
+                  backgroundColor:processed.map(function(v){ return v.actEff>0&&v.actEff<target?"#ef4444":"#10b981"; }), borderRadius:4 },
+                { label:"Target km/L", data:processed.map(function(){ return target; }), backgroundColor:"#cbd5e1", borderRadius:4 }
+            ]},
+            options:{ indexAxis:"y", plugins:{legend:{labels:{font:{family:"Outfit",weight:"600",size:9}}}},
+                scales:{ x:{beginAtZero:true,ticks:{font:{family:"Outfit",weight:"600",size:9}}},
+                         y:{ticks:{font:{family:"Outfit",weight:"700",size:9}}} } }
         });
-
     } else {
-        // combined — stacked bar
-        document.getElementById('chartTitle').innerText = 'Loss Breakdown Per Vehicle (R)';
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Efficiency Loss',
-                        data: processed.map(v => Math.round(v.effLoss)),
-                        backgroundColor: '#f97316',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Speed Loss',
-                        data: processed.map(v => Math.round(v.spdLoss)),
-                        backgroundColor: '#dc2626',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                indexAxis: 'y',
-                plugins: { legend: { labels: { font: { family: 'Outfit', weight: '600', size: 10 } } } },
-                scales: {
-                    x: { beginAtZero: true, stacked: true, ticks: { font: { family: 'Outfit', weight: '600', size: 10 }, callback: v => 'R ' + v.toLocaleString() } },
-                    y: { stacked: true, ticks: { font: { family: 'Outfit', weight: '700', size: 10 } } }
-                }
-            }
+        document.getElementById("chartTitle").innerText = "Loss Breakdown Per Vehicle (R)";
+        new Chart(ctx, { type:"bar",
+            data:{ labels:labels, datasets:[
+                { label:"Efficiency Loss", data:processed.map(function(v){ return Math.round(v.effLoss); }), backgroundColor:"#f97316", borderRadius:4 },
+                { label:"Speed Loss",      data:processed.map(function(v){ return Math.round(v.spdLoss); }), backgroundColor:"#dc2626", borderRadius:4 }
+            ]},
+            options:{ indexAxis:"y", plugins:{legend:{labels:{font:{family:"Outfit",weight:"600",size:9}}}},
+                scales:{ x:{beginAtZero:true,stacked:true,ticks:{font:{family:"Outfit",weight:"600",size:9},callback:function(v){ return "R"+v.toLocaleString(); }}},
+                         y:{stacked:true,ticks:{font:{family:"Outfit",weight:"700",size:9}}} } }
         });
     }
 
-    // --- TABLE ---
-    let headHTML = '', bodyHTML = '';
-
-    if (focus === 'speed') {
-        headHTML = `<tr>
-            <th class="text-left px-3">Registration</th>
-            <th>Type</th>
-            <th>Violations</th>
-            <th>Duration (min)</th>
-            <th>Max Speed (km/h)</th>
-            <th class="bg-red-900">Speed Loss</th>
-        </tr>`;
-        bodyHTML = processed.map(v => `<tr>
-            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
-            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
-            <td class="${v.events > 0 ? 'text-red-600' : 'text-slate-400'}">${v.events}</td>
-            <td class="text-slate-600">${v.duration ? (v.duration / 60).toFixed(1) : '-'}</td>
-            <td class="${v.maxSpeed > speedLimit ? 'text-red-600' : 'text-slate-600'}">${v.maxSpeed || '-'}</td>
-            <td class="text-red-600 italic">R ${Math.round(v.spdLoss).toLocaleString()}</td>
-        </tr>`).join('');
-
-    } else if (focus === 'efficiency') {
-        headHTML = `<tr>
-            <th class="text-left px-3">Registration</th>
-            <th>Type</th>
-            <th>Track KM</th>
-            <th>Man KM</th>
-            <th>Liters</th>
-            <th class="bg-slate-800">Act KM/L</th>
-            <th>Waste (L)</th>
-            <th class="bg-red-900">Eff Loss</th>
-        </tr>`;
-        bodyHTML = processed.map(v => `<tr>
-            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
-            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
-            <td class="text-slate-400">${parseFloat(v.gpsDist).toFixed(0)}</td>
-            <td>${v.km.toFixed(0)}</td>
-            <td class="text-blue-600">${v.lit > 0 ? v.lit.toFixed(1) : '-'}</td>
-            <td class="${v.actEff > 0 && v.actEff < target ? 'text-red-500' : v.actEff > 0 ? 'text-emerald-600' : 'text-slate-400'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '-'}</td>
-            <td class="${v.wastedL > 0 ? 'text-orange-600' : 'text-slate-400'}">${v.wastedL > 0 ? v.wastedL.toFixed(2) : '-'}</td>
-            <td class="text-red-600 italic">R ${Math.round(v.effLoss).toLocaleString()}</td>
-        </tr>`).join('');
-
+    // Table
+    var headHTML = "", bodyHTML = "";
+    if (focus === "speed") {
+        document.getElementById("tableTitle").innerText = "Speed Violation Details";
+        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>Violations</th><th>Duration (min)</th><th>Max Speed (km/h)</th><th class="red">Speed Loss</th></tr>';
+        bodyHTML = processed.map(function(v) {
+            return "<tr>" +
+                '<td class="left reg">' + v.reg + "</td>" +
+                '<td class="muted">' + (v.type||"Heavy") + "</td>" +
+                '<td class="' + (v.events>0?"red":"muted") + '">' + v.events + "</td>" +
+                '<td class="muted">' + (v.duration ? (v.duration/60).toFixed(1) : "—") + "</td>" +
+                '<td class="' + (v.maxSpeed>speedLimit?"red":"muted") + '">' + (v.maxSpeed||"—") + "</td>" +
+                '<td class="loss">R ' + Math.round(v.spdLoss).toLocaleString() + "</td></tr>";
+        }).join("");
+    } else if (focus === "efficiency") {
+        document.getElementById("tableTitle").innerText = "Efficiency Details";
+        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>GPS km</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th>Wasted L</th><th class="red">Eff. Loss</th></tr>';
+        bodyHTML = processed.map(function(v) {
+            var ec = v.actEff>0&&v.actEff<target?"red":v.actEff>0?"green":"muted";
+            return "<tr>" +
+                '<td class="left reg">' + v.reg + "</td>" +
+                '<td class="muted">' + (v.type||"Heavy") + "</td>" +
+                '<td class="muted">' + parseFloat(v.gpsDist||0).toFixed(0) + "</td>" +
+                "<td>" + v.km.toFixed(0) + "</td>" +
+                '<td class="muted">' + (v.lit>0?v.lit.toFixed(1):"—") + "</td>" +
+                '<td class="' + ec + '">' + (v.actEff>0?v.actEff.toFixed(2):"—") + "</td>" +
+                '<td class="' + (v.wastedL>0?"amber":"muted") + '">' + (v.wastedL>0?v.wastedL.toFixed(2):"—") + "</td>" +
+                '<td class="loss">R ' + Math.round(v.effLoss).toLocaleString() + "</td></tr>";
+        }).join("");
     } else {
-        // combined
-        headHTML = `<tr>
-            <th class="text-left px-3">Registration</th>
-            <th>Type</th>
-            <th>Man KM</th>
-            <th>Liters</th>
-            <th class="bg-slate-800">Act KM/L</th>
-            <th>Eff Loss</th>
-            <th>Violations</th>
-            <th>Spd Loss</th>
-            <th class="bg-red-900">Total Loss</th>
-        </tr>`;
-        bodyHTML = processed.map(v => `<tr>
-            <td class="text-left px-3 font-black text-blue-600 italic border-l-4 border-l-blue-500">${v.reg}</td>
-            <td class="text-slate-500 text-[9px]">${v.type || 'Heavy'}</td>
-            <td>${v.km.toFixed(0)}</td>
-            <td class="text-blue-600">${v.lit > 0 ? v.lit.toFixed(1) : '-'}</td>
-            <td class="${v.actEff > 0 && v.actEff < target ? 'text-red-500' : v.actEff > 0 ? 'text-emerald-600' : 'text-slate-400'}">${v.actEff > 0 ? v.actEff.toFixed(2) : '-'}</td>
-            <td class="text-orange-600">R ${Math.round(v.effLoss).toLocaleString()}</td>
-            <td class="${v.events > 0 ? 'text-red-600' : 'text-slate-400'}">${v.events}</td>
-            <td class="text-red-600">R ${Math.round(v.spdLoss).toLocaleString()}</td>
-            <td class="text-red-600 italic font-black">R ${Math.round(v.tLoss).toLocaleString()}</td>
-        </tr>`).join('');
+        document.getElementById("tableTitle").innerText = "Combined Loss Details";
+        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th>Eff. Loss</th><th>Violations</th><th>Spd Loss</th><th class="red">Total Loss</th></tr>';
+        bodyHTML = processed.map(function(v) {
+            var ec = v.actEff>0&&v.actEff<target?"red":v.actEff>0?"green":"muted";
+            return "<tr>" +
+                '<td class="left reg">' + v.reg + "</td>" +
+                '<td class="muted">' + (v.type||"Heavy") + "</td>" +
+                "<td>" + v.km.toFixed(0) + "</td>" +
+                '<td class="muted">' + (v.lit>0?v.lit.toFixed(1):"—") + "</td>" +
+                '<td class="' + ec + '">' + (v.actEff>0?v.actEff.toFixed(2):"—") + "</td>" +
+                '<td class="amber">R ' + Math.round(v.effLoss).toLocaleString() + "</td>" +
+                '<td class="' + (v.events>0?"red":"muted") + '">' + v.events + "</td>" +
+                '<td class="red">R ' + Math.round(v.spdLoss).toLocaleString() + "</td>" +
+                '<td class="loss">R ' + Math.round(v.tLoss).toLocaleString() + "</td></tr>";
+        }).join("");
     }
-
-    document.getElementById('tableHead').innerHTML = headHTML;
-    document.getElementById('tableBody').innerHTML = bodyHTML;
+    document.getElementById("tableHead").innerHTML = headHTML;
+    document.getElementById("tableBody").innerHTML = bodyHTML;
 });
 </script>
 </body>
-
 </html>
-
