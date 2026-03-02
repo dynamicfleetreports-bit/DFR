@@ -405,7 +405,7 @@
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
                     <span style="font-size:18px;">✉️</span>
-                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="abcfd2c5cac6c2c8cdc7cecedfd9cedbc4d9dfd8ebccc6cac2c785c8c4c6">[email&#160;protected]</a></span>
+                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;"><span class="dfr-email"></span></span>
                 </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
@@ -560,13 +560,13 @@
         <div style="border-top:3px solid #059669;margin-top:3mm;padding-top:3mm;display:flex;justify-content:space-between;align-items:center;">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#0a0f1e;">Dynamic Fleet Reporting</div>
             <div style="font-size:7px;color:#cbd5e1;font-weight:600;">Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Audit Engine v2.0 &nbsp;|&nbsp; CONFIDENTIAL</div>
-            <div style="font-size:10px;font-weight:900;color:#0a0f1e;">📞 083 314 9592 &nbsp;&nbsp; ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a2c6dbccc3cfcbc1c4cec7c7d6d0c7d2cdd0d6d1e2c5cfc3cbce8cc1cdcf">[email&#160;protected]</a></div>
+            <div style="font-size:10px;font-weight:900;color:#0a0f1e;">📞 083 314 9592 &nbsp;&nbsp; ✉️ <span class="dfr-email"></span></div>
         </div>
     </div><!-- /ACTION + FOOTER -->
 
 </div><!-- /report-wrap -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ── Mode control ──────────────────────────────────────────────
 let currentMode = 'executive';
 
@@ -873,6 +873,11 @@ waitForCloudStorage(async () => {
     drawQR('qrCanvasP1');
 
     // ── Init mode ──
+
+    // Build email to avoid Cloudflare obfuscation
+    document.querySelectorAll('.dfr-email').forEach(el => {
+        el.textContent = ['dynamicfleetreports','gmail.com'].join('@');
+    });
     setMode('executive');
 });
 </script>
