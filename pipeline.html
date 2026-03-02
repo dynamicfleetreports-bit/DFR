@@ -114,33 +114,40 @@
             `}).join('');
         }
 
-       async function deleteProspect(id) {
-            if (confirm("Delete this prospect record? This will also delete it from Google Sheets and any audit data.")) {
-                let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                const prospect = clients.find(c => c.id == id);
-                
-                if(prospect) {
-                    const companyKey = prospect.company.toUpperCase().replace(/\s+/g, '_');
-                    const companyName = prospect.company;
-                    
-                    // Delete audit draft
-                    const draftKey = `AUDIT_DRAFT_${companyKey}`;
-                    await cloudStorage.removeItem(draftKey);
-                    
-                    // Delete CSV mappings
-                    await cloudStorage.removeItem(`CSV_MAPPING_${companyKey}_usage`);
-                    await cloudStorage.removeItem(`CSV_MAPPING_${companyKey}_speed`);
-                    
-                    // Delete from Google Sheet
-                    deleteFromSheet(companyName);
-                }
-                
-                // Remove from clients list
-                clients = clients.filter(c => c.id != id);
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-                renderPipeline();
+     async function deleteProspect(id) {
+    if (confirm("Delete this prospect record? This will also delete it from Google Sheets and any audit data.")) {
+        let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const prospect = clients.find(c => c.id == id);
+        
+        if (prospect) {
+            const companyKey = prospect.company.toUpperCase().replace(/\s+/g, '_');
+            const companyName = prospect.company;
+            
+            // Delete audit draft and CSV mappings
+            await cloudStorage.removeItem('AUDIT_DRAFT_' + companyKey);
+            await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_usage');
+            await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_speed');
+            
+            // Remove from Firebase first
+            clients = clients.filter(c => c.id != id);
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+
+            // Await the sheet delete so we know if it worked
+            try {
+                await deleteFromSheet(companyName);
+                console.log('Deleted from sheet:', companyName);
+            } catch (err) {
+                console.error('Sheet delete failed:', err);
+                alert('Deleted locally but could not remove from Google Sheet.\n\nDelete "' + companyName + '" from the sheet manually to prevent it syncing back.');
             }
+        } else {
+            clients = clients.filter(c => c.id != id);
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
         }
+
+        renderPipeline();
+    }
+}
 
        async function convertToActive(id) {
             console.log('Converting prospect with ID/Company:', id);
@@ -305,5 +312,6 @@
 </body>
 
 </html>
+
 
 
