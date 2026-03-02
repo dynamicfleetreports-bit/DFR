@@ -359,162 +359,180 @@
 function drawQR(id) {
     const c = document.getElementById(id); if (!c) return;
     const img = new Image();
-    img.onload = () => c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-    img.src = "qr-discover.png";
+    img.onload = () => c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    img.src = 'qr-discover.png';
 }
 function drawGauge(id, score) {
-    const c = document.getElementById(id), ctx = c.getContext("2d");
+    const c = document.getElementById(id), ctx = c.getContext('2d');
     const cx = c.width/2, cy = c.height-6, r = Math.min(cx-6, cy-4);
-    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineWidth=10; ctx.strokeStyle="#e2e8f0"; ctx.stroke();
-    const color = score>=80?"#059669":score>=60?"#d97706":"#dc2626";
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineWidth=10; ctx.strokeStyle='#e2e8f0'; ctx.stroke();
+    const color = score>=80 ? '#059669' : score>=60 ? '#d97706' : '#dc2626';
     ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.PI*score/100);
-    ctx.lineWidth=10; ctx.strokeStyle=color; ctx.lineCap="round"; ctx.stroke();
+    ctx.lineWidth=10; ctx.strokeStyle=color; ctx.lineCap='round'; ctx.stroke();
     return color;
 }
-document.querySelectorAll(".dfr-email").forEach(el => { el.textContent = ["dynamicfleetreports","gmail.com"].join("@"); });
-function waitForCloudStorage(cb,n=0) {
-    if (typeof cloudStorage!=="undefined") cb();
-    else if (n<50) setTimeout(()=>waitForCloudStorage(cb,n+1),100);
-    else console.error("cloudStorage unavailable");
+document.querySelectorAll('.dfr-email').forEach(el => {
+    el.textContent = ['dynamicfleetreports','gmail.com'].join('@');
+});
+function buildFilename(name, period) {
+    const clean = name.toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,'');
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const parts = period.toUpperCase().split(/[\s\-\/]+/);
+    let mo='', yr='';
+    parts.forEach(p => { if(months.includes(p)) mo=p; if(/^\d{4}$/.test(p)) yr=p; });
+    return clean + '_PROSPECT_' + mo + yr;
 }
-function buildFilename(name,period) {
-    const clean=name.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"");
-    const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
-    const parts=period.toUpperCase().split(/[\s\-\/]+/);
-    let mo="",yr="";
-    parts.forEach(p=>{if(months.includes(p))mo=p;if(/^\d{4}$/.test(p))yr=p;});
-    return `${clean}_PROSPECT_${mo}${yr}`;
+function tierInfo(s) {
+    if(s>=95) return ['#92400e','#fef3c7'];
+    if(s>=90) return ['#065f46','#d1fae5'];
+    if(s>=80) return ['#1e40af','#dbeafe'];
+    return ['#991b1b','#fee2e2'];
 }
-const tierInfo = s => s>=95?["#92400e","#fef3c7","Elite"]:s>=90?["#065f46","#d1fae5","High"]:s>=80?["#1e40af","#dbeafe","Good"]:["#991b1b","#fee2e2","Training"];
-const scorePill = (s,has) => {
-    if (!has) return "<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>";
-    const [col,bg]=tierInfo(s);
-    return `<span class="score-pill" style="background:${bg};color:${col};">${s}%</span>`;
-};
-waitForCloudStorage(async()=>{
-    const raw = await cloudStorage.getItem("AUDIT_FINAL");
-    if (!raw) { alert("No audit data found."); return; }
-    const data=JSON.parse(raw), fleet=Object.values(data.fleet), client=data.client;
-    const target=parseFloat(client.target)||2.3, results=data.auditResults||{}, wPrice=data.fuelPrice||21.50;
-    const now=new Date();
-    const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
-    const fmtFull=d=>d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).toUpperCase();
-    ["ph2-client","ph3-client","ph4-client"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=client.company;});
-    ["ph2-period","ph3-period","ph4-period"].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=data.month;});
-    document.getElementById("reportCreated").innerText=fmtFull(now);
-    const savedMap={};
-    if (results.vehicles) results.vehicles.forEach(sv=>savedMap[sv.reg]=sv);
-    let totalWasted=0,totalEvents=0,totalScore=0;
-    const processed=fleet.map(v=>{
-        const km=(v.mK&&v.mK>0)?parseFloat(v.mK):v.gpsDist;
-        const lit=parseFloat(v.mL)||0;
-        const actEff=(lit>0&&km>0)?(km/lit):0;
-        const eWaste=(lit>0&&km>0&&actEff<target)?(lit-km/target):0;
-        const events=v.violations||0;
-        const sv=savedMap[v.reg];
-        const eLoss=sv?(sv.eLoss||0):eWaste*wPrice;
-        const sLoss=sv?(sv.sLoss||0):events*(v.type==="Heavy"?1.5:1.1)*wPrice;
-        const tLoss=sv?(sv.tLoss||0):eLoss+sLoss;
-        let score=100;
-        if(lit>0&&actEff>0&&actEff<target)score-=Math.min(40,((target-actEff)/target)*40);
-        if(events>0)score-=Math.min(30,events*0.3);
-        if(v.duration>300)score-=Math.min(20,(v.duration/60/30)*20);
-        if(v.maxSpeed>100)score-=Math.min(10,(v.maxSpeed-100)*0.5);
-        score=Math.max(0,Math.min(100,Math.round(score)));
+function scorePill(s, has) {
+    if(!has) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">&#8212;</span>';
+    const info = tierInfo(s);
+    return '<span class="score-pill" style="background:' + info[1] + ';color:' + info[0] + ';">' + s + '%</span>';
+}
+function waitForCloudStorage(cb, n) {
+    n = n || 0;
+    if(typeof cloudStorage !== 'undefined') cb();
+    else if(n < 50) setTimeout(function(){ waitForCloudStorage(cb, n+1); }, 100);
+    else console.error('cloudStorage unavailable');
+}
+waitForCloudStorage(async function() {
+    const raw = await cloudStorage.getItem('AUDIT_FINAL');
+    if(!raw) { alert('No audit data found.'); return; }
+    const data = JSON.parse(raw);
+    const fleet = Object.values(data.fleet);
+    const client = data.client;
+    const target = parseFloat(client.target) || 2.3;
+    const results = data.auditResults || {};
+    const wPrice = data.fuelPrice || 21.50;
+    const now = new Date();
+    function fmtDate(d) { return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase(); }
+    function fmtFull(d) { return d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase(); }
+    ['ph2-client','ph3-client','ph4-client'].forEach(function(id){ const el=document.getElementById(id); if(el) el.innerText=client.company; });
+    ['ph2-period','ph3-period','ph4-period'].forEach(function(id){ const el=document.getElementById(id); if(el) el.innerText=data.month; });
+    document.getElementById('reportCreated').innerText = fmtFull(now);
+    const savedMap = {};
+    if(results.vehicles) results.vehicles.forEach(function(sv){ savedMap[sv.reg]=sv; });
+    let totalWasted=0, totalEvents=0, totalScore=0;
+    const processed = fleet.map(function(v) {
+        const km = (v.mK && v.mK>0) ? parseFloat(v.mK) : v.gpsDist;
+        const lit = parseFloat(v.mL) || 0;
+        const actEff = (lit>0 && km>0) ? (km/lit) : 0;
+        const eWaste = (lit>0 && km>0 && actEff<target) ? (lit - km/target) : 0;
+        const events = v.violations || 0;
+        const sv = savedMap[v.reg];
+        const eLoss = sv ? (sv.eLoss||0) : eWaste*wPrice;
+        const sLoss = sv ? (sv.sLoss||0) : events*(v.type==='Heavy'?1.5:1.1)*wPrice;
+        const tLoss = sv ? (sv.tLoss||0) : eLoss+sLoss;
+        let score = 100;
+        if(lit>0 && actEff>0 && actEff<target) score -= Math.min(40,((target-actEff)/target)*40);
+        if(events>0) score -= Math.min(30,events*0.3);
+        if(v.duration>300) score -= Math.min(20,(v.duration/60/30)*20);
+        if(v.maxSpeed>100) score -= Math.min(10,(v.maxSpeed-100)*0.5);
+        score = Math.max(0,Math.min(100,Math.round(score)));
         totalScore+=score; totalWasted+=eWaste; totalEvents+=events;
-        return {...v,km,lit,actEff,eWaste,eLoss,sLoss,tLoss,score};
+        return Object.assign({},v,{km:km,lit:lit,actEff:actEff,eWaste:eWaste,eLoss:eLoss,sLoss:sLoss,tLoss:tLoss,score:score});
     });
-    const byLoss=[...processed].sort((a,b)=>b.tLoss-a.tLoss);
-    const avgScore=processed.length>0?Math.round(totalScore/processed.length):0;
-    const losing=processed.filter(v=>v.tLoss>0).length;
-    const totalLoss=results.wholesaleTotalLoss!=null?results.wholesaleTotalLoss:processed.reduce((s,v)=>s+v.tLoss,0);
-    const effLoss  =results.wholesaleEffLoss  !=null?results.wholesaleEffLoss  :processed.reduce((s,v)=>s+v.eLoss,0);
-    const speedLoss=results.wholesaleSpeedLoss!=null?results.wholesaleSpeedLoss:processed.reduce((s,v)=>s+v.sLoss,0);
-    const fleetKM  =results.totalKM    !=null?results.totalKM    :processed.reduce((s,v)=>s+v.km,0);
-    const fleetFuel=results.totalLiters !=null?results.totalLiters:processed.reduce((s,v)=>s+v.lit,0);
-    const avgKmL   =fleetFuel>0?(fleetKM/fleetFuel).toFixed(2):"—";
-    const annual   =totalLoss*12;
+    const byLoss = processed.slice().sort(function(a,b){ return b.tLoss-a.tLoss; });
+    const avgScore = processed.length>0 ? Math.round(totalScore/processed.length) : 0;
+    const losing = processed.filter(function(v){ return v.tLoss>0; }).length;
+    const totalLoss = results.wholesaleTotalLoss!=null ? results.wholesaleTotalLoss : processed.reduce(function(s,v){return s+v.tLoss;},0);
+    const effLoss   = results.wholesaleEffLoss  !=null ? results.wholesaleEffLoss   : processed.reduce(function(s,v){return s+v.eLoss;},0);
+    const speedLoss = results.wholesaleSpeedLoss!=null ? results.wholesaleSpeedLoss : processed.reduce(function(s,v){return s+v.sLoss;},0);
+    const fleetKM   = results.totalKM    !=null ? results.totalKM     : processed.reduce(function(s,v){return s+v.km;},0);
+    const fleetFuel = results.totalLiters !=null ? results.totalLiters : processed.reduce(function(s,v){return s+v.lit;},0);
+    const avgKmL = fleetFuel>0 ? (fleetKM/fleetFuel).toFixed(2) : '0.00';
+    const annual = totalLoss * 12;
     // Cover
-    document.getElementById("coverCompany").innerText=client.company;
-    document.getElementById("coverTagline").innerText=`${fleet.length} vehicles audited  ·  ${data.month}`;
-    document.getElementById("coverLoss").innerText="R "+Math.round(totalLoss).toLocaleString();
-    document.getElementById("coverLossSub").innerText=data.month+"  |  Fuel inefficiency + Speed violations";
-    document.getElementById("covKM").innerText=Math.round(fleetKM/1000).toLocaleString()+"k";
-    document.getElementById("covFuel").innerText=Math.round(fleetFuel/1000).toLocaleString()+"k";
-    document.getElementById("covEvents").innerText=totalEvents.toLocaleString();
-    document.getElementById("covAnnual").innerText="R "+Math.round(annual/1000).toLocaleString()+"k";
-    document.getElementById("coverPeriod").innerText=data.month;
-    document.getElementById("coverDate").innerText=fmtDate(now);
-    const fname=buildFilename(client.company,data.month);
-    document.title=fname;
-    document.getElementById("suggestedFilename").innerText=fname+".pdf";
+    document.getElementById('coverCompany').innerText  = client.company;
+    document.getElementById('coverTagline').innerText  = fleet.length + ' vehicles audited  ·  ' + data.month;
+    document.getElementById('coverLoss').innerText     = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('coverLossSub').innerText  = data.month + '  |  Fuel inefficiency + Speed violations';
+    document.getElementById('covKM').innerText         = Math.round(fleetKM/1000).toLocaleString() + 'k';
+    document.getElementById('covFuel').innerText       = Math.round(fleetFuel/1000).toLocaleString() + 'k';
+    document.getElementById('covEvents').innerText     = totalEvents.toLocaleString();
+    document.getElementById('covAnnual').innerText     = 'R ' + Math.round(annual/1000).toLocaleString() + 'k';
+    document.getElementById('coverPeriod').innerText   = data.month;
+    document.getElementById('coverDate').innerText     = fmtDate(now);
+    const fname = buildFilename(client.company, data.month);
+    document.title = fname;
+    document.getElementById('suggestedFilename').innerText = fname + '.pdf';
     // Tiles
-    document.getElementById("statKM").innerText=Math.round(fleetKM).toLocaleString();
-    document.getElementById("statFuel").innerText=Math.round(fleetFuel).toLocaleString();
-    document.getElementById("statEff").innerText=avgKmL;
-    document.getElementById("statWasted").innerText=Math.round(totalWasted).toLocaleString();
-    document.getElementById("statEvents").innerText=totalEvents.toLocaleString();
-    document.getElementById("statEffLoss").innerText="R "+Math.round(effLoss).toLocaleString();
-    document.getElementById("statTotal").innerText="R "+Math.round(totalLoss).toLocaleString();
-    document.getElementById("statTotalSub").innerText=data.month;
-    document.getElementById("statAnnual").innerText="R "+Math.round(annual).toLocaleString();
-    document.getElementById("trendDelta").innerText="R "+Math.round(totalLoss).toLocaleString()+" identified";
-    document.getElementById("trendDeltaLabel").innerText="in recoverable losses this period";
+    document.getElementById('statKM').innerText      = Math.round(fleetKM).toLocaleString();
+    document.getElementById('statFuel').innerText    = Math.round(fleetFuel).toLocaleString();
+    document.getElementById('statEff').innerText     = avgKmL;
+    document.getElementById('statWasted').innerText  = Math.round(totalWasted).toLocaleString();
+    document.getElementById('statEvents').innerText  = totalEvents.toLocaleString();
+    document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
+    document.getElementById('statTotal').innerText   = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('statTotalSub').innerText = data.month;
+    document.getElementById('statAnnual').innerText  = 'R ' + Math.round(annual).toLocaleString();
+    document.getElementById('trendDelta').innerText      = 'R ' + Math.round(totalLoss).toLocaleString() + ' identified';
+    document.getElementById('trendDeltaLabel').innerText = 'in recoverable losses this period';
     // Gauge
-    const gColor=drawGauge("gaugeChart",avgScore);
-    document.getElementById("gaugeScore").innerText=avgScore+"%";
-    document.getElementById("gaugeScore").style.color=gColor;
-    document.getElementById("gaugeDesc").innerText=avgScore>=90?"Excellent":avgScore>=80?"Good":avgScore>=70?"Fair":avgScore>=60?"Poor":"Critical";
-    document.getElementById("gaugeDesc").style.color=gColor;
+    const gColor = drawGauge('gaugeChart', avgScore);
+    document.getElementById('gaugeScore').innerText = avgScore + '%';
+    document.getElementById('gaugeScore').style.color = gColor;
+    document.getElementById('gaugeDesc').innerText = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
+    document.getElementById('gaugeDesc').style.color = gColor;
     // Doughnut
-    new Chart(document.getElementById("lossChart"),{type:"doughnut",
-        data:{labels:["Efficiency","Speeding"],datasets:[{data:[effLoss,speedLoss],backgroundColor:["#0f172a","#d97706"],borderWidth:0}]},
-        options:{cutout:"70%",plugins:{legend:{position:"bottom",labels:{font:{weight:"bold",family:"Outfit",size:8},padding:6}}}}
+    new Chart(document.getElementById('lossChart'), {
+        type: 'doughnut',
+        data: { labels:['Efficiency','Speeding'], datasets:[{ data:[effLoss,speedLoss], backgroundColor:['#0f172a','#d97706'], borderWidth:0 }] },
+        options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ font:{weight:'bold',family:'Outfit',size:8}, padding:6 } } } }
     });
-    // History
-    const allClients=JSON.parse(await cloudStorage.getItem("FLEET_CLIENTS"))||[];
-    const clientData=allClients.find(c=>c.company===client.company);
-    const historyKey=`AUDIT_HISTORY_${clientData?.id}`;
-    const history=(JSON.parse(await cloudStorage.getItem(historyKey))||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
-    const tLabels=history.length>1?history.map(h=>h.week):[data.month];
-    const tValues=history.length>1?history.map(h=>h.fuelLoss):[totalLoss];
-    new Chart(document.getElementById("trendChart"),{type:"bar",
-        data:{labels:tLabels,datasets:[{data:tValues,backgroundColor:tValues.map((_,i)=>i===tValues.length-1?"#d97706":"#e2e8f0"),borderRadius:4,borderSkipped:false}]},
-        options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>"R"+(v/1000).toFixed(0)+"k",font:{size:8}},grid:{color:"#f1f5f9"}},x:{ticks:{font:{size:8}},grid:{display:false}}}}
+    // History / trend
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const clientData = allClients.find(function(c){ return c.company===client.company; });
+    const historyKey = 'AUDIT_HISTORY_' + (clientData ? clientData.id : '');
+    const history = (JSON.parse(await cloudStorage.getItem(historyKey)) || []).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+    const tLabels = history.length>1 ? history.map(function(h){return h.week;}) : [data.month];
+    const tValues = history.length>1 ? history.map(function(h){return h.fuelLoss;}) : [totalLoss];
+    new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: { labels:tLabels, datasets:[{ data:tValues, backgroundColor:tValues.map(function(_,i){return i===tValues.length-1?'#d97706':'#e2e8f0';}), borderRadius:4, borderSkipped:false }] },
+        options: { responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:function(v){return 'R'+(v/1000).toFixed(0)+'k';},font:{size:8}},grid:{color:'#f1f5f9'}}, x:{ticks:{font:{size:8}},grid:{display:false}} } }
     });
     // Podium
-    const maxL=byLoss[0]?.tLoss||1;
-    document.getElementById("podium").innerHTML=byLoss.slice(0,5).map((v,i)=>`
-        <div class="podium-item">
-            <div class="podium-rank" style="background:${["#78350f","#d97706","#f59e0b","#fbbf24","#64748b"][i]}">${i+1}</div>
-            <div class="podium-reg">${v.reg}</div>
-            <div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:${(v.tLoss/maxL*100).toFixed(0)}%"></div></div>
-            <div class="podium-loss">R ${Math.round(v.tLoss).toLocaleString()}</div>
-        </div>`).join("");
+    const maxL = byLoss[0] ? byLoss[0].tLoss : 1;
+    const rankColors = ['#78350f','#d97706','#f59e0b','#fbbf24','#64748b'];
+    document.getElementById('podium').innerHTML = byLoss.slice(0,5).map(function(v,i){
+        return '<div class="podium-item">'
+            + '<div class="podium-rank" style="background:' + rankColors[i] + '">' + (i+1) + '</div>'
+            + '<div class="podium-reg">' + v.reg + '</div>'
+            + '<div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:' + (v.tLoss/maxL*100).toFixed(0) + '%"></div></div>'
+            + '<div class="podium-loss">R ' + Math.round(v.tLoss).toLocaleString() + '</div>'
+            + '</div>';
+    }).join('');
     // Breakdown table
-    document.getElementById("repBody").innerHTML=byLoss.map(v=>`
-        <tr>
-            <td class="left reg">${v.reg}</td>
-            <td class="muted">${v.gpsDist.toFixed(0)}</td>
-            <td>${v.km.toFixed(0)}</td>
-            <td class="muted">${v.lit>0?v.lit.toFixed(1):"—"}</td>
-            <td class="${v.actEff>0&&v.actEff<target?"red":v.actEff>0?"green":"muted"}">${v.actEff>0?v.actEff.toFixed(2):"—"}</td>
-            <td class="muted">${target}</td>
-            <td class="${v.eWaste>0?"red":"muted"}">${v.eWaste>0?v.eWaste.toFixed(1):"—"}</td>
-            <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
-            <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
-            <td class="gold">R ${Math.round(v.tLoss).toLocaleString()}</td>
-            <td>${scorePill(v.score,v.actEff>0)}</td>
-        </tr>`).join("");
+    document.getElementById('repBody').innerHTML = byLoss.map(function(v){
+        const effClass = v.actEff>0 && v.actEff<target ? 'red' : v.actEff>0 ? 'green' : 'muted';
+        return '<tr>'
+            + '<td class="left reg">' + v.reg + '</td>'
+            + '<td class="muted">' + v.gpsDist.toFixed(0) + '</td>'
+            + '<td>' + v.km.toFixed(0) + '</td>'
+            + '<td class="muted">' + (v.lit>0 ? v.lit.toFixed(1) : '&#8212;') + '</td>'
+            + '<td class="' + effClass + '">' + (v.actEff>0 ? v.actEff.toFixed(2) : '&#8212;') + '</td>'
+            + '<td class="muted">' + target + '</td>'
+            + '<td class="' + (v.eWaste>0?'red':'muted') + '">' + (v.eWaste>0 ? v.eWaste.toFixed(1) : '&#8212;') + '</td>'
+            + '<td>R ' + Math.round(v.eLoss).toLocaleString() + '</td>'
+            + '<td>R ' + Math.round(v.sLoss).toLocaleString() + '</td>'
+            + '<td class="gold">R ' + Math.round(v.tLoss).toLocaleString() + '</td>'
+            + '<td>' + scorePill(v.score, v.actEff>0) + '</td>'
+            + '</tr>';
+    }).join('');
     // Action page
-    document.getElementById("actionAnnual").innerText="R "+Math.round(annual).toLocaleString();
-    document.getElementById("actionPeriod").innerText="R "+Math.round(totalLoss).toLocaleString();
-    document.getElementById("actionPeriodLabel").innerText=data.month;
-    document.getElementById("actionVehicles").innerText=`${losing} / ${fleet.length}`;
-    document.getElementById("cost3m").innerText ="R "+Math.round(totalLoss*3).toLocaleString();
-    document.getElementById("cost6m").innerText ="R "+Math.round(totalLoss*6).toLocaleString();
-    document.getElementById("cost12m").innerText="R "+Math.round(annual).toLocaleString();
-    drawQR("qrCover");
+    document.getElementById('actionAnnual').innerText    = 'R ' + Math.round(annual).toLocaleString();
+    document.getElementById('actionPeriod').innerText    = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('actionPeriodLabel').innerText = data.month;
+    document.getElementById('actionVehicles').innerText  = losing + ' / ' + fleet.length;
+    document.getElementById('cost3m').innerText  = 'R ' + Math.round(totalLoss*3).toLocaleString();
+    document.getElementById('cost6m').innerText  = 'R ' + Math.round(totalLoss*6).toLocaleString();
+    document.getElementById('cost12m').innerText = 'R ' + Math.round(annual).toLocaleString();
+    drawQR('qrCover');
 });
 </script>
 </body>
