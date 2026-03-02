@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<script type="module" src="firebase-helper.js"></script>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Fleet Intel | Executive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +26,7 @@
     <aside id="sidebar">
         <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
         <nav>
-	    <a href="index.html" class="nav-item active">Home</a>
+            <a href="index.html" class="nav-item active">Home</a>
             <a href="clients.html" class="nav-item">Clients</a>
             <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
             <a href="database.html" class="nav-item">Active Database</a>
@@ -81,163 +81,167 @@
 
     <script>
         const SHEET_ID = '1zssrLcT2jaM8yoQUMS2MGgithXrJMw2wdG-3D2vS3Y8';
-        const GID = '985770824'; // Form_Responses_3 tab
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec'
+        const GID = '985770824'; // Form responses 3 tab
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
         async function hardResetSystem() {
-            if(confirm("DANGER: This wipes all clients and resets the system. Continue?")) {
-                 await cloudStorage.clear();
+            if (confirm("DANGER: This wipes all clients and resets the system. Continue?")) {
+                await cloudStorage.clear();
                 location.reload();
             }
         }
 
-      async function importFromSheet() {
-            document.getElementById('sync-status').innerText = "SYNCING...";
+        async function importFromSheet() {
+            document.getElementById('sync-status').innerText = 'SYNCING...';
             const oldScript = document.getElementById('google-data-script');
             if (oldScript) oldScript.remove();
             const script = document.createElement('script');
             script.id = 'google-data-script';
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:handleResponse&gid=${GID}&t=${Date.now()}`;
+            script.src = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=responseHandler:handleResponse&gid=' + GID + '&t=' + Date.now();
             document.body.appendChild(script);
         }
 
         window.handleResponse = async function(response) {
             try {
                 const rows = response.table.rows;
-                let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                
-                let filteredClients = existingClients.filter(c => c.status === 'active');
-                let newProspects = [];
 
-                rows.forEach((row, index) => {
+                // Load existing clients from Firebase
+                let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+
+                // Keep all active clients untouched — only rebuild prospects
+                const activeClients = existingClients.filter(c => c.status === 'active');
+
+                // Build a set of active company names for quick lookup
+                const activeNames = new Set(activeClients.map(c => c.company.toLowerCase()));
+
+                const newProspects = [];
+
+                rows.forEach(function(row) {
                     const c = row.c;
                     if (!c || !c[1] || !c[1].v) return;
-                    
+
                     const companyName = String(c[1].v).trim();
-                    if (companyName === "" || 
-                        companyName === "Company Name" || 
-                        companyName.toLowerCase().includes("company name")) return;
+                    if (!companyName || companyName.toLowerCase() === 'company name') return;
 
-                    // Check column J (index 9) for status
-                    const sheetStatus = c[9] && c[9].v ? String(c[9].v).toLowerCase() : "";
-                    
-                    if (sheetStatus === "active") {
-                        console.log("Skipping active client:", companyName);
+                    // Col J (index 9) = status
+                    const sheetStatus = c[9] && c[9].v ? String(c[9].v).trim().toLowerCase() : '';
+
+                    // Skip Active and Deleted rows — only import blank or "prospect"
+                    if (sheetStatus === 'active' || sheetStatus === 'deleted') {
+                        console.log('Skipping (' + sheetStatus + '):', companyName);
                         return;
                     }
 
-                    const alreadyActive = filteredClients.some(
-                        client => client.company.toLowerCase() === companyName.toLowerCase()
-                    );
-                    
-                    if (alreadyActive) {
-                        console.log("Skipping - already active in system:", companyName);
+                    // Skip if already an active client in Firebase
+                    if (activeNames.has(companyName.toLowerCase())) {
+                        console.log('Skipping — already active in Firebase:', companyName);
                         return;
                     }
 
-                    console.log("Importing prospect:", companyName);
+                    console.log('Importing prospect:', companyName);
 
                     newProspects.push({
-                        id: "SHEET-" + companyName.replace(/\s+/g, '-') + "-" + Date.now(),
+                        id: 'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
                         company: companyName.toUpperCase(),
-                        contactName: c[2] && c[2].v ? String(c[2].v).trim() : "NO CONTACT",
-                        email: c[3] && c[3].v ? String(c[3].v).trim() : "no-email@example.com",
-                        contactTel: "",
-                        fleetSize: (c[4] && c[4].v) ? parseInt(c[4].v) : 0,
-                        vehicleTypes: c[5] && c[5].v ? String(c[5].v) : "Unknown",
-                        city: "NATIONAL",
+                        contactName: c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
+                        email: c[3] && c[3].v ? String(c[3].v).trim() : '',
+                        contactTel: '',
+                        fleetSize: c[4] && c[4].v ? parseInt(c[4].v) : 0,
+                        vehicleTypes: c[5] && c[5].v ? String(c[5].v) : 'Unknown',
+                        city: 'NATIONAL',
                         fuelPrice: 22.50,
                         speedLimit: 80,
-                        currentCons: "",
+                        currentCons: '',
                         targetCons: 2.3,
-                        status: 'prospect'
+                        status: 'prospect',
+                        auditStatus: 'not-started'
                     });
                 });
 
-                console.log("Total prospects imported:", newProspects.length);
+                console.log('Prospects imported:', newProspects.length);
 
-                // Mark new prospects in sheet as "Prospect"
-                newProspects.forEach(prospect => {
-                    updateSheetStatus(prospect.company, 'Prospect');
+                // Mark each new prospect in the sheet as "Prospect"
+                newProspects.forEach(function(p) {
+                    updateSheetStatus(p.company, 'Prospect').catch(function(err) {
+                        console.warn('Could not mark prospect in sheet:', p.company, err);
+                    });
                 });
 
-                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify([...filteredClients, ...newProspects]));
-                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-                
-                document.getElementById('sync-status').innerText = "SUCCESS";
-                setTimeout(() => {
-                    document.getElementById('sync-status').innerText = "READY";
+                // Merge: active clients + freshly imported prospects
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify([...activeClients, ...newProspects]));
+                await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+                document.getElementById('sync-status').innerText = 'SUCCESS';
+                setTimeout(function() {
+                    document.getElementById('sync-status').innerText = 'READY';
                 }, 2000);
-                updateDisplay(); 
+
+                updateDisplay();
+
             } catch (err) {
-                document.getElementById('sync-status').innerText = "ERROR";
-                console.error("Sync error:", err);
-                alert("Import failed. Check console for details.");
+                document.getElementById('sync-status').innerText = 'ERROR';
+                console.error('Sync error:', err);
+                alert('Import failed. Check console for details.\n\n' + err);
             }
         };
 
-       function updateSheetStatus(companyName, status) {
-    return new Promise((resolve, reject) => {
-        const callback = 'sheetCallback_' + Date.now();
-        
-        window[callback] = function(data) {
-            delete window[callback];
-            const script = document.getElementById(callback);
-            if (script) script.remove();
-            
-            if (data.success) {
-                console.log('✅ Sheet updated:', companyName, '→', status);
-                resolve(data);
-            } else {
-                console.error('❌ Sheet update failed:', data.error);
-                reject(data.error);
-            }
-        };
-        
-        const script = document.createElement('script');
-        script.id = callback;
-        script.src = `${APPS_SCRIPT_URL}?company=${encodeURIComponent(companyName)}&action=update&status=${encodeURIComponent(status)}&callback=${callback}`;
-        script.onerror = () => {
-            delete window[callback];
-            console.error('❌ Sheet update error: Script failed to load');
-            reject('Script failed to load');
-        };
-        
-        document.body.appendChild(script);
-    });
-}
+        function updateSheetStatus(companyName, status) {
+            return new Promise(function(resolve, reject) {
+                const callbackName = 'sheetCallback_' + Date.now();
+                const timeoutId = setTimeout(function() {
+                    delete window[callbackName];
+                    reject('Timeout — no response from sheet');
+                }, 10000);
 
-        function calculateMRR(fleetArray) {
-            if (!fleetArray || fleetArray.length === 0) return 0;
-            const managementTotal = fleetArray.length * 1500;
-            const vehicleTotal = fleetArray.reduce((sum, item) => sum + (Number(item.fleetSize) || 0), 0) * 200;
+                window[callbackName] = function(data) {
+                    clearTimeout(timeoutId);
+                    delete window[callbackName];
+                    const script = document.getElementById(callbackName);
+                    if (script) script.remove();
+                    if (data.success) resolve(data);
+                    else reject(data.error || 'Sheet update failed');
+                };
+
+                const script = document.createElement('script');
+                script.id = callbackName;
+                script.onerror = function() {
+                    clearTimeout(timeoutId);
+                    delete window[callbackName];
+                    reject('Script load failed');
+                };
+                script.src = APPS_SCRIPT_URL
+                    + '?action=update'
+                    + '&company=' + encodeURIComponent(companyName)
+                    + '&status=' + encodeURIComponent(status)
+                    + '&callback=' + callbackName;
+                document.body.appendChild(script);
+            });
+        }
+
+        function calculateMRR(clientArray) {
+            if (!clientArray || clientArray.length === 0) return 0;
+            const managementTotal = clientArray.length * 1500;
+            const vehicleTotal = clientArray.reduce(function(sum, item) {
+                return sum + (Number(item.fleetSize) || 0);
+            }, 0) * 200;
             return managementTotal + vehicleTotal;
         }
 
         async function updateDisplay() {
-            const all = JSON.parse( await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const p = all.filter(c => c.status === 'prospect');
-            const a = all.filter(c => c.status === 'active');
-            const ts =  await cloudStorage.getItem('lastSyncTS') || 'NEVER';
+            const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const prospects = all.filter(function(c) { return c.status === 'prospect'; });
+            const active    = all.filter(function(c) { return c.status === 'active'; });
+            const ts = await cloudStorage.getItem('lastSyncTS') || 'NEVER';
 
-            document.getElementById('count-prospects').innerText = p.length;
-            document.getElementById('count-active').innerText = a.length;
-            document.getElementById('last-sync-time').innerText = ts;
-            document.getElementById('last-sync-details').innerText = `${p.length} PROSPECTS IMPORTED`;
-            
-            document.getElementById('potential-mrr').innerText = `R ${calculateMRR(p).toLocaleString()}`;
-            document.getElementById('actual-mrr').innerText = `R ${calculateMRR(a).toLocaleString()}`;
+            document.getElementById('count-prospects').innerText = prospects.length;
+            document.getElementById('count-active').innerText    = active.length;
+            document.getElementById('last-sync-time').innerText  = ts;
+            document.getElementById('last-sync-details').innerText = prospects.length + ' PROSPECTS IMPORTED';
+            document.getElementById('potential-mrr').innerText   = 'R ' + calculateMRR(prospects).toLocaleString();
+            document.getElementById('actual-mrr').innerText      = 'R ' + calculateMRR(active).toLocaleString();
         }
-        
+
         window.onload = updateDisplay;
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
