@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script type="module" src="firebase-helper.js"></script>    
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <title>Fleet Intel | Prospect Pipeline</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -51,275 +51,210 @@
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
+        // ── Audit status badge ────────────────────────────────
         function getAuditStatusBadge(prospect) {
             const status = prospect.auditStatus || 'not-started';
-            
             if (status === 'complete') {
-                return `<div class="status-badge status-complete">✓ Audit Complete</div>`;
+                return '<div class="status-badge status-complete">✓ Audit Complete</div>';
             } else if (status === 'in-progress') {
                 const lastEdited = prospect.lastEditedDate ? new Date(prospect.lastEditedDate).toLocaleDateString() : '';
-                return `<div class="status-badge status-in-progress">⏳ In Progress ${lastEdited ? '(' + lastEdited + ')' : ''}</div>`;
+                return '<div class="status-badge status-in-progress">⏳ In Progress' + (lastEdited ? ' (' + lastEdited + ')' : '') + '</div>';
             } else {
-                return `<div class="status-badge status-not-started">○ Not Started</div>`;
+                return '<div class="status-badge status-not-started">○ Not Started</div>';
             }
         }
 
-      async  function renderPipeline() {
+        // ── Render pipeline grid ──────────────────────────────
+        async function renderPipeline() {
             const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const pipeline = allClients.filter(c => c.status === 'prospect');
-            
-            const container = document.getElementById('pipeline-grid');
+            const pipeline   = allClients.filter(function(c) { return c.status === 'prospect'; });
+
             document.getElementById('p-count').innerText = pipeline.length;
+            const container = document.getElementById('pipeline-grid');
 
             if (pipeline.length === 0) {
-                container.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-black uppercase tracking-widest text-xs">No prospects in system.</div>`;
+                container.innerHTML = '<div class="col-span-full py-20 text-center opacity-20 font-black uppercase tracking-widest text-xs">No prospects in system.</div>';
                 return;
             }
 
-            container.innerHTML = pipeline.map((p) => {
+            container.innerHTML = pipeline.map(function(p) {
                 const fleetLabel = p.fleetSizeConfirmed ? 'Confirmed Fleet' : 'Estimated Fleet';
                 const auditBadge = getAuditStatusBadge(p);
-                
-                return `
-                <div class="prospect-card">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="badge">${p.city || 'NATIONAL'}</span>
-                        <div class="flex gap-4">
-                            <button onclick="window.location.href='create.html?editId=${p.id}'" class="text-white/20 hover:text-emerald-500 transition text-[10px] font-black uppercase tracking-widest">Edit</button>
-                            <button onclick="deleteProspect('${p.id}')" class="text-white/20 hover:text-red-500 transition text-[10px] font-black uppercase tracking-widest">Delete</button>
-                        </div>
-                    </div>
-                    <h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">${p.company}</h3>
-                    <p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-2">${p.contactName || 'NO CONTACT'}</p>
-                    ${auditBadge}
-                    <div class="space-y-3 mb-8 border-t border-white/5 pt-6 mt-6">
-                        <div class="flex justify-between text-[10px] font-bold">
-                            <span class="uppercase text-white/30 font-black">${fleetLabel}</span>
-                            <span class="${p.fleetSizeConfirmed ? 'text-emerald-400' : ''}">${p.fleetSize || 0} Units</span>
-                        </div>
-                        ${p.auditResults ? `
-                        <div class="flex justify-between text-[10px] font-bold">
-                            <span class="uppercase text-white/30 font-black">Total Loss</span>
-                            <span class="text-red-400">R ${p.auditResults.wholesaleTotalLoss.toLocaleString()}</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="runAudit('${p.company}')" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-white/10 transition">
-                            ${p.auditStatus === 'complete' ? 'View Audit' : p.auditStatus === 'in-progress' ? 'Continue Audit' : 'Run Audit'}
-                        </button>
-                        <button onclick="convertToActive('${p.id || p.company}')" class="flex-1 bg-emerald-500 text-slate-900 py-3 rounded-xl text-[9px] font-black uppercase hover:scale-105 transition shadow-lg">Convert</button>
-                    </div>
-                </div>
-            `}).join('');
+                const auditBtnLabel = p.auditStatus === 'complete' ? 'View Audit' : p.auditStatus === 'in-progress' ? 'Continue Audit' : 'Run Audit';
+                const lossRow = p.auditResults ? '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">Total Loss</span><span class="text-red-400">R ' + p.auditResults.wholesaleTotalLoss.toLocaleString() + '</span></div>' : '';
+
+                return '<div class="prospect-card">'
+                    + '<div class="flex justify-between items-start mb-6">'
+                    +   '<span class="badge">' + (p.city || 'NATIONAL') + '</span>'
+                    +   '<div class="flex gap-4">'
+                    +     '<button onclick="window.location.href=\'create.html?editId=' + p.id + '\'" class="text-white/20 hover:text-emerald-500 transition text-[10px] font-black uppercase tracking-widest">Edit</button>'
+                    +     '<button onclick="deleteProspect(\'' + p.id + '\')" class="text-white/20 hover:text-red-500 transition text-[10px] font-black uppercase tracking-widest">Delete</button>'
+                    +   '</div>'
+                    + '</div>'
+                    + '<h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">' + p.company + '</h3>'
+                    + '<p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-2">' + (p.contactName || 'NO CONTACT') + '</p>'
+                    + auditBadge
+                    + '<div class="space-y-3 mb-8 border-t border-white/5 pt-6 mt-6">'
+                    +   '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">' + fleetLabel + '</span><span class="' + (p.fleetSizeConfirmed ? 'text-emerald-400' : '') + '">' + (p.fleetSize || 0) + ' Units</span></div>'
+                    +   lossRow
+                    + '</div>'
+                    + '<div class="flex gap-2">'
+                    +   '<button onclick="runAudit(\'' + p.company.replace(/'/g, "\\'") + '\')" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-white/10 transition">' + auditBtnLabel + '</button>'
+                    +   '<button onclick="convertToActive(\'' + p.id + '\')" class="flex-1 bg-emerald-500 text-slate-900 py-3 rounded-xl text-[9px] font-black uppercase hover:scale-105 transition shadow-lg">Convert</button>'
+                    + '</div>'
+                    + '</div>';
+            }).join('');
         }
 
-     async function deleteProspect(id) {
-    if (confirm("Delete this prospect record? This will also delete it from Google Sheets and any audit data.")) {
-        let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-        const prospect = clients.find(c => c.id == id);
-        
-        if (prospect) {
-            const companyKey = prospect.company.toUpperCase().replace(/\s+/g, '_');
+        // ── Delete prospect ───────────────────────────────────
+        async function deleteProspect(id) {
+            if (!confirm('Delete this prospect? This cannot be undone from the app.\n\nTo restore, set their status back to "Prospect" in Google Sheets and re-import.')) return;
+
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const prospect = clients.find(function(c) { return c.id == id; });
+
+            if (!prospect) {
+                // Not found — just re-render cleanly
+                renderPipeline();
+                return;
+            }
+
+            const companyKey  = prospect.company.toUpperCase().replace(/\s+/g, '_');
             const companyName = prospect.company;
-            
-            // Delete audit draft and CSV mappings
+
+            // 1. Clean up Firebase audit data
             await cloudStorage.removeItem('AUDIT_DRAFT_' + companyKey);
             await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_usage');
             await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_speed');
-            
-            // Remove from Firebase first
-            clients = clients.filter(c => c.id != id);
+            await cloudStorage.removeItem('AUDIT_HISTORY_' + id);
+
+            // 2. Remove from FLEET_CLIENTS in Firebase
+            clients = clients.filter(function(c) { return c.id != id; });
             await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
 
-            // Await the sheet delete so we know if it worked
+            // 3. Mark as Deleted in Google Sheet (col J = "Deleted")
+            //    Row stays in sheet — never re-imported. Can be restored manually.
             try {
-                await deleteFromSheet(companyName);
-                console.log('Deleted from sheet:', companyName);
+                await sheetRequest('delete', companyName);
+                console.log('Sheet marked Deleted:', companyName);
             } catch (err) {
-                console.error('Sheet delete failed:', err);
-                alert('Deleted locally but could not remove from Google Sheet.\n\nDelete "' + companyName + '" from the sheet manually to prevent it syncing back.');
+                console.error('Sheet update failed:', err);
+                alert('Removed from app but could not update Google Sheet.\n\nManually set "' + companyName + '" to "Deleted" in col J to prevent re-import.');
             }
-        } else {
-            clients = clients.filter(c => c.id != id);
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+
+            renderPipeline();
         }
 
-        renderPipeline();
-    }
-}
-
-       async function convertToActive(id) {
-            console.log('Converting prospect with ID/Company:', id);
-            
+        // ── Convert prospect to active client ─────────────────
+        async function convertToActive(id) {
             let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            console.log('All clients:', clients);
-            
-            // Find client by ID or by company name
-            let index = clients.findIndex(c => c.id == id || c.company === id);
-            
-            console.log('Found client at index:', index);
-            
+            const index = clients.findIndex(function(c) { return c.id == id; });
+
             if (index === -1) {
-                alert('❌ Error: Client not found\n\nSearched: ' + id);
+                alert('Client not found: ' + id);
                 return;
             }
-            
-            const client = clients[index];
+
+            const client      = clients[index];
             const companyName = client.company;
-            const companyKey = companyName.toUpperCase().replace(/\s+/g, '_');
-            
-            // Load audit data to get fleet details
-            const draftKey = 'AUDIT_DRAFT_' + companyKey;
-            const savedDraft = await cloudStorage.getItem(draftKey);
+            const companyKey  = companyName.toUpperCase().replace(/\s+/g, '_');
+
+            // Load audit draft to get fleet details
             let auditData = {};
-            
-            if (savedDraft) {
-                try {
+            try {
+                const savedDraft = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
+                if (savedDraft) {
                     const draft = JSON.parse(savedDraft);
                     auditData = draft.auditData || {};
-                } catch(e) {
-                    console.error('Error loading audit data:', e);
                 }
+            } catch(e) {
+                console.error('Error loading audit draft:', e);
             }
-            
-            // Build fleet array from audit data
-            const fleetArray = Object.keys(auditData).map(key => {
+
+            // Build fleet array
+            const fleetArray = Object.keys(auditData).map(function(key) {
                 const v = auditData[key];
                 return {
-                    reg: v.reg || key,
-                    type: v.type || 'Heavy',
-                    make: v.make || '',
-                    model: v.model || '',
-                    year: v.year || '',
-                    usedFor: v.usedFor || 'Long Distance',
+                    reg:       v.reg || key,
+                    type:      v.type || 'Heavy',
+                    make:      v.make || '',
+                    model:     v.model || '',
+                    year:      v.year || '',
+                    usedFor:   v.usedFor || 'Long Distance',
                     targetKmL: v.targetKmL || client.targetCons || '2.3'
                 };
             });
-            
-            // Update client to active status
-            clients[index] = {
-                ...client,
-                status: 'active',
-                convertedDate: new Date().toLocaleDateString(),
-                
-                // Ensure all required fields
-                id: client.id || 'client-' + Date.now(),
-                company: client.company || 'Unknown Company',
-                contactName: client.contactName || '',
-                email: client.email || '',
+
+            // Update client record
+            clients[index] = Object.assign({}, client, {
+                status:         'active',
+                convertedDate:  new Date().toLocaleDateString(),
+                id:             client.id || 'client-' + Date.now(),
                 reportSchedule: client.reportSchedule || 'weekly',
-                fleetSize: fleetArray.length || client.fleetSize || 0,
-                speedLimit: parseInt(client.speedLimit) || 80,
-                fuelPrice: parseFloat(client.fuelPrice) || 21.50,
-                targetCons: parseFloat(client.targetCons) || 2.3,
+                fleetSize:      fleetArray.length || client.fleetSize || 0,
+                speedLimit:     parseInt(client.speedLimit) || 80,
+                fuelPrice:      parseFloat(client.fuelPrice) || 21.50,
+                targetCons:     parseFloat(client.targetCons) || 2.3,
                 lastReportSent: null,
-                reportHistory: [],
-                notes: client.notes || '',
-                fleet: fleetArray,
-                
-                // Keep audit results
-                auditResults: client.auditResults || null,
-                auditStatus: client.auditStatus || 'complete'
-            };
-            
-            console.log('Updated client:', clients[index]);
-            
-            // Save to await cloudStorage
+                reportHistory:  [],
+                fleet:          fleetArray,
+                auditResults:   client.auditResults || null,
+                auditStatus:    client.auditStatus || 'complete'
+            });
+
             await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-            
-            // Update Google Sheet status
-            updateSheetStatus(companyName, 'Active')
-                .then(() => {
-                    console.log('✅ Sheet updated successfully');
-                    alert(`✅ ${companyName} converted to Active Client!\n\nFleet Size: ${fleetArray.length} vehicles\nRedirecting to Active Database...`);
-                    window.location.href = 'database.html';
-                })
-                .catch(err => {
-                    console.error('Sheet update error:', err);
-                    alert(`✅ ${companyName} converted to Active Client locally!\n\nFleet Size: ${fleetArray.length} vehicles\n\nNote: Could not update Google Sheet (will sync later)\n\nRedirecting to Active Database...`);
-                    window.location.href = 'database.html';
-                });
+
+            // Mark as Active in Google Sheet
+            try {
+                await sheetRequest('update', companyName, 'Active');
+                console.log('Sheet marked Active:', companyName);
+            } catch (err) {
+                console.warn('Could not update sheet status:', err);
+            }
+
+            alert(companyName + ' converted to Active Client!\nFleet: ' + fleetArray.length + ' vehicles\nRedirecting...');
+            window.location.href = 'database.html';
         }
 
-        function updateSheetStatus(companyName, status) {
-            return new Promise((resolve, reject) => {
-                const callback = 'sheetCallback_' + Date.now();
-                
-                window[callback] = function(data) {
-                    delete window[callback];
-                    const script = document.getElementById(callback);
-                    if (script) script.remove();
-                    
-                    if (data.success) {
-                        console.log('✅ Sheet updated:', companyName, '→', status);
-                        resolve(data);
-                    } else {
-                        console.error('❌ Sheet update failed:', data.error);
-                        reject(data.error);
-                    }
+        // ── Generic sheet request (JSONP) ─────────────────────
+        function sheetRequest(action, companyName, status) {
+            return new Promise(function(resolve, reject) {
+                const cbName = 'sheetCB_' + Date.now();
+                const tid = setTimeout(function() {
+                    delete window[cbName];
+                    reject('Timeout — no response from Google Sheet');
+                }, 10000);
+
+                window[cbName] = function(data) {
+                    clearTimeout(tid);
+                    delete window[cbName];
+                    const s = document.getElementById(cbName);
+                    if (s) s.remove();
+                    if (data.success) resolve(data);
+                    else reject(data.error || 'Sheet request failed');
                 };
-                
+
                 const script = document.createElement('script');
-                script.id = callback;
-                script.src = `${APPS_SCRIPT_URL}?company=${encodeURIComponent(companyName)}&action=update&status=${encodeURIComponent(status)}&callback=${callback}`;
-                script.onerror = () => {
-                    delete window[callback];
-                    console.error('❌ Sheet update error');
-                    reject('Script failed');
+                script.id = cbName;
+                script.onerror = function() {
+                    clearTimeout(tid);
+                    delete window[cbName];
+                    reject('Script load failed');
                 };
-                
+
+                let src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(companyName) + '&callback=' + cbName;
+                if (status) src += '&status=' + encodeURIComponent(status);
+                script.src = src;
+                console.log('Sheet request:', src);
                 document.body.appendChild(script);
             });
         }
 
-       function deleteFromSheet(companyName) {
-    return new Promise((resolve, reject) => {
-        const callbackName = 'sheetCallback_' + Date.now();
-        const timeoutId = setTimeout(() => {
-            delete window[callbackName];
-            reject('Timeout — no response from Google Sheet after 10 seconds');
-        }, 10000);
-
-        window[callbackName] = function(data) {
-            clearTimeout(timeoutId);
-            delete window[callbackName];
-            const script = document.getElementById(callbackName);
-            if (script) script.remove();
-            if (data.success) {
-                resolve(data);
-            } else {
-                reject(data.error || 'Sheet delete failed');
-            }
-        };
-
-        const script = document.createElement('script');
-        script.id = callbackName;
-        script.onerror = () => {
-            clearTimeout(timeoutId);
-            delete window[callbackName];
-            reject('Script load failed — check Apps Script URL');
-        };
-        script.src = APPS_SCRIPT_URL 
-            + '?action=delete'
-            + '&company=' + encodeURIComponent(companyName)
-            + '&callback=' + callbackName;
-        
-        console.log('Sending delete request:', script.src);
-        document.body.appendChild(script);
-    });
-}
-
-        function runAudit(name) { 
-            window.location.href = `audit.html?client=${encodeURIComponent(name)}`; 
+        function runAudit(name) {
+            window.location.href = 'audit.html?client=' + encodeURIComponent(name);
         }
-        
+
         window.onload = renderPipeline;
     </script>
 </body>
-
 </html>
-
-
-
-
