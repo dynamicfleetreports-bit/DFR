@@ -273,35 +273,42 @@
             });
         }
 
-        function deleteFromSheet(companyName) {
-            return new Promise((resolve, reject) => {
-                const callback = 'sheetCallback_' + Date.now();
-                
-                window[callback] = function(data) {
-                    delete window[callback];
-                    const script = document.getElementById(callback);
-                    if (script) script.remove();
-                    
-                    if (data.success) {
-                        console.log('✅ Deleted from sheet:', companyName);
-                        resolve(data);
-                    } else {
-                        console.log('⚠️ Not found in sheet:', companyName);
-                        resolve(data);
-                    }
-                };
-                
-                const script = document.createElement('script');
-                script.id = callback;
-                script.src = `${APPS_SCRIPT_URL}?company=${encodeURIComponent(companyName)}&action=delete&callback=${callback}`;
-                script.onerror = () => {
-                    delete window[callback];
-                    reject('Script failed');
-                };
-                
-                document.body.appendChild(script);
-            });
-        }
+       function deleteFromSheet(companyName) {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'sheetCallback_' + Date.now();
+        const timeoutId = setTimeout(() => {
+            delete window[callbackName];
+            reject('Timeout — no response from Google Sheet after 10 seconds');
+        }, 10000);
+
+        window[callbackName] = function(data) {
+            clearTimeout(timeoutId);
+            delete window[callbackName];
+            const script = document.getElementById(callbackName);
+            if (script) script.remove();
+            if (data.success) {
+                resolve(data);
+            } else {
+                reject(data.error || 'Sheet delete failed');
+            }
+        };
+
+        const script = document.createElement('script');
+        script.id = callbackName;
+        script.onerror = () => {
+            clearTimeout(timeoutId);
+            delete window[callbackName];
+            reject('Script load failed — check Apps Script URL');
+        };
+        script.src = APPS_SCRIPT_URL 
+            + '?action=delete'
+            + '&company=' + encodeURIComponent(companyName)
+            + '&callback=' + callbackName;
+        
+        console.log('Sending delete request:', script.src);
+        document.body.appendChild(script);
+    });
+}
 
         function runAudit(name) { 
             window.location.href = `audit.html?client=${encodeURIComponent(name)}`; 
@@ -312,6 +319,7 @@
 </body>
 
 </html>
+
 
 
 
