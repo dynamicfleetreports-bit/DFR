@@ -3,136 +3,247 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
-    <title>SLA | Dynamic Fleet Reporting</title>
+    <title>Fleet Intel | Executive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Playfair+Display:italic&display=swap');
-        body { font-family: 'Outfit', sans-serif; padding: 40px; background: #f1f5f9; color: #1e293b; line-height: 1.4; }
-        .contract-card { background: white; max-width: 900px; margin: 0 auto; padding: 4rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .clause-title { font-weight: 900; text-transform: uppercase; font-size: 0.8rem; color: #1e40af; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; }
-        .clause-text { font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem; text-align: justify; }
-        .signature-font { font-family: 'Playfair Display', serif; }
-        @media print { .no-print { display: none; } body { padding: 0; background: white; } .contract-card { box-shadow: none; border: none; width: 100%; padding: 1.5rem; } }
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        .logo-area { padding: 0 1rem 3rem 1rem; }
+        .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
+        .nav-item.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
+        .card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2.5rem; transition: all 0.4s; text-decoration: none; display: block; color: inherit; }
+        .card:hover { transform: translateY(-10px); border-color: #10b981; }
+        .card-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #10b981; margin-bottom: 0.75rem; display: block; }
+        .card-value { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+        .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+        .status-tile { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; min-height: 180px; }
+        .btn-action { background: #10b981; color: #020617; padding: 0.85rem; border-radius: 0.75rem; font-weight: 900; text-transform: uppercase; font-size: 10px; text-align: center; transition: all 0.2s; cursor: pointer; border: none; width: 100%; margin-bottom: 0.5rem; text-decoration: none; display: block; }
     </style>
 </head>
 <body>
+    <aside id="sidebar">
+        <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
+        <nav>
+            <a href="index.html" class="nav-item active">Home</a>
+            <a href="clients.html" class="nav-item">Clients</a>
+            <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+            <a href="database.html" class="nav-item">Active Database</a>
+            <a href="audit.html" class="nav-item">Forensic Audit</a>
+        </nav>
+    </aside>
 
-    <div class="no-print max-w-[900px] mx-auto mb-6 flex justify-between items-center">
-        <button onclick="window.history.back()" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 font-bold">← Back</button>
-        <div class="flex gap-4">
-            <button onclick="window.print()" class="border border-slate-300 px-6 py-2 rounded-full font-black uppercase text-[10px] hover:bg-slate-50 transition font-bold">Print Agreement</button>
-            <button onclick="signAgreement()" class="bg-blue-600 text-white px-8 py-2 rounded-full font-black uppercase text-[10px] hover:bg-blue-700 shadow-lg font-bold">Execute & Activate</button>
-        </div>
-    </div>
-
-    <div class="contract-card">
-        <header class="flex justify-between items-start mb-8">
-            <div class="flex items-center gap-6">
-                <img src="Logo.png" alt="Logo" class="h-20 w-auto">
-                <div>
-                    <h1 class="text-3xl font-black uppercase italic tracking-tighter leading-none">Master Service <span class="text-blue-600">Agreement</span></h1>
-                    <p class="text-[9px] font-bold text-slate-400 tracking-[0.2em] mt-1 uppercase font-black">Dynamic Fleet Reporting</p>
-                    <p class="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Moorreesburg, Western Cape</p>
-                </div>
-            </div>
-            <div class="text-right p-3 bg-slate-50 rounded border border-slate-100">
-                <p class="text-[8px] font-black text-slate-400 uppercase">Document Ref</p>
-                <p id="docRef" class="text-xs font-bold text-slate-800 font-mono">DFR-SLA-2026-X</p>
+    <main class="main-wrapper">
+        <header class="flex justify-between items-end mb-14">
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Fleet Command Center</p>
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">System <span class="opacity-30">Status</span></h1>
             </div>
         </header>
 
-        <h3 class="clause-title">1. THE PARTIES</h3>
-        <p class="clause-text">
-            This Agreement is entered into on <span class="font-bold underline" id="currentDate">--</span> by and between <strong>Dynamic Fleet Reporting</strong>, Moorreesburg (the "Consultant") and <span id="clientName" class="font-bold underline uppercase">[Client Name]</span> (the "Subscriber").
-        </p>
-
-        <h3 class="clause-title">2. SCOPE OF SERVICES</h3>
-        <p class="clause-text">The Consultant shall provide managed intelligence to reduce the <strong>Efficiency Gap</strong>. Deliverables include: Weekly Fuel Reconciliation, Consumption Target Tracking, Siphoning/Theft Alerts, Driver Risk Profiles, and On-Demand Custom Data Deep-Dives.</p>
-
-        <h3 class="clause-title">3. FINANCIAL TERMS & PAY STRUCTURE</h3>
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="bg-slate-50 p-4 rounded border border-slate-100 text-xs">
-                <p><strong>3.1 Implementation:</strong> R 2,500.00 (Once-off)</p>
-                <p><strong>3.2 Management Base:</strong> R 1,500.00 (Monthly)</p>
-                <p><strong>3.3 Monitoring Fee:</strong> R 200.00 per vehicle (Monthly)</p>
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div class="card">
+                <span class="card-label">Estimated Potential MRR</span>
+                <div class="card-value" id="potential-mrr">R 0</div>
+                <p class="text-[9px] text-white/30 uppercase font-black tracking-widest mt-2">Based on Self-Reported Fleet Sizes</p>
             </div>
-            <div id="priceSection" class="bg-blue-50 p-4 rounded border border-blue-100 flex flex-col justify-center">
-                </div>
-        </div>
-        <p class="clause-text text-[10px]">Invoices issued on the 25th of the month. Payment due within 7 days. All fees exclude VAT.</p>
-
-        <h3 class="clause-title">4. DATA SUPPLY & OBLIGATIONS</h3>
-        <p class="clause-text italic text-blue-700 font-bold">Accuracy is contingent upon the Subscriber fulfilling the following:</p>
-        <ul class="list-disc ml-6 text-[13px] text-slate-600 mb-4 space-y-1">
-            <li><strong>Automated Channel:</strong> Telematics reports must be CC'd to: <br><strong id="clientSpecificEmail" class="text-slate-900 underline">dynamicfleetreports+[client]@gmail.com</strong></li>
-            <li><strong>Fuel Data:</strong> Submission of fuel liters filled per unit every <strong>Friday by 16:00</strong>.</li>
-            <li><strong>Odometer Data:</strong> Submission of manual odometer readings every <strong>Monday by 09:00</strong>.</li>
-        </ul>
-
-        <h3 class="clause-title">5. GENERAL TERMS & CONDITIONS</h3>
-        <p class="clause-text">
-            <strong>5.1 Duration:</strong> This Agreement is month-to-month.
-            <br><strong>5.2 Cancellation:</strong> Either party may terminate with <strong>30 (thirty) days written notice</strong>.
-            <br><strong>5.3 Confidentiality:</strong> Consultant shall maintain strict confidentiality of Subscriber data and not disclose it to third parties.
-            <br><strong>5.4 Limitation of Liability:</strong> Consultant provides analytical insights and is not liable for actual fuel theft, mechanical failure, or driver conduct.
-            <br><strong>5.5 Breach:</strong> In the event of non-payment or failure to provide data, Consultant reserves the right to suspend services immediately.
-            <br><strong>5.6 Governing Law:</strong> This agreement is governed by the laws of the Republic of South Africa.
-        </p>
-
-        <div class="mt-12 pt-6 border-t-2 border-slate-900 grid grid-cols-2 gap-10">
-            <div>
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-6 tracking-widest">For: Dynamic Fleet Reporting</p>
-                <div class="h-10 flex items-end"><p class="signature-font text-2xl text-blue-800 italic">Dynamic Fleet Reporting</p></div>
-                <div class="border-t border-slate-200 mt-2"><p class="text-[9px] font-bold text-slate-500 uppercase">Authorized Officer</p></div>
-            </div>
-            <div>
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-6 tracking-widest text-blue-500">For: The Subscriber</p>
-                <div id="signBox" class="h-10 flex items-end cursor-pointer group" onclick="signAgreement()">
-                    <p id="signText" class="text-slate-300 italic text-xs group-hover:text-blue-500 font-bold underline transition-all">CLICK HERE TO SIGN</p>
-                </div>
-                <div class="border-t border-slate-200 mt-2"><p id="signDate" class="text-[9px] font-bold text-slate-400 uppercase italic">Awaiting Acceptance</p></div>
+            <div class="card">
+                <span class="card-label" style="color: #60a5fa;">Confirmed Active MRR</span>
+                <div class="card-value" id="actual-mrr">R 0</div>
+                <p class="text-[9px] text-emerald-500/60 uppercase font-black tracking-widest mt-2">Verified Post-Audit</p>
             </div>
         </div>
-        
-        <footer class="mt-10 text-center border-t border-slate-50 pt-4">
-            <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Moorreesburg, Western Cape | dynamicfleetreports@gmail.com</p>
-        </footer>
-    </div>
+
+        <div class="grid grid-cols-3 gap-6 mb-10">
+            <a href="pipeline.html" class="card"><span class="card-label">Prospect Pipeline</span><div class="card-value text-4xl" id="count-prospects">0</div></a>
+            <a href="database.html" class="card"><span class="card-label" style="color: #60a5fa;">Active Database</span><div class="card-value text-4xl" id="count-active">0</div></a>
+            <a href="churned.html" class="card"><span class="card-label" style="color: #f97316;">Churned Clients</span><div class="card-value text-4xl" id="count-churned">0</div></a>
+        </div>
+
+        <div class="bottom-grid">
+            <div class="status-tile">
+                <span class="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Sync Status</span>
+                <div id="sync-status" class="text-3xl font-black italic uppercase text-white tracking-tighter">READY</div>
+                <button onclick="hardResetSystem()" class="text-[8px] font-black text-red-500/40 uppercase mt-4 hover:text-red-500 transition">Hard Reset Cache</button>
+            </div>
+            <div class="status-tile">
+                <span class="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Last Import</span>
+                <div id="last-sync-time" class="text-3xl font-black italic uppercase text-emerald-500 tracking-tighter">NEVER</div>
+                <p id="last-sync-details" class="text-[9px] font-bold text-white/20 mt-1 uppercase">0 Records</p>
+            </div>
+            <div class="status-tile bg-emerald-500/5">
+                <button onclick="importFromSheet()" class="btn-action" style="background: #60a5fa; color: white;">🔄 IMPORT FROM SHEET</button>
+                <a href="audit.html" class="btn-action">Run Forensic Audit</a>
+                <a href="database.html" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">System Registry</a>
+            </div>
+        </div>
+    </main>
 
     <script>
-        window.onload = async () => {
-            const data = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
-            const now = new Date();
-            document.getElementById('currentDate').innerText = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
-            document.getElementById('docRef').innerText = `DFR-SLA-${now.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+        const SHEET_ID = '1zssrLcT2jaM8yoQUMS2MGgithXrJMw2wdG-3D2vS3Y8';
+        const GID = '985770824'; // Form responses 3 tab
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
-            if (data && data.client) {
-                document.getElementById('clientName').innerText = data.client.company;
-                const cleanName = data.client.company.toLowerCase().replace(/[^a-z0-9]/g, '');
-                document.getElementById('clientSpecificEmail').innerText = `dynamicfleetreports+${cleanName}@gmail.com`;
+        async function hardResetSystem() {
+            if (confirm("DANGER: This wipes all clients and resets the system. Continue?")) {
+                await cloudStorage.clear();
+                location.reload();
+            }
+        }
 
-                const fSize = data.client.fleetSize || 5;
-                const setup = 2500;
-                const monthly = 1500 + (fSize * 200);
+        async function importFromSheet() {
+            document.getElementById('sync-status').innerText = 'SYNCING...';
+            const oldScript = document.getElementById('google-data-script');
+            if (oldScript) oldScript.remove();
+            const script = document.createElement('script');
+            script.id = 'google-data-script';
+            script.src = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=responseHandler:handleResponse&gid=' + GID + '&t=' + Date.now();
+            document.body.appendChild(script);
+        }
 
-                document.getElementById('priceSection').innerHTML = `
-                    <div class="flex justify-between text-[10px] font-black text-blue-700 uppercase"><span>First Month (Inc. Setup)</span><span>R ${(setup + monthly).toLocaleString()}</span></div>
-                    <div class="flex justify-between text-base font-black text-slate-900 border-t border-blue-100 mt-1 pt-1"><span>Monthly Retainer</span><span>R ${monthly.toLocaleString()}</span></div>
-                `;
+        window.handleResponse = async function(response) {
+            try {
+                const rows = response.table.rows;
+
+                // Load everything in Firebase — never wipe it
+                let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+
+                // Build lookup of what we already have by company name
+                const existingByName = {};
+                existingClients.forEach(function(c) {
+                    existingByName[c.company.toLowerCase()] = true;
+                });
+
+                let addedCount = 0;
+
+                rows.forEach(function(row) {
+                    const c = row.c;
+                    if (!c || !c[1] || !c[1].v) return;
+
+                    const companyName = String(c[1].v).trim();
+                    if (!companyName || companyName.toLowerCase() === 'company name') return;
+
+                    // Col J (index 9) = status in sheet
+                    const sheetStatus = c[9] && c[9].v ? String(c[9].v).trim().toLowerCase() : '';
+
+                    // Skip rows already marked Active or Deleted in sheet
+                    if (sheetStatus === 'active' || sheetStatus === 'deleted') {
+                        console.log('Skipping (' + sheetStatus + '):', companyName);
+                        return;
+                    }
+
+                    // Already in Firebase — keep as-is, never overwrite
+                    if (existingByName[companyName.toLowerCase()]) {
+                        console.log('Already in Firebase:', companyName);
+                        return;
+                    }
+
+                    // Genuinely new — add it
+                    console.log('New prospect:', companyName);
+                    addedCount++;
+
+                    existingClients.push({
+                        id:           'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
+                        company:      companyName.toUpperCase(),
+                        contactName:  c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
+                        email:        c[3] && c[3].v ? String(c[3].v).trim() : '',
+                        contactTel:   '',
+                        fleetSize:    c[4] && c[4].v ? parseInt(c[4].v) : 0,
+                        vehicleTypes: c[5] && c[5].v ? String(c[5].v) : 'Unknown',
+                        city:         'NATIONAL',
+                        fuelPrice:    22.50,
+                        speedLimit:   80,
+                        currentCons:  '',
+                        targetCons:   2.3,
+                        status:       'prospect',
+                        auditStatus:  'not-started'
+                    });
+
+                    // Mark new entry in sheet as Prospect
+                    updateSheetStatus(companyName.toUpperCase(), 'Prospect').catch(function(err) {
+                        console.warn('Could not mark in sheet:', companyName, err);
+                    });
+                });
+
+                console.log('Sync done — ' + addedCount + ' new prospects added');
+
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(existingClients));
+                await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+                document.getElementById('sync-status').innerText = 'SUCCESS';
+                document.getElementById('last-sync-details').innerText = addedCount + ' NEW PROSPECTS ADDED';
+                setTimeout(function() { document.getElementById('sync-status').innerText = 'READY'; }, 2000);
+
+                updateDisplay();
+
+            } catch (err) {
+                document.getElementById('sync-status').innerText = 'ERROR';
+                console.error('Sync error:', err);
+                alert('Import failed. Check console for details.\n\n' + err);
             }
         };
 
-        async function signAgreement() {
-            const data = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
-            document.getElementById('signText').innerHTML = `<span class="signature-font text-3xl text-blue-600 italic">${data ? data.client.contactName : 'Authorized Signatory'}</span>`;
-            document.getElementById('signDate').innerHTML = `<span class="text-emerald-600 font-black">✓ EXECUTED: ${new Date().toLocaleString()}</span>`;
-            
-            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const idx = clients.findIndex(c => c.id === data.client.id);
-            if(idx !== -1) { clients[idx].status = 'active'; await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients)); }
-            alert("Contract Executed Successfully.");
+                var _cbCounter = 0;
+        function updateSheetStatus(companyName, status) {
+            return new Promise(function(resolve, reject) {
+                const callbackName = 'sheetCallback_' + Date.now() + '_' + (++_cbCounter);
+                const timeoutId = setTimeout(function() {
+                    delete window[callbackName];
+                    reject('Timeout — no response from sheet');
+                }, 10000);
+
+                window[callbackName] = function(data) {
+                    clearTimeout(timeoutId);
+                    delete window[callbackName];
+                    const script = document.getElementById(callbackName);
+                    if (script) script.remove();
+                    if (data.success) resolve(data);
+                    else reject(data.error || 'Sheet update failed');
+                };
+
+                const script = document.createElement('script');
+                script.id = callbackName;
+                script.onerror = function() {
+                    clearTimeout(timeoutId);
+                    delete window[callbackName];
+                    reject('Script load failed');
+                };
+                script.src = APPS_SCRIPT_URL
+                    + '?action=update'
+                    + '&company=' + encodeURIComponent(companyName)
+                    + '&status=' + encodeURIComponent(status)
+                    + '&callback=' + callbackName;
+                document.body.appendChild(script);
+            });
         }
+
+        function calculateMRR(clientArray) {
+            if (!clientArray || clientArray.length === 0) return 0;
+            const managementTotal = clientArray.length * 1500;
+            const vehicleTotal = clientArray.reduce(function(sum, item) {
+                return sum + (Number(item.fleetSize) || 0);
+            }, 0) * 200;
+            return managementTotal + vehicleTotal;
+        }
+
+        async function updateDisplay() {
+            const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const prospects = all.filter(function(c) { return c.status === 'prospect'; });
+            const active    = all.filter(function(c) { return c.status === 'active'; });
+            const churned   = all.filter(function(c) { return c.status === 'churned'; });
+            const ts = await cloudStorage.getItem('lastSyncTS') || 'NEVER';
+
+            document.getElementById('count-prospects').innerText = prospects.length;
+            document.getElementById('count-active').innerText    = active.length;
+            document.getElementById('count-churned').innerText   = churned.length;
+            document.getElementById('last-sync-time').innerText  = ts;
+            document.getElementById('last-sync-details').innerText = prospects.length + ' PROSPECTS IMPORTED';
+            document.getElementById('potential-mrr').innerText   = 'R ' + calculateMRR(prospects).toLocaleString();
+            document.getElementById('actual-mrr').innerText      = 'R ' + calculateMRR(active).toLocaleString();
+        }
+
+        window.onload = updateDisplay;
     </script>
 </body>
-
 </html>
