@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <title>Fleet Intel | Churned Clients</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        .logo-area { padding: 0 1rem 3rem 1rem; }
+        .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
+        .nav-item.active { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+        .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
+        .churned-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2rem; transition: 0.3s; border-left: 3px solid rgba(249, 115, 22, 0.3); }
+        .churned-card:hover { border-color: #f97316; transform: translateY(-3px); }
+        .badge-churned { background: rgba(249, 115, 22, 0.1); color: #f97316; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(249, 115, 22, 0.2); }
+        .badge-city { background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
+        <nav>
+            <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+            <a href="database.html" class="nav-item">Active Database</a>
+            <a href="audit.html" class="nav-item">Forensic Audit</a>
+            <a href="churned.html" class="nav-item active">Churned Clients</a>
+        </nav>
+    </aside>
+
+    <main class="main-wrapper">
+        <header class="flex justify-between items-end mb-14">
+            <div>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-orange-500 mb-2">Win-Back Intelligence</p>
+                <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Churned <span class="opacity-30">Clients</span></h1>
+            </div>
+            <div class="text-right">
+                <span id="c-count" class="text-3xl font-black italic text-white">0</span>
+                <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">Churned</p>
+            </div>
+        </header>
+
+        <div id="churned-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </main>
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+        var _cbCounter = 0;
+
+        async function renderChurned() {
+            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const churned    = allClients.filter(function(c) { return c.status === 'churned'; });
+
+            document.getElementById('c-count').innerText = churned.length;
+            const container = document.getElementById('churned-grid');
+
+            if (churned.length === 0) {
+                container.innerHTML = '<div class="col-span-full py-20 text-center opacity-20 font-black uppercase tracking-widest text-xs">No churned clients.</div>';
+                return;
+            }
+
+            container.innerHTML = churned.map(function(c) {
+                const auditBadge = c.auditStatus === 'complete'
+                    ? '<span style="color:#10b981;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;">✓ Audit on file</span>'
+                    : '<span style="color:#64748b;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;">○ No audit</span>';
+
+                const fleetCount = c.fleet ? c.fleet.length : (c.fleetSize || 0);
+                const lossRow = c.auditResults
+                    ? '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">Last Audit Loss</span><span class="text-red-400">R ' + c.auditResults.wholesaleTotalLoss.toLocaleString() + '</span></div>'
+                    : '';
+
+                return '<div class="churned-card">'
+                    + '<div class="flex justify-between items-start mb-5">'
+                    +   '<div class="flex gap-2 items-center">'
+                    +     '<span class="badge-churned">Churned</span>'
+                    +     '<span class="badge-city">' + (c.city || 'NATIONAL') + '</span>'
+                    +   '</div>'
+                    +   '<span style="font-size:9px;font-weight:900;color:rgba(255,255,255,0.2);">' + (c.churnDate || '—') + '</span>'
+                    + '</div>'
+                    + '<h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">' + c.company + '</h3>'
+                    + '<p class="text-orange-500/60 text-[10px] font-black uppercase tracking-widest mb-1">' + (c.contactName || 'NO CONTACT') + '</p>'
+                    + auditBadge
+                    + '<div class="space-y-2 border-t border-white/5 pt-5 mt-5 mb-6">'
+                    +   '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">Fleet Size</span><span>' + fleetCount + ' Units</span></div>'
+                    +   (c.churnReason ? '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">Reason</span><span class="text-orange-400/70 text-right" style="max-width:55%;word-break:break-word;">' + c.churnReason + '</span></div>' : '')
+                    +   lossRow
+                    + '</div>'
+                    + '<div class="flex gap-2">'
+                    +   '<button onclick="reactivate(\'' + c.id + '\')" class="flex-1 bg-orange-500 text-slate-900 py-3 rounded-xl text-[9px] font-black uppercase hover:scale-105 transition shadow-lg">↩ Reactivate</button>'
+                    +   '<button onclick="permanentDelete(\'' + c.id + '\', \'' + c.company.replace(/'/g, "\\'") + '\')" class="bg-white/5 border border-white/10 px-4 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition">Delete</button>'
+                    + '</div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        // Reactivate — sets back to prospect, preserves all data
+        async function reactivate(id) {
+            if (!confirm('Reactivate this client as a Prospect?\n\nAll previous data and audit history will be preserved.\nThey will need a fresh audit before becoming Active again.')) return;
+
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const idx = clients.findIndex(function(c) { return c.id == id; });
+            if (idx === -1) return;
+
+            const companyName = clients[idx].company;
+
+            clients[idx] = Object.assign({}, clients[idx], {
+                status:        'prospect',
+                auditStatus:   'not-started',
+                reactivatedDate: new Date().toLocaleDateString(),
+                churnDate:     clients[idx].churnDate,    // keep churn history
+                churnReason:   clients[idx].churnReason   // keep reason
+            });
+
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+
+            // Update sheet col J back to Prospect
+            try {
+                await sheetRequest('update', companyName, 'Prospect');
+                console.log('Sheet marked Prospect:', companyName);
+            } catch (err) {
+                console.warn('Could not update sheet:', err);
+            }
+
+            alert(companyName + ' reactivated as a Prospect.\nRedirecting to pipeline...');
+            window.location.href = 'pipeline.html';
+        }
+
+        // Permanent delete — only available from churned page, requires double confirm
+        async function permanentDelete(id, companyName) {
+            if (!confirm('Permanently delete ' + companyName + '?\n\nThis removes ALL data including audit history and cannot be undone.')) return;
+            if (!confirm('Are you sure? This is permanent.')) return;
+
+            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const companyKey = companyName.toUpperCase().replace(/\s+/g, '_');
+
+            // Clean up all Firebase keys
+            await cloudStorage.removeItem('AUDIT_DRAFT_' + companyKey);
+            await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_usage');
+            await cloudStorage.removeItem('CSV_MAPPING_' + companyKey + '_speed');
+            await cloudStorage.removeItem('AUDIT_HISTORY_' + id);
+
+            clients = clients.filter(function(c) { return c.id != id; });
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+
+            // Mark as Deleted in sheet so it never re-imports
+            try {
+                await sheetRequest('update', companyName, 'Deleted');
+            } catch (err) {
+                console.warn('Could not update sheet:', err);
+                alert('Removed locally but could not update Google Sheet.\nManually set col J to "Deleted" for ' + companyName);
+            }
+
+            renderChurned();
+        }
+
+        // Generic sheet JSONP request
+        function sheetRequest(action, companyName, status) {
+            return new Promise(function(resolve, reject) {
+                const cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
+                const tid = setTimeout(function() {
+                    delete window[cbName];
+                    reject('Timeout');
+                }, 10000);
+
+                window[cbName] = function(data) {
+                    clearTimeout(tid);
+                    delete window[cbName];
+                    const s = document.getElementById(cbName);
+                    if (s) s.remove();
+                    if (data.success) resolve(data);
+                    else reject(data.error || 'Failed');
+                };
+
+                const script = document.createElement('script');
+                script.id = cbName;
+                script.onerror = function() {
+                    clearTimeout(tid);
+                    delete window[cbName];
+                    reject('Script load failed');
+                };
+                let src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action)
+                    + '&company=' + encodeURIComponent(companyName)
+                    + '&callback=' + cbName;
+                if (status) src += '&status=' + encodeURIComponent(status);
+                script.src = src;
+                document.body.appendChild(script);
+            });
+        }
+
+        window.onload = renderChurned;
+    </script>
+</body>
+</html>
