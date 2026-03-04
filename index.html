@@ -105,16 +105,16 @@
             try {
                 const rows = response.table.rows;
 
-                // Load existing clients from Firebase
+                // Load everything in Firebase — never wipe it
                 let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
 
-                // Keep all active clients untouched — only rebuild prospects
-                const activeClients = existingClients.filter(c => c.status === 'active');
+                // Build lookup of what we already have by company name
+                const existingByName = {};
+                existingClients.forEach(function(c) {
+                    existingByName[c.company.toLowerCase()] = true;
+                });
 
-                // Build a set of active company names for quick lookup
-                const activeNames = new Set(activeClients.map(c => c.company.toLowerCase()));
-
-                const newProspects = [];
+                let addedCount = 0;
 
                 rows.forEach(function(row) {
                     const c = row.c;
@@ -123,58 +123,56 @@
                     const companyName = String(c[1].v).trim();
                     if (!companyName || companyName.toLowerCase() === 'company name') return;
 
-                    // Col J (index 9) = status
+                    // Col J (index 9) = status in sheet
                     const sheetStatus = c[9] && c[9].v ? String(c[9].v).trim().toLowerCase() : '';
 
-                    // Skip Active and Deleted rows — only import blank or "prospect"
+                    // Skip rows already marked Active or Deleted in sheet
                     if (sheetStatus === 'active' || sheetStatus === 'deleted') {
                         console.log('Skipping (' + sheetStatus + '):', companyName);
                         return;
                     }
 
-                    // Skip if already an active client in Firebase
-                    if (activeNames.has(companyName.toLowerCase())) {
-                        console.log('Skipping — already active in Firebase:', companyName);
+                    // Already in Firebase — keep as-is, never overwrite
+                    if (existingByName[companyName.toLowerCase()]) {
+                        console.log('Already in Firebase:', companyName);
                         return;
                     }
 
-                    console.log('Importing prospect:', companyName);
+                    // Genuinely new — add it
+                    console.log('New prospect:', companyName);
+                    addedCount++;
 
-                    newProspects.push({
-                        id: 'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
-                        company: companyName.toUpperCase(),
-                        contactName: c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
-                        email: c[3] && c[3].v ? String(c[3].v).trim() : '',
-                        contactTel: '',
-                        fleetSize: c[4] && c[4].v ? parseInt(c[4].v) : 0,
+                    existingClients.push({
+                        id:           'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
+                        company:      companyName.toUpperCase(),
+                        contactName:  c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
+                        email:        c[3] && c[3].v ? String(c[3].v).trim() : '',
+                        contactTel:   '',
+                        fleetSize:    c[4] && c[4].v ? parseInt(c[4].v) : 0,
                         vehicleTypes: c[5] && c[5].v ? String(c[5].v) : 'Unknown',
-                        city: 'NATIONAL',
-                        fuelPrice: 22.50,
-                        speedLimit: 80,
-                        currentCons: '',
-                        targetCons: 2.3,
-                        status: 'prospect',
-                        auditStatus: 'not-started'
+                        city:         'NATIONAL',
+                        fuelPrice:    22.50,
+                        speedLimit:   80,
+                        currentCons:  '',
+                        targetCons:   2.3,
+                        status:       'prospect',
+                        auditStatus:  'not-started'
+                    });
+
+                    // Mark new entry in sheet as Prospect
+                    updateSheetStatus(companyName.toUpperCase(), 'Prospect').catch(function(err) {
+                        console.warn('Could not mark in sheet:', companyName, err);
                     });
                 });
 
-                console.log('Prospects imported:', newProspects.length);
+                console.log('Sync done — ' + addedCount + ' new prospects added');
 
-                // Mark each new prospect in the sheet as "Prospect"
-                newProspects.forEach(function(p) {
-                    updateSheetStatus(p.company, 'Prospect').catch(function(err) {
-                        console.warn('Could not mark prospect in sheet:', p.company, err);
-                    });
-                });
-
-                // Merge: active clients + freshly imported prospects
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify([...activeClients, ...newProspects]));
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(existingClients));
                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
                 document.getElementById('sync-status').innerText = 'SUCCESS';
-                setTimeout(function() {
-                    document.getElementById('sync-status').innerText = 'READY';
-                }, 2000);
+                document.getElementById('last-sync-details').innerText = addedCount + ' NEW PROSPECTS ADDED';
+                setTimeout(function() { document.getElementById('sync-status').innerText = 'READY'; }, 2000);
 
                 updateDisplay();
 
@@ -185,9 +183,10 @@
             }
         };
 
+                var _cbCounter = 0;
         function updateSheetStatus(companyName, status) {
             return new Promise(function(resolve, reject) {
-                const callbackName = 'sheetCallback_' + Date.now();
+                const callbackName = 'sheetCallback_' + Date.now() + '_' + (++_cbCounter);
                 const timeoutId = setTimeout(function() {
                     delete window[callbackName];
                     reject('Timeout — no response from sheet');
