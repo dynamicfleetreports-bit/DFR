@@ -55,9 +55,10 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-6 mb-10">
+        <div class="grid grid-cols-3 gap-6 mb-10">
             <a href="pipeline.html" class="card"><span class="card-label">Prospect Pipeline</span><div class="card-value text-4xl" id="count-prospects">0</div></a>
             <a href="database.html" class="card"><span class="card-label" style="color: #60a5fa;">Active Database</span><div class="card-value text-4xl" id="count-active">0</div></a>
+            <a href="churned.html" class="card"><span class="card-label" style="color: #f97316;">Churned Clients</span><div class="card-value text-4xl" id="count-churned">0</div></a>
         </div>
 
         <div class="bottom-grid">
@@ -230,10 +231,12 @@
             const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
             const prospects = all.filter(function(c) { return c.status === 'prospect'; });
             const active    = all.filter(function(c) { return c.status === 'active'; });
+            const churned   = all.filter(function(c) { return c.status === 'churned'; });
             const ts = await cloudStorage.getItem('lastSyncTS') || 'NEVER';
 
             document.getElementById('count-prospects').innerText = prospects.length;
             document.getElementById('count-active').innerText    = active.length;
+            document.getElementById('count-churned').innerText   = churned.length;
             document.getElementById('last-sync-time').innerText  = ts;
             document.getElementById('last-sync-details').innerText = prospects.length + ' PROSPECTS IMPORTED';
             document.getElementById('potential-mrr').innerText   = 'R ' + calculateMRR(prospects).toLocaleString();
