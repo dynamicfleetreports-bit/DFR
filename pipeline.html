@@ -8,251 +8,325 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
         .logo-area { padding: 0 1rem 3rem 1rem; }
         .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
-        .nav-item.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
         .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
-        .prospect-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2rem; transition: 0.3s; }
-        .prospect-card:hover { border-color: #10b981; transform: translateY(-5px); }
-        .badge { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
-        .status-badge { padding: 6px 12px; border-radius: 8px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; }
-        .status-not-started { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .status-in-progress { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.2); }
-        .status-complete { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .prospect-card { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2rem; transition: 0.3s; }
+        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; display: inline-flex; align-items: center; gap: 5px; }
+        .status-not-started { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+        .status-in-progress { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+        .status-complete { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .sla-trail { display: flex; margin: 10px 0 14px 0; }
+        .sla-step { flex: 1; text-align: center; padding: 6px 2px; font-size: 8px; font-weight: 900; text-transform: uppercase; border-top: 2px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.18); }
+        .sla-step.done { border-top-color: #10b981; color: #10b981; }
+        .sla-step.done::before { content: "✓ "; }
+        .sla-step.current { border-top-color: #3b82f6; color: #60a5fa; }
+        #toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.35s; pointer-events: none; }
+        #toast.show { transform: translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
-    <aside id="sidebar">
-        <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
-        <nav>
-            <a href="index.html" class="nav-item">Dashboard</a>
-            <a href="pipeline.html" class="nav-item active">Prospect Pipeline</a>
-            <a href="database.html" class="nav-item">Active Database</a>
-            <a href="audit.html" class="nav-item">Forensic Audit</a>
-        </nav>
-    </aside>
 
-    <main class="main-wrapper">
-        <header class="flex justify-between items-end mb-14">
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">New Business Intelligence</p>
-                <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Prospect <span class="opacity-30">Pipeline</span></h1>
-            </div>
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
+    <nav>
+        <a href="index.html"    class="nav-item">Dashboard</a>
+        <a href="pipeline.html" class="nav-item active">Prospect Pipeline</a>
+        <a href="database.html" class="nav-item">Active Database</a>
+        <a href="churned.html"  class="nav-item">Churned Clients</a>
+        <a href="audit.html"    class="nav-item">Forensic Audit</a>
+    </nav>
+</aside>
+
+<main class="main-wrapper">
+    <header class="flex justify-between items-end mb-8">
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">New Business Intelligence</p>
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Prospect <span class="opacity-30">Pipeline</span></h1>
+        </div>
+        <div class="flex items-end gap-8">
             <div class="text-right">
                 <span id="p-count" class="text-3xl font-black italic text-white">0</span>
-                <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">Leads Detected</p>
+                <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">Prospects</p>
             </div>
-        </header>
+            <div class="text-right">
+                <span id="sla-pending-count" class="text-3xl font-black italic text-blue-400">0</span>
+                <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">SLA Pending</p>
+            </div>
+        </div>
+    </header>
 
-        <div id="pipeline-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </main>
+    <div class="flex gap-3 mb-8 items-center flex-wrap">
+        <span class="text-[9px] font-black uppercase text-white/20 tracking-widest">Workflow:</span>
+        <span class="text-[9px] font-black uppercase text-white/40">① Run Audit</span>
+        <span class="text-white/15 text-xs">→</span>
+        <span class="text-[9px] font-black uppercase text-blue-400/60">② Generate &amp; Send SLA</span>
+        <span class="text-white/15 text-xs">→</span>
+        <span class="text-[9px] font-black uppercase text-yellow-400/60">③ Mark SLA Received</span>
+        <span class="text-white/15 text-xs">→</span>
+        <span class="text-[9px] font-black uppercase text-emerald-400/60">④ Activate</span>
+    </div>
 
-    <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    <div id="pipeline-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+</main>
 
-        // ── Audit status badge ────────────────────────────────
-        function getAuditStatusBadge(prospect) {
-            const status = prospect.auditStatus || 'not-started';
-            if (status === 'complete') {
-                return '<div class="status-badge status-complete">✓ Audit Complete</div>';
-            } else if (status === 'in-progress') {
-                const lastEdited = prospect.lastEditedDate ? new Date(prospect.lastEditedDate).toLocaleDateString() : '';
-                return '<div class="status-badge status-in-progress">⏳ In Progress' + (lastEdited ? ' (' + lastEdited + ')' : '') + '</div>';
-            } else {
-                return '<div class="status-badge status-not-started">○ Not Started</div>';
-            }
+<div id="toast"><div id="toast-inner" class="px-5 py-3 rounded-xl text-sm font-bold shadow-xl"></div></div>
+
+<script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    var _cbCounter = 0;
+
+    function getSlaStatus(p) {
+        if (p.slaExecuted)     return 'executed';
+        if (p.slaReceivedDate) return 'received';
+        if (p.slaSentDate)     return 'sent';
+        return 'none';
+    }
+
+    function getSlaTrailHtml(slaStatus) {
+        var steps = ['Audit', 'SLA Sent', 'SLA Received', 'Activate'];
+        var doneCount = { none: 1, sent: 2, received: 3, executed: 4 }[slaStatus] || 1;
+        return '<div class="sla-trail">' + steps.map(function(label, i) {
+            var cls = (i + 1) < doneCount ? 'done' : (i + 1) === doneCount ? 'current' : '';
+            return '<div class="sla-step ' + cls + '">' + label + '</div>';
+        }).join('') + '</div>';
+    }
+
+    function getAuditBadgeHtml(p) {
+        var s = p.auditStatus || 'not-started';
+        if (s === 'complete') {
+            var d = p.lastAuditDate ? ' · ' + p.lastAuditDate : '';
+            return '<span class="status-badge status-complete">✓ Audit Complete' + d + '</span>';
+        }
+        if (s === 'in-progress') return '<span class="status-badge status-in-progress">⏳ In Progress</span>';
+        return '<span class="status-badge status-not-started">○ No Audit Yet</span>';
+    }
+
+    function buildButtons(p) {
+        var id         = p.id;
+        var co         = p.company.replace(/'/g, "\\'");
+        var slaStatus  = getSlaStatus(p);
+        var auditDone  = p.auditStatus === 'complete';
+        var auditLabel = auditDone ? 'View / Re-run Audit' : (p.auditStatus === 'in-progress' ? 'Continue Audit' : 'Run Free Audit');
+        var html       = '<div class="space-y-2 mt-4">';
+
+        // Audit button — always present
+        html += '<button onclick="runAudit(\'' + co + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\'">' + auditLabel + '</button>';
+
+        // SLA flow buttons
+        if (slaStatus === 'none') {
+            var hint = !auditDone ? ' — audit first?' : '';
+            html += '<button onclick="generateSLA(\'' + id + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;" onmouseover="this.style.background=\'rgba(59,130,246,0.22)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.12)\'">📄 Generate &amp; Send SLA' + hint + '</button>';
+
+        } else if (slaStatus === 'sent') {
+            html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+                + '<button onclick="generateSLA(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#93c5fd;" onmouseover="this.style.background=\'rgba(59,130,246,0.18)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.08)\'">↗ Resend SLA</button>'
+                + '<button onclick="markSlaReceived(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;" onmouseover="this.style.background=\'rgba(251,191,36,0.22)\'" onmouseout="this.style.background=\'rgba(251,191,36,0.12)\'">✉️ Mark Received</button>'
+                + '</div>';
+
+        } else if (slaStatus === 'received' || slaStatus === 'executed') {
+            html += '<button onclick="activateClient(\'' + id + '\')" style="width:100%;padding:11px 0;border-radius:12px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:#10b981;border:none;color:#020617;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">⚡ Activate Client</button>';
         }
 
-        // ── Render pipeline grid ──────────────────────────────
-        async function renderPipeline() {
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const pipeline   = allClients.filter(function(c) { return c.status === 'prospect'; });
+        // Edit link
+        html += '<div style="text-align:center;margin-top:4px;"><button onclick="window.location.href=\'create.html?editId=' + id + '\'" style="background:none;border:none;color:rgba(255,255,255,0.2);font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.color=\'rgba(255,255,255,0.5)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.2)\'">Edit Details</button></div>';
+        html += '</div>';
+        return html;
+    }
 
-            document.getElementById('p-count').innerText = pipeline.length;
-            const container = document.getElementById('pipeline-grid');
+    async function renderPipeline() {
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var pipeline   = allClients.filter(function(c) { return c.status === 'prospect'; });
 
-            if (pipeline.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-20 text-center opacity-20 font-black uppercase tracking-widest text-xs">No prospects in system.</div>';
-                return;
-            }
+        document.getElementById('p-count').innerText = pipeline.length;
+        var pending = pipeline.filter(function(p) { var s = getSlaStatus(p); return s === 'sent' || s === 'received'; }).length;
+        document.getElementById('sla-pending-count').innerText = pending;
 
-            container.innerHTML = pipeline.map(function(p) {
-                const fleetLabel = p.fleetSizeConfirmed ? 'Confirmed Fleet' : 'Estimated Fleet';
-                const auditBadge = getAuditStatusBadge(p);
-                const auditBtnLabel = p.auditStatus === 'complete' ? 'View Audit' : p.auditStatus === 'in-progress' ? 'Continue Audit' : 'Run Audit';
-                const lossRow = p.auditResults ? '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">Total Loss</span><span class="text-red-400">R ' + p.auditResults.wholesaleTotalLoss.toLocaleString() + '</span></div>' : '';
-
-                return '<div class="prospect-card">'
-                    + '<div class="flex justify-between items-start mb-6">'
-                    +   '<span class="badge">' + (p.city || 'NATIONAL') + '</span>'
-                    +   '<div class="flex gap-4">'
-                    +     '<button onclick="window.location.href=\'create.html?editId=' + p.id + '\'" class="text-white/20 hover:text-emerald-500 transition text-[10px] font-black uppercase tracking-widest">Edit</button>'
-                    +     '<button onclick="churnClient(\'' + p.id + '\', \'prospect\')" class="text-white/20 hover:text-orange-500 transition text-[10px] font-black uppercase tracking-widest">Churn</button>'
-                    +   '</div>'
-                    + '</div>'
-                    + '<h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">' + p.company + '</h3>'
-                    + '<p class="text-emerald-500 text-[10px] font-black uppercase tracking-widest mb-2">' + (p.contactName || 'NO CONTACT') + '</p>'
-                    + auditBadge
-                    + '<div class="space-y-3 mb-8 border-t border-white/5 pt-6 mt-6">'
-                    +   '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30 font-black">' + fleetLabel + '</span><span class="' + (p.fleetSizeConfirmed ? 'text-emerald-400' : '') + '">' + (p.fleetSize || 0) + ' Units</span></div>'
-                    +   lossRow
-                    + '</div>'
-                    + '<div class="flex gap-2">'
-                    +   '<button onclick="runAudit(\'' + p.company.replace(/'/g, "\\'") + '\')" class="flex-1 bg-white/5 border border-white/10 py-3 rounded-xl text-[9px] font-black uppercase hover:bg-white/10 transition">' + auditBtnLabel + '</button>'
-                    +   '<button onclick="convertToActive(\'' + p.id + '\')" class="flex-1 bg-emerald-500 text-slate-900 py-3 rounded-xl text-[9px] font-black uppercase hover:scale-105 transition shadow-lg">Convert</button>'
-                    + '</div>'
-                    + '</div>';
-            }).join('');
+        var container = document.getElementById('pipeline-grid');
+        if (pipeline.length === 0) {
+            container.innerHTML = '<div style="grid-column:1/-1;padding:5rem 0;text-align:center;opacity:0.2;font-weight:900;text-transform:uppercase;font-size:11px;letter-spacing:0.2em;">No prospects in pipeline.</div>';
+            return;
         }
 
-        // ── Churn modal ──────────────────────────────────
-        function churnClient(id, fromStatus) {
-            const reason = prompt('Reason for churning this client?\n(Optional — leave blank if not needed)');
-            if (reason === null) return; // cancelled
-            processChurn(id, fromStatus, reason);
+        container.innerHTML = pipeline.map(function(p) {
+            var slaStatus  = getSlaStatus(p);
+            var fleetLabel = p.fleetSizeConfirmed ? 'Confirmed Fleet' : 'Est. Fleet';
+            var lossHtml   = p.auditResults
+                ? '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:rgba(255,255,255,0.3);font-weight:900;text-transform:uppercase;">Est. Monthly Loss</span><span style="color:#f87171;font-weight:900;">R ' + p.auditResults.wholesaleTotalLoss.toLocaleString() + '</span></div>'
+                : '';
+
+            var slaInfoHtml = '';
+            if (slaStatus === 'sent')     slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#60a5fa;margin-top:4px;">📄 SLA sent ' + (p.slaSentDate ? '· ' + new Date(p.slaSentDate).toLocaleDateString('en-ZA') : '') + '</div>';
+            if (slaStatus === 'received') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#fbbf24;margin-top:4px;">✉️ Signed SLA received ' + (p.slaReceivedDate ? '· ' + new Date(p.slaReceivedDate).toLocaleDateString('en-ZA') : '') + '</div>';
+            if (slaStatus === 'executed') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#10b981;margin-top:4px;">✓ SLA executed digitally · ' + (p.slaDate ? new Date(p.slaDate).toLocaleDateString('en-ZA') : '') + '</div>';
+
+            return '<div class="prospect-card">'
+                + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">'
+                +   '<span style="background:rgba(16,185,129,0.1);color:#10b981;padding:4px 10px;border-radius:6px;font-size:9px;font-weight:900;text-transform:uppercase;">' + (p.city || 'NATIONAL') + '</span>'
+                +   '<button onclick="churnClient(\'' + p.id + '\',\'prospect\')" style="background:none;border:none;color:rgba(255,255,255,0.18);font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.color=\'#f97316\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">Churn</button>'
+                + '</div>'
+                + '<h3 style="font-size:1.2rem;font-weight:900;font-style:italic;color:white;text-transform:uppercase;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.company + '</h3>'
+                + '<p style="color:#10b981;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">' + (p.contactName || 'NO CONTACT') + '</p>'
+                + getAuditBadgeHtml(p)
+                + slaInfoHtml
+                + getSlaTrailHtml(slaStatus)
+                + '<div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;margin-top:4px;space-y:8px;">'
+                +   '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px;"><span style="color:rgba(255,255,255,0.3);font-weight:900;text-transform:uppercase;">' + fleetLabel + '</span><span style="color:' + (p.fleetSizeConfirmed ? '#10b981' : 'rgba(255,255,255,0.5)') + ';font-weight:900;">' + (p.fleetSize || '?') + ' units</span></div>'
+                +   lossHtml
+                + '</div>'
+                + buildButtons(p)
+                + '</div>';
+        }).join('');
+    }
+
+    // ── Generate & Send SLA ───────────────────────────────────────────────────
+    async function generateSLA(id) {
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+        var client = allClients[idx];
+
+        // Load audit draft for fleet data
+        var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
+        var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
+        var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
+        var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
+
+        // Populate AUDIT_FINAL so sla.html can read client details
+        var auditFinal = {
+            client: {
+                company:     client.company,
+                id:          client.id,
+                contactName: client.contactName || '',
+                contact:     client.contactName || '',
+                fleetSize:   fleetSize,
+                city:        client.city || ''
+            },
+            fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [],
+            month: auditDraft ? (auditDraft.auditPeriod || '') : ''
+        };
+        await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
+
+        // Record SLA sent timestamp
+        if (!allClients[idx].slaSentDate) {
+            allClients[idx].slaSentDate = new Date().toISOString();
+        }
+        allClients[idx].slaLastOpenedDate = new Date().toISOString();
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+
+        showToast('📄 Opening SLA for ' + client.company + '...', 'blue');
+        setTimeout(function() { window.open('sla.html', '_blank'); renderPipeline(); }, 400);
+    }
+
+    // ── Mark SLA received ─────────────────────────────────────────────────────
+    async function markSlaReceived(id) {
+        if (!confirm('Confirm you have received the signed SLA back from this client.\n\nThis will unlock the Activate button.')) return;
+
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+
+        allClients[idx].slaReceivedDate = new Date().toISOString();
+        allClients[idx].slaStatus       = 'received';
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+
+        showToast('✉️ SLA marked as received. Activate is now unlocked.', 'yellow');
+        renderPipeline();
+    }
+
+    // ── Activate client ───────────────────────────────────────────────────────
+    async function activateClient(id) {
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+        var client    = allClients[idx];
+        var slaStatus = getSlaStatus(client);
+
+        if (slaStatus !== 'received' && slaStatus !== 'executed') {
+            showToast('⚠️ Cannot activate — SLA must be received first.', 'red');
+            return;
         }
 
-        async function processChurn(id, fromStatus, reason) {
-            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const idx = clients.findIndex(function(c) { return c.id == id; });
-            if (idx === -1) { renderPipeline(); return; }
+        var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
+        var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
+        var auditData  = draftRaw ? (JSON.parse(draftRaw).auditData || {}) : {};
+        var fleetArray = Object.keys(auditData).map(function(k) {
+            var v = auditData[k];
+            return { reg: v.reg || k, type: v.type || 'Heavy', make: v.make || '', model: v.model || '', year: v.year || '', usedFor: v.usedFor || 'Long Distance', targetKmL: v.targetKmL || client.targetCons || '2.3' };
+        });
 
-            const client      = clients[idx];
-            const companyName = client.company;
-            const companyKey  = companyName.toUpperCase().replace(/\s+/g, '_');
+        var fleetSize = fleetArray.length || client.fleetSize || 0;
+        var tier      = fleetSize <= 15 ? 1 : fleetSize <= 30 ? 2 : 3;
+        var rate      = [0, 200, 175, 150][tier];
+        var monthly   = 1500 + (fleetSize * rate);
 
-            // Update status to churned, preserve all data
-            clients[idx] = Object.assign({}, client, {
-                status:       'churned',
-                churnDate:    new Date().toLocaleDateString(),
-                churnReason:  reason || '',
-                churnedFrom:  fromStatus
-            });
+        allClients[idx] = Object.assign({}, client, {
+            status: 'active', activationDate: new Date().toISOString(),
+            convertedDate: new Date().toLocaleDateString('en-ZA'),
+            fleetSize: fleetSize, fleet: fleetArray,
+            pricingTier: tier, monthlyRetainer: monthly, onDemandPool: fleetSize,
+            reportSchedule: client.reportSchedule || 'weekly',
+            speedLimit: parseInt(client.speedLimit) || 80,
+            fuelPrice: parseFloat(client.fuelPrice) || 21.50,
+            targetCons: parseFloat(client.targetCons) || 2.3,
+            lastReportSent: null, reportHistory: client.reportHistory || []
+        });
 
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        try { await sheetRequest('update', client.company, 'Active'); } catch(e) {}
 
-            // Update sheet col J to Churned
-            try {
-                await sheetRequest('update', companyName, 'Churned');
-                console.log('Sheet marked Churned:', companyName);
-            } catch (err) {
-                console.warn('Could not update sheet:', err);
-            }
+        showToast('⚡ ' + client.company + ' activated! Redirecting...', 'green');
+        setTimeout(function() { window.location.href = 'database.html'; }, 1600);
+    }
 
-            renderPipeline();
-        }
+    // ── Churn ─────────────────────────────────────────────────────────────────
+    function churnClient(id, fromStatus) {
+        var reason = prompt('Reason for churning this prospect?\n(Optional — press OK to leave blank)');
+        if (reason === null) return;
+        processChurn(id, fromStatus, reason);
+    }
 
-                // ── Convert prospect to active client ─────────────────
-        async function convertToActive(id) {
-            let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const index = clients.findIndex(function(c) { return c.id == id; });
+    async function processChurn(id, fromStatus, reason) {
+        var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = clients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) { renderPipeline(); return; }
+        clients[idx] = Object.assign({}, clients[idx], {
+            status: 'churned', churnDate: new Date().toLocaleDateString('en-ZA'),
+            churnReason: reason || '', churnedFrom: fromStatus
+        });
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+        try { await sheetRequest('update', clients[idx].company, 'Churned'); } catch(e) {}
+        renderPipeline();
+    }
 
-            if (index === -1) {
-                alert('Client not found: ' + id);
-                return;
-            }
+    function runAudit(name) { window.location.href = 'audit.html?client=' + encodeURIComponent(name); }
 
-            const client      = clients[index];
-            const companyName = client.company;
-            const companyKey  = companyName.toUpperCase().replace(/\s+/g, '_');
+    function sheetRequest(action, companyName, status) {
+        return new Promise(function(resolve, reject) {
+            var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
+            var tid = setTimeout(function() { delete window[cbName]; reject('Timeout'); }, 10000);
+            window[cbName] = function(data) { clearTimeout(tid); delete window[cbName]; var s = document.getElementById(cbName); if (s) s.remove(); resolve(data); };
+            var script = document.createElement('script');
+            script.id = cbName;
+            script.onerror = function() { clearTimeout(tid); delete window[cbName]; reject('Error'); };
+            script.src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(companyName) + '&status=' + encodeURIComponent(status || '') + '&callback=' + cbName;
+            document.body.appendChild(script);
+        });
+    }
 
-            // Load audit draft to get fleet details
-            let auditData = {};
-            try {
-                const savedDraft = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
-                if (savedDraft) {
-                    const draft = JSON.parse(savedDraft);
-                    auditData = draft.auditData || {};
-                }
-            } catch(e) {
-                console.error('Error loading audit draft:', e);
-            }
+    function showToast(msg, color) {
+        var t = document.getElementById('toast');
+        var i = document.getElementById('toast-inner');
+        var c = { blue: 'background:#1e3a5f;color:#60a5fa;border:1px solid rgba(96,165,250,0.3)', yellow: 'background:#3d2e00;color:#fbbf24;border:1px solid rgba(251,191,36,0.3)', green: 'background:#064e3b;color:#10b981;border:1px solid rgba(16,185,129,0.3)', red: 'background:#3d0000;color:#f87171;border:1px solid rgba(248,113,113,0.3)' };
+        i.style.cssText = c[color] || c.blue;
+        i.innerText = msg;
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 3500);
+    }
 
-            // Build fleet array
-            const fleetArray = Object.keys(auditData).map(function(key) {
-                const v = auditData[key];
-                return {
-                    reg:       v.reg || key,
-                    type:      v.type || 'Heavy',
-                    make:      v.make || '',
-                    model:     v.model || '',
-                    year:      v.year || '',
-                    usedFor:   v.usedFor || 'Long Distance',
-                    targetKmL: v.targetKmL || client.targetCons || '2.3'
-                };
-            });
-
-            // Update client record
-            clients[index] = Object.assign({}, client, {
-                status:         'active',
-                convertedDate:  new Date().toLocaleDateString(),
-                id:             client.id || 'client-' + Date.now(),
-                reportSchedule: client.reportSchedule || 'weekly',
-                fleetSize:      fleetArray.length || client.fleetSize || 0,
-                speedLimit:     parseInt(client.speedLimit) || 80,
-                fuelPrice:      parseFloat(client.fuelPrice) || 21.50,
-                targetCons:     parseFloat(client.targetCons) || 2.3,
-                lastReportSent: null,
-                reportHistory:  [],
-                fleet:          fleetArray,
-                auditResults:   client.auditResults || null,
-                auditStatus:    client.auditStatus || 'complete'
-            });
-
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-
-            // Mark as Active in Google Sheet
-            try {
-                await sheetRequest('update', companyName, 'Active');
-                console.log('Sheet marked Active:', companyName);
-            } catch (err) {
-                console.warn('Could not update sheet status:', err);
-            }
-
-            alert(companyName + ' converted to Active Client!\nFleet: ' + fleetArray.length + ' vehicles\nRedirecting...');
-            window.location.href = 'database.html';
-        }
-
-        // ── Generic sheet request (JSONP) ─────────────────────
-        function sheetRequest(action, companyName, status) {
-            return new Promise(function(resolve, reject) {
-                const cbName = 'sheetCB_' + Date.now();
-                const tid = setTimeout(function() {
-                    delete window[cbName];
-                    reject('Timeout — no response from Google Sheet');
-                }, 10000);
-
-                window[cbName] = function(data) {
-                    clearTimeout(tid);
-                    delete window[cbName];
-                    const s = document.getElementById(cbName);
-                    if (s) s.remove();
-                    if (data.success) resolve(data);
-                    else reject(data.error || 'Sheet request failed');
-                };
-
-                const script = document.createElement('script');
-                script.id = cbName;
-                script.onerror = function() {
-                    clearTimeout(tid);
-                    delete window[cbName];
-                    reject('Script load failed');
-                };
-
-                let src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(companyName) + '&callback=' + cbName;
-                if (status) src += '&status=' + encodeURIComponent(status);
-                script.src = src;
-                console.log('Sheet request:', src);
-                document.body.appendChild(script);
-            });
-        }
-
-        function runAudit(name) {
-            window.location.href = 'audit.html?client=' + encodeURIComponent(name);
-        }
-
-        window.onload = renderPipeline;
-    </script>
+    window.onload = renderPipeline;
+</script>
 </body>
 </html>
