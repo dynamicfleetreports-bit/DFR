@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <title>SLA | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Playfair+Display:ital@1&display=swap');
+        body { font-family: 'Outfit', sans-serif; padding: 40px; background: #f1f5f9; color: #1e293b; line-height: 1.7; }
+        .contract-card { background: white; max-width: 900px; margin: 0 auto; padding: 4rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .clause-title { font-weight: 900; text-transform: uppercase; font-size: 0.8rem; color: #1e40af; margin-top: 2rem; margin-bottom: 0.6rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; letter-spacing: 0.08em; }
+        .clause-text { font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem; text-align: justify; }
+        .clause-sub { font-size: 0.83rem; color: #475569; margin-bottom: 0.6rem; padding-left: 1.25rem; text-align: justify; }
+        .highlight-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #1e40af; line-height: 1.6; }
+        .warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #9a3412; line-height: 1.6; }
+        .info-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #14532d; line-height: 1.6; }
+        .signature-font { font-family: 'Playfair Display', serif; }
+        .page-break { border: none; border-top: 3px dashed #e2e8f0; margin: 3rem 0; }
+        .schedule-header { background: #1e40af; color: white; padding: 1.5rem 2rem; border-radius: 0.5rem; margin-bottom: 2rem; }
+        .report-card { border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+        .report-card-title { font-weight: 900; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.08em; margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid #e2e8f0; }
+        .report-item { font-size: 0.8rem; color: #475569; padding: 0.2rem 0; display: flex; gap: 0.5rem; align-items: flex-start; }
+        .report-item::before { content: "→"; color: #2563eb; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+        .tick-row { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 0.5rem; font-size: 0.82rem; color: #334155; cursor: pointer; }
+        .tick-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; accent-color: #2563eb; cursor: pointer; }
+        .tick-row.checked { background: #eff6ff; border-color: #93c5fd; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+            .contract-card { box-shadow: none; border: none; width: 100%; padding: 1.5rem; }
+            .page-break { border-top: 2px dashed #ccc; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print max-w-[900px] mx-auto mb-6 flex justify-between items-center">
+        <button onclick="window.history.back()" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600">← Back</button>
+        <div class="flex gap-3">
+            <button onclick="window.print()" class="border border-slate-300 px-6 py-2 rounded-full font-black uppercase text-[10px] hover:bg-slate-50 transition">🖨 Print / Save PDF</button>
+            <button onclick="submitAgreement()" id="submitBtn" class="bg-blue-600 text-white px-8 py-2 rounded-full font-black uppercase text-[10px] hover:bg-blue-700 shadow-lg">Execute &amp; Activate</button>
+        </div>
+    </div>
+
+    <div class="contract-card">
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  MASTER SERVICE AGREEMENT                          -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <header class="flex justify-between items-start mb-10">
+            <div class="flex items-center gap-6">
+                <img src="Logo.png" alt="Logo" class="h-20 w-auto">
+                <div>
+                    <h1 class="text-3xl font-black uppercase italic tracking-tighter leading-none">Master Service <span class="text-blue-600">Agreement</span></h1>
+                    <p class="text-[9px] font-black text-slate-400 tracking-[0.2em] mt-1 uppercase">Dynamic Fleet Reporting</p>
+                    <p class="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Moorreesburg, Western Cape</p>
+                </div>
+            </div>
+            <div class="text-right p-3 bg-slate-50 rounded border border-slate-100">
+                <p class="text-[8px] font-black text-slate-400 uppercase">Document Ref</p>
+                <p id="docRef" class="text-xs font-bold text-slate-800 font-mono">DFR-SLA-2026-XXXX</p>
+                <p class="text-[8px] font-black text-slate-400 uppercase mt-2">Date</p>
+                <p id="currentDate" class="text-[10px] font-bold text-slate-600">--</p>
+            </div>
+        </header>
+
+        <!-- 1. PARTIES -->
+        <h3 class="clause-title">1. The Parties</h3>
+        <p class="clause-text">
+            This Master Service Agreement ("Agreement") is entered into between <strong>Dynamic Fleet Reporting</strong>, a sole proprietorship registered and operating from Moorreesburg, Western Cape, Republic of South Africa (the <strong>"Consultant"</strong>), and <span id="clientName" class="font-bold underline uppercase">[Client Name]</span> (the <strong>"Subscriber"</strong>).
+        </p>
+        <p class="clause-text">Both parties agree to be bound by the terms set out herein, which shall come into effect on the date of execution. The services to be rendered are described in full in <strong>Schedule A</strong> attached hereto.</p>
+
+        <!-- 2. SCOPE -->
+        <h3 class="clause-title">2. Scope of Services</h3>
+        <p class="clause-text">The Consultant shall provide the Subscriber with managed fleet intelligence services designed to measure, report on, and reduce the <strong>Efficiency Gap</strong> within the Subscriber's vehicle fleet. The full specification of all deliverables, report contents, and service inclusions is set out in <strong>Schedule A: Service Deliverables &amp; Report Specifications</strong>.</p>
+        <p class="clause-text">The Consultant commits to delivering accurate, data-driven analysis based on information supplied by the Subscriber. Reports are delivered electronically via email. No guarantee of specific monetary savings is made, as outcomes are dependent on the Subscriber acting on the recommendations provided.</p>
+        <div class="info-box">
+            <strong>Consumption Anomaly Detection:</strong> Where unusual or unexpected fuel consumption patterns are identified, the Consultant will flag these in the relevant report for the Subscriber's attention and investigation. <strong>The Consultant makes no determination as to the cause of any anomaly.</strong> It is the sole responsibility of the Subscriber to investigate, verify, and take appropriate action. The Consultant's role is limited to data analysis and reporting only.
+        </div>
+
+        <!-- 3. FINANCIAL TERMS -->
+        <h3 class="clause-title">3. Financial Terms, Fee Structure &amp; What You Are Paying For</h3>
+        <p class="clause-text">The Consultant believes in complete transparency. The following explains exactly what each fee covers, so the Subscriber understands the value being delivered at every level.</p>
+
+        <!-- Pricing table -->
+        <div class="grid grid-cols-1 gap-4 mb-5">
+
+            <div class="bg-slate-50 rounded border border-slate-200 overflow-hidden">
+                <div class="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
+                    <span class="font-black uppercase text-[10px] tracking-widest">3.1 — Setup / Implementation Fee</span>
+                    <span class="font-black text-emerald-400">R 2,500.00 &nbsp;(Once-Off)</span>
+                </div>
+                <div class="p-4 text-xs text-slate-600 leading-relaxed">
+                    The implementation fee covers the one-time work required to onboard the Subscriber's fleet correctly before the first report is produced. This includes: researching each vehicle's make, model, year, and applicable use-case to establish the <strong>manufacturer-recommended minimum fuel consumption benchmark</strong> for every unit in the fleet. This benchmark becomes the target against which all future performance is measured. Getting this right at the start ensures every report is grounded in accurate, vehicle-specific data — not generic estimates. The Subscriber may request adjustments to any vehicle's target consumption at any time; this is managed through the data entry process at no additional cost.
+                </div>
+            </div>
+
+            <div class="bg-slate-50 rounded border border-slate-200 overflow-hidden">
+                <div class="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
+                    <span class="font-black uppercase text-[10px] tracking-widest">3.2 — Monthly Administration Fee</span>
+                    <span class="font-black text-emerald-400">R 1,500.00 &nbsp;/month</span>
+                </div>
+                <div class="p-4 text-xs text-slate-600 leading-relaxed">
+                    The monthly administration fee covers the fixed operational cost of running the Subscriber's account on an ongoing basis, regardless of fleet size. This includes: weekly data collection and reconciliation, report generation and delivery, dedicated client email channel management, consumption anomaly monitoring, ongoing system maintenance, and general account support. This is the cost of keeping your account active, accurate, and consistently serviced every week of the month.
+                </div>
+            </div>
+
+            <div class="bg-slate-50 rounded border border-slate-200 overflow-hidden">
+                <div class="bg-blue-700 text-white px-4 py-2">
+                    <span class="font-black uppercase text-[10px] tracking-widest">3.3 — Per-Vehicle Monitoring Fee (Tiered)</span>
+                </div>
+                <div class="p-4 text-xs text-slate-600 leading-relaxed mb-3">
+                    The per-vehicle fee covers the individual tracking, analysis, and reporting of each vehicle unit in the Subscriber's active fleet. Every vehicle is monitored against its specific consumption target, scored weekly on both efficiency and driver behaviour, and included in all standard reports. A tiered rate structure rewards larger fleets with a lower per-unit cost.
+                </div>
+                <div class="grid grid-cols-3 gap-0 text-center border-t border-slate-200">
+                    <div class="p-3 border-r border-slate-200">
+                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 1</p>
+                        <p class="text-xl font-black text-blue-700">R 200</p>
+                        <p class="text-[10px] font-bold text-slate-500">per vehicle/month</p>
+                        <p class="text-[9px] text-slate-400 mt-1">1 – 15 vehicles</p>
+                    </div>
+                    <div class="p-3 border-r border-slate-200 bg-blue-50">
+                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 2</p>
+                        <p class="text-xl font-black text-blue-700">R 175</p>
+                        <p class="text-[10px] font-bold text-slate-500">per vehicle/month</p>
+                        <p class="text-[9px] text-slate-400 mt-1">16 – 30 vehicles</p>
+                    </div>
+                    <div class="p-3">
+                        <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 3</p>
+                        <p class="text-xl font-black text-blue-700">R 150</p>
+                        <p class="text-[10px] font-bold text-slate-500">per vehicle/month</p>
+                        <p class="text-[9px] text-slate-400 mt-1">31+ vehicles</p>
+                    </div>
+                </div>
+                <div class="px-4 pb-4 pt-3 text-xs text-slate-500 border-t border-slate-200">
+                    <strong>Note:</strong> The applicable tier rate is determined by the total number of active vehicles in the fleet at the time of invoicing. Should the fleet size change and cross a tier threshold, the new rate applies to the full fleet from the following billing cycle, with 30 days' written notice.
+                </div>
+            </div>
+
+            <div class="bg-slate-50 rounded border border-slate-200 overflow-hidden">
+                <div class="bg-slate-800 text-white px-4 py-2 flex justify-between items-center">
+                    <span class="font-black uppercase text-[10px] tracking-widest">3.4 — On-Demand Reports</span>
+                    <span class="font-black text-emerald-400">Pool Included &nbsp;|&nbsp; R 150 overage</span>
+                </div>
+                <div class="p-4 text-xs text-slate-600 leading-relaxed">
+                    Each active vehicle in the Subscriber's fleet includes <strong>one (1) on-demand report per month</strong> as part of the monthly per-vehicle fee. These reports are drawn from a shared monthly pool equal to the total number of active vehicles (e.g. a 20-vehicle fleet receives a pool of 20 on-demand reports per month). Reports in the pool may be used for any vehicle in any combination — the Subscriber is not restricted to one report per specific vehicle. Unused pool reports do not carry over to the following month. Each additional on-demand report beyond the monthly pool is charged at <strong>R 150.00 per report</strong>, invoiced at month-end. Full specifications of on-demand report contents are set out in Schedule A.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pricing summary box -->
+        <div id="priceSection" class="bg-blue-50 border border-blue-200 rounded p-4 mb-4">
+            <p class="text-slate-400 text-xs italic">Loading pricing summary...</p>
+        </div>
+
+        <p class="clause-sub"><strong>3.5 Billing Cycle &amp; Advance Payment:</strong> This service operates on an <strong>advance billing model</strong>. The Consultant invoices on the <strong>25th of each month</strong> for the following month's services. Payment is due within <strong>7 (seven) calendar days</strong> of the invoice date. Services for the following month will not commence until payment is confirmed. The Implementation Fee is invoiced separately upon execution of this Agreement and is due before onboarding begins.</p>
+        <p class="clause-sub"><strong>3.6 Why Advance Billing:</strong> Advance billing ensures that weekly reporting services are fully funded before work begins each month. This model is standard practice for professional retainer and subscription services and protects both parties — the Subscriber maintains uninterrupted service, and the Consultant can commit resources without financial risk.</p>
+        <p class="clause-sub"><strong>3.7 Late Payment:</strong> Overdue amounts shall accrue interest at <strong>prime overdraft rate plus 2% per annum</strong>, calculated daily from the due date. The Consultant reserves the right to suspend all services without further notice upon non-payment, without prejudice to any other rights.</p>
+        <p class="clause-sub"><strong>3.8 VAT:</strong> All fees quoted are exclusive of Value Added Tax. Where applicable, VAT shall be added at the prevailing rate.</p>
+        <p class="clause-sub"><strong>3.9 Fee Adjustments:</strong> The per-vehicle monitoring fee may be adjusted to reflect changes in the Subscriber's active fleet size or to a revised tier. The Subscriber will be notified in writing via email at least <strong>30 (thirty) days</strong> prior to any rate increase.</p>
+
+        <!-- 4. DATA SUPPLY -->
+        <h3 class="clause-title">4. Data Supply &amp; Subscriber Obligations</h3>
+        <div class="highlight-box">
+            <strong>Important:</strong> The accuracy, completeness, and timeliness of all reports is entirely contingent upon the Subscriber fulfilling the data submission obligations set out below. Late or incomplete submissions will directly delay report generation. The Consultant shall not be held liable for any delays caused by the Subscriber's failure to submit data on time.
+        </div>
+        <p class="clause-sub"><strong>4.1 Telematics Automated Feed:</strong> The Subscriber shall ensure that all telematics-generated vehicle activity and usage reports are automatically CC'd or forwarded to the Consultant's dedicated client address by <strong>Sunday 23:59</strong> each week. This automated feed forms the primary GPS distance and speed data source for all reports.</p>
+        <p class="text-center my-3 text-sm"><strong id="clientSpecificEmail" class="text-slate-900 underline">dynamicfleetreports+[client]@gmail.com</strong></p>
+        <p class="clause-sub"><strong>4.2 Fuel Data Submission:</strong> The Subscriber shall submit the total fuel quantity filled per vehicle unit (in litres) to the Consultant via email by <strong>Tuesday 09:00</strong> each week. The Tuesday deadline allows Monday's operational activity and refuelling to be captured before submission, ensuring a complete weekly fuel picture.</p>
+        <p class="clause-sub"><strong>4.3 Odometer Data Submission:</strong> The Subscriber shall submit manual odometer readings per vehicle unit to the Consultant via email by <strong>Tuesday 09:00</strong> each week. Manual odometer readings are used to reconcile against GPS-recorded distances and to identify discrepancies.</p>
+        <div class="warning-box">
+            <strong>Report Turnaround Time:</strong> The Consultant shall deliver the weekly fleet report within <strong>24 to 48 hours</strong> of receiving all three required inputs — telematics feed, fuel data, and odometer readings. The turnaround clock starts only once all three inputs have been received in full. Partial submissions will not trigger report generation. The Consultant shall not be held liable for delays caused by incomplete or late data submissions.
+        </div>
+        <p class="clause-sub"><strong>4.4 Data Accuracy:</strong> The Subscriber warrants that all submitted data is accurate and complete. The Consultant shall not be liable for incorrect or misleading analysis arising from inaccurate, incomplete, or falsified data submitted by the Subscriber.</p>
+        <p class="clause-sub"><strong>4.5 Non-Submission:</strong> If the Subscriber fails to submit required data for two (2) or more consecutive weeks without prior written notice to the Consultant, the Consultant may suspend reporting services until submissions resume, without any reduction in the monthly retainer fee for that period.</p>
+
+        <!-- 5. IP -->
+        <h3 class="clause-title">5. Intellectual Property</h3>
+        <p class="clause-sub"><strong>5.1 Consultant IP:</strong> All analytical methodologies, scoring models, reporting templates, algorithms, benchmarking systems, and tools developed or used by the Consultant remain the sole and exclusive intellectual property of the Consultant. This Agreement transfers no intellectual property rights to the Subscriber.</p>
+        <p class="clause-sub"><strong>5.2 Report Licence:</strong> The Subscriber is granted a non-exclusive, non-transferable licence to use all reports and analysis delivered under this Agreement solely for internal business purposes. Reports may not be resold, sublicensed, or disclosed to third parties without prior written consent from the Consultant.</p>
+        <p class="clause-sub"><strong>5.3 Subscriber Data:</strong> All vehicle, fuel, and operational data submitted by the Subscriber remains the property of the Subscriber. The Consultant is granted a limited licence to process this data solely for the purpose of delivering the services described in this Agreement.</p>
+
+        <!-- 6. CONFIDENTIALITY & POPIA -->
+        <h3 class="clause-title">6. Confidentiality &amp; Data Protection (POPIA)</h3>
+        <p class="clause-sub"><strong>6.1 Confidentiality:</strong> Both parties shall treat all information received from the other as strictly confidential and shall not disclose it to any third party without prior written consent, except where required by law.</p>
+        <p class="clause-sub"><strong>6.2 POPIA Compliance:</strong> The Consultant acknowledges its obligations under the Protection of Personal Information Act 4 of 2013 and shall process personal information only for the lawful purpose of rendering services under this Agreement.</p>
+        <p class="clause-sub"><strong>6.3 Data Retention:</strong> Upon termination of this Agreement, the Consultant shall retain the Subscriber's fleet data for a period of <strong>12 (twelve) months</strong> for record-keeping purposes, after which all data shall be securely deleted. The Subscriber may request earlier deletion in writing, subject to any applicable statutory retention requirements.</p>
+        <p class="clause-sub"><strong>6.4 Security:</strong> The Consultant shall implement reasonable technical and organisational measures to protect the Subscriber's data against unauthorised access, loss, or disclosure.</p>
+
+        <!-- 7. GENERAL TERMS -->
+        <h3 class="clause-title">7. General Terms &amp; Conditions</h3>
+        <p class="clause-sub"><strong>7.1 Duration:</strong> This Agreement commences on the date of execution and continues on a month-to-month basis until terminated in accordance with clause 7.2.</p>
+        <p class="clause-sub"><strong>7.2 Cancellation:</strong> Either party may terminate this Agreement by giving <strong>30 (thirty) calendar days' written notice via email</strong> to the other party. Notice by any other means — including verbal notice or WhatsApp message — shall not constitute valid termination notice. The Subscriber remains liable for all fees accrued up to and including the final day of the notice period. Any advance payment covering a period beyond the termination date shall be refunded on a pro-rata basis within 14 days of the termination date.</p>
+        <p class="clause-sub"><strong>7.3 Limitation of Liability:</strong> The Consultant provides data-driven analytical insights only. The Consultant shall not be liable for actual fuel theft, mechanical failure, driver conduct, road incidents, or any direct, indirect, or consequential loss arising from the Subscriber's use of or reliance on any report. The Consultant's total aggregate liability under this Agreement shall not exceed the total fees paid by the Subscriber in the <strong>preceding 3 (three) months</strong>.</p>
+        <p class="clause-sub"><strong>7.4 Breach:</strong> Should either party materially breach any provision of this Agreement and fail to remedy such breach within <strong>7 (seven) calendar days</strong> of written notice, the non-defaulting party shall be entitled to cancel the Agreement immediately and pursue any other available legal remedies.</p>
+        <p class="clause-sub"><strong>7.5 Dispute Resolution:</strong> In the event of a dispute, the parties agree to first attempt resolution through good faith negotiation. Should negotiation fail within 14 (fourteen) days, either party may refer the matter to a mutually agreed mediator before initiating legal proceedings. Mediation costs shall be shared equally unless otherwise agreed.</p>
+        <p class="clause-sub"><strong>7.6 Governing Law &amp; Jurisdiction:</strong> This Agreement is governed exclusively by the laws of the Republic of South Africa. Both parties consent to the non-exclusive jurisdiction of the Magistrate's Court or High Court, Western Cape Division.</p>
+        <p class="clause-sub"><strong>7.7 Entire Agreement:</strong> This Agreement, together with Schedule A, constitutes the entire agreement between the parties and supersedes all prior discussions or representations whether oral or written. No amendment shall be binding unless made in writing and signed by both parties.</p>
+        <p class="clause-sub"><strong>7.8 Severability:</strong> Should any provision be found invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
+
+        <p class="clause-text mt-4">This Agreement incorporates the following schedule which forms part of and is subject to the terms above:</p>
+        <p class="text-center font-black text-sm text-blue-700 my-2">Schedule A — Service Deliverables &amp; Report Specifications <em>(attached hereto)</em></p>
+
+        <!-- SIGNATURE BLOCK -->
+        <div class="mt-12 pt-8 border-t-2 border-slate-900">
+            <h3 class="clause-title mb-6">Execution &amp; Acceptance</h3>
+            <p class="clause-text">By executing this Agreement, the Subscriber confirms that they have read, understood, and agree to be bound by all terms of this Agreement and Schedule A attached hereto.</p>
+
+            <!-- TICK BOX ACCEPTANCE -->
+            <div class="mb-8">
+                <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-3">Subscriber Declarations — Please confirm each of the following:</p>
+
+                <div class="tick-row" id="tick1-row" onclick="toggleTick('tick1')">
+                    <input type="checkbox" id="tick1" onchange="checkTicks()">
+                    <span>I have read and understand the full terms of this Master Service Agreement, including all clauses relating to fees, data obligations, cancellation, and liability.</span>
+                </div>
+                <div class="tick-row" id="tick2-row" onclick="toggleTick('tick2')">
+                    <input type="checkbox" id="tick2" onchange="checkTicks()">
+                    <span>I confirm that I am authorised to enter into this Agreement on behalf of <span id="tickCompanyName" class="font-bold">[Company]</span> and that the fleet details and pricing set out in this document are correct.</span>
+                </div>
+                <div class="tick-row" id="tick3-row" onclick="toggleTick('tick3')">
+                    <input type="checkbox" id="tick3" onchange="checkTicks()">
+                    <span>I agree to the data submission obligations set out in Clause 4, including the Tuesday 09:00 deadline for fuel and odometer data, and understand that late submissions will delay report delivery.</span>
+                </div>
+
+                <div id="tick-warning" class="mt-3 text-[11px] text-red-500 font-bold hidden">⚠️ Please confirm all three declarations before executing the agreement.</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-12 mt-6">
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-8 tracking-widest">For: Dynamic Fleet Reporting (Consultant)</p>
+                    <div class="h-12 flex items-end mb-2">
+                        <p class="signature-font text-2xl text-blue-800 italic">Dynamic Fleet Reporting</p>
+                    </div>
+                    <div class="border-t border-slate-300 pt-2 space-y-1">
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Authorised Signatory</p>
+                        <p class="text-[9px] font-bold text-slate-400">Dynamic Fleet Reporting, Moorreesburg</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[9px] font-black text-slate-400 uppercase mb-8 tracking-widest text-blue-500">For: The Subscriber</p>
+                    <div id="signBox" class="h-12 flex items-end cursor-pointer group mb-2" onclick="submitAgreement()">
+                        <p id="signText" class="text-slate-300 italic text-xs group-hover:text-blue-500 font-bold underline transition-all">Click here to execute — or print, sign &amp; scan below</p>
+                    </div>
+                    <div class="border-t border-slate-300 pt-2 space-y-1">
+                        <p id="signDate" class="text-[9px] font-bold text-slate-400 uppercase italic">Awaiting Subscriber Acceptance</p>
+                        <p id="signCompany" class="text-[9px] font-bold text-slate-400"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print/Sign/Scan option -->
+            <div class="mt-8 p-4 bg-slate-50 border border-slate-200 rounded text-xs text-slate-500 text-center leading-relaxed">
+                <strong class="text-slate-700">Prefer to sign manually?</strong> Click <strong>"Print / Save PDF"</strong> above, print this document, sign in the space provided, scan or photograph the signed page, and return it via email to <strong>dynamicfleetreports@gmail.com</strong> with the subject line <strong>"Signed SLA – <span class="signedSlaCompany">[Company Name]</span> – <span id="docRefFooter"></span>"</strong>. The Agreement becomes effective upon receipt of the signed copy.
+            </div>
+        </div>
+
+        <footer class="mt-10 text-center border-t border-slate-100 pt-6">
+            <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape &nbsp;|&nbsp; dynamicfleetreports@gmail.com</p>
+            <p class="text-[8px] text-slate-300 mt-1">This document is legally binding upon execution. Please retain a copy for your records.</p>
+        </footer>
+
+        <!-- ═══════════════════════════════════════════════════ -->
+        <!--  SCHEDULE A                                        -->
+        <!-- ═══════════════════════════════════════════════════ -->
+
+        <hr class="page-break">
+
+        <div class="schedule-header">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-blue-300 mb-1">Annexure to Master Service Agreement</p>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tight">Schedule A</h2>
+                    <h3 class="text-lg font-black uppercase tracking-widest mt-1">Service Deliverables &amp; Report Specifications</h3>
+                </div>
+                <div class="text-right">
+                    <p class="text-[9px] text-blue-300 uppercase font-bold">Ref: <span id="scheduleRef">DFR-SLA-2026-XXXX</span></p>
+                    <p class="text-[9px] text-blue-300 uppercase font-bold mt-1">Client: <span id="scheduleClient">[Client]</span></p>
+                </div>
+            </div>
+        </div>
+
+        <p class="clause-text">This Schedule forms part of and must be read together with the Master Service Agreement. It sets out the full specification of every service and report deliverable included in the Subscriber's subscription. The Consultant is committed to delivering consistent, professional, and transparent reporting at every level.</p>
+
+        <!-- WEEKLY / MONTHLY STANDARD REPORT -->
+        <h3 class="clause-title">A.1 — Standard Weekly / Monthly Fleet Intelligence Report</h3>
+        <p class="clause-text">Delivered electronically via email within 24–48 hours of receipt of all required data inputs (see Clause 4). One report is generated per reporting cycle (weekly or monthly, as agreed). This report covers the entire active fleet and includes the following:</p>
+
+        <div class="report-card">
+            <div class="report-card-title text-blue-700">Fleet Summary &amp; Overview</div>
+            <div class="report-item">Total fleet distance travelled for the period (GPS-recorded and odometer-reconciled)</div>
+            <div class="report-item">Total fuel consumed across all active vehicles</div>
+            <div class="report-item">Fleet-wide actual fuel consumption vs target benchmark</div>
+            <div class="report-item">Estimated total fuel loss in litres and Rand value at both wholesale and retail fuel price</div>
+            <div class="report-item">Period covered and confirmation of data sources received</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-title text-blue-700">Per-Vehicle Efficiency Analysis</div>
+            <div class="report-item">Actual km/L achieved per vehicle vs manufacturer-benchmark target</div>
+            <div class="report-item">Total kilometres driven per vehicle (GPS and odometer)</div>
+            <div class="report-item">GPS vs odometer distance reconciliation — drift flagged where applicable</div>
+            <div class="report-item">Litres consumed per vehicle</div>
+            <div class="report-item">Estimated fuel waste in litres per vehicle where consumption exceeds target</div>
+            <div class="report-item">Financial impact of fuel waste per vehicle at wholesale and retail fuel price</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-title text-blue-700">Speed Violation &amp; Driver Behaviour Analysis</div>
+            <div class="report-item">Total speed violation events per vehicle for the period</div>
+            <div class="report-item">Estimated financial impact of speed violations per vehicle</div>
+            <div class="report-item">Over-speed duration data where available from telematics feed</div>
+            <div class="report-item">Maximum speed recorded per vehicle for the period</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-title text-blue-700">Consumption Anomaly Flags</div>
+            <div class="report-item">Vehicles displaying unusual or unexpected consumption patterns outside normal variance are flagged for the Subscriber's attention</div>
+            <div class="report-item">Anomaly flags are informational only — the Subscriber is responsible for investigation and any resulting action</div>
+            <div class="report-item">The Consultant makes no determination as to the cause of any flagged anomaly</div>
+        </div>
+
+        <div class="report-card">
+            <div class="report-card-title text-blue-700">Driver Performance Scoring &amp; Incentive Modelling</div>
+            <div class="report-item">Individual driver performance score per vehicle (0–100 composite score)</div>
+            <div class="report-item">Performance tier classification: Elite (95–100) / High Performer (90–94) / Good Driver (80–89) / Needs Improvement (below 80)</div>
+            <div class="report-item">Fleet-wide performance tier breakdown summary</div>
+            <div class="report-item">Monthly bonus incentive recommendation based on performance tiers</div>
+            <div class="report-item">Estimated fuel savings generated by top-tier drivers</div>
+            <div class="report-item">Net ROI calculation: estimated savings vs bonus payout cost</div>
+            <div class="report-item">Practical implementation guidance for a driver incentive programme</div>
+        </div>
+
+        <!-- ON-DEMAND EFFICIENCY REPORT -->
+        <h3 class="clause-title">A.2 — On-Demand Vehicle Efficiency Report</h3>
+        <p class="clause-text">Available as part of the monthly on-demand pool (1 report per active vehicle per month, shared across the fleet). Additional reports beyond the pool are charged at R 150.00 per report. The Subscriber may request this report for any vehicle in the fleet for any specific date range for which data is available.</p>
+
+        <div class="report-card">
+            <div class="report-card-title text-emerald-700">On-Demand Efficiency Report — Contents</div>
+            <div class="report-item">Specified vehicle registration and fleet details</div>
+            <div class="report-item">Custom date range as requested by the Subscriber</div>
+            <div class="report-item">Actual km/L achieved for the specified period vs vehicle-specific target</div>
+            <div class="report-item">Total kilometres driven and total litres consumed for the period</div>
+            <div class="report-item">Estimated fuel waste in litres and Rand value where consumption exceeds target</div>
+            <div class="report-item">Financial impact at both wholesale and retail fuel price</div>
+            <div class="report-item">Comparison of the vehicle's performance against the fleet average for the same period (where data is available)</div>
+            <div class="report-item">Period covered and data source confirmation</div>
+        </div>
+
+        <!-- ON-DEMAND SPEED REPORT -->
+        <h3 class="clause-title">A.3 — On-Demand Vehicle Speed Violation Report</h3>
+        <p class="clause-text">Available as part of the monthly on-demand pool (shared with efficiency reports — same pool). The Subscriber may request this report for any vehicle for any specific date range for which telematics data is available.</p>
+
+        <div class="report-card">
+            <div class="report-card-title text-orange-700">On-Demand Speed Violation Report — Contents</div>
+            <div class="report-item">Specified vehicle registration and fleet details</div>
+            <div class="report-item">Custom date range as requested by the Subscriber</div>
+            <div class="report-item">Total number of speed violation events recorded for the period</div>
+            <div class="report-item">Maximum speed recorded during the period</div>
+            <div class="report-item">Over-speed duration data where available from telematics source</div>
+            <div class="report-item">Estimated financial impact of speed violations at the applicable fuel price</div>
+            <div class="report-item">Driver risk rating for the specified period based on violation frequency and severity</div>
+            <div class="report-item">Comparison against the vehicle's own historical pattern where prior data is available</div>
+            <div class="report-item">Period covered and data source confirmation</div>
+        </div>
+
+        <!-- ON-DEMAND POOL SUMMARY -->
+        <h3 class="clause-title">A.4 — Monthly On-Demand Report Pool</h3>
+        <div class="info-box">
+            <strong>How the pool works:</strong> The Subscriber's monthly on-demand pool equals the total number of active vehicles in the fleet at the start of the billing month. Pool reports may be used for any vehicle in any combination of efficiency or speed reports. Unused pool reports expire at month-end and do not carry over. Reports beyond the pool are billed at <strong>R 150.00 per report</strong> and invoiced at the end of the calendar month in which they were requested.
+        </div>
+        <div id="poolSection" class="bg-blue-50 border border-blue-200 rounded p-4 mt-3 text-sm">
+            <p class="text-slate-400 italic text-xs">Loading pool summary...</p>
+        </div>
+
+        <div class="mt-10 pt-6 border-t border-slate-200 grid grid-cols-2 gap-10 text-[9px] text-slate-400">
+            <div>
+                <p class="font-black uppercase mb-1">Schedule A — Issued by</p>
+                <p>Dynamic Fleet Reporting, Moorreesburg</p>
+                <p>dynamicfleetreports@gmail.com</p>
+            </div>
+            <div class="text-right">
+                <p class="font-black uppercase mb-1">Incorporated into Agreement</p>
+                <p id="scheduleRefFooter">Ref: DFR-SLA-2026-XXXX</p>
+                <p id="scheduleDateFooter">--</p>
+            </div>
+        </div>
+
+    </div><!-- end contract-card -->
+
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+        var _cbCounter = 0;
+        var _resolvedClient  = null;
+        var _resolvedFleet   = 0;
+        var _resolvedMonthly = 0;
+        var _resolvedTier    = 1;
+
+        function updateSheetStatus(companyName, status) {
+            return new Promise(function(resolve) {
+                var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
+                var script = document.createElement('script');
+                script.id = cbName;
+                window[cbName] = function(data) {
+                    delete window[cbName];
+                    var s = document.getElementById(cbName);
+                    if (s) s.remove();
+                    resolve(data);
+                };
+                script.src = APPS_SCRIPT_URL + '?action=update' +
+                    '&company=' + encodeURIComponent(companyName) +
+                    '&status='  + encodeURIComponent(status) +
+                    '&callback=' + cbName;
+                script.onerror = function() { delete window[cbName]; resolve({ success: false }); };
+                document.body.appendChild(script);
+            });
+        }
+
+        function getTieredRate(fleetSize) {
+            if (fleetSize <= 15) return { rate: 200, tier: 1, label: 'Tier 1 (1–15 vehicles)' };
+            if (fleetSize <= 30) return { rate: 175, tier: 2, label: 'Tier 2 (16–30 vehicles)' };
+            return { rate: 150, tier: 3, label: 'Tier 3 (31+ vehicles)' };
+        }
+
+        function toggleTick(id) {
+            var cb = document.getElementById(id);
+            cb.checked = !cb.checked;
+            var row = document.getElementById(id + '-row');
+            if (cb.checked) row.classList.add('checked');
+            else row.classList.remove('checked');
+            checkTicks();
+        }
+
+        function checkTicks() {
+            var t1 = document.getElementById('tick1').checked;
+            var t2 = document.getElementById('tick2').checked;
+            var t3 = document.getElementById('tick3').checked;
+            var btn = document.getElementById('submitBtn');
+            var warn = document.getElementById('tick-warning');
+            if (t1 && t2 && t3) {
+                btn.classList.remove('opacity-50');
+                warn.classList.add('hidden');
+            } else {
+                btn.classList.add('opacity-50');
+            }
+        }
+
+        window.onload = async function() {
+            var auditRaw = await cloudStorage.getItem('AUDIT_FINAL');
+            var data = auditRaw ? JSON.parse(auditRaw) : null;
+
+            var now = new Date();
+            var docRef = 'DFR-SLA-' + now.getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+            var dateStr = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            document.getElementById('currentDate').innerText    = dateStr;
+            document.getElementById('docRef').innerText         = docRef;
+            document.getElementById('docRefFooter').innerText   = docRef;
+            document.getElementById('scheduleRef').innerText    = docRef;
+            document.getElementById('scheduleRefFooter').innerText = 'Ref: ' + docRef;
+            document.getElementById('scheduleDateFooter').innerText = dateStr;
+
+            checkTicks();
+
+            if (!data || !data.client) {
+                document.getElementById('clientName').innerText = '[Client Name]';
+                document.getElementById('priceSection').innerHTML = '<p class="text-xs text-red-400 italic">No client data loaded. Please generate this contract from the pipeline.</p>';
+                return;
+            }
+
+            var clientInfo = data.client;
+            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var fullClient = allClients.find(function(c) {
+                return c.company && clientInfo.company &&
+                       c.company.toLowerCase().trim() === clientInfo.company.toLowerCase().trim();
+            });
+
+            // Fleet size resolution
+            var fleetSize = 0;
+            if (fullClient) {
+                if (fullClient.fleet && fullClient.fleet.length > 0) fleetSize = fullClient.fleet.length;
+                else if (fullClient.fleetSize && fullClient.fleetSize > 0) fleetSize = fullClient.fleetSize;
+            }
+            if (fleetSize === 0 && data.fleet && data.fleet.length > 0) fleetSize = data.fleet.length;
+            if (fleetSize === 0) fleetSize = clientInfo.fleetSize || 5;
+
+            var tiered    = getTieredRate(fleetSize);
+            var setup     = 2500;
+            var monthly   = 1500 + (fleetSize * tiered.rate);
+            var firstMonth = setup + monthly;
+
+            _resolvedClient  = fullClient || clientInfo;
+            _resolvedFleet   = fleetSize;
+            _resolvedMonthly = monthly;
+            _resolvedTier    = tiered.tier;
+
+            // Populate throughout document
+            document.getElementById('clientName').innerText     = clientInfo.company;
+            document.getElementById('signCompany').innerText    = clientInfo.company;
+            document.getElementById('tickCompanyName').innerText = clientInfo.company;
+            document.getElementById('scheduleClient').innerText = clientInfo.company;
+            document.querySelectorAll('.signedSlaCompany').forEach(function(el) { el.innerText = clientInfo.company; });
+
+            var cleanName = clientInfo.company.toLowerCase().replace(/[^a-z0-9]/g, '');
+            document.getElementById('clientSpecificEmail').innerText = 'dynamicfleetreports+' + cleanName + '@gmail.com';
+            document.getElementById('fleetCount').innerText = fleetSize + ' vehicle' + (fleetSize !== 1 ? 's' : '') + ' at time of signing — ' + tiered.label;
+
+            // Pricing summary box
+            document.getElementById('priceSection').innerHTML =
+                '<p class="font-black text-slate-700 uppercase text-[10px] mb-3">Your Pricing Summary — ' + clientInfo.company + '</p>' +
+                '<div class="grid grid-cols-3 gap-4 text-center mb-3">' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-400 mb-1">Setup (once-off)</p><p class="text-xl font-black text-slate-800">R 2,500</p></div>' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-400 mb-1">Monthly Admin</p><p class="text-xl font-black text-slate-800">R 1,500</p></div>' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-400 mb-1">Per Vehicle (' + tiered.label + ')</p><p class="text-xl font-black text-blue-700">R ' + tiered.rate + '</p></div>' +
+                '</div>' +
+                '<div class="border-t border-blue-200 pt-3 grid grid-cols-2 gap-4">' +
+                    '<div class="text-center"><p class="text-[9px] uppercase font-black text-slate-400 mb-1">First Month (incl. Setup)</p><p class="text-2xl font-black text-slate-900">R ' + firstMonth.toLocaleString('en-ZA') + '</p></div>' +
+                    '<div class="text-center bg-blue-100 rounded p-2"><p class="text-[9px] uppercase font-black text-blue-600 mb-1">Monthly Retainer (from Month 2)</p><p class="text-2xl font-black text-blue-700">R ' + monthly.toLocaleString('en-ZA') + '</p><p class="text-[9px] text-blue-500 mt-1">R1,500 + ' + fleetSize + ' × R' + tiered.rate + ' — excl. VAT</p></div>' +
+                '</div>' +
+                '<p class="text-[9px] text-slate-400 mt-3 italic text-center">Billed in advance on the 25th of each month. On-demand pool: ' + fleetSize + ' reports/month included.</p>';
+
+            // Pool summary in Schedule A
+            document.getElementById('poolSection').innerHTML =
+                '<div class="grid grid-cols-3 gap-4 text-center">' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-500 mb-1">Monthly Pool</p><p class="text-2xl font-black text-blue-700">' + fleetSize + '</p><p class="text-[9px] text-slate-400">reports included</p></div>' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-500 mb-1">Overage Rate</p><p class="text-2xl font-black text-orange-600">R 150</p><p class="text-[9px] text-slate-400">per additional report</p></div>' +
+                    '<div><p class="text-[9px] uppercase font-black text-slate-500 mb-1">Report Types</p><p class="text-lg font-black text-slate-700">Efficiency &amp; Speed</p><p class="text-[9px] text-slate-400">any combination</p></div>' +
+                '</div>';
+        };
+
+        async function submitAgreement() {
+            var t1 = document.getElementById('tick1').checked;
+            var t2 = document.getElementById('tick2').checked;
+            var t3 = document.getElementById('tick3').checked;
+
+            if (!t1 || !t2 || !t3) {
+                document.getElementById('tick-warning').classList.remove('hidden');
+                document.getElementById('tick1-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            var auditRaw = await cloudStorage.getItem('AUDIT_FINAL');
+            var data = auditRaw ? JSON.parse(auditRaw) : null;
+
+            if (!data || !data.client) {
+                alert('No client data found. Please generate this contract from the pipeline.');
+                return;
+            }
+
+            var companyName = data.client.company;
+            var contactName = 'Authorised Signatory';
+            if (_resolvedClient) {
+                contactName = _resolvedClient.contactName || _resolvedClient.contact || contactName;
+            }
+            if (contactName === 'Authorised Signatory') {
+                contactName = data.client.contactName || data.client.contact || contactName;
+            }
+
+            var docRef = document.getElementById('docRef').innerText;
+
+            // Update signature UI
+            document.getElementById('signText').innerHTML =
+                '<span class="signature-font text-3xl text-blue-600 italic">' + contactName + '</span>';
+            document.getElementById('signDate').innerHTML =
+                '<span class="text-emerald-600 font-black text-[10px]">✓ EXECUTED: ' + new Date().toLocaleString('en-ZA') + '</span>';
+            document.getElementById('signBox').style.cursor = 'default';
+            document.getElementById('signBox').onclick = null;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerText = '✓ Executed';
+
+            // Activate in Firebase
+            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var idx = allClients.findIndex(function(c) {
+                return c.company && companyName &&
+                       c.company.toLowerCase().trim() === companyName.toLowerCase().trim();
+            });
+
+            if (idx !== -1) {
+                allClients[idx].status          = 'active';
+                allClients[idx].activationDate  = new Date().toISOString();
+                allClients[idx].monthlyRetainer = _resolvedMonthly;
+                allClients[idx].fleetSizeAtSLA  = _resolvedFleet;
+                allClients[idx].pricingTier     = _resolvedTier;
+                allClients[idx].slaRef          = docRef;
+                allClients[idx].slaDate         = new Date().toISOString();
+                allClients[idx].slaExecuted     = true;
+                allClients[idx].onDemandPool    = _resolvedFleet;
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+            }
+
+            // Sync sheet
+            try {
+                await updateSheetStatus(companyName, 'Active');
+            } catch (err) {
+                console.warn('Sheet update failed (non-fatal):', err);
+            }
+
+            alert('✅ Agreement Executed Successfully!\n\n' +
+                  'Client: ' + companyName + '\n' +
+                  'SLA Ref: ' + docRef + '\n' +
+                  'Monthly Retainer: R ' + _resolvedMonthly.toLocaleString('en-ZA') + '\n' +
+                  'Pricing Tier: ' + _resolvedTier + '\n' +
+                  'On-Demand Pool: ' + _resolvedFleet + ' reports/month\n\n' +
+                  companyName + ' is now ACTIVE in your database.');
+        }
+    </script>
+
+</body>
+</html>
