@@ -67,6 +67,7 @@
             <a href="database.html" class="nav-item active">Active Database</a>
             <a href="audit.html" class="nav-item">Forensic Audit</a>
             <a href="churned.html" class="nav-item">Churned Clients</a>
+            <a href="invoice.html" class="nav-item">Invoices</a>
         </nav>
     </aside>
 
@@ -514,7 +515,8 @@
                         '<button onclick="openAudit(\'' + client.company.replace(/'/g, "\\'") + '\')" class="action-btn col-span-2" style="background:#60a5fa;color:#020617;">📊 View/Run Audit</button>' +
                         '<button onclick="openCustomReport(\'' + client.id + '\')" class="action-btn warning col-span-2">📈 Custom Report</button>' +
                         (history.length > 0 ? '<button onclick="viewHistory(\'' + client.id + '\')" class="action-btn col-span-2">📊 View History</button>' : '') +
-                        '<button onclick="sendReminder(\'' + client.id + '\')" class="action-btn warning col-span-2">✉️ Send Reminder</button>' +
+                        '<button onclick="sendReminder(\'' + client.id + '\')" class="action-btn col-span-2" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;">✉️ Send Reminder</button>' +
+                        '<button onclick="window.location.href=\'invoice.html?clientId=' + client.id + '\'" class="action-btn col-span-2" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;">🧾 Generate Invoice</button>' +
                     '</div>' +
                 '</div>';
             }).join('');
