@@ -458,6 +458,7 @@
         var record = {
             invNumber: _invNumber,
             date:      new Date().toLocaleDateString('en-ZA'),
+            dueDate:   new Date(Date.now() + 7*24*60*60*1000).toISOString(),
             month:     period.month,
             year:      period.year,
             period:    period.label,
