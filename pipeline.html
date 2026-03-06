@@ -127,6 +127,22 @@
                 + '</div>';
 
         } else if (slaStatus === 'received' || slaStatus === 'executed') {
+            // Drive folder button or paste field
+            if (p.driveFolderUrl) {
+                html += '<a href="' + p.driveFolderUrl + '" target="_blank" style="display:block;width:100%;padding:9px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center;text-decoration:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">📁 Open Drive Folder</a>';
+            }
+            // SLA file paste field or view button
+            if (p.slaFileUrl) {
+                html += '<a href="' + p.slaFileUrl + '" target="_blank" style="display:block;width:100%;padding:9px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center;text-decoration:none;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:#93c5fd;">📄 View Signed SLA</a>';
+            } else {
+                html += '<div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.2);border-radius:12px;padding:10px 12px;">'
+                    + '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:#60a5fa;margin-bottom:6px;letter-spacing:0.08em;">📎 Paste signed SLA link (from Drive)</p>'
+                    + '<input type="text" id="slaPaste-' + id + '" placeholder="Right-click PDF in Drive → Copy link → Paste here" '
+                    + 'style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(37,99,235,0.2);border-radius:8px;padding:7px 10px;color:rgba(147,197,253,0.8);font-size:10px;font-family:Outfit,sans-serif;box-sizing:border-box;" '
+                    + 'onpaste="savePipelineSlaLink(\'' + id + '\', event)" '
+                    + 'oninput="if(this.value.startsWith(\'http\'))savePipelineSlaLink(\'' + id + '\', null, this.value)">'
+                    + '</div>';
+            }
             html += '<button onclick="activateClient(\'' + id + '\')" style="width:100%;padding:11px 0;border-radius:12px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:#10b981;border:none;color:#020617;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">⚡ Activate Client</button>';
         }
 
@@ -236,6 +252,27 @@
         renderPipeline();
     }
 
+    // ── Save SLA link from pipeline card paste ─────────────────────────────────
+    async function savePipelineSlaLink(id, pasteEvent, directValue) {
+        var url = directValue || '';
+        if (pasteEvent) {
+            pasteEvent.preventDefault();
+            url = (pasteEvent.clipboardData || window.clipboardData).getData('text').trim();
+            var inputEl = document.getElementById('slaPaste-' + id);
+            if (inputEl) inputEl.value = url;
+        }
+        if (!url || !url.startsWith('http')) return;
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+        allClients[idx].slaFileUrl = url;
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        var inputEl2 = document.getElementById('slaPaste-' + id);
+        if (inputEl2) { inputEl2.style.borderColor = '#10b981'; inputEl2.style.color = '#10b981'; inputEl2.value = '✓ Saved!'; }
+        showToast('📄 SLA link saved!', 'blue');
+        setTimeout(function() { renderPipeline(); }, 700);
+    }
+
     // ── Activate client ───────────────────────────────────────────────────────
     async function activateClient(id) {
         var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
@@ -271,7 +308,10 @@
             speedLimit: parseInt(client.speedLimit) || 80,
             fuelPrice: parseFloat(client.fuelPrice) || 21.50,
             targetCons: parseFloat(client.targetCons) || 2.3,
-            lastReportSent: null, reportHistory: client.reportHistory || []
+            lastReportSent: null, reportHistory: client.reportHistory || [],
+            // ── Carry over Drive + SLA links automatically ──
+            slaFileUrl:      client.slaFileUrl      || null,
+            driveFolderUrl:  client.driveFolderUrl  || null
         });
 
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
