@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <title>Invoice | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Playfair+Display:ital@1&display=swap');
+        body { font-family: 'Outfit', sans-serif; padding: 40px; background: #f1f5f9; color: #1e293b; }
+        .invoice-card { background: white; max-width: 860px; margin: 0 auto; padding: 3.5rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #94a3b8; }
+        .section-title { font-weight: 900; text-transform: uppercase; font-size: 0.75rem; color: #1e40af; letter-spacing: 0.1em; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 0.75rem; margin-top: 1.75rem; }
+        .line-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .line-table th { background: #1e3a5f; color: white; padding: 0.6rem 0.9rem; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; text-align: left; }
+        .line-table th:last-child { text-align: right; }
+        .line-table td { padding: 0.7rem 0.9rem; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: top; }
+        .line-table td:last-child { text-align: right; font-weight: 700; white-space: nowrap; }
+        .line-table tr:last-child td { border-bottom: none; }
+        .line-table tr:hover td { background: #f8fafc; }
+        .total-row td { border-top: 2px solid #1e3a5f !important; font-weight: 900; font-size: 0.9rem; }
+        .bank-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem 1.5rem; font-size: 0.8rem; }
+        .bank-row { display: flex; justify-content: space-between; padding: 0.25rem 0; border-bottom: 1px solid #f1f5f9; }
+        .bank-key { color: #94a3b8; font-weight: 700; font-size: 11px; }
+        .bank-val { font-weight: 900; color: #1e293b; font-size: 11px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .status-unpaid  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+        .status-paid    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-overdue { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .overage-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .overage-row input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; font-size: 12px; font-family: Outfit,sans-serif; color: #1e293b; }
+        .overage-row input:focus { outline: none; border-color: #2563eb; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+            .invoice-card { box-shadow: none; padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<div class="no-print max-w-[860px] mx-auto mb-5 flex justify-between items-center flex-wrap gap-3">
+    <button onclick="window.history.back()" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">← Back</button>
+    <div class="flex gap-3 flex-wrap items-center">
+        <select id="clientPicker" onchange="loadClient(this.value)"
+            style="background:white;border:1px solid #cbd5e1;border-radius:20px;padding:7px 16px;font-size:10px;font-weight:900;text-transform:uppercase;font-family:Outfit,sans-serif;cursor:pointer;color:#1e293b;">
+            <option value="">— Select Client —</option>
+        </select>
+        <button onclick="markPaid()" id="markPaidBtn"
+            style="background:#10b981;color:white;padding:7px 18px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;border:none;cursor:pointer;display:none;"
+            onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+            ✓ Mark Paid
+        </button>
+        <button onclick="window.print()"
+            style="border:1px solid #cbd5e1;padding:7px 18px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;background:white;cursor:pointer;font-family:Outfit,sans-serif;"
+            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+            🖨 Print / PDF
+        </button>
+        <button onclick="sendInvoice()"
+            style="background:#2563eb;color:white;padding:7px 18px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;border:none;cursor:pointer;"
+            onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            📧 Send via Email
+        </button>
+    </div>
+</div>
+
+<div class="invoice-card">
+
+    <!-- ── Header ── -->
+    <div class="flex justify-between items-start mb-10">
+        <div class="flex items-center gap-5">
+            <img src="Logo.png" alt="Logo" class="h-16 w-auto">
+            <div>
+                <h1 class="text-3xl font-black uppercase italic tracking-tighter leading-none text-slate-900">Tax <span class="text-blue-600">Invoice</span></h1>
+                <p class="text-[9px] font-black text-slate-400 tracking-[0.2em] mt-1 uppercase">Dynamic Fleet Reporting</p>
+                <p class="text-[8px] text-slate-400 uppercase font-bold tracking-widest">Not VAT Registered</p>
+            </div>
+        </div>
+        <div class="text-right space-y-1">
+            <div>
+                <p class="label">Invoice Number</p>
+                <p id="invNumber" class="text-lg font-black text-slate-800 font-mono">INV-2026-0001</p>
+            </div>
+            <div class="mt-2">
+                <p class="label">Invoice Date</p>
+                <p id="invDate" class="text-sm font-bold text-slate-600">--</p>
+            </div>
+            <div class="mt-2">
+                <p class="label">Due Date</p>
+                <p id="dueDate" class="text-sm font-bold text-red-500">--</p>
+            </div>
+            <div class="mt-3">
+                <span id="statusBadge" class="status-badge status-unpaid">Unpaid</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── From / To ── -->
+    <div class="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-slate-100">
+        <div>
+            <p class="label mb-2">From</p>
+            <p class="font-black text-slate-900 text-sm">Dynamic Fleet Reporting</p>
+            <p class="text-slate-500 text-xs mt-1">Spitskop Farm, Moorreesburg</p>
+            <p class="text-slate-500 text-xs">083 314 9592</p>
+            <p class="text-slate-500 text-xs">dynamicfleetreports@gmail.com</p>
+        </div>
+        <div>
+            <p class="label mb-2">Bill To</p>
+            <p id="billName" class="font-black text-slate-900 text-sm">—</p>
+            <p id="billContact" class="text-slate-500 text-xs mt-1"></p>
+            <p id="billEmail" class="text-slate-500 text-xs"></p>
+            <p id="billSlaRef" class="text-[9px] text-slate-400 mt-2 font-bold uppercase"></p>
+        </div>
+    </div>
+
+    <!-- ── Period ── -->
+    <div class="no-print mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-4 flex-wrap">
+        <p class="text-[10px] font-black uppercase text-blue-600 tracking-widest">Billing Period:</p>
+        <select id="billingMonth" onchange="refreshLines()"
+            style="background:white;border:1px solid #bfdbfe;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;font-family:Outfit,sans-serif;color:#1e3a5f;">
+        </select>
+        <select id="billingYear" onchange="refreshLines()"
+            style="background:white;border:1px solid #bfdbfe;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;font-family:Outfit,sans-serif;color:#1e3a5f;">
+        </select>
+        <p class="text-[9px] text-blue-400 font-bold">Services rendered for this period</p>
+    </div>
+    <div class="print-only mb-4" style="display:none;">
+        <p class="text-[9px] font-black uppercase text-slate-400">Billing Period: <span id="printPeriod" class="text-slate-700"></span></p>
+    </div>
+
+    <!-- ── Line items ── -->
+    <h3 class="section-title">Services &amp; Charges</h3>
+    <table class="line-table">
+        <thead>
+            <tr>
+                <th style="width:42%">Description</th>
+                <th style="width:18%">Detail</th>
+                <th style="width:15%;text-align:right;">Unit Rate</th>
+                <th style="width:10%;text-align:right;">Qty</th>
+                <th style="width:15%;text-align:right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody id="lineItems"></tbody>
+    </table>
+
+    <!-- ── Overages (no-print input, print shows if > 0) ── -->
+    <div class="no-print mt-5 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+        <p class="text-[10px] font-black uppercase text-slate-500 tracking-widest mb-3">➕ On-Demand Report Overages</p>
+        <div id="overageInputs">
+            <div class="overage-row">
+                <input type="text"   id="ov-desc-0" placeholder="Description (e.g. Vehicle ABC123GP — Efficiency Report)" style="flex:2;">
+                <input type="number" id="ov-qty-0"  placeholder="Qty" style="width:60px;" min="1" value="">
+                <input type="number" id="ov-rate-0" placeholder="Rate" style="width:80px;" value="150">
+                <button onclick="removeOverage(0)" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;cursor:pointer;">✕</button>
+            </div>
+        </div>
+        <button onclick="addOverage()" style="margin-top:8px;background:white;border:1px solid #e2e8f0;padding:5px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;color:#475569;">+ Add Overage Line</button>
+        <button onclick="refreshLines()" style="margin-top:8px;margin-left:8px;background:#2563eb;color:white;border:none;padding:5px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;">↻ Update Total</button>
+    </div>
+
+    <!-- ── Totals ── -->
+    <div class="flex justify-end mt-6">
+        <div style="min-width:280px;">
+            <div class="flex justify-between py-2 border-b border-slate-100 text-sm">
+                <span class="font-bold text-slate-500">Subtotal</span>
+                <span id="subtotalAmt" class="font-bold text-slate-700">R 0.00</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-slate-100 text-sm">
+                <span class="font-bold text-slate-400 text-xs uppercase tracking-widest">VAT</span>
+                <span class="font-bold text-slate-400 text-xs">Not Applicable</span>
+            </div>
+            <div class="flex justify-between py-3 text-xl">
+                <span class="font-black text-slate-900 uppercase tracking-tight">Total Due</span>
+                <span id="totalAmt" class="font-black text-blue-700">R 0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Payment / Banking ── -->
+    <h3 class="section-title">Payment Instructions</h3>
+    <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-2">
+        <p class="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-3">EFT — Please use invoice number as reference</p>
+        <div class="bank-grid">
+            <div class="bank-row"><span class="bank-key">Account Name</span><span class="bank-val">Dynamic Fleet Reporting</span></div>
+            <div class="bank-row"><span class="bank-key">Bank</span><span class="bank-val">Capitec Bank</span></div>
+            <div class="bank-row"><span class="bank-key">Account Number</span><span class="bank-val">1569394626</span></div>
+            <div class="bank-row"><span class="bank-key">Branch Code</span><span class="bank-val">470010</span></div>
+        </div>
+        <p class="text-[9px] text-slate-400 mt-3 font-bold">Payment due within <strong class="text-slate-600">7 days</strong> of invoice date. Please email proof of payment to <strong class="text-slate-600">dynamicfleetreports@gmail.com</strong></p>
+    </div>
+
+    <!-- ── Notes ── -->
+    <div id="invoiceNotesBlock" style="display:none;" class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800"></div>
+
+    <!-- ── Footer ── -->
+    <footer class="mt-10 pt-6 border-t border-slate-100 flex justify-between items-end">
+        <div>
+            <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape</p>
+            <p class="text-[8px] text-slate-300 mt-1">dynamicfleetreports@gmail.com &nbsp;|&nbsp; 083 314 9592</p>
+        </div>
+        <div class="text-right">
+            <p class="text-[8px] text-slate-400 font-bold uppercase">Thank you for your business</p>
+            <p id="footerRef" class="text-[8px] text-slate-300 font-mono mt-1"></p>
+        </div>
+    </footer>
+
+</div><!-- end invoice-card -->
+
+<script>
+    var _currentClientId = null;
+    var _currentClient   = null;
+    var _overageCount    = 1;
+    var _invNumber       = '';
+
+    // ── Month/year pickers ────────────────────────────────────────────────────
+    var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function initPickers() {
+        var ms = document.getElementById('billingMonth');
+        var ys = document.getElementById('billingYear');
+        MONTHS.forEach(function(m, i) {
+            var o = document.createElement('option');
+            o.value = i; o.text = m;
+            ms.appendChild(o);
+        });
+        var now = new Date();
+        // Default to NEXT month (what we're billing for)
+        var nextMonth = now.getMonth() + 1;
+        var nextYear  = now.getFullYear();
+        if (nextMonth > 11) { nextMonth = 0; nextYear++; }
+        ms.value = nextMonth;
+        for (var y = nextYear - 1; y <= nextYear + 2; y++) {
+            var o = document.createElement('option');
+            o.value = y; o.text = y;
+            if (y === nextYear) o.selected = true;
+            ys.appendChild(o);
+        }
+    }
+
+    function getBillingPeriod() {
+        var m = parseInt(document.getElementById('billingMonth').value);
+        var y = parseInt(document.getElementById('billingYear').value);
+        return { month: m, year: y, label: MONTHS[m] + ' ' + y };
+    }
+
+    // ── Invoice number ────────────────────────────────────────────────────────
+    async function getNextInvoiceNumber() {
+        var raw = await cloudStorage.getItem('INVOICE_COUNTER');
+        var counter = raw ? parseInt(raw) : 0;
+        counter++;
+        await cloudStorage.setItem('INVOICE_COUNTER', String(counter));
+        return 'INV-' + new Date().getFullYear() + '-' + String(counter).padStart(4, '0');
+    }
+
+    async function peekInvoiceNumber() {
+        var raw = await cloudStorage.getItem('INVOICE_COUNTER');
+        var counter = (raw ? parseInt(raw) : 0) + 1;
+        return 'INV-' + new Date().getFullYear() + '-' + String(counter).padStart(4, '0');
+    }
+
+    // ── Load clients into picker ──────────────────────────────────────────────
+    async function populatePicker(preselect) {
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var active = allClients.filter(function(c) { return c.status === 'active'; });
+        var picker = document.getElementById('clientPicker');
+        picker.innerHTML = '<option value="">— Select Client —</option>';
+        active.forEach(function(c) {
+            var o = document.createElement('option');
+            o.value = c.id; o.text = c.company;
+            picker.appendChild(o);
+        });
+        if (preselect) {
+            picker.value = preselect;
+            loadClient(preselect);
+        }
+    }
+
+    // ── Load a client into the invoice ───────────────────────────────────────
+    async function loadClient(clientId) {
+        if (!clientId) return;
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var client = allClients.find(function(c) { return c.id === clientId; });
+        if (!client) return;
+
+        _currentClientId = clientId;
+        _currentClient   = client;
+
+        // Invoice number — peek first (don't increment until Save/Send)
+        if (!_invNumber) {
+            _invNumber = await peekInvoiceNumber();
+        }
+
+        // Dates
+        var now      = new Date();
+        var invDate  = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+        var dueD     = new Date(now); dueD.setDate(dueD.getDate() + 7);
+        var dueDate  = dueD.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        document.getElementById('invNumber').innerText  = _invNumber;
+        document.getElementById('invDate').innerText    = invDate;
+        document.getElementById('dueDate').innerText    = dueDate;
+        document.getElementById('footerRef').innerText  = _invNumber;
+
+        // Bill to
+        document.getElementById('billName').innerText    = client.company;
+        document.getElementById('billContact').innerText = client.contactName || '';
+        document.getElementById('billEmail').innerText   = client.email || '';
+        document.getElementById('billSlaRef').innerText  = client.slaRef ? 'SLA Ref: ' + client.slaRef : '';
+
+        // Check if already has an invoice this period — show note
+        var history = client.invoiceHistory || [];
+        var period  = getBillingPeriod();
+        var existing = history.find(function(h) {
+            return h.month === period.month && h.year === period.year;
+        });
+        var notesBlock = document.getElementById('invoiceNotesBlock');
+        if (existing) {
+            notesBlock.style.display = 'block';
+            notesBlock.innerHTML = '⚠️ An invoice was already generated for <strong>' + period.label + '</strong> — ' + existing.invNumber + ' on ' + existing.date + '. Generating a new one will create a separate invoice.';
+        } else {
+            notesBlock.style.display = 'none';
+        }
+
+        // Mark paid button
+        document.getElementById('markPaidBtn').style.display = 'inline-block';
+
+        // Status badge
+        var lastInv = history[history.length - 1];
+        setStatusBadge(lastInv && lastInv.paid ? 'paid' : 'unpaid');
+
+        refreshLines();
+    }
+
+    function setStatusBadge(status) {
+        var el = document.getElementById('statusBadge');
+        el.className = 'status-badge status-' + status;
+        el.innerText = status === 'paid' ? '✓ Paid' : status === 'overdue' ? 'Overdue' : 'Unpaid';
+    }
+
+    // ── Build line items ──────────────────────────────────────────────────────
+    function refreshLines() {
+        if (!_currentClient) return;
+        var client   = _currentClient;
+        var period   = getBillingPeriod();
+        var fleetSize = client.fleet ? client.fleet.length : (client.fleetSize || 0);
+
+        // Tier
+        var tier   = fleetSize <= 15 ? 1 : fleetSize <= 30 ? 2 : 3;
+        var rate   = [0, 200, 175, 150][tier];
+        var tierLabel = 'Tier ' + tier + ' (' + (tier===1?'1–15':tier===2?'16–30':'31+') + ' vehicles)';
+
+        // Is this first invoice? (no invoice history)
+        var history    = client.invoiceHistory || [];
+        var isFirst    = history.length === 0 || !history.find(function(h) { return h.type !== 'setup'; });
+        var setupAlready = history.find(function(h) { return h.hasSetup; });
+
+        var lines = [];
+
+        // Monthly admin fee
+        lines.push({ desc: 'Monthly Administration Fee', detail: period.label, rate: 1500, qty: 1, amt: 1500 });
+
+        // Per-vehicle fee
+        var vehicleFee = fleetSize * rate;
+        lines.push({ desc: 'Per-Vehicle Fleet Monitoring — ' + tierLabel, detail: fleetSize + ' vehicles × R' + rate, rate: rate, qty: fleetSize, amt: vehicleFee });
+
+        // Setup fee — first invoice only and not yet billed
+        if (isFirst && !setupAlready) {
+            lines.push({ desc: 'Implementation & Onboarding Fee', detail: 'Once-off · Fleet setup & benchmarking', rate: 2500, qty: 1, amt: 2500, highlight: true });
+        }
+
+        // Overages
+        var overageTotal = 0;
+        for (var i = 0; i < _overageCount; i++) {
+            var descEl = document.getElementById('ov-desc-' + i);
+            var qtyEl  = document.getElementById('ov-qty-'  + i);
+            var rateEl = document.getElementById('ov-rate-' + i);
+            if (!descEl) continue;
+            var desc  = descEl.value.trim();
+            var qty   = parseInt(qtyEl.value) || 0;
+            var oRate = parseFloat(rateEl.value) || 150;
+            if (desc && qty > 0) {
+                var oAmt = qty * oRate;
+                overageTotal += oAmt;
+                lines.push({ desc: desc, detail: 'On-demand overage', rate: oRate, qty: qty, amt: oAmt, overage: true });
+            }
+        }
+
+        // Render
+        var tbody = document.getElementById('lineItems');
+        tbody.innerHTML = lines.map(function(l) {
+            var rowStyle = l.highlight ? 'background:#eff6ff;' : l.overage ? 'background:#fff7ed;' : '';
+            return '<tr style="' + rowStyle + '">'
+                + '<td><span style="font-weight:700;">' + l.desc + '</span>'
+                + (l.highlight ? '<span style="margin-left:8px;background:#2563eb;color:white;font-size:8px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase;">Once-off</span>' : '')
+                + (l.overage   ? '<span style="margin-left:8px;background:#f97316;color:white;font-size:8px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase;">Overage</span>' : '')
+                + '</td>'
+                + '<td style="color:#64748b;font-size:11px;">' + l.detail + '</td>'
+                + '<td style="text-align:right;">R ' + l.rate.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>'
+                + '<td style="text-align:right;">' + l.qty + '</td>'
+                + '<td>R ' + l.amt.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>'
+                + '</tr>';
+        }).join('');
+
+        // Totals
+        var subtotal = lines.reduce(function(s, l) { return s + l.amt; }, 0);
+        document.getElementById('subtotalAmt').innerText = 'R ' + subtotal.toLocaleString('en-ZA', {minimumFractionDigits:2});
+        document.getElementById('totalAmt').innerText    = 'R ' + subtotal.toLocaleString('en-ZA', {minimumFractionDigits:2});
+
+        // Print period
+        document.getElementById('printPeriod').innerText = period.label;
+        document.querySelector('.print-only').style.display = 'block';
+
+        return { lines: lines, subtotal: subtotal };
+    }
+
+    // ── Overage rows ──────────────────────────────────────────────────────────
+    function addOverage() {
+        var idx = _overageCount++;
+        var container = document.getElementById('overageInputs');
+        var div = document.createElement('div');
+        div.className = 'overage-row';
+        div.id = 'overage-row-' + idx;
+        div.innerHTML = '<input type="text" id="ov-desc-' + idx + '" placeholder="Description" style="flex:2;">'
+            + '<input type="number" id="ov-qty-' + idx + '" placeholder="Qty" style="width:60px;" min="1">'
+            + '<input type="number" id="ov-rate-' + idx + '" placeholder="Rate" style="width:80px;" value="150">'
+            + '<button onclick="removeOverage(' + idx + ')" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:900;cursor:pointer;">✕</button>';
+        container.appendChild(div);
+    }
+
+    function removeOverage(idx) {
+        var row = document.getElementById('overage-row-' + idx) || document.querySelector('.overage-row');
+        if (row && row.id === 'overage-row-' + idx) { row.remove(); refreshLines(); return; }
+        // First row — just clear it
+        var d = document.getElementById('ov-desc-' + idx);
+        var q = document.getElementById('ov-qty-' + idx);
+        if (d) d.value = ''; if (q) q.value = '';
+        refreshLines();
+    }
+
+    // ── Save invoice to history & lock in number ──────────────────────────────
+    async function saveInvoiceRecord(paid) {
+        if (!_currentClientId) return;
+        var data     = refreshLines();
+        var period   = getBillingPeriod();
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id === _currentClientId; });
+        if (idx === -1) return;
+
+        // Lock in invoice number (increment counter)
+        if (!_invNumber.includes('PEEK')) {
+            var lockedNum = await getNextInvoiceNumber();
+            _invNumber = lockedNum;
+            document.getElementById('invNumber').innerText = lockedNum;
+            document.getElementById('footerRef').innerText = lockedNum;
+        }
+
+        var record = {
+            invNumber: _invNumber,
+            date:      new Date().toLocaleDateString('en-ZA'),
+            month:     period.month,
+            year:      period.year,
+            period:    period.label,
+            total:     data.subtotal,
+            paid:      paid || false,
+            hasSetup:  data.lines.some(function(l) { return l.highlight; })
+        };
+
+        allClients[idx].invoiceHistory = allClients[idx].invoiceHistory || [];
+        allClients[idx].invoiceHistory.push(record);
+        allClients[idx].lastInvoiceDate   = new Date().toISOString();
+        allClients[idx].lastInvoiceNumber = _invNumber;
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        _currentClient = allClients[idx];
+    }
+
+    // ── Mark paid ─────────────────────────────────────────────────────────────
+    async function markPaid() {
+        if (!_currentClientId) return;
+        await saveInvoiceRecord(true);
+        setStatusBadge('paid');
+        document.getElementById('markPaidBtn').innerText = '✓ Marked as Paid';
+        document.getElementById('markPaidBtn').style.background = '#059669';
+    }
+
+    // ── Send via email ────────────────────────────────────────────────────────
+    async function sendInvoice() {
+        if (!_currentClient) { alert('Please select a client first.'); return; }
+        await saveInvoiceRecord(false);
+        var data    = refreshLines();
+        var period  = getBillingPeriod();
+        var client  = _currentClient;
+        var subject = encodeURIComponent('Invoice ' + _invNumber + ' — ' + period.label + ' Services — Dynamic Fleet Reporting');
+        var body    = encodeURIComponent(
+            'Dear ' + (client.contactName || client.company) + ',\n\n' +
+            'Please find your invoice for services rendered for ' + period.label + '.\n\n' +
+            '── INVOICE DETAILS ──────────────────────\n' +
+            'Invoice Number:  ' + _invNumber + '\n' +
+            'Invoice Date:    ' + document.getElementById('invDate').innerText + '\n' +
+            'Due Date:        ' + document.getElementById('dueDate').innerText + '\n' +
+            'Amount Due:      R ' + data.subtotal.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '\n\n' +
+            '── PAYMENT DETAILS ───────────────────────\n' +
+            'Bank:            Capitec Bank\n' +
+            'Account Name:    Dynamic Fleet Reporting\n' +
+            'Account Number:  1569394626\n' +
+            'Branch Code:     470010\n' +
+            'Reference:       ' + _invNumber + '\n\n' +
+            'Please use the invoice number as your payment reference.\n' +
+            'Kindly reply with proof of payment once payment has been made.\n\n' +
+            'Thank you for your continued business.\n\n' +
+            'Kind regards,\n' +
+            'Dynamic Fleet Reporting\n' +
+            'dynamicfleetreports@gmail.com | 083 314 9592'
+        );
+        window.location.href = 'mailto:' + (client.email || '') + '?subject=' + subject + '&body=' + body;
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    window.onload = async function() {
+        initPickers();
+        var params     = new URLSearchParams(window.location.search);
+        var clientId   = params.get('clientId');
+        await populatePicker(clientId || null);
+    };
+</script>
+
+</body>
+</html>
