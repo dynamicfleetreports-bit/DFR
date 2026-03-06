@@ -465,6 +465,37 @@
                 var history   = client.reportHistory || [];
                 var fleetSize = client.fleet ? client.fleet.length : (client.fleetSize || 0);
 
+                // ── Invoice status ────────────────────────────────────────────
+                var invHistory  = client.invoiceHistory || [];
+                var lastInv     = invHistory.length > 0 ? invHistory[invHistory.length - 1] : null;
+                var invStripHtml = '';
+                if (lastInv) {
+                    var invOverdue  = false;
+                    var invDaysOver = 0;
+                    if (!lastInv.paid) {
+                        var invDue = new Date(lastInv.dueDate || (new Date(lastInv.date).getTime() + 7*24*60*60*1000));
+                        invDaysOver = Math.ceil((new Date() - invDue) / (1000*60*60*24));
+                        invOverdue  = invDaysOver > 0;
+                    }
+                    var invColor  = lastInv.paid ? '#10b981' : invOverdue ? '#ef4444' : '#fbbf24';
+                    var invBg     = lastInv.paid ? 'rgba(16,185,129,0.08)' : invOverdue ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)';
+                    var invBorder = lastInv.paid ? 'rgba(16,185,129,0.2)' : invOverdue ? 'rgba(239,68,68,0.3)' : 'rgba(251,191,36,0.2)';
+                    var invStatus = lastInv.paid ? '✓ Paid' : invOverdue ? '⚠️ Overdue ' + invDaysOver + 'd' : '⏳ Unpaid';
+                    var paidBtn   = !lastInv.paid
+                        ? '<button onclick="markInvoicePaid(\'' + client.id + '\')" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:2px 10px;border-radius:20px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-left:6px;">Mark Paid</button>'
+                        : '';
+                    invStripHtml = '<div style="background:' + invBg + ';border:1px solid ' + invBorder + ';border-radius:8px;padding:7px 10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">'
+                        + '<div>'
+                        +   '<span style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.3);letter-spacing:0.1em;">Last Invoice</span>'
+                        +   '<div style="font-size:11px;font-weight:900;color:white;margin-top:1px;">' + lastInv.invNumber + ' &nbsp;·&nbsp; R ' + (lastInv.total||0).toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</div>'
+                        + '</div>'
+                        + '<div style="text-align:right;display:flex;align-items:center;gap:4px;">'
+                        +   '<span style="font-size:9px;font-weight:900;color:' + invColor + ';">' + invStatus + '</span>'
+                        +   paidBtn
+                        + '</div>'
+                        + '</div>';
+                }
+
                 return '<div class="client-card ' + cardClass + '">' +
                     '<div class="flex justify-between items-start mb-4">' +
                         '<span class="status-badge status-' + status + '">' + (client.reportSchedule || 'monthly').toUpperCase() + '</span>' +
@@ -482,6 +513,7 @@
                         '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Reports Sent</span><span>' + history.length + ' Total</span></div>' +
                     '</div>' +
                     (client.notes ? '<div class="text-[9px] text-yellow-400/60 italic mb-4">📝 ' + client.notes.substring(0, 50) + (client.notes.length > 50 ? '...' : '') + '</div>' : '') +
+                    invStripHtml +
 
                     // ── Drive & SLA links ─────────────────────────────────────
                     '<div class="border-t border-white/5 pt-3 mt-1 mb-3 space-y-2">' +
@@ -882,6 +914,22 @@
             var a    = document.createElement('a');
             a.href = url; a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
             URL.revokeObjectURL(url);
+        }
+
+        // ── Mark last invoice paid directly from card ─────────
+        async function markInvoicePaid(clientId) {
+            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var idx = allClients.findIndex(function(c) { return c.id === clientId; });
+            if (idx === -1) return;
+            var invHistory = allClients[idx].invoiceHistory || [];
+            if (invHistory.length === 0) return;
+            var last = invHistory[invHistory.length - 1];
+            if (last.paid) return;
+            if (!confirm('Mark ' + last.invNumber + ' (R ' + (last.total||0).toLocaleString('en-ZA', {minimumFractionDigits:2}) + ') as PAID for ' + allClients[idx].company + '?')) return;
+            last.paid    = true;
+            last.paidDate = new Date().toLocaleDateString('en-ZA');
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+            renderDatabase();
         }
 
         // ── Save Drive / SLA link on paste ────────────────────
