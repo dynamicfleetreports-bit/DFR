@@ -481,6 +481,32 @@
                         '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Reports Sent</span><span>' + history.length + ' Total</span></div>' +
                     '</div>' +
                     (client.notes ? '<div class="text-[9px] text-yellow-400/60 italic mb-4">📝 ' + client.notes.substring(0, 50) + (client.notes.length > 50 ? '...' : '') + '</div>' : '') +
+
+                    // ── Drive & SLA links ─────────────────────────────────────
+                    '<div class="border-t border-white/5 pt-3 mt-1 mb-3 space-y-2">' +
+
+                        // Drive folder — show button if saved, else paste field
+                        (client.driveFolderUrl
+                            ? '<a href="' + client.driveFolderUrl + '" target="_blank" class="action-btn col-span-2 flex items-center justify-center gap-2" style="display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);text-decoration:none;color:white;">📁 Open Drive Folder</a>'
+                            : '<div style="display:flex;gap:6px;align-items:center;">' +
+                                '<input type="text" id="driveLink-' + client.id + '" placeholder="📁 Paste Drive folder link..." ' +
+                                'style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:0.5rem;padding:6px 10px;color:rgba(255,255,255,0.5);font-size:10px;font-family:Outfit,sans-serif;" ' +
+                                'onpaste="saveDriveLink(\'' + client.id + '\', \'driveFolderUrl\', event)" ' +
+                                'oninput="if(this.value.startsWith(\'http\'))saveDriveLink(\'' + client.id + '\', \'driveFolderUrl\', null, this.value)">' +
+                              '</div>') +
+
+                        // SLA link — show button if saved, else paste field
+                        (client.slaFileUrl
+                            ? '<a href="' + client.slaFileUrl + '" target="_blank" class="action-btn col-span-2 flex items-center justify-center gap-2" style="display:flex;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);text-decoration:none;color:#93c5fd;">📄 View Signed SLA</a>'
+                            : '<div style="display:flex;gap:6px;align-items:center;">' +
+                                '<input type="text" id="slaLink-' + client.id + '" placeholder="📄 Paste signed SLA link..." ' +
+                                'style="flex:1;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:0.5rem;padding:6px 10px;color:rgba(147,197,253,0.6);font-size:10px;font-family:Outfit,sans-serif;" ' +
+                                'onpaste="saveDriveLink(\'' + client.id + '\', \'slaFileUrl\', event)" ' +
+                                'oninput="if(this.value.startsWith(\'http\'))saveDriveLink(\'' + client.id + '\', \'slaFileUrl\', null, this.value)">' +
+                              '</div>') +
+
+                    '</div>' +
+
                     '<div class="grid grid-cols-2 gap-2">' +
                         '<button onclick="generateWeeklyForm(\'' + client.id + '\')" class="action-btn success col-span-2">📋 Generate Weekly Form</button>' +
                         '<button onclick="syncFromAudit(\'' + client.id + '\')" class="action-btn primary">📥 Sync from Audit</button>' +
@@ -854,6 +880,32 @@
             var a    = document.createElement('a');
             a.href = url; a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
             URL.revokeObjectURL(url);
+        }
+
+        // ── Save Drive / SLA link on paste ────────────────────
+        async function saveDriveLink(clientId, field, pasteEvent, directValue) {
+            var url = directValue || '';
+            if (pasteEvent) {
+                pasteEvent.preventDefault();
+                url = (pasteEvent.clipboardData || window.clipboardData).getData('text').trim();
+                // Put it in the input so user sees it
+                var inputEl = document.getElementById((field === 'slaFileUrl' ? 'slaLink-' : 'driveLink-') + clientId);
+                if (inputEl) inputEl.value = url;
+            }
+            if (!url || !url.startsWith('http')) return;
+            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var idx = allClients.findIndex(function(c) { return c.id === clientId; });
+            if (idx === -1) return;
+            allClients[idx][field] = url;
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+            // Small visual confirmation then re-render to show button
+            var inputEl2 = document.getElementById((field === 'slaFileUrl' ? 'slaLink-' : 'driveLink-') + clientId);
+            if (inputEl2) {
+                inputEl2.style.borderColor = '#10b981';
+                inputEl2.style.color = '#10b981';
+                inputEl2.value = '✓ Saved!';
+            }
+            setTimeout(function() { renderDatabase(); }, 700);
         }
 
         // Init
