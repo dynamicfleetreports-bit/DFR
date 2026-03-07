@@ -16,12 +16,10 @@
         body { font-family:'Outfit',sans-serif; background:#cbd5e1; color:var(--ink); }
         .report-wrap { width:210mm; margin:10mm auto; }
 
-        /* Control bar */
         .control-bar { background:var(--ink); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:10px 10px 0 0; position:sticky; top:0; z-index:100; }
         .ctrl-btn { padding:7px 16px; border-radius:7px; font-family:"Outfit",sans-serif; font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:1px; cursor:pointer; border:none; }
         .filename-hint { font-size:9px; font-weight:700; color:rgba(255,255,255,0.35); margin-top:2px; }
 
-        /* Running header */
         .page-header { background:var(--ink); margin:0 0 5mm 0; padding:4mm 6mm; display:flex; justify-content:space-between; align-items:center; border-radius:6px; }
         .ph-brand { font-family:"Bebas Neue",sans-serif; font-size:14px; letter-spacing:3px; color:var(--gold-light); }
         .ph-client { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.6); }
@@ -55,20 +53,15 @@
         .cover-period-box { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:3mm 5mm; margin-top:3mm; }
         .cover-period-box .lbl { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.3); }
         .cover-period-box .val { font-family:"Bebas Neue",sans-serif; font-size:16px; color:white; letter-spacing:2px; }
-        .cover-qr { display:flex; flex-direction:column; align-items:center; gap:3px; }
-        .cover-qr .lbl { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.3); }
 
-        /* Page sections */
         .print-section { background:white; padding:8mm; margin-bottom:4px; }
 
-        /* Discovery banner */
         .discovery-banner { background:linear-gradient(135deg,var(--ink),#1e293b); border-radius:10px; padding:5mm 6mm; margin-bottom:4mm; border-left:4px solid var(--gold); position:relative; overflow:hidden; }
         .discovery-banner::after { content:"🔍"; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:48px; opacity:0.08; }
         .discovery-banner .eyebrow { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:4px; color:var(--gold-light); margin-bottom:3px; }
         .discovery-banner h2 { font-family:"Bebas Neue",sans-serif; font-size:20px; letter-spacing:3px; color:white; line-height:1; }
         .discovery-banner p { font-size:9px; color:rgba(255,255,255,0.45); margin-top:4px; font-weight:600; }
 
-        /* Hero tiles */
         .hero-tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:4mm; }
         .hero-tile { background:#f8fafc; border:1px solid #e2e8f0; border-top:2px solid #cbd5e1; border-radius:8px; padding:6px 4px; text-align:center; }
         .hero-tile.t-gold   { background:#fffbeb; border-top-color:var(--gold); }
@@ -78,37 +71,67 @@
         .tile-icon  { font-size:13px; display:block; margin-bottom:2px; }
         .tile-label { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:var(--slate); display:block; }
         .tile-value { font-family:"Bebas Neue",sans-serif; font-size:18px; color:var(--ink); line-height:1; display:block; }
-        .hero-tile.t-gold   .tile-label,.hero-tile.t-gold   .tile-value { color:var(--gold); }
-        .hero-tile.t-red    .tile-value { color:var(--red); }
-        .hero-tile.t-loss   .tile-label { color:rgba(255,255,255,0.5); }
-        .hero-tile.t-loss   .tile-value { color:var(--gold-light); font-size:22px; }
+        .hero-tile.t-gold .tile-label,.hero-tile.t-gold .tile-value { color:var(--gold); }
+        .hero-tile.t-red .tile-value { color:var(--red); }
+        .hero-tile.t-loss .tile-label { color:rgba(255,255,255,0.5); }
+        .hero-tile.t-loss .tile-value { color:var(--gold-light); font-size:22px; }
         .hero-tile.t-annual .tile-label { color:rgba(255,255,255,0.5); }
         .hero-tile.t-annual .tile-value { color:#fca5a5; font-size:22px; }
         .tile-sub { font-size:6.5px; color:var(--slate); font-weight:600; display:block; }
         .hero-tile.t-loss .tile-sub,.hero-tile.t-annual .tile-sub { color:rgba(255,255,255,0.4); }
 
-        /* Charts */
         .p1-charts { display:grid; grid-template-columns:44mm 1fr; gap:3mm; margin-bottom:4mm; }
         .p1-right  { display:flex; flex-direction:column; gap:3mm; }
         .chart-card { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4mm; }
         .chart-card-title { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); margin-bottom:6px; }
-        .trend-delta .dval { font-family:"Bebas Neue",sans-serif; font-size:18px; }
-        .trend-delta .dlbl { font-size:7px; font-weight:700; color:var(--slate); }
-        .podium-item { display:flex; align-items:center; gap:6px; background:white; border:1px solid #e2e8f0; border-radius:6px; padding:5px 8px; margin-bottom:4px; }
-        .podium-rank { width:18px; height:18px; border-radius:50%; color:white; font-weight:900; font-size:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-        .podium-reg  { font-weight:900; font-size:10px; color:#1e40af; font-style:italic; flex:1; }
-        .podium-bar-wrap { flex:2; height:4px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
-        .podium-bar-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:999px; }
-        .podium-loss { font-weight:900; font-size:10px; color:var(--gold); min-width:55px; text-align:right; }
         .gauge-wrap { display:flex; flex-direction:column; align-items:center; }
-        .gauge-score { font-family:"Bebas Neue",sans-serif; font-size:28px; line-height:1; }
+        .gauge-score { font-family:"Bebas Neue",sans-serif; font-size:28px; }
         .gauge-desc  { font-size:9px; font-weight:700; }
 
-        /* Section titles */
+        /* Mfr spec comparison cards */
+        .spec-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:3mm; margin-bottom:4mm; }
+        .spec-card { border-radius:8px; padding:4mm; text-align:center; }
+        .spec-card.mfr-card  { background:#f0fdf4; border:1px solid #bbf7d0; border-top:3px solid var(--green); }
+        .spec-card.act-card  { background:#fff1f2; border:1px solid #fecaca; border-top:3px solid var(--red); }
+        .spec-card.gap-card  { background:linear-gradient(135deg,#78350f,#92400e); border-top:3px solid var(--gold-light); }
+        .spec-card .sc-label { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:2px; display:block; margin-bottom:3px; }
+        .spec-card.mfr-card .sc-label { color:var(--green); }
+        .spec-card.act-card .sc-label { color:var(--red); }
+        .spec-card.gap-card .sc-label { color:rgba(255,255,255,0.5); }
+        .spec-card .sc-value { font-family:"Bebas Neue",sans-serif; font-size:28px; line-height:1; display:block; }
+        .spec-card.mfr-card .sc-value { color:var(--green); }
+        .spec-card.act-card .sc-value { color:var(--red); }
+        .spec-card.gap-card .sc-value { color:var(--gold-light); }
+        .spec-card .sc-sub   { font-size:7.5px; font-weight:600; display:block; margin-top:2px; }
+        .spec-card.mfr-card .sc-sub { color:#047857; }
+        .spec-card.act-card .sc-sub { color:#991b1b; }
+        .spec-card.gap-card .sc-sub { color:rgba(255,255,255,0.4); }
+
+        /* Efficiency bar */
+        .mfr-bar-wrap { margin:4mm 0; }
+        .mfr-bar-label { display:flex; justify-content:space-between; font-size:7.5px; font-weight:700; margin-bottom:3px; }
+        .mfr-bar-track { height:10px; background:#e2e8f0; border-radius:999px; overflow:visible; position:relative; }
+        .mfr-bar-fill  { height:100%; border-radius:999px; }
+        .mfr-marker    { position:absolute; top:-4px; width:2px; height:18px; background:var(--gold); border-radius:1px; }
+        .mfr-marker-label { position:absolute; top:-16px; font-size:6.5px; font-weight:900; color:var(--gold); transform:translateX(-50%); white-space:nowrap; }
+
         .section-title { font-family:"Bebas Neue",sans-serif; font-size:15px; letter-spacing:3px; color:var(--ink); text-transform:uppercase; border-bottom:2px solid var(--gold); padding-bottom:3px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
         .section-title .accent { color:var(--gold); }
 
-        /* Tables */
+        /* Insight box */
+        .insight-box { background:linear-gradient(135deg,#fffbeb,#fef3c7); border:1px solid #fde68a; border-left:4px solid var(--gold); border-radius:8px; padding:5mm; }
+        .insight-box .eyebrow { font-size:7.5px; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:var(--gold); margin-bottom:3px; }
+        .insight-box .headline { font-family:"Bebas Neue",sans-serif; font-size:16px; letter-spacing:2px; color:var(--ink); line-height:1.1; }
+        .insight-box .body { font-size:8.5px; font-weight:600; color:#78350f; margin-top:5px; line-height:1.5; }
+
+        /* Reveal teaser */
+        .reveal-strip { background:var(--ink); border-radius:8px; padding:4mm 6mm; display:flex; align-items:center; justify-content:space-between; border-left:4px solid var(--gold); }
+        .reveal-strip .label { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:2px; }
+        .reveal-strip .value { font-family:"Bebas Neue",sans-serif; font-size:20px; color:var(--gold-light); letter-spacing:2px; }
+        .reveal-strip .cta-pill { background:var(--gold); color:var(--ink); padding:6px 16px; border-radius:6px; font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:2px; white-space:nowrap; }
+
+        /* BLURRED TABLE */
+        .locked-table-wrap { position:relative; margin-bottom:6mm; }
         .dfr-table { width:100%; border-collapse:collapse; font-size:8.5px; }
         .dfr-table thead tr { background:var(--ink); }
         .dfr-table thead th { color:white; font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; padding:6px 5px; border:1px solid #334155; text-align:center; }
@@ -116,15 +139,22 @@
         .dfr-table thead th.gold { background:#78350f; }
         .dfr-table tbody tr { border-bottom:1px solid #f1f5f9; }
         .dfr-table tbody tr:nth-child(even) { background:#f8fafc; }
-        .dfr-table td { padding:5px 4px; text-align:center; font-weight:700; }
+        .dfr-table td { padding:5px 4px; text-align:center; font-weight:700; font-size:8px; }
         .dfr-table td.left { text-align:left; padding-left:8px; }
         .dfr-table td.reg { font-style:italic; font-weight:900; color:#1e40af; border-left:3px solid #3b82f6; }
-        .dfr-table td.red   { color:var(--red); }
-        .dfr-table td.gold  { color:var(--gold); font-style:italic; font-weight:900; }
-        .dfr-table td.green { color:var(--green); }
         .dfr-table td.muted { color:var(--slate); font-weight:600; }
-        .score-pill { display:inline-block; padding:1px 6px; border-radius:999px; font-size:7.5px; font-weight:900; }
-        .table-note { font-size:7.5px; color:var(--slate); font-weight:600; font-style:italic; margin-top:5px; }
+        .blurred-cell { filter:blur(4px); user-select:none; }
+        .blurred-cell.loss { color:var(--red); font-weight:900; }
+
+        /* Lock overlay */
+        .lock-overlay {
+            position:absolute; bottom:0; left:0; right:0; height:60%;
+            background:linear-gradient(to bottom, transparent 0%, rgba(248,250,252,0.65) 30%, rgba(248,250,252,0.95) 100%);
+            display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+            padding-bottom:12px;
+        }
+        .lock-badge { background:var(--ink); color:white; padding:8px 22px; border-radius:999px; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:2px; display:flex; align-items:center; gap:8px; border:2px solid var(--gold); box-shadow:0 4px 20px rgba(0,0,0,0.3); }
+        .lock-sub { font-size:7.5px; color:var(--slate); font-weight:700; margin-top:5px; text-align:center; }
 
         /* Case for action */
         .annual-card { background:linear-gradient(135deg,var(--ink),#1e293b); border-radius:12px; padding:6mm 8mm; margin-bottom:4mm; border-top:3px solid var(--gold); display:grid; grid-template-columns:1fr 1fr 1fr; gap:6mm; position:relative; overflow:hidden; }
@@ -159,18 +189,17 @@
         .closing-bar .micro { font-size:7px; color:#cbd5e1; font-weight:600; }
         .closing-bar .contact { font-size:9px; font-weight:900; color:var(--ink); }
 
-        /* Print */
         @media print {
             @page { size:A4 portrait; margin:10mm; }
             body { background:white !important; }
             .report-wrap { width:100% !important; margin:0 !important; }
             .control-bar { display:none !important; }
-            .print-section { padding:0 !important; margin:0 !important; box-shadow:none !important; }
+            .print-section { padding:0 !important; margin:0 !important; }
             .cover-page { height:277mm !important; overflow:hidden !important; }
             .page-break-before { page-break-before:always; break-before:page; }
             thead { display:table-header-group; }
             tr { page-break-inside:avoid; break-inside:avoid; }
-            .annual-card,.inaction-row,.cta-box,.dfr-value-box { page-break-inside:avoid; break-inside:avoid; }
+            .annual-card,.inaction-row,.cta-box,.dfr-value-box,.locked-table-wrap { page-break-inside:avoid; break-inside:avoid; }
             .section-title { page-break-after:avoid; break-after:avoid; }
             * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         }
@@ -187,7 +216,7 @@
         <button onclick="window.print()" class="ctrl-btn" style="background:var(--gold-light);color:var(--ink);">💾 Save PDF</button>
     </div>
 
-    <!-- PAGE 1 — COVER -->
+    <!-- COVER -->
     <div class="cover-page">
         <div class="cover-accent-top"></div>
         <div class="cover-header">
@@ -203,17 +232,17 @@
             <div class="cover-company" id="coverCompany">—</div>
             <div class="cover-tagline" id="coverTagline">—</div>
             <div class="cover-loss-wrap">
-                <div class="cover-loss-label">Total Identified Losses — Audit Period</div>
+                <div class="cover-loss-label">Estimated Annual Losses — Based on Audit Data</div>
                 <div class="cover-loss-amount" id="coverLoss">—</div>
                 <div class="cover-loss-sub" id="coverLossSub">—</div>
             </div>
             <div class="cover-stats">
                 <div class="cover-stat"><span class="val" id="covKM">—</span><span class="lbl">Kilometres</span></div>
                 <div class="cover-stat"><span class="val" id="covFuel">—</span><span class="lbl">Litres Used</span></div>
-                <div class="cover-stat"><span class="val" id="covEvents">—</span><span class="lbl">Violations</span></div>
+                <div class="cover-stat"><span class="val" id="covVehicles">—</span><span class="lbl">Vehicles Audited</span></div>
                 <div class="cover-stat" style="background:rgba(217,119,6,0.15);border-color:rgba(217,119,6,0.3);">
-                    <span class="val" style="color:var(--gold-light);" id="covAnnual">—</span>
-                    <span class="lbl" style="color:rgba(217,119,6,0.7);">Annual Projection</span>
+                    <span class="val" style="color:var(--gold-light);" id="covBelow">—</span>
+                    <span class="lbl" style="color:rgba(217,119,6,0.7);">Below Mfr Spec</span>
                 </div>
             </div>
         </div>
@@ -226,36 +255,39 @@
                 </div>
                 <div style="margin-top:3mm;font-size:8px;font-weight:700;color:rgba(255,255,255,0.25);">Issued: <span id="coverDate">—</span></div>
             </div>
-            <div class="cover-qr">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
                 <canvas id="qrCover" width="64" height="64" style="border-radius:6px;display:block;"></canvas>
-                <div class="lbl" style="margin-top:4px;color:rgba(255,255,255,0.3);">Scan to discover more</div>
+                <div style="font-size:6.5px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.3);margin-top:4px;">Scan to discover more</div>
             </div>
         </div>
         <div class="cover-accent-bottom"></div>
     </div>
 
-    <!-- PAGE 2 — THE DISCOVERY -->
+    <!-- PAGE 2 — SUMMARY FINDINGS -->
     <div class="print-section page-break-before">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph2-client">—</div>
-            <div style="text-align:right;"><div class="ph-period" id="ph2-period">—</div><div class="ph-page">Fleet Audit Discovery</div></div>
+            <div style="text-align:right;"><div class="ph-period" id="ph2-period">—</div><div class="ph-page">Fleet Discovery</div></div>
         </div>
+
         <div class="discovery-banner">
-            <div class="eyebrow">Forensic Fleet Audit — What We Found</div>
-            <h2>HERE IS WHAT YOUR DATA REVEALS</h2>
-            <p>The following analysis is based on actual GPS tracking and fuel data recorded during the audit period. Every rand identified below represents a verifiable, recoverable loss.</p>
+            <div class="eyebrow">Forensic Fleet Audit — Summary Findings</div>
+            <h2>HERE IS WHAT YOUR FLEET DATA REVEALS</h2>
+            <p>Based on actual GPS tracking and fuel data for the audit period. Full vehicle-by-vehicle detail is provided to active DFR clients only.</p>
         </div>
+
         <div class="hero-tiles">
             <div class="hero-tile"><span class="tile-icon">🛣️</span><span class="tile-label">Total Distance</span><span class="tile-value" id="statKM">—</span><span class="tile-sub">Kilometres</span></div>
             <div class="hero-tile"><span class="tile-icon">⛽</span><span class="tile-label">Total Fuel Used</span><span class="tile-value" id="statFuel">—</span><span class="tile-sub">Litres</span></div>
-            <div class="hero-tile t-gold"><span class="tile-icon">📊</span><span class="tile-label">Fleet km/L</span><span class="tile-value" id="statEff">—</span><span class="tile-sub">Avg efficiency</span></div>
-            <div class="hero-tile t-red"><span class="tile-icon">💧</span><span class="tile-label">Litres Wasted</span><span class="tile-value" id="statWasted">—</span><span class="tile-sub">Inefficiency loss</span></div>
+            <div class="hero-tile t-gold"><span class="tile-icon">📊</span><span class="tile-label">Fleet Avg km/L</span><span class="tile-value" id="statEff">—</span><span class="tile-sub">Actual efficiency</span></div>
             <div class="hero-tile t-red"><span class="tile-icon">🚨</span><span class="tile-label">Speed Violations</span><span class="tile-value" id="statEvents">—</span><span class="tile-sub">Recorded events</span></div>
-            <div class="hero-tile"><span class="tile-icon">📉</span><span class="tile-label">Efficiency Loss</span><span class="tile-value" id="statEffLoss">—</span><span class="tile-sub">Wholesale</span></div>
-            <div class="hero-tile t-loss"><span class="tile-icon">💰</span><span class="tile-label">Total Loss — This Period</span><span class="tile-value" id="statTotal">—</span><span class="tile-sub" id="statTotalSub">—</span></div>
+            <div class="hero-tile t-loss"><span class="tile-icon">💰</span><span class="tile-label">Est. Loss — This Period</span><span class="tile-value" id="statTotal">—</span><span class="tile-sub" id="statTotalSub">—</span></div>
             <div class="hero-tile t-annual"><span class="tile-icon">📆</span><span class="tile-label">Projected Annual Loss</span><span class="tile-value" id="statAnnual">—</span><span class="tile-sub">If nothing changes</span></div>
+            <div class="hero-tile t-red"><span class="tile-icon">⚠️</span><span class="tile-label">Vehicles Below Mfr Spec</span><span class="tile-value" id="statBelow">—</span><span class="tile-sub">Underperforming units</span></div>
+            <div class="hero-tile" style="background:#fff7ed;border-top-color:#f97316;"><span class="tile-icon">🏆</span><span class="tile-label">Top Loss Vehicle</span><span class="tile-value" id="statTopLoss" style="color:#c2410c;font-size:16px;">—</span><span class="tile-sub">Identity: active clients only</span></div>
         </div>
+
         <div class="p1-charts">
             <div class="chart-card">
                 <div class="chart-card-title">Loss Distribution</div>
@@ -271,43 +303,99 @@
             </div>
             <div class="p1-right">
                 <div class="chart-card">
-                    <div class="chart-card-title">Loss Trend — Audit Period</div>
-                    <div class="trend-delta" style="margin-bottom:6px;">
-                        <span class="dval" id="trendDelta" style="color:var(--red);">—</span>
-                        <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;"></span>
+                    <div class="chart-card-title">Your Fleet vs Manufacturer Specification</div>
+                    <div class="spec-row">
+                        <div class="spec-card mfr-card">
+                            <span class="sc-label">Mfr Average Spec</span>
+                            <span class="sc-value" id="mfrAvg">—</span>
+                            <span class="sc-sub">km/L (should achieve)</span>
+                        </div>
+                        <div class="spec-card act-card">
+                            <span class="sc-label">Your Fleet Actual</span>
+                            <span class="sc-value" id="actAvg">—</span>
+                            <span class="sc-sub">km/L (currently doing)</span>
+                        </div>
+                        <div class="spec-card gap-card">
+                            <span class="sc-label">Shortfall</span>
+                            <span class="sc-value" id="gapVal">—</span>
+                            <span class="sc-sub">km/L below specification</span>
+                        </div>
                     </div>
-                    <canvas id="trendChart" height="120"></canvas>
+                    <div class="mfr-bar-wrap">
+                        <div class="mfr-bar-label">
+                            <span style="color:var(--red);font-size:7px;">Your fleet: <span id="barActLabel">—</span> km/L</span>
+                            <span style="color:var(--gold);font-size:7px;">Mfr spec: <span id="barMfrLabel">—</span> km/L</span>
+                        </div>
+                        <div class="mfr-bar-track">
+                            <div class="mfr-bar-fill" id="barFill" style="width:0%;background:linear-gradient(90deg,var(--red),#f97316);height:100%;border-radius:999px;"></div>
+                            <div class="mfr-marker" id="barMarker" style="left:0%;">
+                                <div class="mfr-marker-label">Mfr Spec</div>
+                            </div>
+                        </div>
+                        <div style="font-size:7px;color:var(--slate);font-weight:600;margin-top:5px;">Gold marker = where your fleet should be. Bar = where it is now.</div>
+                    </div>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-card-title">Top 5 Highest Loss Vehicles</div>
-                    <div id="podium"></div>
+                <div class="insight-box">
+                    <div class="eyebrow">What This Means For Your Business</div>
+                    <div class="headline" id="insightHeadline">—</div>
+                    <div class="body" id="insightBody">—</div>
+                </div>
+                <div class="reveal-strip">
+                    <div>
+                        <div class="label">Highest Loss Vehicle — Identity</div>
+                        <div class="value">🔒 Active Clients Only</div>
+                    </div>
+                    <div class="cta-pill">Unlock Full Report →</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PAGES 3+ — THE EVIDENCE -->
+    <!-- PAGE 3 — BLURRED VEHICLE TABLE -->
     <div class="print-section page-break-before">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph3-client">—</div>
             <div style="text-align:right;"><div class="ph-period" id="ph3-period">—</div><div class="ph-page">Vehicle Evidence</div></div>
         </div>
-        <div class="section-title">Full Vehicle <span class="accent">Breakdown</span> — The Evidence</div>
-        <table class="dfr-table">
-            <thead>
-                <tr>
-                    <th class="left">Registration</th><th>GPS km</th><th>Actual km</th><th>Litres</th>
-                    <th>Act km/L</th><th>Target km/L</th><th>Wasted L</th>
-                    <th>Eff. Loss</th><th>Speed Loss</th><th class="gold">Total Loss</th><th>Score</th>
-                </tr>
-            </thead>
-            <tbody id="repBody"></tbody>
-        </table>
-        <div class="table-note">* Every rand in this table is a verifiable, recoverable loss. With DFR active monitoring, these losses are identified and addressed every period.</div>
+
+        <div class="section-title">Vehicle <span class="accent">Breakdown</span> — Preview</div>
+
+        <div style="background:#f8fafc;border-left:4px solid var(--slate);border-radius:0 6px 6px 0;padding:4mm 5mm;margin-bottom:4mm;">
+            <p style="font-size:8.5px;color:#475569;font-weight:700;line-height:1.6;">
+                Every vehicle in your fleet was audited during the discovery period. Registration numbers are shown below.
+                <strong style="color:var(--ink);">Financial detail — individual losses, efficiency scores, and your personalised action plan — are provided to active DFR clients with every report.</strong>
+            </p>
+        </div>
+
+        <div class="locked-table-wrap">
+            <table class="dfr-table">
+                <thead>
+                    <tr>
+                        <th class="left">Registration</th>
+                        <th>Make / Model</th>
+                        <th>Type</th>
+                        <th>Mfr Spec km/L</th>
+                        <th>Actual km/L</th>
+                        <th>Litres Wasted</th>
+                        <th class="gold">Period Loss (R)</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="repBody"></tbody>
+            </table>
+            <div class="lock-overlay">
+                <div class="lock-badge">🔒 &nbsp; Full Financial Detail — Active DFR Clients Only</div>
+                <div class="lock-sub">Sign up today — your first full report is already in progress</div>
+            </div>
+        </div>
+
+        <!-- Key findings grid -->
+        <div class="section-title" style="margin-top:2mm;">Key <span class="accent">Findings</span></div>
+        <div id="keyFindings" style="display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-bottom:2mm;"></div>
     </div>
 
-    <!-- LAST PAGE — CASE FOR ACTION -->
+    <!-- PAGE 4 — CASE FOR ACTION -->
     <div class="print-section page-break-before">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
@@ -317,7 +405,7 @@
         <div class="annual-card">
             <div class="annual-stat highlight"><span class="lbl">Projected Annual Loss</span><span class="val" id="actionAnnual">—</span><span class="sub">If nothing changes today</span></div>
             <div class="annual-stat warning"><span class="lbl">This Period's Loss</span><span class="val" id="actionPeriod">—</span><span class="sub" id="actionPeriodLabel">Audit period</span></div>
-            <div class="annual-stat neutral"><span class="lbl">Vehicles Contributing</span><span class="val" id="actionVehicles">—</span><span class="sub">out of total fleet</span></div>
+            <div class="annual-stat neutral"><span class="lbl">Vehicles Below Spec</span><span class="val" id="actionVehicles">—</span><span class="sub">out of total fleet</span></div>
         </div>
         <div class="section-title" style="border-color:var(--red);">Cost of <span style="color:var(--red);">Inaction</span></div>
         <div class="inaction-row">
@@ -326,22 +414,22 @@
             <div class="inaction-card"><div class="period">12 Months</div><div class="amount" id="cost12m">—</div><div class="desc">Annual hemorrhage</div></div>
         </div>
         <div class="dfr-value-box">
-            <div class="dfr-value-title">What Dynamic Fleet Reporting Does For You</div>
+            <div class="dfr-value-title">What You Unlock As An Active DFR Client</div>
             <div>
-                <div class="dfr-feature"><span class="icon">🔍</span><span class="text"><strong>Forensic monthly auditing</strong> — every vehicle, every litre, every kilometre accounted for</span></div>
-                <div class="dfr-feature"><span class="icon">📊</span><span class="text"><strong>Professional reports</strong> — delivered to management each period, clear and actionable</span></div>
-                <div class="dfr-feature"><span class="icon">🎯</span><span class="text"><strong>Driver accountability</strong> — individual scoring creates measurable, sustained improvement</span></div>
+                <div class="dfr-feature"><span class="icon">🔓</span><span class="text"><strong>Full vehicle-by-vehicle breakdown</strong> — every registration, every litre, every rand identified and explained</span></div>
+                <div class="dfr-feature"><span class="icon">🎯</span><span class="text"><strong>Per-vehicle efficiency scores</strong> — individual performance against manufacturer spec and your own targets</span></div>
+                <div class="dfr-feature"><span class="icon">👤</span><span class="text"><strong>Driver accountability reports</strong> — individual scoring, Driver of the Period recognition programme</span></div>
             </div>
             <div>
-                <div class="dfr-feature"><span class="icon">💰</span><span class="text"><strong>Quantified savings</strong> — we show you exactly what you saved, period over period</span></div>
-                <div class="dfr-feature"><span class="icon">⚡</span><span class="text"><strong>Immediate action items</strong> — clear instructions on which vehicles and drivers need attention</span></div>
-                <div class="dfr-feature"><span class="icon">🏆</span><span class="text"><strong>Driver of the period</strong> — recognition programme that motivates your entire fleet</span></div>
+                <div class="dfr-feature"><span class="icon">📈</span><span class="text"><strong>Period-on-period trend tracking</strong> — see exactly where improvement is happening and where it isn't</span></div>
+                <div class="dfr-feature"><span class="icon">⚡</span><span class="text"><strong>Personalised action plan</strong> — specific instructions for the vehicles and drivers that need attention first</span></div>
+                <div class="dfr-feature"><span class="icon">💰</span><span class="text"><strong>Quantified savings reports</strong> — we show you the rand value your subscription has returned, every period</span></div>
             </div>
         </div>
         <div class="cta-box">
             <div class="cta-left">
                 <div class="headline">STOP LOSING MONEY — START TODAY</div>
-                <div class="sub">Contact us now and your next report is already in progress</div>
+                <div class="sub">Your first full report is already in progress. Call us now.</div>
             </div>
             <div class="cta-contacts">
                 <div class="cta-contact"><span class="icon">📞</span><span class="val">083 314 9592</span></div>
@@ -367,7 +455,7 @@ function drawGauge(id, score) {
     const c = document.getElementById(id), ctx = c.getContext('2d');
     const cx = c.width/2, cy = c.height-6, r = Math.min(cx-6, cy-4);
     ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineWidth=10; ctx.strokeStyle='#e2e8f0'; ctx.stroke();
-    const color = score>=80 ? '#059669' : score>=60 ? '#d97706' : '#dc2626';
+    const color = score>=80?'#059669':score>=60?'#d97706':'#dc2626';
     ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.PI*score/100);
     ctx.lineWidth=10; ctx.strokeStyle=color; ctx.lineCap='round'; ctx.stroke();
     return color;
@@ -379,160 +467,183 @@ function buildFilename(name, period) {
     const clean = name.toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,'');
     const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
     const parts = period.toUpperCase().split(/[\s\-\/]+/);
-    let mo='', yr='';
+    let mo='',yr='';
     parts.forEach(p => { if(months.includes(p)) mo=p; if(/^\d{4}$/.test(p)) yr=p; });
     return clean + '_PROSPECT_' + mo + yr;
 }
-function tierInfo(s) {
-    if(s>=95) return ['#92400e','#fef3c7'];
-    if(s>=90) return ['#065f46','#d1fae5'];
-    if(s>=80) return ['#1e40af','#dbeafe'];
-    return ['#991b1b','#fee2e2'];
-}
-function scorePill(s, has) {
-    if(!has) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">&#8212;</span>';
-    const info = tierInfo(s);
-    return '<span class="score-pill" style="background:' + info[1] + ';color:' + info[0] + ';">' + s + '%</span>';
-}
-function waitForCloudStorage(cb, n) {
-    n = n || 0;
-    if(typeof cloudStorage !== 'undefined') cb();
-    else if(n < 50) setTimeout(function(){ waitForCloudStorage(cb, n+1); }, 100);
+function waitForCloudStorage(cb, n=0) {
+    if (typeof cloudStorage !== 'undefined') cb();
+    else if (n < 50) setTimeout(() => waitForCloudStorage(cb, n+1), 100);
     else console.error('cloudStorage unavailable');
 }
-waitForCloudStorage(async function() {
+waitForCloudStorage(async () => {
     const raw = await cloudStorage.getItem('AUDIT_FINAL');
-    if(!raw) { alert('No audit data found.'); return; }
-    const data = JSON.parse(raw);
-    const fleet = Object.values(data.fleet);
+    if (!raw) { alert('No audit data found. Please run an audit first.'); return; }
+
+    const data   = JSON.parse(raw);
+    const fleet  = Array.isArray(data.fleet) ? data.fleet : Object.values(data.fleet);
     const client = data.client;
-    const target = parseFloat(client.target) || 2.3;
-    const results = data.auditResults || {};
     const wPrice = data.fuelPrice || 21.50;
+
     const now = new Date();
-    function fmtDate(d) { return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase(); }
-    function fmtFull(d) { return d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase(); }
-    ['ph2-client','ph3-client','ph4-client'].forEach(function(id){ const el=document.getElementById(id); if(el) el.innerText=client.company; });
-    ['ph2-period','ph3-period','ph4-period'].forEach(function(id){ const el=document.getElementById(id); if(el) el.innerText=data.month; });
-    document.getElementById('reportCreated').innerText = fmtFull(now);
-    const savedMap = {};
-    if(results.vehicles) results.vehicles.forEach(function(sv){ savedMap[sv.reg]=sv; });
-    let totalWasted=0, totalEvents=0, totalScore=0;
-    const processed = fleet.map(function(v) {
-        const km = (v.mK && v.mK>0) ? parseFloat(v.mK) : v.gpsDist;
-        const lit = parseFloat(v.mL) || 0;
-        const actEff = (lit>0 && km>0) ? (km/lit) : 0;
-        const eWaste = (lit>0 && km>0 && actEff<target) ? (lit - km/target) : 0;
-        const events = v.violations || 0;
-        const sv = savedMap[v.reg];
-        const eLoss = sv ? (sv.eLoss||0) : eWaste*wPrice;
-        const sLoss = sv ? (sv.sLoss||0) : events*(v.type==='Heavy'?1.5:1.1)*wPrice;
-        const tLoss = sv ? (sv.tLoss||0) : eLoss+sLoss;
+    const fmtDate = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    const fmtFull = d => d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase();
+
+    // ── Process fleet — use mfr_avg as benchmark for prospect report ──
+    let totalEvents=0, totalScore=0;
+    const processed = fleet.map(v => {
+        const mfrAvg      = parseFloat(v.mfr_avg) || parseFloat(client.target) || 2.3;
+        const clientTarget= parseFloat(v.clientTarget) || mfrAvg;
+        const km          = (v.mK && v.mK > 0) ? parseFloat(v.mK) : (v.gpsDist || 0);
+        const lit         = parseFloat(v.mL) || 0;
+        const actEff      = (lit > 0 && km > 0) ? km/lit : 0;
+        const eWaste      = (lit > 0 && km > 0 && actEff < mfrAvg) ? (lit - km/mfrAvg) : 0;
+        const events      = v.violations || 0;
+        const eLoss       = eWaste * wPrice;
+        const sLoss       = events * (v.type==='Heavy' ? 1.5 : v.type==='LDV' ? 0.8 : 1.1) * wPrice;
+        const tLoss       = eLoss + sLoss;
+
+        // Score uses clientTarget
         let score = 100;
-        if(lit>0 && actEff>0 && actEff<target) score -= Math.min(40,((target-actEff)/target)*40);
-        if(events>0) score -= Math.min(30,events*0.3);
-        if(v.duration>300) score -= Math.min(20,(v.duration/60/30)*20);
-        if(v.maxSpeed>100) score -= Math.min(10,(v.maxSpeed-100)*0.5);
-        score = Math.max(0,Math.min(100,Math.round(score)));
-        totalScore+=score; totalWasted+=eWaste; totalEvents+=events;
-        return Object.assign({},v,{km:km,lit:lit,actEff:actEff,eWaste:eWaste,eLoss:eLoss,sLoss:sLoss,tLoss:tLoss,score:score});
+        if (lit>0 && actEff>0 && actEff<clientTarget) score -= Math.min(40, ((clientTarget-actEff)/clientTarget)*40);
+        if (events>0) score -= Math.min(30, events*0.3);
+        if ((v.duration||0)>300) score -= Math.min(20, (v.duration/60/30)*20);
+        if ((v.maxSpeed||0)>100) score -= Math.min(10, (v.maxSpeed-100)*0.5);
+        score = Math.max(0, Math.min(100, Math.round(score)));
+
+        totalScore += score;
+        totalEvents += events;
+        return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score, mfrAvg, clientTarget };
     });
-    const byLoss = processed.slice().sort(function(a,b){ return b.tLoss-a.tLoss; });
-    const avgScore = processed.length>0 ? Math.round(totalScore/processed.length) : 0;
-    const losing = processed.filter(function(v){ return v.tLoss>0; }).length;
-    const totalLoss = results.wholesaleTotalLoss!=null ? results.wholesaleTotalLoss : processed.reduce(function(s,v){return s+v.tLoss;},0);
-    const effLoss   = results.wholesaleEffLoss  !=null ? results.wholesaleEffLoss   : processed.reduce(function(s,v){return s+v.eLoss;},0);
-    const speedLoss = results.wholesaleSpeedLoss!=null ? results.wholesaleSpeedLoss : processed.reduce(function(s,v){return s+v.sLoss;},0);
-    const fleetKM   = results.totalKM    !=null ? results.totalKM     : processed.reduce(function(s,v){return s+v.km;},0);
-    const fleetFuel = results.totalLiters !=null ? results.totalLiters : processed.reduce(function(s,v){return s+v.lit;},0);
-    const avgKmL = fleetFuel>0 ? (fleetKM/fleetFuel).toFixed(2) : '0.00';
-    const annual = totalLoss * 12;
+
+    const byLoss    = [...processed].sort((a,b)=>b.tLoss-a.tLoss);
+    const avgScore  = processed.length>0 ? Math.round(totalScore/processed.length) : 0;
+    const belowSpec = processed.filter(v=>v.actEff>0 && v.actEff<v.mfrAvg).length;
+    const totalLoss = processed.reduce((s,v)=>s+v.tLoss,0);
+    const effLoss   = processed.reduce((s,v)=>s+v.eLoss,0);
+    const speedLoss = processed.reduce((s,v)=>s+v.sLoss,0);
+    const fleetKM   = processed.reduce((s,v)=>s+v.km,0);
+    const fleetFuel = processed.reduce((s,v)=>s+v.lit,0);
+    const annual    = totalLoss * 12;
+
+    const fleetActKmL = fleetFuel>0 ? fleetKM/fleetFuel : 0;
+    const validMfr    = processed.filter(v=>v.mfrAvg>0);
+    const fleetMfrAvg = validMfr.length>0 ? validMfr.reduce((s,v)=>s+v.mfrAvg,0)/validMfr.length : 0;
+    const fleetGap    = fleetMfrAvg>0 ? Math.max(0, fleetMfrAvg-fleetActKmL) : 0;
+
+    // Headers
+    ['ph2-client','ph3-client','ph4-client'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=client.company;});
+    ['ph2-period','ph3-period','ph4-period'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=data.month;});
+    document.getElementById('reportCreated').innerText = fmtFull(now);
+
     // Cover
     document.getElementById('coverCompany').innerText  = client.company;
-    document.getElementById('coverTagline').innerText  = fleet.length + ' vehicles audited  ·  ' + data.month;
-    document.getElementById('coverLoss').innerText     = 'R ' + Math.round(totalLoss).toLocaleString();
-    document.getElementById('coverLossSub').innerText  = data.month + '  |  Fuel inefficiency + Speed violations';
-    document.getElementById('covKM').innerText         = Math.round(fleetKM/1000).toLocaleString() + 'k';
-    document.getElementById('covFuel').innerText       = Math.round(fleetFuel/1000).toLocaleString() + 'k';
-    document.getElementById('covEvents').innerText     = totalEvents.toLocaleString();
-    document.getElementById('covAnnual').innerText     = 'R ' + Math.round(annual/1000).toLocaleString() + 'k';
+    document.getElementById('coverTagline').innerText  = fleet.length+' vehicles audited  ·  '+data.month;
+    document.getElementById('coverLoss').innerText     = 'R '+Math.round(annual).toLocaleString();
+    document.getElementById('coverLossSub').innerText  = 'Projected 12-month loss  |  '+data.month;
+    document.getElementById('covKM').innerText         = Math.round(fleetKM/1000).toLocaleString()+'k';
+    document.getElementById('covFuel').innerText       = Math.round(fleetFuel/1000).toLocaleString()+'k';
+    document.getElementById('covVehicles').innerText   = fleet.length;
+    document.getElementById('covBelow').innerText      = belowSpec+' / '+fleet.length;
     document.getElementById('coverPeriod').innerText   = data.month;
     document.getElementById('coverDate').innerText     = fmtDate(now);
     const fname = buildFilename(client.company, data.month);
     document.title = fname;
-    document.getElementById('suggestedFilename').innerText = fname + '.pdf';
+    document.getElementById('suggestedFilename').innerText = fname+'.pdf';
+
     // Tiles
-    document.getElementById('statKM').innerText      = Math.round(fleetKM).toLocaleString();
-    document.getElementById('statFuel').innerText    = Math.round(fleetFuel).toLocaleString();
-    document.getElementById('statEff').innerText     = avgKmL;
-    document.getElementById('statWasted').innerText  = Math.round(totalWasted).toLocaleString();
-    document.getElementById('statEvents').innerText  = totalEvents.toLocaleString();
-    document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
-    document.getElementById('statTotal').innerText   = 'R ' + Math.round(totalLoss).toLocaleString();
+    document.getElementById('statKM').innerText     = Math.round(fleetKM).toLocaleString();
+    document.getElementById('statFuel').innerText   = Math.round(fleetFuel).toLocaleString();
+    document.getElementById('statEff').innerText    = fleetActKmL>0 ? fleetActKmL.toFixed(2) : '—';
+    document.getElementById('statEvents').innerText = totalEvents.toLocaleString();
+    document.getElementById('statTotal').innerText  = 'R '+Math.round(totalLoss).toLocaleString();
     document.getElementById('statTotalSub').innerText = data.month;
-    document.getElementById('statAnnual').innerText  = 'R ' + Math.round(annual).toLocaleString();
-    document.getElementById('trendDelta').innerText      = 'R ' + Math.round(totalLoss).toLocaleString() + ' identified';
-    document.getElementById('trendDeltaLabel').innerText = 'in recoverable losses this period';
+    document.getElementById('statAnnual').innerText = 'R '+Math.round(annual).toLocaleString();
+    document.getElementById('statBelow').innerText  = belowSpec+' of '+fleet.length;
+    document.getElementById('statTopLoss').innerText= byLoss[0] ? 'R '+Math.round(byLoss[0].tLoss).toLocaleString() : '—';
+
+    // Mfr comparison
+    document.getElementById('mfrAvg').innerText     = fleetMfrAvg>0 ? fleetMfrAvg.toFixed(2) : '—';
+    document.getElementById('actAvg').innerText     = fleetActKmL>0 ? fleetActKmL.toFixed(2) : '—';
+    document.getElementById('gapVal').innerText     = fleetGap>0 ? fleetGap.toFixed(2) : '—';
+    document.getElementById('barActLabel').innerText= fleetActKmL>0 ? fleetActKmL.toFixed(2) : '—';
+    document.getElementById('barMfrLabel').innerText= fleetMfrAvg>0 ? fleetMfrAvg.toFixed(2) : '—';
+    if (fleetMfrAvg>0 && fleetActKmL>0) {
+        const ceiling = fleetMfrAvg * 1.1;
+        document.getElementById('barFill').style.width  = Math.min(100,(fleetActKmL/ceiling*100)).toFixed(0)+'%';
+        document.getElementById('barMarker').style.left = Math.min(100,(fleetMfrAvg/ceiling*100)).toFixed(0)+'%';
+    }
+
+    // Insight
+    const lossPerVehicle = fleet.length>0 ? totalLoss/fleet.length : 0;
+    document.getElementById('insightHeadline').innerText =
+        'Your fleet burns R '+Math.round(lossPerVehicle).toLocaleString()+' per vehicle per period in recoverable losses.';
+    document.getElementById('insightBody').innerText =
+        belowSpec+' of your '+fleet.length+' vehicles are operating below manufacturer specification. '+
+        (fleetGap>0 ? 'On average your fleet runs '+fleetGap.toFixed(2)+' km/L below manufacturer spec — '+
+        'costing an estimated R '+Math.round(effLoss).toLocaleString()+' in fuel waste this period alone. '+
+        'A DFR active subscription identifies and addresses this every reporting cycle.' :
+        'A full DFR active report will quantify the exact recovery potential vehicle by vehicle.');
+
     // Gauge
     const gColor = drawGauge('gaugeChart', avgScore);
-    document.getElementById('gaugeScore').innerText = avgScore + '%';
+    document.getElementById('gaugeScore').innerText = avgScore+'%';
     document.getElementById('gaugeScore').style.color = gColor;
-    document.getElementById('gaugeDesc').innerText = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
+    document.getElementById('gaugeDesc').innerText  = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
     document.getElementById('gaugeDesc').style.color = gColor;
+
     // Doughnut
-    new Chart(document.getElementById('lossChart'), {
-        type: 'doughnut',
-        data: { labels:['Efficiency','Speeding'], datasets:[{ data:[effLoss,speedLoss], backgroundColor:['#0f172a','#d97706'], borderWidth:0 }] },
-        options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ font:{weight:'bold',family:'Outfit',size:8}, padding:6 } } } }
+    new Chart(document.getElementById('lossChart'),{
+        type:'doughnut',
+        data:{labels:['Efficiency Loss','Speed Loss'],datasets:[{data:[effLoss,speedLoss],backgroundColor:['#0f172a','#d97706'],borderWidth:0}]},
+        options:{cutout:'70%',plugins:{legend:{position:'bottom',labels:{font:{weight:'bold',family:'Outfit',size:8},padding:6}}}}
     });
-    // History / trend
-    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-    const clientData = allClients.find(function(c){ return c.company===client.company; });
-    const historyKey = 'AUDIT_HISTORY_' + (clientData ? clientData.id : '');
-    const history = (JSON.parse(await cloudStorage.getItem(historyKey)) || []).sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
-    const tLabels = history.length>1 ? history.map(function(h){return h.week;}) : [data.month];
-    const tValues = history.length>1 ? history.map(function(h){return h.fuelLoss;}) : [totalLoss];
-    new Chart(document.getElementById('trendChart'), {
-        type: 'bar',
-        data: { labels:tLabels, datasets:[{ data:tValues, backgroundColor:tValues.map(function(_,i){return i===tValues.length-1?'#d97706':'#e2e8f0';}), borderRadius:4, borderSkipped:false }] },
-        options: { responsive:true, plugins:{legend:{display:false}}, scales:{ y:{ticks:{callback:function(v){return 'R'+(v/1000).toFixed(0)+'k';},font:{size:8}},grid:{color:'#f1f5f9'}}, x:{ticks:{font:{size:8}},grid:{display:false}} } }
-    });
-    // Podium
-    const maxL = byLoss[0] ? byLoss[0].tLoss : 1;
-    const rankColors = ['#78350f','#d97706','#f59e0b','#fbbf24','#64748b'];
-    document.getElementById('podium').innerHTML = byLoss.slice(0,5).map(function(v,i){
-        return '<div class="podium-item">'
-            + '<div class="podium-rank" style="background:' + rankColors[i] + '">' + (i+1) + '</div>'
-            + '<div class="podium-reg">' + v.reg + '</div>'
-            + '<div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:' + (v.tLoss/maxL*100).toFixed(0) + '%"></div></div>'
-            + '<div class="podium-loss">R ' + Math.round(v.tLoss).toLocaleString() + '</div>'
-            + '</div>';
+
+    // Blurred table — reg + make/model + type visible, all numbers blurred
+    document.getElementById('repBody').innerHTML = byLoss.map(v => {
+        const mm = [v.make,v.model].filter(Boolean).join(' ') || '—';
+        return `<tr>
+            <td class="left reg">${v.reg}</td>
+            <td class="muted">${mm}</td>
+            <td class="muted">${v.type||'Heavy'}</td>
+            <td class="muted">${v.mfrAvg>0?v.mfrAvg.toFixed(2):'—'}</td>
+            <td class="blurred-cell">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
+            <td class="blurred-cell">${v.eWaste>0?v.eWaste.toFixed(1):'0.0'}</td>
+            <td class="blurred-cell loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
+            <td class="blurred-cell">${v.score}%</td>
+        </tr>`;
     }).join('');
-    // Breakdown table
-    document.getElementById('repBody').innerHTML = byLoss.map(function(v){
-        const effClass = v.actEff>0 && v.actEff<target ? 'red' : v.actEff>0 ? 'green' : 'muted';
-        return '<tr>'
-            + '<td class="left reg">' + v.reg + '</td>'
-            + '<td class="muted">' + v.gpsDist.toFixed(0) + '</td>'
-            + '<td>' + v.km.toFixed(0) + '</td>'
-            + '<td class="muted">' + (v.lit>0 ? v.lit.toFixed(1) : '&#8212;') + '</td>'
-            + '<td class="' + effClass + '">' + (v.actEff>0 ? v.actEff.toFixed(2) : '&#8212;') + '</td>'
-            + '<td class="muted">' + target + '</td>'
-            + '<td class="' + (v.eWaste>0?'red':'muted') + '">' + (v.eWaste>0 ? v.eWaste.toFixed(1) : '&#8212;') + '</td>'
-            + '<td>R ' + Math.round(v.eLoss).toLocaleString() + '</td>'
-            + '<td>R ' + Math.round(v.sLoss).toLocaleString() + '</td>'
-            + '<td class="gold">R ' + Math.round(v.tLoss).toLocaleString() + '</td>'
-            + '<td>' + scorePill(v.score, v.actEff>0) + '</td>'
-            + '</tr>';
-    }).join('');
+
+    // Key findings
+    const findings = [
+        {icon:'⛽',color:'#dc2626',bg:'#fff1f2',border:'#fecaca',
+         label:'Fuel Efficiency Loss',
+         text:'R '+Math.round(effLoss).toLocaleString()+' this period in fuel waste — vehicles running below manufacturer specification.'},
+        {icon:'🚨',color:'#c2410c',bg:'#fff7ed',border:'#fed7aa',
+         label:'Speed Violation Cost',
+         text:totalEvents+' recorded speed events, costing an estimated R '+Math.round(speedLoss).toLocaleString()+' in additional fuel burn.'},
+        {icon:'📉',color:'#1d4ed8',bg:'#eff6ff',border:'#bfdbfe',
+         label:'Vehicles Below Manufacturer Spec',
+         text:belowSpec+' of '+fleet.length+' vehicles are consuming more fuel than manufacturer design specification allows.'},
+        {icon:'📆',color:'#78350f',bg:'#fffbeb',border:'#fde68a',
+         label:'Annual Cost Projection',
+         text:'At this rate, recoverable losses will reach R '+Math.round(annual).toLocaleString()+' over the next 12 months.'}
+    ];
+    document.getElementById('keyFindings').innerHTML = findings.map(f=>`
+        <div style="background:${f.bg};border:1px solid ${f.border};border-left:4px solid ${f.color};border-radius:8px;padding:4mm;">
+            <div style="font-size:7.5px;font-weight:900;text-transform:uppercase;letter-spacing:2px;color:${f.color};margin-bottom:3px;">${f.icon} ${f.label}</div>
+            <div style="font-size:9px;font-weight:600;color:#475569;line-height:1.5;">${f.text}</div>
+        </div>`).join('');
+
     // Action page
-    document.getElementById('actionAnnual').innerText    = 'R ' + Math.round(annual).toLocaleString();
-    document.getElementById('actionPeriod').innerText    = 'R ' + Math.round(totalLoss).toLocaleString();
-    document.getElementById('actionPeriodLabel').innerText = data.month;
-    document.getElementById('actionVehicles').innerText  = losing + ' / ' + fleet.length;
-    document.getElementById('cost3m').innerText  = 'R ' + Math.round(totalLoss*3).toLocaleString();
-    document.getElementById('cost6m').innerText  = 'R ' + Math.round(totalLoss*6).toLocaleString();
-    document.getElementById('cost12m').innerText = 'R ' + Math.round(annual).toLocaleString();
+    document.getElementById('actionAnnual').innerText     = 'R '+Math.round(annual).toLocaleString();
+    document.getElementById('actionPeriod').innerText     = 'R '+Math.round(totalLoss).toLocaleString();
+    document.getElementById('actionPeriodLabel').innerText= data.month;
+    document.getElementById('actionVehicles').innerText   = belowSpec+' / '+fleet.length;
+    document.getElementById('cost3m').innerText   = 'R '+Math.round(totalLoss*3).toLocaleString();
+    document.getElementById('cost6m').innerText   = 'R '+Math.round(totalLoss*6).toLocaleString();
+    document.getElementById('cost12m').innerText  = 'R '+Math.round(annual).toLocaleString();
+
     drawQR('qrCover');
 });
 </script>
