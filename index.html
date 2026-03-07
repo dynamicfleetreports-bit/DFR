@@ -26,11 +26,12 @@
     <aside id="sidebar">
         <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
         <nav>
-            <a href="index.html" class="nav-item active">Home</a>
-            <a href="clients.html" class="nav-item">Clients</a>
+            <a href="index.html"    class="nav-item active">Dashboard</a>
             <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
             <a href="database.html" class="nav-item">Active Database</a>
-            <a href="audit.html" class="nav-item">Forensic Audit</a>
+            <a href="audit.html"    class="nav-item">Forensic Audit</a>
+            <a href="churned.html"  class="nav-item">Churned Clients</a>
+            <a href="invoice.html"  class="nav-item">Invoices</a>
         </nav>
     </aside>
 
@@ -68,14 +69,17 @@
                 <button onclick="hardResetSystem()" class="text-[8px] font-black text-red-500/40 uppercase mt-4 hover:text-red-500 transition">Hard Reset Cache</button>
             </div>
             <div class="status-tile">
-                <span class="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Last Import</span>
-                <div id="last-sync-time" class="text-3xl font-black italic uppercase text-emerald-500 tracking-tighter">NEVER</div>
-                <p id="last-sync-details" class="text-[9px] font-bold text-white/20 mt-1 uppercase">0 Records</p>
+                <span class="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1">Outstanding Invoices</span>
+                <div id="outstanding-count" class="text-3xl font-black italic uppercase text-yellow-400 tracking-tighter">0</div>
+                <p id="outstanding-amt" class="text-[9px] font-bold text-white/20 mt-1 uppercase">R 0.00 unpaid</p>
+                <span class="text-[10px] font-black uppercase text-white/30 tracking-widest mb-1 mt-4 block">Last Import</span>
+                <div id="last-sync-time" class="text-xl font-black italic uppercase text-emerald-500 tracking-tighter">NEVER</div>
             </div>
             <div class="status-tile bg-emerald-500/5">
-                <button onclick="importFromSheet()" class="btn-action" style="background: #60a5fa; color: white;">🔄 IMPORT FROM SHEET</button>
-                <a href="audit.html" class="btn-action">Run Forensic Audit</a>
-                <a href="database.html" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);">System Registry</a>
+                <a href="create.html" class="btn-action" style="background:#10b981;color:#020617;">➕ Add New Prospect</a>
+                <button onclick="importFromSheet()" class="btn-action" style="background:#60a5fa;color:white;">🔄 Import From Sheet</button>
+                <a href="audit.html"    class="btn-action">Run Forensic Audit</a>
+                <a href="invoice.html"  class="btn-action" style="background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.1);">🧾 Invoices</a>
             </div>
         </div>
     </main>
@@ -220,27 +224,38 @@
 
         function calculateMRR(clientArray) {
             if (!clientArray || clientArray.length === 0) return 0;
-            const managementTotal = clientArray.length * 1500;
-            const vehicleTotal = clientArray.reduce(function(sum, item) {
-                return sum + (Number(item.fleetSize) || 0);
-            }, 0) * 200;
-            return managementTotal + vehicleTotal;
+            return clientArray.reduce(function(sum, c) {
+                var fleet = Number(c.fleetSize) || 0;
+                var tier  = fleet <= 15 ? 200 : fleet <= 30 ? 175 : 150;
+                return sum + 1500 + (fleet * tier);
+            }, 0);
         }
 
         async function updateDisplay() {
-            const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const prospects = all.filter(function(c) { return c.status === 'prospect'; });
-            const active    = all.filter(function(c) { return c.status === 'active'; });
-            const churned   = all.filter(function(c) { return c.status === 'churned'; });
-            const ts = await cloudStorage.getItem('lastSyncTS') || 'NEVER';
+            var all       = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var prospects = all.filter(function(c) { return c.status === 'prospect'; });
+            var active    = all.filter(function(c) { return c.status === 'active'; });
+            var churned   = all.filter(function(c) { return c.status === 'churned'; });
+            var ts        = await cloudStorage.getItem('lastSyncTS') || 'NEVER';
 
             document.getElementById('count-prospects').innerText = prospects.length;
             document.getElementById('count-active').innerText    = active.length;
             document.getElementById('count-churned').innerText   = churned.length;
             document.getElementById('last-sync-time').innerText  = ts;
-            document.getElementById('last-sync-details').innerText = prospects.length + ' PROSPECTS IMPORTED';
-            document.getElementById('potential-mrr').innerText   = 'R ' + calculateMRR(prospects).toLocaleString();
-            document.getElementById('actual-mrr').innerText      = 'R ' + calculateMRR(active).toLocaleString();
+            document.getElementById('potential-mrr').innerText   = 'R ' + calculateMRR(prospects).toLocaleString('en-ZA');
+            document.getElementById('actual-mrr').innerText      = 'R ' + calculateMRR(active).toLocaleString('en-ZA');
+
+            // Outstanding invoices
+            var unpaidCount = 0; var unpaidTotal = 0;
+            active.forEach(function(c) {
+                var hist = c.invoiceHistory || [];
+                if (hist.length > 0) {
+                    var last = hist[hist.length - 1];
+                    if (!last.paid) { unpaidCount++; unpaidTotal += last.total || 0; }
+                }
+            });
+            document.getElementById('outstanding-count').innerText = unpaidCount;
+            document.getElementById('outstanding-amt').innerText   = 'R ' + unpaidTotal.toLocaleString('en-ZA', {minimumFractionDigits:2}) + ' unpaid';
         }
 
         window.onload = updateDisplay;
