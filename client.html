@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <title>Client | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family:'Outfit',sans-serif; background:#020617; color:#e2e8f0; margin:0; display:flex; height:100vh; overflow:hidden; }
+        #sidebar { width:260px; background:#0f172a; border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; padding:2rem 1rem; flex-shrink:0; }
+        .logo-area { padding:0 1rem 3rem 1rem; }
+        .nav-item { display:flex; align-items:center; padding:0.85rem 1rem; margin-bottom:0.25rem; border-radius:0.75rem; color:#64748b; text-transform:uppercase; font-size:11px; font-weight:900; letter-spacing:0.1em; transition:all 0.2s; text-decoration:none; }
+        .nav-item:hover { color:#e2e8f0; background:rgba(255,255,255,0.03); }
+        .nav-item.active { background:rgba(16,185,129,0.1); color:#10b981; }
+        .main-wrapper { flex:1; overflow-y:auto; padding:3rem; background:radial-gradient(circle at top right,#0f172a,#020617); }
+        .section { background:rgba(30,41,59,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:1.5rem; padding:1.75rem 2rem; margin-bottom:1.5rem; }
+        .section-title { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-bottom:1.25rem; }
+        .kv-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+        .kv { }
+        .kv-label { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.25); margin-bottom:3px; }
+        .kv-val { font-size:13px; font-weight:700; color:white; }
+        .action-btn { padding:9px 14px; border-radius:10px; font-size:9px; font-weight:900; text-transform:uppercase; cursor:pointer; transition:all 0.2s; text-align:center; border:none; }
+        .btn-emerald { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:#10b981; }
+        .btn-blue    { background:rgba(96,165,250,0.12);  border:1px solid rgba(96,165,250,0.25);  color:#60a5fa; }
+        .btn-yellow  { background:rgba(251,191,36,0.12);  border:1px solid rgba(251,191,36,0.25);  color:#fbbf24; }
+        .btn-red     { background:rgba(239,68,68,0.1);    border:1px solid rgba(239,68,68,0.2);    color:#ef4444; }
+        .btn-solid-emerald { background:#10b981; color:#020617; }
+        .btn-solid-blue    { background:#2563eb; color:white; }
+        .pill { display:inline-block; padding:3px 9px; border-radius:20px; font-size:8px; font-weight:900; text-transform:uppercase; }
+        .pill-green  { background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.2); }
+        .pill-red    { background:rgba(239,68,68,0.12);  color:#ef4444;  border:1px solid rgba(239,68,68,0.2); }
+        .pill-yellow { background:rgba(251,191,36,0.12); color:#fbbf24;  border:1px solid rgba(251,191,36,0.2); }
+        .pill-grey   { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.08); }
+        .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
+        .inv-row:last-child { border-bottom:none; }
+        .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
+        .fleet-row { display:grid; grid-template-columns:40px 1fr 80px 80px 80px 90px; gap:0; padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-row:last-child { border-bottom:none; }
+        input, select { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:7px 10px; color:white; font-size:12px; font-family:Outfit,sans-serif; outline:none; width:100%; box-sizing:border-box; }
+        input:focus, select:focus { border-color:#10b981; }
+        input::placeholder { color:rgba(255,255,255,0.2); }
+        select option { background:#0f172a; }
+        #toast { position:fixed; bottom:2rem; right:2rem; z-index:9999; transform:translateY(80px); opacity:0; transition:all 0.35s; pointer-events:none; }
+        #toast.show { transform:translateY(0); opacity:1; }
+        .link-btn { display:block; padding:9px 14px; border-radius:10px; font-size:9px; font-weight:900; text-transform:uppercase; text-decoration:none; text-align:center; transition:all 0.2s; }
+    </style>
+</head>
+<body>
+
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
+    <nav>
+        <a href="index.html"    class="nav-item">Dashboard</a>
+        <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+        <a href="database.html" class="nav-item active">Active Database</a>
+        <a href="audit.html"    class="nav-item">Forensic Audit</a>
+        <a href="churned.html"  class="nav-item">Churned Clients</a>
+        <a href="invoice.html"  class="nav-item">Invoices</a>
+    </nav>
+</aside>
+
+<main class="main-wrapper">
+    <!-- Back + header -->
+    <div class="flex justify-between items-start mb-8">
+        <div>
+            <button onclick="window.location.href='database.html'" class="text-[9px] font-black uppercase text-white/30 hover:text-white tracking-widest transition mb-3 block">← Back to Database</button>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-1">Active Client</p>
+            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">Loading...</h1>
+            <p id="clientSub" class="text-[10px] font-black uppercase text-white/30 tracking-widest mt-1"></p>
+        </div>
+        <div class="flex gap-3 mt-2 flex-wrap justify-end">
+            <button onclick="openEdit()" class="action-btn btn-blue">⚙️ Edit Details</button>
+            <button onclick="window.location.href='invoice.html?clientId='+_clientId" class="action-btn btn-emerald">🧾 Invoice</button>
+            <button onclick="confirmChurn()" class="action-btn btn-red">🔴 Churn Client</button>
+        </div>
+    </div>
+
+    <div id="clientBody" style="display:none;">
+
+        <!-- Summary cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:1.5rem;">
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Monthly Retainer</div>
+                <div id="s-retainer" style="font-size:1.6rem;font-weight:900;color:#10b981;margin-top:4px;">R 0</div>
+            </div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Fleet Size</div>
+                <div id="s-fleet" style="font-size:1.6rem;font-weight:900;color:white;margin-top:4px;">0</div>
+            </div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Next Report Due</div>
+                <div id="s-due" style="font-size:1rem;font-weight:900;color:#fbbf24;margin-top:6px;">—</div>
+            </div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Invoice Status</div>
+                <div id="s-inv" style="margin-top:6px;">—</div>
+            </div>
+        </div>
+
+        <!-- Drive & SLA links -->
+        <div class="section">
+            <div class="section-title">Documents &amp; Drive</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" id="linksGrid"></div>
+        </div>
+
+        <!-- Client details -->
+        <div class="section">
+            <div class="section-title">Client Information</div>
+            <div class="kv-grid" id="detailsGrid"></div>
+        </div>
+
+        <!-- Billing address -->
+        <div class="section" id="billingSection" style="display:none;">
+            <div class="section-title">Billing Address</div>
+            <div id="billingGrid" class="kv-grid"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="section">
+            <div class="section-title">Actions</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+                <button onclick="genWeeklyForm()" class="action-btn btn-solid-emerald">📋 Generate Weekly Form</button>
+                <button onclick="window.location.href='audit.html?client='+encodeURIComponent(_client.company)" class="action-btn btn-solid-blue">📊 Run Audit</button>
+                <button onclick="syncFromAudit()" class="action-btn btn-blue">📥 Sync Fleet from Audit</button>
+                <button onclick="sendReminder()" class="action-btn btn-yellow">✉️ Send Data Reminder</button>
+            </div>
+        </div>
+
+        <!-- Fleet management -->
+        <div class="section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <div class="section-title" style="margin-bottom:0;">Fleet Register</div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="addVehicleRow()" class="action-btn btn-blue" style="font-size:8px;">+ Add Vehicle</button>
+                    <button onclick="saveFleet()" class="action-btn btn-solid-emerald" style="font-size:8px;">💾 Save Fleet</button>
+                </div>
+            </div>
+            <div style="background:rgba(15,23,42,0.5);border-radius:1rem;overflow:hidden;">
+                <div class="fleet-row" style="background:rgba(15,23,42,0.8);">
+                    <div class="inv-head">#</div>
+                    <div class="inv-head">Registration</div>
+                    <div class="inv-head">Type</div>
+                    <div class="inv-head">Make / Model</div>
+                    <div class="inv-head">Target km/L</div>
+                    <div class="inv-head">Remove</div>
+                </div>
+                <div id="fleetTable"></div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="section">
+            <div class="section-title">Notes</div>
+            <textarea id="notesField" placeholder="Client notes, special instructions, preferences..." style="width:100%;min-height:90px;resize:vertical;"></textarea>
+            <button onclick="saveNotes()" class="action-btn btn-emerald mt-3" style="margin-top:10px;">Save Notes</button>
+        </div>
+
+        <!-- Invoice history -->
+        <div class="section">
+            <div class="section-title">Invoice History</div>
+            <div id="invoiceHistory"></div>
+        </div>
+
+        <!-- Report history -->
+        <div class="section" id="reportHistSection" style="display:none;">
+            <div class="section-title">Report History</div>
+            <div id="reportHistory"></div>
+        </div>
+
+    </div><!-- end clientBody -->
+</main>
+
+<!-- Edit modal -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.95);backdrop-filter:blur(10px);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+    <div style="background:#0f172a;border:2px solid #60a5fa;border-radius:2rem;width:100%;max-width:600px;padding:2.5rem;margin:auto;">
+        <h2 style="font-size:1.4rem;font-weight:900;color:white;text-transform:uppercase;font-style:italic;margin-bottom:1.5rem;">Edit <span style="color:#60a5fa;">Client</span></h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Company</label><input type="text" id="eCompany"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">City</label><input type="text" id="eCity"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Contact Name</label><input type="text" id="eContact"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Email</label><input type="email" id="eEmail"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Mobile</label><input type="tel" id="eTel"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Speed Limit</label><input type="number" id="eSpeed"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Report Schedule</label>
+                <select id="eSchedule"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Fuel Price (R/L)</label><input type="number" id="eFuel" step="0.01"></div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+            <button onclick="closeEdit()" class="action-btn btn-grey" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;">Cancel</button>
+            <button onclick="saveEdit()" class="action-btn btn-solid-emerald" style="flex:2;">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"><div id="toast-inner" style="padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;"></div></div>
+
+<script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    var _cbCounter = 0;
+    var _clientId  = null;
+    var _client    = null;
+    var _fleetData = [];
+
+    // ── Helpers ───────────────────────────────────────────────
+    function toast(msg, color) {
+        var t = document.getElementById('toast'), i = document.getElementById('toast-inner');
+        var c = {green:'background:#064e3b;color:#10b981;border:1px solid rgba(16,185,129,0.3)',
+                 blue: 'background:#1e3a5f;color:#60a5fa;border:1px solid rgba(96,165,250,0.3)',
+                 red:  'background:#3d0000;color:#f87171;border:1px solid rgba(248,113,113,0.3)',
+                 yellow:'background:#3d2e00;color:#fbbf24;border:1px solid rgba(251,191,36,0.3)'};
+        i.style.cssText = c[color]||c.blue; i.innerText = msg;
+        t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 3000);
+    }
+
+    function getTier(f) { return f<=15?{rate:200,label:'Tier 1'}:f<=30?{rate:175,label:'Tier 2'}:{rate:150,label:'Tier 3'}; }
+    function getMonthly(c) { var f=c.fleet?c.fleet.length:(c.fleetSize||0); var t=getTier(f); return 1500+(f*t.rate); }
+    function getNextDue(c) { var d=c.lastReportSent?new Date(c.lastReportSent):new Date(); if(c.reportSchedule==='weekly')d.setDate(d.getDate()+7); else d.setMonth(d.getMonth()+1); return d; }
+    function getDaysUntilDue(c) { return Math.ceil((getNextDue(c)-new Date())/86400000); }
+
+    function getInvStatus(c) {
+        var hist=c.invoiceHistory||[]; if(hist.length===0) return {label:'No Invoice',cls:'pill-grey',paid:null};
+        var last=hist[hist.length-1];
+        if(last.paid) return {label:'✓ Paid',cls:'pill-green',paid:true};
+        var due=new Date(last.dueDate||(new Date().getTime()+7*86400000));
+        var days=Math.ceil((new Date()-due)/86400000);
+        if(days>0) return {label:'⚠ '+days+'d Overdue',cls:'pill-red',paid:false};
+        return {label:'Unpaid',cls:'pill-yellow',paid:false};
+    }
+
+    async function reloadClient() {
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        _client = all.find(function(c) { return String(c.id) === String(_clientId); });
+        return _client;
+    }
+
+    async function saveClient(updates) {
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = all.findIndex(function(c) { return String(c.id) === String(_clientId); });
+        if (idx === -1) return;
+        all[idx] = Object.assign({}, all[idx], updates);
+        _client  = all[idx];
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+    }
+
+    // ── Render page ───────────────────────────────────────────
+    function renderPage() {
+        var c = _client;
+        document.getElementById('clientTitle').innerText = c.company;
+        document.getElementById('clientSub').innerText   = (c.contactName||'') + (c.city ? ' · ' + c.city : '');
+        document.getElementById('clientBody').style.display = 'block';
+
+        var fleet    = c.fleet ? c.fleet.length : (c.fleetSize||0);
+        var monthly  = getMonthly(c);
+        var tier     = getTier(fleet);
+        var daysUntil= getDaysUntilDue(c);
+        var dueText  = daysUntil<0 ? 'Overdue '+Math.abs(daysUntil)+'d' : daysUntil===0 ? 'Due Today' : 'In '+daysUntil+' days';
+        var dueColor = daysUntil<0 ? '#ef4444' : daysUntil<=2 ? '#fbbf24' : '#10b981';
+        var inv      = getInvStatus(c);
+
+        document.getElementById('s-retainer').innerText = 'R ' + monthly.toLocaleString('en-ZA');
+        document.getElementById('s-fleet').innerText    = fleet + ' units';
+        document.getElementById('s-due').innerHTML      = '<span style="color:'+dueColor+'">'+dueText+'</span>';
+        document.getElementById('s-inv').innerHTML      = '<span class="pill '+inv.cls+'">'+inv.label+'</span>';
+
+        // Links
+        var linksHtml = '';
+        if (c.driveFolderUrl) {
+            linksHtml += '<a href="'+c.driveFolderUrl+'" target="_blank" class="link-btn" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:white;text-decoration:none;">📁 Open Drive Folder</a>';
+        } else {
+            linksHtml += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;">'
+                + '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;">📁 Drive Folder Link</p>'
+                + '<input type="text" id="drivePaste" placeholder="Paste Drive folder link here" onpaste="pasteLink(\'driveFolderUrl\',event)" oninput="if(this.value.startsWith(\'http\'))pasteLink(\'driveFolderUrl\',null,this.value)">'
+                + '</div>';
+        }
+        if (c.slaFileUrl) {
+            linksHtml += '<a href="'+c.slaFileUrl+'" target="_blank" class="link-btn" style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.25);color:#93c5fd;text-decoration:none;">📄 View Signed SLA</a>';
+        } else {
+            linksHtml += '<div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:10px 12px;">'
+                + '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(147,197,253,0.5);margin-bottom:6px;">📄 Signed SLA Link</p>'
+                + '<input type="text" id="slaPaste" placeholder="Paste signed SLA Drive link here" onpaste="pasteLink(\'slaFileUrl\',event)" oninput="if(this.value.startsWith(\'http\'))pasteLink(\'slaFileUrl\',null,this.value)">'
+                + '</div>';
+        }
+        document.getElementById('linksGrid').innerHTML = linksHtml;
+
+        // Details
+        document.getElementById('detailsGrid').innerHTML =
+            kv('Email', c.email||'—') +
+            kv('Mobile', c.contactTel||'—') +
+            kv('Report Schedule', (c.reportSchedule||'monthly').charAt(0).toUpperCase()+(c.reportSchedule||'monthly').slice(1)) +
+            kv('Pricing Tier', tier.label+' (R'+tier.rate+'/unit)') +
+            kv('On-Demand Pool', fleet+' reports/month') +
+            kv('Activation Date', c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA') : '—') +
+            kv('SLA Reference', c.slaRef||'—') +
+            kv('Speed Limit', (c.speedLimit||80)+' km/h') +
+            kv('Fuel Price', 'R '+(c.fuelPrice||22.50)+'/L');
+
+        // Billing address
+        var hasBilling = c.billingStreet||c.billingCity||c.billingProvince;
+        if (hasBilling) {
+            document.getElementById('billingSection').style.display = 'block';
+            document.getElementById('billingGrid').innerHTML =
+                kv('Street', c.billingStreet||'—') +
+                kv('Suburb', c.billingSuburb||'—') +
+                kv('City', c.billingCity||'—') +
+                kv('Province', c.billingProvince||'—') +
+                kv('Postal Code', c.billingPostal||'—');
+        }
+
+        // Fleet table
+        _fleetData = c.fleet ? JSON.parse(JSON.stringify(c.fleet)) : [];
+        renderFleetTable();
+
+        // Notes
+        document.getElementById('notesField').value = c.notes||'';
+
+        // Invoice history
+        renderInvoiceHistory(c);
+
+        // Report history
+        var rh = c.reportHistory||[];
+        if (rh.length > 0) {
+            document.getElementById('reportHistSection').style.display = 'block';
+            document.getElementById('reportHistory').innerHTML = rh.map(function(h) {
+                return '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;font-size:12px;">'
+                    + '<span style="font-weight:700;">'+new Date(h.date).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})+'</span>'
+                    + '<span style="color:rgba(255,255,255,0.4);">'+(h.type||'Report')+' · '+(h.vehicles||0)+' vehicles</span>'
+                    + '</div>';
+            }).join('');
+        }
+    }
+
+    function kv(label, val) {
+        return '<div class="kv"><div class="kv-label">'+label+'</div><div class="kv-val">'+val+'</div></div>';
+    }
+
+    function renderInvoiceHistory(c) {
+        var hist = (c.invoiceHistory||[]).slice().reverse();
+        var container = document.getElementById('invoiceHistory');
+        if (hist.length === 0) {
+            container.innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,0.2);padding:1rem 0;">No invoices generated yet. <a href="invoice.html?clientId='+_clientId+'" style="color:#10b981;">Generate first invoice →</a></p>';
+            return;
+        }
+        container.innerHTML =
+            '<div style="background:rgba(15,23,42,0.5);border-radius:1rem;overflow:hidden;">'
+            + '<div class="inv-row" style="background:rgba(15,23,42,0.8);">'
+            +   '<div class="inv-head">Invoice #</div><div class="inv-head">Period</div>'
+            +   '<div class="inv-head">Amount</div><div class="inv-head">Status</div>'
+            +   '<div class="inv-head">Action</div>'
+            + '</div>'
+            + hist.map(function(h) {
+                var isPaid   = h.paid;
+                var isOvd    = false;
+                if (!isPaid && h.dueDate) { isOvd = new Date() > new Date(h.dueDate); }
+                var statusHtml = isPaid
+                    ? '<span class="pill pill-green">✓ Paid</span>'
+                    : isOvd
+                        ? '<span class="pill pill-red">Overdue</span>'
+                        : '<span class="pill pill-yellow">Unpaid</span>';
+                var actionHtml = !isPaid
+                    ? '<button onclick="markPaid(\''+h.invNumber+'\')" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:3px 10px;border-radius:6px;font-size:8px;font-weight:900;cursor:pointer;text-transform:uppercase;">Mark Paid</button>'
+                    : '<span style="font-size:9px;color:rgba(255,255,255,0.2);">'+( h.paidDate||'')+'</span>';
+                return '<div class="inv-row">'
+                    + '<div style="font-weight:700;font-size:11px;">'+h.invNumber+'</div>'
+                    + '<div style="color:rgba(255,255,255,0.5);font-size:11px;">'+h.period+'</div>'
+                    + '<div style="font-weight:900;color:white;">R '+(h.total||0).toLocaleString('en-ZA',{minimumFractionDigits:2})+'</div>'
+                    + '<div>'+statusHtml+'</div>'
+                    + '<div>'+actionHtml+'</div>'
+                    + '</div>';
+            }).join('')
+            + '</div>';
+    }
+
+    // ── Mark invoice paid from history ────────────────────────
+    async function markPaid(invNumber) {
+        if (!confirm('Mark invoice '+invNumber+' as paid?')) return;
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = all.findIndex(function(c) { return String(c.id)===String(_clientId); });
+        if (idx===-1) return;
+        var hist = all[idx].invoiceHistory||[];
+        var inv  = hist.find(function(h) { return h.invNumber===invNumber; });
+        if (inv) { inv.paid=true; inv.paidDate=new Date().toLocaleDateString('en-ZA'); }
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+        _client = all[idx];
+        renderInvoiceHistory(_client);
+        document.getElementById('s-inv').innerHTML = '<span class="pill pill-green">✓ Paid</span>';
+        toast('✓ Invoice marked as paid', 'green');
+    }
+
+    // ── Paste Drive / SLA links ───────────────────────────────
+    async function pasteLink(field, pasteEvent, directValue) {
+        var url = directValue||'';
+        if (pasteEvent) { pasteEvent.preventDefault(); url=(pasteEvent.clipboardData||window.clipboardData).getData('text').trim(); }
+        if (!url||!url.startsWith('http')) return;
+        await saveClient({ [field]: url });
+        toast('✓ Link saved', 'green');
+        setTimeout(function(){ renderPage(); }, 400);
+    }
+
+    // ── Fleet table ───────────────────────────────────────────
+    function renderFleetTable() {
+        var t = document.getElementById('fleetTable');
+        if (_fleetData.length===0) {
+            t.innerHTML='<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.2);font-size:11px;font-weight:900;text-transform:uppercase;">No vehicles — add below</div>';
+            return;
+        }
+        t.innerHTML = _fleetData.map(function(v,i) {
+            return '<div class="fleet-row">'
+                + '<div style="color:rgba(255,255,255,0.3);font-weight:900;">'+( i+1)+'</div>'
+                + '<div><input type="text" value="'+(v.reg||'')+'" onchange="updateFleet('+i+',\'reg\',this.value)" placeholder="ABC123GP"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'type\',this.value)"><option '+(v.type==='Heavy'?'selected':'')+'>Heavy</option><option '+(v.type==='Medium'?'selected':'')+'>Medium</option></select></div>'
+                + '<div><input type="text" value="'+(v.make||'')+' '+(v.model||'')+'" onchange="updateFleetMakeModel('+i+',this.value)" placeholder="Volvo FH440"></div>'
+                + '<div><input type="number" value="'+(v.targetKmL||2.3)+'" step="0.1" onchange="updateFleet('+i+',\'targetKmL\',this.value)" style="width:80px;"></div>'
+                + '<div><button onclick="removeVehicle('+i+')" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;">✕</button></div>'
+                + '</div>';
+        }).join('');
+    }
+
+    function updateFleet(i,field,val) { if(_fleetData[i]) _fleetData[i][field]=val; }
+    function updateFleetMakeModel(i,val) { var parts=val.trim().split(' '); _fleetData[i].make=parts[0]||''; _fleetData[i].model=parts.slice(1).join(' ')||''; }
+    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',make:'',model:'',year:'',usedFor:'Long Distance',targetKmL:'2.3'}); renderFleetTable(); }
+    function removeVehicle(i) { if(confirm('Remove vehicle?')){ _fleetData.splice(i,1); renderFleetTable(); } }
+
+    async function saveFleet() {
+        var valid = _fleetData.filter(function(v){ return v.reg&&v.reg.trim(); });
+        if (valid.length===0) { alert('Add at least one vehicle with a registration.'); return; }
+        await saveClient({ fleet:valid, fleetSize:valid.length });
+        renderPage();
+        toast('✓ Fleet saved — '+valid.length+' vehicles', 'green');
+    }
+
+    // ── Notes ─────────────────────────────────────────────────
+    async function saveNotes() {
+        await saveClient({ notes: document.getElementById('notesField').value });
+        toast('✓ Notes saved', 'green');
+    }
+
+    // ── Edit modal ────────────────────────────────────────────
+    function openEdit() {
+        var c = _client;
+        document.getElementById('eCompany').value  = c.company||'';
+        document.getElementById('eCity').value     = c.city||'';
+        document.getElementById('eContact').value  = c.contactName||'';
+        document.getElementById('eEmail').value    = c.email||'';
+        document.getElementById('eTel').value      = c.contactTel||'';
+        document.getElementById('eSpeed').value    = c.speedLimit||80;
+        document.getElementById('eSchedule').value = c.reportSchedule||'weekly';
+        document.getElementById('eFuel').value     = c.fuelPrice||22.50;
+        document.getElementById('editModal').style.display='flex';
+    }
+    function closeEdit() { document.getElementById('editModal').style.display='none'; }
+    async function saveEdit() {
+        await saveClient({
+            company:        document.getElementById('eCompany').value.trim().toUpperCase(),
+            city:           document.getElementById('eCity').value.trim(),
+            contactName:    document.getElementById('eContact').value.trim(),
+            email:          document.getElementById('eEmail').value.trim(),
+            contactTel:     document.getElementById('eTel').value.trim(),
+            speedLimit:     parseInt(document.getElementById('eSpeed').value)||80,
+            reportSchedule: document.getElementById('eSchedule').value,
+            fuelPrice:      parseFloat(document.getElementById('eFuel').value)||22.50,
+        });
+        closeEdit(); renderPage(); toast('✓ Details saved', 'green');
+    }
+
+    // ── Churn ─────────────────────────────────────────────────
+    async function confirmChurn() {
+        var reason = prompt('Reason for churning '+_client.company+'?\n(Optional)');
+        if (reason===null) return;
+        await saveClient({ status:'churned', churnDate:new Date().toLocaleDateString('en-ZA'), churnReason:reason, churnedFrom:'active' });
+        sheetRequest('update', _client.company, 'Churned').catch(function(){});
+        window.location.href = 'database.html';
+    }
+
+    // ── Generate weekly form ──────────────────────────────────
+    async function genWeeklyForm() {
+        var c = _client;
+        var fleet = c.fleet||[];
+        if (fleet.length===0) { alert('No fleet data. Add vehicles first.'); return; }
+        // Build AUDIT_FINAL and redirect to audit to generate form
+        toast('Opening report form...', 'blue');
+        window.location.href = 'database_full.html?generateForm='+_clientId;
+    }
+
+    // ── Sync fleet from audit ─────────────────────────────────
+    async function syncFromAudit() {
+        var draftKey = 'AUDIT_DRAFT_' + _client.company.toUpperCase().replace(/\s+/g,'_');
+        var raw = await cloudStorage.getItem(draftKey);
+        if (!raw) { alert('No audit data found. Run an audit first.'); return; }
+        var draft = JSON.parse(raw);
+        var fleet = Object.values(draft.auditData||{}).map(function(v) {
+            return { reg:v.reg||'', type:v.type||'Heavy', make:v.make||'', model:v.model||'', year:v.year||'', usedFor:v.usedFor||'Long Distance', targetKmL:v.targetKmL||'2.3' };
+        });
+        if (fleet.length===0) { alert('No vehicles in audit data.'); return; }
+        await saveClient({ fleet:fleet, fleetSize:fleet.length });
+        _fleetData = fleet;
+        renderFleetTable();
+        renderPage();
+        toast('✓ Fleet synced — '+fleet.length+' vehicles from audit', 'green');
+    }
+
+    // ── Send reminder ─────────────────────────────────────────
+    function sendReminder() {
+        var c = _client;
+        var subj = encodeURIComponent((c.reportSchedule==='weekly'?'Weekly':'Monthly')+' Fleet Data Required — '+c.company);
+        var body = encodeURIComponent('Hi '+(c.contactName||'there')+',\n\nYour '+(c.reportSchedule||'weekly')+' fleet data submission is due.\n\nPlease submit your fuel and odometer readings by Tuesday 09:00.\n\nThank you,\nDynamic Fleet Reporting');
+        window.location.href = 'mailto:'+(c.email||'')+'?subject='+subj+'&body='+body;
+    }
+
+    // ── Sheet helper ──────────────────────────────────────────
+    function sheetRequest(action, company, status) {
+        return new Promise(function(resolve,reject) {
+            var cb='sheetCB_'+Date.now()+'_'+(++_cbCounter);
+            var tid=setTimeout(function(){delete window[cb];reject('Timeout');},10000);
+            window[cb]=function(data){clearTimeout(tid);delete window[cb];var s=document.getElementById(cb);if(s)s.remove();resolve(data);};
+            var script=document.createElement('script'); script.id=cb;
+            script.onerror=function(){clearTimeout(tid);delete window[cb];reject('Error');};
+            script.src=APPS_SCRIPT_URL+'?action='+encodeURIComponent(action)+'&company='+encodeURIComponent(company)+'&status='+encodeURIComponent(status||'')+'&callback='+cb;
+            document.body.appendChild(script);
+        });
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    window.onload = async function() {
+        var params = new URLSearchParams(window.location.search);
+        _clientId  = params.get('id');
+        if (!_clientId) { window.location.href='database.html'; return; }
+        await reloadClient();
+        if (!_client) { window.location.href='database.html'; return; }
+        renderPage();
+    };
+</script>
+</body>
+</html>
