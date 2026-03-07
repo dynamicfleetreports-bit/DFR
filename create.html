@@ -3,162 +3,255 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
-    <title>New Intake | Forensic Fleet Intelligence</title>
+    <title>New Intake | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
-        
-        /* RESTORED: Deep Forest Green Background */
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: #064e3b; 
-            color: white; 
-            padding: 2rem; 
-        }
-
-        /* RESTORED: Form Sections with 1.5rem radius and Glass Border */
-        .form-section { 
-            background: rgba(255, 255, 255, 0.03); 
-            backdrop-filter: blur(15px);
-            border-radius: 1.5rem; 
-            padding: 2.5rem; 
-            margin-bottom: 2rem; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-
-        /* RESTORED: Input Labels in Emerald Green */
-        .input-label { 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            font-size: 10px; 
-            tracking-widest: 0.15em; 
-            color: #34d399; 
-            margin-bottom: 0.5rem; 
-            display: block; 
-        }
-
-        /* RESTORED: High-Contrast Dark Fields */
-        .field { 
-            width: 100%; 
-            padding: 0.8rem; 
-            background: rgba(0, 0, 0, 0.25); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 0.5rem; 
-            font-weight: 700; 
-            color: white; 
-            outline: none; 
-            transition: border-color 0.2s;
-        }
-
-        .field:focus { border-color: #34d399; }
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; flex-shrink: 0; }
+        .logo-area { padding: 0 1rem 3rem 1rem; }
+        .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
+        .nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
+        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
+        .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
+        .form-section { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2rem 2.5rem; margin-bottom: 1.5rem; }
+        .section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #10b981; margin-bottom: 1.5rem; display: block; font-style: italic; }
+        label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; display: block; margin-bottom: 0.35rem; }
+        input, select, textarea { width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; color: white; font-size: 13px; font-family: 'Outfit', sans-serif; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { border-color: #10b981; }
+        input::placeholder { color: rgba(255,255,255,0.2); }
+        select option { background: #0f172a; color: white; }
+        textarea { min-height: 80px; resize: vertical; }
     </style>
 </head>
-<body class="p-8">
-    <div class="max-w-3xl mx-auto">
-        <header class="flex justify-between items-center mb-10">
-            <h1 id="pageTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">
-                New <span class="text-emerald-400">Intake</span>
-            </h1>
-            <button onclick="window.location.href='index.html'" class="text-[10px] font-black uppercase text-white/40 hover:text-white tracking-widest">Cancel</button>
-        </header>
-        
-        <form id="intakeForm">
-            <div class="form-section">
-                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">01. Company & Location</h3>
-                <div class="grid grid-cols-2 gap-6">
-                    <div><label class="input-label">Company Name</label><input type="text" id="company" class="field" required placeholder="REGISTERED NAME"></div>
-                    <div><label class="input-label">Town / City</label><input type="text" id="city" class="field" required placeholder="BASE OF OPERATIONS"></div>
+<body>
+
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
+    <nav>
+        <a href="index.html"    class="nav-item">Dashboard</a>
+        <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+        <a href="database.html" class="nav-item">Active Database</a>
+        <a href="audit.html"    class="nav-item">Forensic Audit</a>
+        <a href="churned.html"  class="nav-item">Churned Clients</a>
+        <a href="invoice.html"  class="nav-item">Invoices</a>
+    </nav>
+</aside>
+
+<main class="main-wrapper">
+    <header class="flex justify-between items-center mb-8">
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Client Intake</p>
+            <h1 id="pageTitle" class="text-5xl font-black italic uppercase tracking-tighter text-white">New <span class="text-emerald-400">Prospect</span></h1>
+        </div>
+        <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-white/30 hover:text-white tracking-widest transition">← Cancel</button>
+    </header>
+
+    <form id="intakeForm">
+
+        <!-- 01. Company & Location -->
+        <div class="form-section">
+            <span class="section-label">01 — Company &amp; Location</span>
+            <div class="grid grid-cols-2 gap-5 mb-5">
+                <div><label>Company Name *</label><input type="text" id="company" required placeholder="Registered trading name"></div>
+                <div><label>Town / City</label><input type="text" id="city" placeholder="Base of operations"></div>
+            </div>
+        </div>
+
+        <!-- 02. Contact Information -->
+        <div class="form-section">
+            <span class="section-label">02 — Contact Information</span>
+            <div class="grid grid-cols-2 gap-5 mb-5">
+                <div><label>Contact Name</label><input type="text" id="contactName" placeholder="Primary contact person"></div>
+                <div><label>Mobile Number</label><input type="tel" id="contactTel" placeholder="083 000 0000"></div>
+            </div>
+            <div><label>Email Address</label><input type="email" id="email" placeholder="name@company.co.za"></div>
+        </div>
+
+        <!-- 03. Billing Address -->
+        <div class="form-section">
+            <span class="section-label">03 — Billing Address</span>
+            <div class="grid grid-cols-2 gap-5 mb-5">
+                <div><label>Street / Physical Address</label><input type="text" id="billingStreet" placeholder="123 Main Street"></div>
+                <div><label>Suburb</label><input type="text" id="billingSuburb" placeholder="Suburb"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-5">
+                <div><label>City</label><input type="text" id="billingCity" placeholder="City"></div>
+                <div><label>Province</label>
+                    <select id="billingProvince">
+                        <option value="">— Select —</option>
+                        <option>Western Cape</option>
+                        <option>Eastern Cape</option>
+                        <option>Northern Cape</option>
+                        <option>North West</option>
+                        <option>Free State</option>
+                        <option>Gauteng</option>
+                        <option>Limpopo</option>
+                        <option>Mpumalanga</option>
+                        <option>KwaZulu-Natal</option>
+                    </select>
+                </div>
+                <div><label>Postal Code</label><input type="text" id="billingPostal" placeholder="0000"></div>
+            </div>
+        </div>
+
+        <!-- 04. Fleet & Performance -->
+        <div class="form-section">
+            <span class="section-label">04 — Fleet &amp; Performance</span>
+            <div class="grid grid-cols-3 gap-5 mb-5">
+                <div><label>Fleet Size (Units) *</label><input type="number" id="fleetSize" required value="1" min="1"></div>
+                <div><label>Fuel Price (R/L)</label><input type="number" id="fuelPrice" step="0.01" value="22.50"></div>
+                <div><label>Speed Limit (km/h)</label><input type="number" id="speedLimit" value="80"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-5">
+                <div><label>Current Consumption (km/L)</label><input type="number" id="currentCons" step="0.1" placeholder="Actual reported"></div>
+                <div><label>Target Consumption (km/L)</label><input type="number" id="targetCons" step="0.1" value="2.3"></div>
+            </div>
+        </div>
+
+        <!-- 05. Service Setup -->
+        <div class="form-section">
+            <span class="section-label">05 — Service Setup</span>
+            <div class="grid grid-cols-2 gap-5">
+                <div>
+                    <label>Report Schedule</label>
+                    <select id="reportSchedule">
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div>
+                    <label>VAT Number (if applicable)</label>
+                    <input type="text" id="vatNumber" placeholder="Leave blank if not VAT registered">
                 </div>
             </div>
+        </div>
 
-            <div class="form-section">
-                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">02. Contact Information</h3>
-                <div class="grid grid-cols-2 gap-6 mb-4">
-                    <div><label class="input-label">Contact Name</label><input type="text" id="contactName" class="field" placeholder="PRIMARY PERSON"></div>
-                    <div><label class="input-label">Mobile Number</label><input type="tel" id="contactTel" class="field" placeholder="000 000 0000"></div>
-                </div>
-                <div><label class="input-label">Email Address</label><input type="email" id="email" class="field" placeholder="name@company.co.za"></div>
-            </div>
-
-            <div class="form-section">
-                <h3 class="text-emerald-400 font-black uppercase text-xs mb-6 tracking-widest italic">03. Fleet Performance</h3>
-                <div class="grid grid-cols-3 gap-6 mb-4">
-                    <div><label class="input-label">Fleet Size (Units)</label><input type="number" id="fleetSize" class="field" required value="1"></div>
-                    <div><label class="input-label">Fuel Price (R/L)</label><input type="number" id="fuelPrice" class="field" step="0.01" value="22.50"></div>
-                    <div><label class="input-label">Speed Limit (km/h)</label><input type="number" id="speedLimit" class="field" value="80"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div><label class="input-label">Current Cons. (km/L)</label><input type="number" id="currentCons" class="field" step="0.1" placeholder="ACTUAL"></div>
-                    <div><label class="input-label">Target Cons. (km/L)</label><input type="number" id="targetCons" class="field" step="0.1" value="2.3"></div>
-                </div>
-            </div>
-
-            <button type="submit" id="submitBtn" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl uppercase tracking-[0.2em] text-sm hover:bg-emerald-400 transition shadow-2xl active:scale-95">
-                Commit Forensic Data
+        <!-- Submit -->
+        <div class="flex gap-4 mt-6">
+            <button type="button" onclick="window.location.href='pipeline.html'"
+                style="flex:1;padding:1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1rem;color:rgba(255,255,255,0.5);font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
+                Cancel
             </button>
-        </form>
-    </div>
+            <button type="submit" id="submitBtn"
+                style="flex:3;padding:1rem;background:#10b981;border:none;border-radius:1rem;color:#020617;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:0.15em;cursor:pointer;transition:background 0.2s;"
+                onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                Save Prospect
+            </button>
+        </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const editId = urlParams.get('editId');
+    </form>
+</main>
 
-        window.onload = async () => {
-            if (editId) {
-                const clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                const p = clients.find(c => c.id == editId);
-                if (p) {
-                    document.getElementById('pageTitle').innerHTML = "Edit <span class='text-emerald-400'>Intake</span>";
-                    document.getElementById('submitBtn').innerText = "Update Forensic Data";
-                    
-                    document.getElementById('company').value = p.company || '';
-                    document.getElementById('city').value = p.city || '';
-                    document.getElementById('contactName').value = p.contactName || '';
-                    document.getElementById('contactTel').value = p.contactTel || '';
-                    document.getElementById('email').value = p.email || '';
-                    document.getElementById('fleetSize').value = p.fleetSize || 1;
-                    document.getElementById('fuelPrice').value = p.fuelPrice || 22.50;
-                    document.getElementById('speedLimit').value = p.speedLimit || 80;
-                    document.getElementById('currentCons').value = p.currentCons || '';
-                    document.getElementById('targetCons').value = p.targetCons || 2.3;
-                }
-            }
-        };
+<script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    var _cbCounter = 0;
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId    = urlParams.get('editId');
 
-     document.getElementById('intakeForm').onsubmit = async (e) => {
-    e.preventDefault();
-    let clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    // ── Load existing client for edit mode ────────────────────
+    window.onload = async function() {
+        if (!editId) return;
+        var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var p = clients.find(function(c) { return c.id == editId; });
+        if (!p) return;
 
-    const clientData = {
-        id: editId ? parseInt(editId) : Date.now(),
-        company: document.getElementById('company').value.toUpperCase(),
-        city: document.getElementById('city').value.toUpperCase(),
-        contactName: document.getElementById('contactName').value,
-        contactTel: document.getElementById('contactTel').value,
-        email: document.getElementById('email').value,
-        fleetSize: parseInt(document.getElementById('fleetSize').value),
-        fuelPrice: document.getElementById('fuelPrice').value,
-        speedLimit: document.getElementById('speedLimit').value,
-        currentCons: document.getElementById('currentCons').value,
-        targetCons: document.getElementById('targetCons').value,
-        status: 'prospect'
+        document.getElementById('pageTitle').innerHTML = "Edit <span class='text-emerald-400'>Prospect</span>";
+        document.getElementById('submitBtn').innerText = "Save Changes";
+
+        document.getElementById('company').value         = p.company         || '';
+        document.getElementById('city').value            = p.city            || '';
+        document.getElementById('contactName').value     = p.contactName     || '';
+        document.getElementById('contactTel').value      = p.contactTel      || '';
+        document.getElementById('email').value           = p.email           || '';
+        document.getElementById('billingStreet').value   = p.billingStreet   || '';
+        document.getElementById('billingSuburb').value   = p.billingSuburb   || '';
+        document.getElementById('billingCity').value     = p.billingCity     || '';
+        document.getElementById('billingProvince').value = p.billingProvince || '';
+        document.getElementById('billingPostal').value   = p.billingPostal   || '';
+        document.getElementById('fleetSize').value       = p.fleetSize       || 1;
+        document.getElementById('fuelPrice').value       = p.fuelPrice       || 22.50;
+        document.getElementById('speedLimit').value      = p.speedLimit      || 80;
+        document.getElementById('currentCons').value     = p.currentCons     || '';
+        document.getElementById('targetCons').value      = p.targetCons      || 2.3;
+        document.getElementById('reportSchedule').value  = p.reportSchedule  || 'weekly';
+        document.getElementById('vatNumber').value       = p.vatNumber       || '';
     };
 
-    if (editId) {
-        const index = clients.findIndex(c => c.id == editId);
-        clients[index] = clientData;
-    } else {
-        clients.push(clientData);
+    // ── Submit ────────────────────────────────────────────────
+    document.getElementById('intakeForm').onsubmit = async function(e) {
+        e.preventDefault();
+
+        var btn = document.getElementById('submitBtn');
+        btn.innerText = 'Saving...'; btn.disabled = true;
+
+        var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+
+        // Build only the fields we're updating — preserve all existing data in edit mode
+        var updates = {
+            company:         document.getElementById('company').value.trim().toUpperCase(),
+            city:            document.getElementById('city').value.trim().toUpperCase(),
+            contactName:     document.getElementById('contactName').value.trim(),
+            contactTel:      document.getElementById('contactTel').value.trim(),
+            email:           document.getElementById('email').value.trim(),
+            billingStreet:   document.getElementById('billingStreet').value.trim(),
+            billingSuburb:   document.getElementById('billingSuburb').value.trim(),
+            billingCity:     document.getElementById('billingCity').value.trim(),
+            billingProvince: document.getElementById('billingProvince').value,
+            billingPostal:   document.getElementById('billingPostal').value.trim(),
+            fleetSize:       parseInt(document.getElementById('fleetSize').value) || 1,
+            fuelPrice:       parseFloat(document.getElementById('fuelPrice').value) || 22.50,
+            speedLimit:      parseInt(document.getElementById('speedLimit').value) || 80,
+            currentCons:     document.getElementById('currentCons').value,
+            targetCons:      parseFloat(document.getElementById('targetCons').value) || 2.3,
+            reportSchedule:  document.getElementById('reportSchedule').value,
+            vatNumber:       document.getElementById('vatNumber').value.trim(),
+        };
+
+        if (editId) {
+            // SAFE edit — merge updates into existing object, never replace
+            var idx = clients.findIndex(function(c) { return c.id == editId; });
+            if (idx !== -1) {
+                clients[idx] = Object.assign({}, clients[idx], updates);
+            }
+        } else {
+            // New prospect
+            var newClient = Object.assign({
+                id:          Date.now(),
+                status:      'prospect',
+                auditStatus: 'not-started',
+                reportHistory:   [],
+                invoiceHistory:  [],
+            }, updates);
+            clients.push(newClient);
+
+            // Sync new prospect to sheet
+            syncToSheet(updates.company, 'Prospect').catch(function(err) {
+                console.warn('Sheet sync failed (non-fatal):', err);
+            });
+        }
+
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+        window.location.href = 'pipeline.html';
+    };
+
+    // ── Sheet sync ────────────────────────────────────────────
+    function syncToSheet(companyName, status) {
+        return new Promise(function(resolve, reject) {
+            var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
+            var tid = setTimeout(function() { delete window[cbName]; reject('Timeout'); }, 10000);
+            window[cbName] = function(data) {
+                clearTimeout(tid); delete window[cbName];
+                var s = document.getElementById(cbName); if (s) s.remove();
+                resolve(data);
+            };
+            var script = document.createElement('script');
+            script.id = cbName;
+            script.onerror = function() { clearTimeout(tid); delete window[cbName]; reject('Error'); };
+            script.src = APPS_SCRIPT_URL + '?action=update&company=' + encodeURIComponent(companyName) + '&status=' + encodeURIComponent(status) + '&callback=' + cbName;
+            document.body.appendChild(script);
+        });
     }
-
-    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-    window.location.href = 'index.html';
-};
-
-
-    </script>
+</script>
 </body>
-
 </html>
-
-
