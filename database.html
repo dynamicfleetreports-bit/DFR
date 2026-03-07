@@ -8,964 +8,316 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; flex-shrink: 0; }
         .logo-area { padding: 0 1rem 3rem 1rem; }
         .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
-        .nav-item.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
+        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
         .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
-        .stat-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1.5rem; text-align: center; }
-        .stat-value { font-size: 2.5rem; font-weight: 900; font-style: italic; }
-        .stat-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; margin-top: 0.5rem; }
-        .alert-panel { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; }
-        .alert-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .alert-item:hover { opacity: 0.7; }
-        .filter-bar { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .filter-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
-        .filter-btn.active { background: #60a5fa; color: #020617; }
-        .filter-btn:hover { background: rgba(255,255,255,0.1); }
-        .client-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.75rem; transition: 0.3s; position: relative; }
-        .client-card:hover { border-color: #60a5fa; transform: translateY(-5px); }
-        .client-card.overdue { border-color: rgba(239, 68, 68, 0.5); }
-        .client-card.due-soon { border-color: rgba(251, 191, 36, 0.5); }
-        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; display: inline-block; }
-        .status-weekly { background: rgba(96, 165, 250, 0.1); color: #60a5fa; }
-        .status-monthly { background: rgba(168, 85, 247, 0.1); color: #a855f7; }
-        .status-overdue { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
-        .status-due-soon { background: rgba(251, 191, 36, 0.1); color: #fbbf24; }
-        .action-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 0.65rem 1rem; border-radius: 0.75rem; font-size: 9px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .action-btn:hover { background: rgba(255,255,255,0.1); }
-        .action-btn.primary { background: #60a5fa; color: #020617; }
-        .action-btn.success { background: #10b981; color: #020617; }
-        .action-btn.warning { background: #fbbf24; color: #020617; }
-        .action-btn.danger { background: #ef4444; color: white; }
-        #editModal, #notesModal, #historyModal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .modal-card { background: #0f172a; border: 2px solid #60a5fa; border-radius: 2rem; width: 100%; max-width: 600px; padding: 2.5rem; margin: auto; }
-        input, select, textarea { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 0.75rem; color: white; width: 100%; font-size: 13px; margin-top: 0.25rem; font-family: 'Outfit', sans-serif; }
-        textarea { min-height: 100px; resize: vertical; }
-        label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; display: block; margin-bottom: 0.25rem; }
-        .history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.75rem; }
-        #successModal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .success-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 2px solid #10b981; border-radius: 2rem; width: 100%; max-width: 500px; padding: 3rem; text-align: center; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .success-icon { font-size: 4rem; margin-bottom: 1rem; }
-        .success-title { font-size: 1.5rem; font-weight: 900; color: #10b981; margin-bottom: 1rem; text-transform: uppercase; font-style: italic; }
-        .success-details { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; text-align: left; }
-        .success-detail-row { display: flex; justify-content: space-between; padding: 0.5rem 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .success-detail-row:last-child { border-bottom: none; }
-        .success-steps { text-align: left; margin: 1.5rem 0; }
-        .success-step { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; margin: 0.5rem 0; background: rgba(255,255,255,0.03); border-radius: 0.75rem; font-size: 13px; }
-        .success-step-num { background: #10b981; color: #020617; font-weight: 900; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1.25rem; text-align: center; }
+        .stat-value { font-size: 2.2rem; font-weight: 900; font-style: italic; }
+        .stat-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.4; margin-top: 0.25rem; }
+        .client-row { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.1fr 1fr 1fr 120px; align-items: center; gap: 0; padding: 0 1.5rem; height: 58px; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background 0.15s; }
+        .client-row:hover { background: rgba(255,255,255,0.03); }
+        .client-row:last-child { border-bottom: none; }
+        .col-head { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.2); }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; }
+        .pill-green  { background: rgba(16,185,129,0.12); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+        .pill-red    { background: rgba(239,68,68,0.12);  color: #ef4444;  border: 1px solid rgba(239,68,68,0.2); }
+        .pill-yellow { background: rgba(251,191,36,0.12); color: #fbbf24;  border: 1px solid rgba(251,191,36,0.2); }
+        .pill-blue   { background: rgba(96,165,250,0.12); color: #60a5fa;  border: 1px solid rgba(96,165,250,0.2); }
+        .pill-grey   { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.08); }
+        .search-bar { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; padding: 0.6rem 1rem; color: white; font-size: 13px; font-family: Outfit,sans-serif; outline: none; width: 260px; }
+        .search-bar::placeholder { color: rgba(255,255,255,0.2); }
+        .search-bar:focus { border-color: rgba(96,165,250,0.4); }
+        .list-container { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; overflow: hidden; }
+        .list-header { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1.1fr 1fr 1fr 120px; gap: 0; padding: 0 1.5rem; height: 40px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.06); background: rgba(15,23,42,0.5); }
+        .alert-bar { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 1rem; padding: 0.85rem 1.5rem; margin-bottom: 1.5rem; display: none; }
     </style>
 </head>
 <body>
-    <aside id="sidebar">
-        <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
-        <nav>
-            <a href="index.html" class="nav-item">Dashboard</a>
-            <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
-            <a href="database.html" class="nav-item active">Active Database</a>
-            <a href="audit.html" class="nav-item">Forensic Audit</a>
-            <a href="churned.html" class="nav-item">Churned Clients</a>
-            <a href="invoice.html" class="nav-item">Invoices</a>
-        </nav>
-    </aside>
 
-    <main class="main-wrapper">
-        <header class="flex justify-between items-end mb-8">
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Live Portfolio Management</p>
-                <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Active <span class="opacity-30">Database</span></h1>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="sendWeeklyReminders()" class="action-btn warning">📅 Weekly Reports Due</button>
-                <button onclick="sendMonthlyReminders()" class="action-btn primary">📆 Monthly Reports Due</button>
-                <button onclick="exportDatabase()" class="action-btn">📥 Export</button>
-                <button onclick="syncAllToSheet()" class="action-btn" style="background:#10b981;color:#020617;">☁️ Sync All to Sheet</button>
-            </div>
-        </header>
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
+    <nav>
+        <a href="index.html"    class="nav-item">Dashboard</a>
+        <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+        <a href="database.html" class="nav-item active">Active Database</a>
+        <a href="audit.html"    class="nav-item">Forensic Audit</a>
+        <a href="churned.html"  class="nav-item">Churned Clients</a>
+        <a href="invoice.html"  class="nav-item">Invoices</a>
+    </nav>
+</aside>
 
-        <div class="stats-grid">
-            <div class="stat-card"><div id="stat-total" class="stat-value text-blue-400">0</div><div class="stat-label">Active Clients</div></div>
-            <div class="stat-card"><div id="stat-weekly" class="stat-value text-sky-400">0</div><div class="stat-label">Weekly Reports</div></div>
-            <div class="stat-card"><div id="stat-monthly" class="stat-value text-purple-400">0</div><div class="stat-label">Monthly Reports</div></div>
-            <div class="stat-card"><div id="stat-overdue" class="stat-value text-red-400">0</div><div class="stat-label">Overdue</div></div>
+<main class="main-wrapper">
+    <header class="flex justify-between items-end mb-8">
+        <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-2">Live Portfolio</p>
+            <h1 class="text-5xl font-black italic uppercase tracking-tighter text-white">Active <span class="opacity-30">Database</span></h1>
         </div>
-
-        <div id="alerts-panel" class="alert-panel" style="display: none;">
-            <h3 class="text-sm font-black uppercase text-red-400 mb-3">🚨 Action Required</h3>
-            <div id="alerts-list"></div>
+        <div class="flex gap-3 items-center">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search clients..." oninput="renderList()">
+            <button onclick="syncAllToSheet()" style="background:#10b981;color:#020617;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;border:none;cursor:pointer;">☁️ Sync Sheet</button>
+            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;">📥 Export</button>
         </div>
+    </header>
 
-        <div class="filter-bar">
-            <div class="flex gap-2">
-                <button class="filter-btn active" onclick="filterClients('all', event)">All</button>
-                <button class="filter-btn" onclick="filterClients('weekly', event)">📅 Weekly</button>
-                <button class="filter-btn" onclick="filterClients('monthly', event)">📆 Monthly</button>
-                <button class="filter-btn" onclick="filterClients('overdue', event)">🔴 Overdue</button>
-            </div>
-            <div class="flex gap-2 items-center">
-                <span class="text-[9px] font-black uppercase opacity-50">Sort:</span>
-                <select id="sortBy" onchange="renderDatabase()" class="action-btn" style="width: auto; padding: 0.5rem;">
-                    <option value="name">Name</option>
-                    <option value="nextDue">Next Due</option>
-                    <option value="schedule">Schedule</option>
-                </select>
-            </div>
-        </div>
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card"><div id="stat-total"   class="stat-value text-blue-400">0</div><div class="stat-label">Active Clients</div></div>
+        <div class="stat-card"><div id="stat-mrr"     class="stat-value text-emerald-400">R 0</div><div class="stat-label">Monthly Retainer</div></div>
+        <div class="stat-card"><div id="stat-overdue" class="stat-value text-red-400">0</div><div class="stat-label">Reports Overdue</div></div>
+        <div class="stat-card"><div id="stat-unpaid"  class="stat-value text-yellow-400">0</div><div class="stat-label">Invoices Unpaid</div></div>
+    </div>
 
-        <div id="database-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </main>
+    <!-- Alert bar -->
+    <div id="alertBar" class="alert-bar">
+        <span id="alertText" class="text-red-400 font-black text-xs uppercase"></span>
+    </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal">
-        <div class="modal-card">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Edit <span class="text-blue-400">Client</span></h2>
-            <form id="editForm" class="space-y-4">
-                <input type="hidden" id="editId">
-                <div><label>Company Name</label><input type="text" id="editName" required></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label>Contact Person</label><input type="text" id="editContact"></div>
-                    <div><label>Email</label><input type="email" id="editEmail"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label>Fleet Size</label><input type="number" id="editFleet"></div>
-                    <div><label>Speed Limit</label><input type="number" id="editSpeed" value="80"></div>
-                </div>
-                <div><label>Report Schedule</label>
-                    <select id="editSchedule">
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                    </select>
-                </div>
-                <div class="flex gap-3 pt-4">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 action-btn">Cancel</button>
-                    <button type="submit" class="flex-1 action-btn success">Save</button>
-                </div>
-            </form>
+    <!-- Filter pills -->
+    <div class="flex gap-2 mb-4 flex-wrap items-center">
+        <span class="text-[8px] font-black uppercase text-white/20 tracking-widest mr-1">Filter:</span>
+        <button onclick="setFilter('all',this)"      class="pill pill-blue filter-btn active-filter">All</button>
+        <button onclick="setFilter('overdue',this)"  class="pill pill-red filter-btn">🔴 Overdue</button>
+        <button onclick="setFilter('due-soon',this)" class="pill pill-yellow filter-btn">⏰ Due Soon</button>
+        <button onclick="setFilter('weekly',this)"   class="pill pill-blue filter-btn">📅 Weekly</button>
+        <button onclick="setFilter('monthly',this)"  class="pill pill-grey filter-btn">📆 Monthly</button>
+        <button onclick="setFilter('unpaid',this)"   class="pill pill-yellow filter-btn">💳 Unpaid Invoice</button>
+        <div class="ml-auto flex items-center gap-2">
+            <span class="text-[8px] font-black uppercase text-white/20">Sort:</span>
+            <select id="sortBy" onchange="renderList()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 8px;color:white;font-size:10px;font-family:Outfit,sans-serif;">
+                <option value="name">Name</option>
+                <option value="due">Report Due</option>
+                <option value="retainer">Retainer</option>
+                <option value="invoice">Invoice Status</option>
+            </select>
         </div>
     </div>
 
-    <!-- Notes Modal -->
-    <div id="notesModal">
-        <div class="modal-card">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Client <span class="text-yellow-400">Notes</span></h2>
-            <input type="hidden" id="notesId">
-            <textarea id="notesText" placeholder="Add notes, special instructions, preferences..." style="min-height: 150px;"></textarea>
-            <div class="flex gap-3 pt-4">
-                <button onclick="closeNotesModal()" class="flex-1 action-btn">Cancel</button>
-                <button onclick="saveNotes()" class="flex-1 action-btn success">Save Notes</button>
-            </div>
+    <!-- Client list -->
+    <div class="list-container">
+        <div class="list-header">
+            <div class="col-head">Client</div>
+            <div class="col-head">Monthly Retainer</div>
+            <div class="col-head">Fleet</div>
+            <div class="col-head">Next Report</div>
+            <div class="col-head">Schedule</div>
+            <div class="col-head">Invoice</div>
+            <div class="col-head" style="text-align:right;">Actions</div>
         </div>
+        <div id="clientList"></div>
     </div>
+</main>
 
-    <!-- History Modal -->
-    <div id="historyModal">
-        <div class="modal-card" style="max-width: 800px;">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Report <span class="text-emerald-400">History</span></h2>
-            <div id="historyContent"></div>
-            <button onclick="closeHistoryModal()" class="action-btn mt-6 w-full">Close</button>
-        </div>
-    </div>
+<script>
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    var _cbCounter   = 0;
+    var _currentFilter = 'all';
+    var _allClients    = [];
 
-    <!-- Fleet Management Modal -->
-    <div id="fleetModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
-        <div class="modal-card" style="max-width: 1400px; width: 100%;">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Fleet Management: <span id="fleetClientName" class="text-blue-400"></span></h2>
-            <input type="hidden" id="fleetClientId">
-            <div style="overflow-x: auto; margin-bottom: 2rem;">
-                <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
-                    <thead>
-                        <tr style="background: #60a5fa;">
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">#</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Registration</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Type</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Make</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Model</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Year</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Used For</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Target km/L</th>
-                            <th style="padding: 0.75rem; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #020617;">Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fleetTableBody"></tbody>
-                </table>
-            </div>
-            <div class="flex gap-3">
-                <button onclick="addVehicleRow()" class="action-btn primary">➕ Add Vehicle</button>
-                <button onclick="saveFleet()" class="flex-1 action-btn success">💾 Save Fleet</button>
-                <button onclick="closeFleetModal()" class="action-btn">Cancel</button>
-            </div>
-        </div>
-    </div>
+    // ── Helpers ───────────────────────────────────────────────
+    function getNextDueDate(c) {
+        var last = c.lastReportSent ? new Date(c.lastReportSent) : new Date();
+        if (c.reportSchedule === 'weekly') last.setDate(last.getDate() + 7);
+        else last.setMonth(last.getMonth() + 1);
+        return last;
+    }
+    function getDaysUntilDue(c) { return Math.ceil((getNextDueDate(c) - new Date()) / 86400000); }
+    function getTier(fleet) { return fleet <= 15 ? {rate:200,label:'T1'} : fleet <= 30 ? {rate:175,label:'T2'} : {rate:150,label:'T3'}; }
+    function getMonthly(c) { var f = c.fleet ? c.fleet.length : (c.fleetSize||0); var t = getTier(f); return 1500 + (f * t.rate); }
 
-    <!-- Custom Report Modal -->
-    <div id="customReportModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px); z-index: 100; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
-        <div class="modal-card" style="max-width: 700px;">
-            <h2 class="text-2xl font-black italic uppercase text-white mb-6">Custom <span class="text-yellow-400">Report</span></h2>
-            <input type="hidden" id="reportClientId">
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label>Start Date</label><input type="date" id="reportStartDate"></div>
-                    <div><label>End Date</label><input type="date" id="reportEndDate"></div>
-                </div>
-                <div><label>Report Focus</label>
-                    <select id="reportFocus">
-                        <option value="combined">Combined (Speed + Efficiency)</option>
-                        <option value="speed">Speed Violations Only</option>
-                        <option value="efficiency">Fuel Efficiency Only</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Vehicles</label>
-                    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 1rem; max-height: 200px; overflow-y: auto;">
-                        <div style="margin-bottom: 0.75rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" id="selectAllVehicles" onchange="toggleAllVehicles()" checked style="width: 18px; height: 18px;">
-                                <span style="font-weight: 700; color: #60a5fa;">Select All Vehicles</span>
-                            </label>
-                        </div>
-                        <div id="vehicleCheckboxes" style="display: grid; gap: 0.5rem;"></div>
-                    </div>
-                </div>
-                <div><label>Export Format</label>
-                    <select id="reportFormat">
-                        <option value="pdf">PDF Report</option>
-                        <option value="csv">CSV Data Export</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex gap-3 pt-6">
-                <button onclick="closeCustomReportModal()" class="flex-1 action-btn">Cancel</button>
-                <button onclick="generateCustomReport()" class="flex-1 action-btn success">📊 Generate Report</button>
-            </div>
-        </div>
-    </div>
+    function getInvStatus(c) {
+        var hist = c.invoiceHistory || [];
+        if (hist.length === 0) return { label: 'No Invoice', cls: 'pill-grey', overdue: false };
+        var last = hist[hist.length-1];
+        if (last.paid) return { label: '✓ Paid', cls: 'pill-green', overdue: false };
+        var due  = new Date(last.dueDate || (new Date().getTime() + 7*86400000));
+        var days = Math.ceil((new Date() - due) / 86400000);
+        if (days > 0) return { label: '⚠ ' + days + 'd overdue', cls: 'pill-red', overdue: true };
+        return { label: 'Unpaid', cls: 'pill-yellow', overdue: false };
+    }
 
-    <!-- Success Modal -->
-    <div id="successModal">
-        <div class="success-card">
-            <div class="success-icon">✅</div>
-            <h2 class="success-title">Form Generated!</h2>
-            <div class="success-details">
-                <div class="success-detail-row">
-                    <span style="opacity: 0.5; font-weight: 900; text-transform: uppercase; font-size: 10px;">Client</span>
-                    <span id="successClient" style="font-weight: 700;"></span>
-                </div>
-                <div class="success-detail-row">
-                    <span style="opacity: 0.5; font-weight: 900; text-transform: uppercase; font-size: 10px;">Period</span>
-                    <span id="successPeriod" style="font-weight: 700; color: #10b981;"></span>
-                </div>
-            </div>
-            <div class="success-steps">
-                <p style="font-weight: 900; text-transform: uppercase; font-size: 10px; opacity: 0.5; margin-bottom: 1rem; letter-spacing: 0.1em;">📧 Next Steps</p>
-                <div class="success-step"><div class="success-step-num">1</div><span>Email HTML file to client</span></div>
-                <div class="success-step"><div class="success-step-num">2</div><span>Client fills and downloads JSON</span></div>
-                <div class="success-step"><div class="success-step-num">3</div><span>Client emails JSON back</span></div>
-                <div class="success-step"><div class="success-step-num">4</div><span>You import for audit</span></div>
-            </div>
-            <button onclick="closeSuccessModal()" class="action-btn success" style="width: 100%; margin-top: 1rem;">Got It!</button>
-        </div>
-    </div>
+    function getReportPill(c) {
+        var d = getDaysUntilDue(c);
+        if (d < 0)  return { label: 'Overdue '+Math.abs(d)+'d', cls: 'pill-red' };
+        if (d === 0) return { label: 'Due Today', cls: 'pill-red' };
+        if (d <= 2)  return { label: 'Due in '+d+'d', cls: 'pill-yellow' };
+        return { label: 'In '+d+' days', cls: 'pill-grey' };
+    }
 
-    <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
-        var _cbCounter = 0;
-        let currentFilter = 'all';
+    // ── Filter ────────────────────────────────────────────────
+    function setFilter(f, el) {
+        _currentFilter = f;
+        document.querySelectorAll('.filter-btn').forEach(function(b) {
+            b.style.opacity = '0.5'; b.style.fontWeight = '700';
+        });
+        el.style.opacity = '1'; el.style.fontWeight = '900';
+        renderList();
+    }
 
-        // ── Sheet JSONP helper ────────────────────────────────
-        function sheetRequest(action, companyName, status) {
-            return new Promise(function(resolve, reject) {
-                var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
-                var tid = setTimeout(function() { delete window[cbName]; reject('Timeout'); }, 10000);
-                window[cbName] = function(data) {
-                    clearTimeout(tid);
-                    delete window[cbName];
-                    var s = document.getElementById(cbName);
-                    if (s) s.remove();
-                    if (data.success) resolve(data); else reject(data.error || 'Failed');
-                };
-                var script = document.createElement('script');
-                script.id = cbName;
-                script.onerror = function() { clearTimeout(tid); delete window[cbName]; reject('Script failed'); };
-                var src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(companyName);
-                if (status) src += '&status=' + encodeURIComponent(status);
-                src += '&callback=' + cbName;
-                script.src = src;
-                document.body.appendChild(script);
-            });
+    // ── Render ────────────────────────────────────────────────
+    async function renderList() {
+        _allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var active  = _allClients.filter(function(c) { return c.status === 'active'; });
+        var search  = (document.getElementById('searchInput').value || '').toLowerCase();
+        var sortBy  = document.getElementById('sortBy').value;
+
+        // Stats
+        var totalMRR   = active.reduce(function(s,c) { return s + getMonthly(c); }, 0);
+        var overdueCt  = active.filter(function(c) { return getDaysUntilDue(c) < 0; }).length;
+        var unpaidCt   = active.filter(function(c) { var s = getInvStatus(c); return !s.label.includes('Paid') && s.label !== 'No Invoice'; }).length;
+        document.getElementById('stat-total').innerText   = active.length;
+        document.getElementById('stat-mrr').innerText     = 'R ' + totalMRR.toLocaleString('en-ZA');
+        document.getElementById('stat-overdue').innerText = overdueCt;
+        document.getElementById('stat-unpaid').innerText  = unpaidCt;
+
+        // Alert bar
+        var alertBar = document.getElementById('alertBar');
+        if (overdueCt > 0) {
+            alertBar.style.display = 'block';
+            document.getElementById('alertText').innerText = '🚨 ' + overdueCt + ' client' + (overdueCt>1?'s':'') + ' with overdue reports — click filter above';
+        } else { alertBar.style.display = 'none'; }
+
+        // Filter
+        var filtered = active.filter(function(c) {
+            if (search && !c.company.toLowerCase().includes(search) && !(c.contactName||'').toLowerCase().includes(search)) return false;
+            if (_currentFilter === 'overdue')  return getDaysUntilDue(c) < 0;
+            if (_currentFilter === 'due-soon') { var d = getDaysUntilDue(c); return d >= 0 && d <= 2; }
+            if (_currentFilter === 'weekly')   return c.reportSchedule === 'weekly';
+            if (_currentFilter === 'monthly')  return c.reportSchedule === 'monthly';
+            if (_currentFilter === 'unpaid')   { var s = getInvStatus(c); return !s.label.includes('Paid') && s.label !== 'No Invoice'; }
+            return true;
+        });
+
+        // Sort
+        if (sortBy === 'due')      filtered.sort(function(a,b) { return getDaysUntilDue(a)-getDaysUntilDue(b); });
+        else if (sortBy === 'retainer') filtered.sort(function(a,b) { return getMonthly(b)-getMonthly(a); });
+        else if (sortBy === 'invoice')  filtered.sort(function(a,b) { return getInvStatus(a).overdue ? -1 : 1; });
+        else filtered.sort(function(a,b) { return (a.company||'').localeCompare(b.company||''); });
+
+        var container = document.getElementById('clientList');
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="padding:4rem;text-align:center;opacity:0.2;font-weight:900;text-transform:uppercase;font-size:11px;">No clients found</div>';
+            return;
         }
 
-        function syncToSheet(client) {
-            return new Promise(function(resolve) {
-                var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
-                var script = document.createElement('script');
-                script.id = cbName;
-                window[cbName] = function(data) {
-                    delete window[cbName];
-                    var s = document.getElementById(cbName);
-                    if (s) s.remove();
-                    resolve(data);
-                };
-                script.src = APPS_SCRIPT_URL + '?action=update' +
-                    '&company=' + encodeURIComponent(client.company || '') +
-                    '&status=' + encodeURIComponent('Active') +
-                    '&callback=' + cbName;
-                script.onerror = function() { delete window[cbName]; resolve({ success: false }); };
-                document.body.appendChild(script);
-            });
+        container.innerHTML = filtered.map(function(c) {
+            var fleetSize  = c.fleet ? c.fleet.length : (c.fleetSize || 0);
+            var monthly    = getMonthly(c);
+            var tier       = getTier(fleetSize);
+            var rpt        = getReportPill(c);
+            var inv        = getInvStatus(c);
+            var schedPill  = c.reportSchedule === 'weekly'
+                ? '<span class="pill pill-blue">Weekly</span>'
+                : '<span class="pill pill-grey">Monthly</span>';
+
+            return '<div class="client-row" onclick="window.location.href=\'client.html?id=' + c.id + '\'">'
+                // Company + contact
+                + '<div style="min-width:0;">'
+                +   '<div style="font-weight:900;font-size:13px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + c.company + '</div>'
+                +   '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;">' + (c.contactName||'—') + '</div>'
+                + '</div>'
+                // Monthly retainer
+                + '<div>'
+                +   '<div style="font-weight:900;font-size:13px;color:#10b981;">R ' + monthly.toLocaleString('en-ZA') + '</div>'
+                +   '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-weight:700;">' + tier.label + ' · ' + fleetSize + ' units</div>'
+                + '</div>'
+                // Fleet
+                + '<div style="font-weight:900;font-size:13px;">' + fleetSize + ' <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;">units</span></div>'
+                // Next report
+                + '<div><span class="pill ' + rpt.cls + '">' + rpt.label + '</span></div>'
+                // Schedule
+                + '<div>' + schedPill + '</div>'
+                // Invoice
+                + '<div><span class="pill ' + inv.cls + '">' + inv.label + '</span></div>'
+                // Actions — stop propagation so clicks don't open client page
+                + '<div style="display:flex;gap:6px;justify-content:flex-end;" onclick="event.stopPropagation()">'
+                +   '<button onclick="window.location.href=\'invoice.html?clientId=' + c.id + '\'" title="Invoice" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">🧾</button>'
+                +   '<button onclick="window.location.href=\'audit.html?client=' + encodeURIComponent(c.company) + '\'" title="Audit" style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">📊</button>'
+                +   '<button onclick="quickChurn(\'' + c.id + '\')" title="Churn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:#ef4444;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">🔴</button>'
+                + '</div>'
+                + '</div>';
+        }).join('');
+    }
+
+    // ── Quick churn from list ─────────────────────────────────
+    async function quickChurn(id) {
+        var reason = prompt('Reason for churning?\n(Optional)');
+        if (reason === null) return;
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+        var name = allClients[idx].company;
+        allClients[idx] = Object.assign({}, allClients[idx], {
+            status: 'churned', churnDate: new Date().toLocaleDateString('en-ZA'),
+            churnReason: reason||'', churnedFrom: 'active'
+        });
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+        sheetRequest('update', name, 'Churned').catch(function(){});
+        renderList();
+    }
+
+    // ── Sheet helpers ─────────────────────────────────────────
+    function sheetRequest(action, company, status) {
+        return new Promise(function(resolve, reject) {
+            var cb = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
+            var tid = setTimeout(function() { delete window[cb]; reject('Timeout'); }, 10000);
+            window[cb] = function(data) { clearTimeout(tid); delete window[cb]; var s=document.getElementById(cb); if(s)s.remove(); resolve(data); };
+            var script = document.createElement('script');
+            script.id = cb;
+            script.onerror = function() { clearTimeout(tid); delete window[cb]; reject('Error'); };
+            script.src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(company) + '&status=' + encodeURIComponent(status||'') + '&callback=' + cb;
+            document.body.appendChild(script);
+        });
+    }
+
+    async function syncAllToSheet() {
+        var all    = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var active = all.filter(function(c) { return c.status === 'active'; });
+        if (active.length === 0) { alert('No active clients.'); return; }
+        if (!confirm('Sync ' + active.length + ' client(s) to Google Sheet?')) return;
+        for (var i = 0; i < active.length; i++) {
+            await sheetRequest('update', active[i].company, 'Active');
         }
-
-        async function syncAllToSheet() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var active = allClients.filter(function(c) { return c.status === 'active'; });
-            if (active.length === 0) { alert('No active clients to sync.'); return; }
-            if (!confirm('Sync ' + active.length + ' active client(s) to Google Sheet?')) return;
-            for (var i = 0; i < active.length; i++) { await syncToSheet(active[i]); }
-            alert('✅ Synced ' + active.length + ' client(s) to Google Sheet!');
-        }
-
-        // ── Auto-purge churned clients older than 6 months ───
-        async function purgeOldChurned() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var sixMonthsAgo = new Date();
-            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-            var purged = 0;
-            var remaining = allClients.filter(function(c) {
-                if (c.status !== 'churned') return true;
-                if (!c.churnDate) return true;
-                var churnDate = new Date(c.churnDate);
-                if (isNaN(churnDate)) return true;
-                if (churnDate < sixMonthsAgo) {
-                    purged++;
-                    // Mark as Deleted in sheet silently
-                    sheetRequest('update', c.company, 'Deleted').catch(function(){});
-                    return false;
-                }
-                return true;
-            });
-            if (purged > 0) {
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(remaining));
-                console.log('Auto-purged ' + purged + ' churned client(s) older than 6 months');
-            }
-        }
-
-        // ── Churn active client ───────────────────────────────
-        function churnClient(id) {
-            var reason = prompt('Reason for churning this client?\n(Optional — leave blank if not needed)');
-            if (reason === null) return;
-            processChurn(id, reason);
-        }
-
-        async function processChurn(id, reason) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var idx = allClients.findIndex(function(c) { return c.id == id; });
-            if (idx === -1) return;
-            var companyName = allClients[idx].company;
-
-            allClients[idx] = Object.assign({}, allClients[idx], {
-                status:      'churned',
-                churnDate:   new Date().toLocaleDateString(),
-                churnReason: reason || '',
-                churnedFrom: 'active'
-            });
-
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-
-            try {
-                await sheetRequest('update', companyName, 'Churned');
-            } catch (err) {
-                console.warn('Sheet update failed:', err);
-            }
-
-            renderDatabase();
-            alert(companyName + ' has been moved to Churned Clients.\n\nAll data and history preserved.\nView in: Churned Clients page.');
-        }
-
-        // ── Vehicle database ──────────────────────────────────
-        async function initVehicleDatabase() {
-            var savedDB = await cloudStorage.getItem('VEHICLE_SPECS_DB');
-            if (!savedDB) {
-                var defaultDB = {
-                    'Volvo FH440': { targetKmL: 2.3, type: 'Heavy', category: 'Long Distance' },
-                    'Volvo FH460': { targetKmL: 2.2, type: 'Heavy', category: 'Long Distance' },
-                    'Scania R450': { targetKmL: 2.4, type: 'Heavy', category: 'Long Distance' },
-                    'Scania G460': { targetKmL: 2.3, type: 'Heavy', category: 'Long Distance' },
-                    'Mercedes Actros 1844': { targetKmL: 2.2, type: 'Heavy', category: 'Long Distance' },
-                    'Mercedes Actros 2644': { targetKmL: 2.1, type: 'Heavy', category: 'Long Distance' },
-                    'MAN TGX 440': { targetKmL: 2.3, type: 'Heavy', category: 'Long Distance' },
-                    'MAN TGS 440': { targetKmL: 2.2, type: 'Heavy', category: 'Long Distance' },
-                    'Isuzu FTR 850': { targetKmL: 3.5, type: 'Medium', category: 'Local Full' },
-                    'Isuzu FSR 800': { targetKmL: 3.8, type: 'Medium', category: 'Local Full' },
-                    'Hino 500': { targetKmL: 3.6, type: 'Medium', category: 'Local Full' },
-                    'UD Quon': { targetKmL: 2.4, type: 'Heavy', category: 'Long Distance' }
-                };
-                await cloudStorage.setItem('VEHICLE_SPECS_DB', JSON.stringify(defaultDB));
-            }
-        }
-
-        function getNextDueDate(client) {
-            var lastSent = client.lastReportSent ? new Date(client.lastReportSent) : new Date();
-            if (client.reportSchedule === 'weekly') lastSent.setDate(lastSent.getDate() + 7);
-            else lastSent.setMonth(lastSent.getMonth() + 1);
-            return lastSent;
-        }
-
-        function getDaysUntilDue(client) {
-            var diff = Math.ceil((getNextDueDate(client) - new Date()) / (1000 * 60 * 60 * 24));
-            return diff;
-        }
-
-        function getClientStatus(client) {
-            var d = getDaysUntilDue(client);
-            if (d < 0) return 'overdue';
-            if (d <= 2) return 'due-soon';
-            if (client.reportSchedule === 'weekly') return 'weekly';
-            return 'monthly';
-        }
-
-        async function renderDatabase() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var active = allClients.filter(function(c) { return c.status === 'active'; });
-            var container = document.getElementById('database-grid');
-            if (!container) return;
-            var sortBy = document.getElementById('sortBy').value;
-
-            document.getElementById('stat-total').innerText   = active.length;
-            document.getElementById('stat-weekly').innerText  = active.filter(function(c) { return c.reportSchedule === 'weekly'; }).length;
-            document.getElementById('stat-monthly').innerText = active.filter(function(c) { return c.reportSchedule === 'monthly'; }).length;
-            document.getElementById('stat-overdue').innerText = active.filter(function(c) { return getDaysUntilDue(c) < 0; }).length;
-
-            var sorted = active.slice();
-            if (sortBy === 'nextDue') sorted.sort(function(a,b) { return getDaysUntilDue(a) - getDaysUntilDue(b); });
-            else if (sortBy === 'schedule') sorted.sort(function(a,b) { return (a.reportSchedule||'monthly').localeCompare(b.reportSchedule||'monthly'); });
-            else sorted.sort(function(a,b) { return (a.company||'').localeCompare(b.company||''); });
-
-            var filtered = sorted.filter(function(c) {
-                if (currentFilter === 'all') return true;
-                if (currentFilter === 'weekly') return c.reportSchedule === 'weekly';
-                if (currentFilter === 'monthly') return c.reportSchedule === 'monthly';
-                if (currentFilter === 'overdue') return getDaysUntilDue(c) < 0;
-                return true;
-            });
-
-            generateAlerts(active);
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="col-span-full py-20 text-center opacity-20 font-black uppercase text-xs">No clients found</div>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(function(client) {
-                var status    = getClientStatus(client);
-                var daysUntil = getDaysUntilDue(client);
-                var cardClass = status === 'overdue' ? 'overdue' : status === 'due-soon' ? 'due-soon' : '';
-                var dueText   = daysUntil < 0 ? 'Overdue by ' + Math.abs(daysUntil) + ' days' :
-                                daysUntil === 0 ? 'Due Today!' : daysUntil === 1 ? 'Due Tomorrow' : 'Due in ' + daysUntil + ' days';
-                var history   = client.reportHistory || [];
-                var fleetSize = client.fleet ? client.fleet.length : (client.fleetSize || 0);
-
-                // ── Invoice status ────────────────────────────────────────────
-                var invHistory  = client.invoiceHistory || [];
-                var lastInv     = invHistory.length > 0 ? invHistory[invHistory.length - 1] : null;
-                var invStripHtml = '';
-                if (lastInv) {
-                    var invOverdue  = false;
-                    var invDaysOver = 0;
-                    if (!lastInv.paid) {
-                        var invDue = new Date(lastInv.dueDate || (new Date(lastInv.date).getTime() + 7*24*60*60*1000));
-                        invDaysOver = Math.ceil((new Date() - invDue) / (1000*60*60*24));
-                        invOverdue  = invDaysOver > 0;
-                    }
-                    var invColor  = lastInv.paid ? '#10b981' : invOverdue ? '#ef4444' : '#fbbf24';
-                    var invBg     = lastInv.paid ? 'rgba(16,185,129,0.08)' : invOverdue ? 'rgba(239,68,68,0.08)' : 'rgba(251,191,36,0.08)';
-                    var invBorder = lastInv.paid ? 'rgba(16,185,129,0.2)' : invOverdue ? 'rgba(239,68,68,0.3)' : 'rgba(251,191,36,0.2)';
-                    var invStatus = lastInv.paid ? '✓ Paid' : invOverdue ? '⚠️ Overdue ' + invDaysOver + 'd' : '⏳ Unpaid';
-                    var paidBtn   = !lastInv.paid
-                        ? '<button onclick="markInvoicePaid(\'' + client.id + '\')" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:2px 10px;border-radius:20px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;margin-left:6px;">Mark Paid</button>'
-                        : '';
-                    invStripHtml = '<div style="background:' + invBg + ';border:1px solid ' + invBorder + ';border-radius:8px;padding:7px 10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">'
-                        + '<div>'
-                        +   '<span style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.3);letter-spacing:0.1em;">Last Invoice</span>'
-                        +   '<div style="font-size:11px;font-weight:900;color:white;margin-top:1px;">' + lastInv.invNumber + ' &nbsp;·&nbsp; R ' + (lastInv.total||0).toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</div>'
-                        + '</div>'
-                        + '<div style="text-align:right;display:flex;align-items:center;gap:4px;">'
-                        +   '<span style="font-size:9px;font-weight:900;color:' + invColor + ';">' + invStatus + '</span>'
-                        +   paidBtn
-                        + '</div>'
-                        + '</div>';
-                }
-
-                return '<div class="client-card ' + cardClass + '">' +
-                    '<div class="flex justify-between items-start mb-4">' +
-                        '<span class="status-badge status-' + status + '">' + (client.reportSchedule || 'monthly').toUpperCase() + '</span>' +
-                        '<div class="flex gap-3">' +
-                            '<button onclick="openEdit(\'' + client.id + '\')" class="text-white/20 hover:text-blue-400 transition text-xs" title="Edit">⚙️</button>' +
-                            '<button onclick="openNotes(\'' + client.id + '\')" class="text-white/20 hover:text-yellow-400 transition text-xs" title="Notes">📝</button>' +
-                            '<button onclick="churnClient(\'' + client.id + '\')" class="text-white/20 hover:text-orange-400 transition text-xs" title="Churn client">🔴</button>' +
-                        '</div>' +
-                    '</div>' +
-                    '<h3 class="text-2xl font-black italic text-white uppercase mb-1 truncate">' + client.company + '</h3>' +
-                    '<p class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">' + (client.contactName || 'No Contact') + '</p>' +
-                    '<div class="space-y-2 mb-4 border-t border-white/5 pt-4">' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Next Report</span><span class="' + (daysUntil < 0 ? 'text-red-400' : daysUntil <= 2 ? 'text-yellow-400' : '') + '">' + dueText + '</span></div>' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Fleet Size</span><span>' + fleetSize + ' Units</span></div>' +
-                        '<div class="flex justify-between text-[10px] font-bold"><span class="uppercase text-white/30">Reports Sent</span><span>' + history.length + ' Total</span></div>' +
-                    '</div>' +
-                    (client.notes ? '<div class="text-[9px] text-yellow-400/60 italic mb-4">📝 ' + client.notes.substring(0, 50) + (client.notes.length > 50 ? '...' : '') + '</div>' : '') +
-                    invStripHtml +
-
-                    // ── Drive & SLA links ─────────────────────────────────────
-                    '<div class="border-t border-white/5 pt-3 mt-1 mb-3 space-y-2">' +
-
-                        // Drive folder — show button if saved, else paste field
-                        (client.driveFolderUrl
-                            ? '<a href="' + client.driveFolderUrl + '" target="_blank" class="action-btn col-span-2 flex items-center justify-center gap-2" style="display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);text-decoration:none;color:white;">📁 Open Drive Folder</a>'
-                            : '<div style="display:flex;gap:6px;align-items:center;">' +
-                                '<input type="text" id="driveLink-' + client.id + '" placeholder="📁 Paste Drive folder link..." ' +
-                                'style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:0.5rem;padding:6px 10px;color:rgba(255,255,255,0.5);font-size:10px;font-family:Outfit,sans-serif;" ' +
-                                'onpaste="saveDriveLink(\'' + client.id + '\', \'driveFolderUrl\', event)" ' +
-                                'oninput="if(this.value.startsWith(\'http\'))saveDriveLink(\'' + client.id + '\', \'driveFolderUrl\', null, this.value)">' +
-                              '</div>') +
-
-                        // SLA link — show button if saved, else paste field
-                        (client.slaFileUrl
-                            ? '<a href="' + client.slaFileUrl + '" target="_blank" class="action-btn col-span-2 flex items-center justify-center gap-2" style="display:flex;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);text-decoration:none;color:#93c5fd;">📄 View Signed SLA</a>'
-                            : '<div style="display:flex;gap:6px;align-items:center;">' +
-                                '<input type="text" id="slaLink-' + client.id + '" placeholder="📄 Paste signed SLA link..." ' +
-                                'style="flex:1;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:0.5rem;padding:6px 10px;color:rgba(147,197,253,0.6);font-size:10px;font-family:Outfit,sans-serif;" ' +
-                                'onpaste="saveDriveLink(\'' + client.id + '\', \'slaFileUrl\', event)" ' +
-                                'oninput="if(this.value.startsWith(\'http\'))saveDriveLink(\'' + client.id + '\', \'slaFileUrl\', null, this.value)">' +
-                              '</div>') +
-
-                    '</div>' +
-
-                    '<div class="grid grid-cols-2 gap-2">' +
-                        '<button onclick="generateWeeklyForm(\'' + client.id + '\')" class="action-btn success col-span-2">📋 Generate Weekly Form</button>' +
-                        '<button onclick="syncFromAudit(\'' + client.id + '\')" class="action-btn primary">📥 Sync from Audit</button>' +
-                        '<button onclick="manageFleet(\'' + client.id + '\')" class="action-btn primary">🚛 Manage Fleet</button>' +
-                        '<button onclick="openAudit(\'' + client.company.replace(/'/g, "\\'") + '\')" class="action-btn col-span-2" style="background:#60a5fa;color:#020617;">📊 View/Run Audit</button>' +
-                        '<button onclick="openCustomReport(\'' + client.id + '\')" class="action-btn warning col-span-2">📈 Custom Report</button>' +
-                        (history.length > 0 ? '<button onclick="viewHistory(\'' + client.id + '\')" class="action-btn col-span-2">📊 View History</button>' : '') +
-                        '<button onclick="sendReminder(\'' + client.id + '\')" class="action-btn col-span-2" style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;">✉️ Send Reminder</button>' +
-                        '<button onclick="window.location.href=\'invoice.html?clientId=' + client.id + '\'" class="action-btn col-span-2" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;">🧾 Generate Invoice</button>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
-        }
-
-        function generateAlerts(clients) {
-            var overdue  = clients.filter(function(c) { return getDaysUntilDue(c) < 0; });
-            var dueSoon  = clients.filter(function(c) { var d = getDaysUntilDue(c); return d >= 0 && d <= 2; });
-            var alerts   = [];
-            if (overdue.length > 0)  alerts.push('<div class="alert-item text-red-400" onclick="filterClients(\'overdue\', event)">🚨 ' + overdue.length + ' client' + (overdue.length > 1 ? 's' : '') + ' overdue - Click to view</div>');
-            if (dueSoon.length > 0)  alerts.push('<div class="alert-item text-yellow-400">⏰ ' + dueSoon.length + ' report' + (dueSoon.length > 1 ? 's' : '') + ' due in next 2 days</div>');
-            var panel = document.getElementById('alerts-panel');
-            document.getElementById('alerts-list').innerHTML = alerts.join('');
-            panel.style.display = alerts.length > 0 ? 'block' : 'none';
-        }
-
-        function filterClients(filter, event) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(function(btn) { btn.classList.remove('active'); });
-            event.target.classList.add('active');
-            renderDatabase();
-        }
-
-        async function openEdit(id) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === id; });
-            if (!client) return;
-            document.getElementById('editId').value       = id;
-            document.getElementById('editName').value     = client.company || '';
-            document.getElementById('editContact').value  = client.contactName || '';
-            document.getElementById('editEmail').value    = client.email || '';
-            document.getElementById('editFleet').value    = client.fleetSize || 0;
-            document.getElementById('editSpeed').value    = client.speedLimit || 80;
-            document.getElementById('editSchedule').value = client.reportSchedule || 'monthly';
-            document.getElementById('editModal').style.display = 'flex';
-        }
-
-        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-
-        document.getElementById('editForm').onsubmit = async function(e) {
-            e.preventDefault();
-            var id = document.getElementById('editId').value;
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var index = allClients.findIndex(function(c) { return c.id === id; });
-            if (index !== -1) {
-                allClients[index] = Object.assign({}, allClients[index], {
-                    company:        document.getElementById('editName').value,
-                    contactName:    document.getElementById('editContact').value,
-                    email:          document.getElementById('editEmail').value,
-                    fleetSize:      parseInt(document.getElementById('editFleet').value),
-                    speedLimit:     parseInt(document.getElementById('editSpeed').value),
-                    reportSchedule: document.getElementById('editSchedule').value
-                });
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                syncToSheet(allClients[index]).catch(function(e) { console.log('Sheet sync note:', e); });
-                closeEditModal();
-                renderDatabase();
-            }
-        };
-
-        async function openNotes(id) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === id; });
-            if (!client) return;
-            document.getElementById('notesId').value   = id;
-            document.getElementById('notesText').value = client.notes || '';
-            document.getElementById('notesModal').style.display = 'flex';
-        }
-
-        function closeNotesModal() { document.getElementById('notesModal').style.display = 'none'; }
-
-        async function saveNotes() {
-            var id = document.getElementById('notesId').value;
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var index = allClients.findIndex(function(c) { return c.id === id; });
-            if (index !== -1) {
-                allClients[index].notes = document.getElementById('notesText').value;
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                closeNotesModal();
-                renderDatabase();
-            }
-        }
-
-        async function viewHistory(id) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === id; });
-            if (!client) return;
-            var history = client.reportHistory || [];
-            var content = document.getElementById('historyContent');
-            if (history.length === 0) {
-                content.innerHTML = '<p class="text-center text-white/30 py-10 font-bold">No report history yet.</p>';
-            } else {
-                content.innerHTML = history.map(function(h) {
-                    return '<div class="history-item"><div class="flex justify-between mb-2"><span class="font-black text-emerald-400 text-sm">' + new Date(h.date).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) + '</span><span class="text-xs text-white/50 uppercase font-bold">' + (h.type || 'Report') + '</span></div><div class="text-sm text-white/70">✓ ' + (h.vehicles || 0) + ' vehicles • Form Generated</div></div>';
-                }).join('');
-            }
-            document.getElementById('historyModal').style.display = 'flex';
-        }
-
-        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
-
-        var currentFleetData = [];
-
-        async function manageFleet(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) return;
-            document.getElementById('fleetClientId').value = clientId;
-            document.getElementById('fleetClientName').textContent = client.company;
-            currentFleetData = client.fleet || [];
-            renderFleetTable();
-            document.getElementById('fleetModal').style.display = 'flex';
-        }
-
-        async function openCustomReport(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) { alert('Client not found!'); return; }
-            var draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            var savedDraft = await cloudStorage.getItem(draftKey);
-            if (!savedDraft) { alert('No audit data found!\n\nPlease run an audit first.'); return; }
-            try {
-                var draft = JSON.parse(savedDraft);
-                var auditData = draft.auditData || {};
-                var vehicles = Object.keys(auditData);
-                if (vehicles.length === 0) { alert('No vehicles in audit data.'); return; }
-                document.getElementById('reportClientId').value = clientId;
-                var endDate = new Date();
-                var startDate = new Date(Date.now() - 30*24*60*60*1000);
-                document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
-                document.getElementById('reportEndDate').value   = endDate.toISOString().split('T')[0];
-                document.getElementById('vehicleCheckboxes').innerHTML = vehicles.map(function(key) {
-                    var v = auditData[key];
-                    return '<label style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background:rgba(255,255,255,0.02);border-radius:0.5rem;cursor:pointer;"><input type="checkbox" class="vehicle-checkbox" value="' + key + '" checked style="width:16px;height:16px;"><span style="font-size:13px;font-weight:600;">' + v.reg + ' <span style="opacity:0.5;">(' + (v.type || 'Heavy') + ')</span></span></label>';
-                }).join('');
-                document.getElementById('customReportModal').style.display = 'flex';
-            } catch (e) {
-                console.error('Error:', e);
-                alert('Error loading audit data.');
-            }
-        }
-
-        function closeCustomReportModal() { document.getElementById('customReportModal').style.display = 'none'; }
-
-        function toggleAllVehicles() {
-            var checked = document.getElementById('selectAllVehicles').checked;
-            document.querySelectorAll('.vehicle-checkbox').forEach(function(cb) { cb.checked = checked; });
-        }
-
-        async function generateCustomReport() {
-            var clientId   = document.getElementById('reportClientId').value;
-            var startDate  = document.getElementById('reportStartDate').value;
-            var endDate    = document.getElementById('reportEndDate').value;
-            var focus      = document.getElementById('reportFocus').value;
-            var format     = document.getElementById('reportFormat').value;
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client     = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) { alert('Client not found'); return; }
-            var selectedKeys = Array.from(document.querySelectorAll('.vehicle-checkbox:checked')).map(function(cb) { return cb.value; });
-            if (selectedKeys.length === 0) { alert('Please select at least one vehicle'); return; }
-            var draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            var draft = JSON.parse(await cloudStorage.getItem(draftKey));
-            if (!draft || !draft.auditData) { alert('No audit data found.'); return; }
-            var full = draft.auditData;
-            var filtered = {};
-            selectedKeys.forEach(function(k) { if (full[k]) filtered[k] = full[k]; });
-            var target = parseFloat(draft.target) || 2.3;
-            var limit  = parseFloat(draft.speedLimit) || 80;
-            var fleet  = Object.keys(filtered).map(function(k) {
-                var v = filtered[k];
-                return { reg: v.reg, type: v.type, gpsDist: v.gps, mK: parseFloat(v.odo) || 0, mL: parseFloat(v.liters) || 0,
-                    violations: v.speeds ? v.speeds.filter(function(s) { return s > limit; }).length : 0,
-                    duration: v.duration || 0, maxSpeed: v.maxSpeed || 0, speeds: v.speeds || [] };
-            });
-            var payload = {
-                client: { company: client.company, town: client.city || 'Cape Town', target: target },
-                month: startDate + ' - ' + endDate, fleet: fleet, speedLimit: limit, wPrice: 21.50,
-                isActive: true,
-                customReport: { focus: focus, vehicleCount: selectedKeys.length, totalVehicles: Object.keys(full).length,
-                    dateRange: { from: startDate, to: endDate }, format: format }
-            };
-            await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(payload));
-            closeCustomReportModal();
-            if (format === 'pdf') {
-                var w = window.open('report-custom.html', '_blank');
-                if (!w) alert('Pop-up blocked! Please allow pop-ups.');
-            } else {
-                var csv = 'Registration,Type,GPS KM,Manual KM,Liters,Violations,Max Speed\n';
-                fleet.forEach(function(v) { csv += v.reg + ',' + v.type + ',' + v.gpsDist + ',' + v.mK + ',' + v.mL + ',' + v.violations + ',' + v.maxSpeed + '\n'; });
-                var blob = new Blob([csv], { type: 'text/csv' });
-                var url  = URL.createObjectURL(blob);
-                var a    = document.createElement('a');
-                a.href = url; a.download = client.company + '_Report.csv'; a.click();
-                URL.revokeObjectURL(url);
-            }
-        }
-
-        function openAudit(clientName) { window.location.href = 'audit.html?client=' + encodeURIComponent(clientName); }
-        function closeFleetModal() { document.getElementById('fleetModal').style.display = 'none'; }
-
-        function renderFleetTable() {
-            var tbody = document.getElementById('fleetTableBody');
-            if (currentFleetData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:3rem;color:rgba(255,255,255,0.3);font-weight:900;text-transform:uppercase;font-size:11px;">No vehicles added yet.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = currentFleetData.map(function(v, idx) {
-                return '<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">' +
-                    '<td style="padding:0.75rem;color:rgba(255,255,255,0.5);font-weight:700;">' + (idx+1) + '</td>' +
-                    '<td style="padding:0.75rem;"><input type="text" value="' + (v.reg||'') + '" onchange="updateFleetField(' + idx + ',\'reg\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="ABC123GP"></td>' +
-                    '<td style="padding:0.75rem;"><select onchange="updateFleetField(' + idx + ',\'type\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;"><option value="Heavy" ' + (v.type==='Heavy'?'selected':'') + '>Heavy</option><option value="Medium" ' + (v.type==='Medium'?'selected':'') + '>Medium</option></select></td>' +
-                    '<td style="padding:0.75rem;"><input type="text" value="' + (v.make||'') + '" onchange="updateFleetField(' + idx + ',\'make\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="Volvo"></td>' +
-                    '<td style="padding:0.75rem;"><input type="text" value="' + (v.model||'') + '" onchange="updateFleetField(' + idx + ',\'model\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="FH440"></td>' +
-                    '<td style="padding:0.75rem;"><input type="text" value="' + (v.year||'') + '" onchange="updateFleetField(' + idx + ',\'year\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;" placeholder="2022"></td>' +
-                    '<td style="padding:0.75rem;"><select onchange="updateFleetField(' + idx + ',\'usedFor\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;"><option value="Long Distance" ' + (v.usedFor==='Long Distance'?'selected':'') + '>Long Distance</option><option value="Local Full" ' + (v.usedFor==='Local Full'?'selected':'') + '>Local Full</option><option value="Local 50%" ' + (v.usedFor==="Local 50%"?'selected':'') + '>Local 50%</option></select></td>' +
-                    '<td style="padding:0.75rem;"><input type="number" step="0.1" value="' + (v.targetKmL||'2.3') + '" onchange="updateFleetField(' + idx + ',\'targetKmL\',this.value)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:0.5rem;color:white;font-size:13px;"></td>' +
-                    '<td style="padding:0.75rem;text-align:center;"><button onclick="removeVehicle(' + idx + ')" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:0.5rem 0.75rem;border-radius:0.5rem;font-size:11px;font-weight:900;cursor:pointer;">🗑️</button></td>' +
-                    '</tr>';
-            }).join('');
-        }
-
-        function addVehicleRow() {
-            currentFleetData.push({ reg:'', type:'Heavy', make:'', model:'', year:'', usedFor:'Long Distance', targetKmL:'2.3' });
-            renderFleetTable();
-        }
-
-        function updateFleetField(index, field, value) { if (currentFleetData[index]) currentFleetData[index][field] = value; }
-
-        function removeVehicle(index) {
-            if (confirm('Remove this vehicle from the fleet?')) { currentFleetData.splice(index, 1); renderFleetTable(); }
-        }
-
-        async function saveFleet() {
-            var clientId = document.getElementById('fleetClientId').value;
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var index = allClients.findIndex(function(c) { return c.id === clientId; });
-            if (index !== -1) {
-                var valid = currentFleetData.filter(function(v) { return v.reg && v.reg.trim(); });
-                if (valid.length === 0) { alert('Please add at least one vehicle with a registration number.'); return; }
-                allClients[index].fleet     = valid;
-                allClients[index].fleetSize = valid.length;
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                closeFleetModal();
-                renderDatabase();
-                alert('Fleet saved! ' + valid.length + ' vehicle(s) registered.');
-            }
-        }
-
-        async function syncFromAudit(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) { alert('Client not found!'); return; }
-            var draftKey = 'AUDIT_DRAFT_' + client.company.toUpperCase().replace(/\s+/g, '_');
-            var savedDraft = await cloudStorage.getItem(draftKey);
-            if (!savedDraft) { alert('No audit data found. Please complete an audit first.'); return; }
-            try {
-                var draft = JSON.parse(savedDraft);
-                if (!draft.auditData || Object.keys(draft.auditData).length === 0) { alert('Audit data is empty.'); return; }
-                var fleet = Object.keys(draft.auditData).map(function(key) {
-                    var v = draft.auditData[key];
-                    return { reg: v.reg||key, type: v.type||'Heavy', make: v.make||'', model: v.model||'', year: v.year||'', usedFor: v.usedFor||'Long Distance', targetKmL: v.targetKmL||'2.3' };
-                });
-                var idx = allClients.findIndex(function(c) { return c.id === clientId; });
-                if (idx !== -1) {
-                    allClients[idx].fleet     = fleet;
-                    allClients[idx].fleetSize = fleet.length;
-                    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                    alert('Fleet synced! ' + fleet.length + ' vehicle(s) imported from audit.');
-                    renderDatabase();
-                }
-            } catch (e) { console.error(e); alert('Error syncing data.'); }
-        }
-
-        async function generateWeeklyForm(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) { alert('Client not found!'); return; }
-            var fleet = client.fleet || [];
-            if (!fleet || fleet.length === 0) {
-                if (confirm('No fleet data found!\n\nWould you like to manage fleet now?')) manageFleet(clientId);
-                return;
-            }
-            var reportType = client.reportSchedule || 'weekly';
-            var vehicleRows = fleet.map(function(v, i) {
-                return '<tr><td style="text-align:center;color:rgba(255,255,255,0.3);font-weight:900">' + (i+1) + '</td>' +
-                    '<td class="locked-cell">' + v.reg + '</td><td class="locked-cell">' + v.type + '</td>' +
-                    '<td class="locked-cell">' + v.make + '</td><td class="locked-cell">' + v.model + '</td>' +
-                    '<td class="locked-cell">' + v.year + '</td><td class="locked-cell">' + v.usedFor + '</td>' +
-                    '<td class="locked-cell">' + v.targetKmL + '</td>' +
-                    '<td class="editable-cell" style="text-align:center;"><input type="checkbox" id="update-' + i + '"></td>' +
-                    '<td class="editable-cell" style="text-align:center;"><input type="checkbox" id="remove-' + i + '"></td>' +
-                    '<td class="editable-cell"><input type="number" id="endOdo-' + i + '" placeholder="Odo" oninput="updateProgress()"></td>' +
-                    '<td class="editable-cell"><input type="number" id="totalKm-' + i + '" placeholder="KM" oninput="updateProgress()"></td>' +
-                    '<td class="editable-cell"><input type="number" id="fuelUsed-' + i + '" placeholder="Liters" oninput="updateProgress()"></td>' +
-                    '<td class="editable-cell"><input type="text" id="notes-' + i + '" placeholder="Changes..."></td></tr>';
-            }).join('');
-
-            var vehiclesData = fleet.map(function(v) {
-                return "{ reg: '" + v.reg + "', type: '" + v.type + "', make: '" + v.make + "', model: '" + v.model + "', year: '" + v.year + "', usedFor: '" + v.usedFor + "', targetKmL: '" + v.targetKmL + "' }";
-            }).join(',\n');
-
-            var formHTML = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' + client.company + ' - ' + reportType + ' Report</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet"><style>* { margin: 0; padding: 0; box-sizing: border-box; } body { font-family: \'Outfit\', sans-serif; background: linear-gradient(135deg, #020617 0%, #0f172a 100%); color: #e2e8f0; padding: 2rem; min-height: 100vh; } .container { max-width: 1800px; margin: 0 auto; background: rgba(15,23,42,0.8); backdrop-filter: blur(20px); border-radius: 2rem; border: 1px solid rgba(16,185,129,0.2); padding: 3rem; } .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 2px solid rgba(16,185,129,0.3); } .title { font-size: 2.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; } .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; } .info-card { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); padding: 1.5rem; border-radius: 1rem; } .info-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: rgba(16,185,129,0.8); } .info-value { font-size: 1.25rem; font-weight: 900; color: #10b981; } table { width: 100%; border-collapse: separate; border-spacing: 0; } thead th { background: #10b981; color: #020617; padding: 1rem 0.5rem; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; } .locked-cell { background: rgba(15,23,42,0.8); color: rgba(226,232,240,0.6); padding: 0.75rem 0.5rem; } .editable-cell { background: rgba(255,255,255,0.05); padding: 0.75rem 0.5rem; } input[type="number"], input[type="text"] { width: 100%; padding: 0.6rem; background: #0f172a; border: 2px solid rgba(16,185,129,0.3); border-radius: 0.5rem; color: white; font-size: 0.8rem; font-family: \'Outfit\', sans-serif; } input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #10b981; } .btn { padding: 1.25rem; border: none; border-radius: 1rem; font-family: \'Outfit\', sans-serif; font-weight: 900; font-size: 0.875rem; text-transform: uppercase; cursor: pointer; } .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: #020617; } .btn-secondary { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); } .progress-bar { background: rgba(15,23,42,0.6); height: 12px; border-radius: 999px; overflow: hidden; margin-top: 1rem; } .progress-fill { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; transition: width 0.3s; width: 0%; } select { background: #0f172a; border: 2px solid rgba(16,185,129,0.3); color: white; padding: 0.6rem; border-radius: 0.5rem; font-size: 0.8rem; font-family: \'Outfit\', sans-serif; width: 100%; } .data-table { background: rgba(30,41,59,0.4); border-radius: 1.5rem; padding: 1.5rem; overflow-x: auto; margin-bottom: 2rem; } .add-vehicle-section { background: rgba(59,130,246,0.1); border: 2px dashed rgba(59,130,246,0.3); border-radius: 1.5rem; padding: 2rem; margin-bottom: 2rem; } .new-vehicle-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: rgba(15,23,42,0.6); border-radius: 0.75rem; } .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }</style></head><body><div class="container"><div class="header"><h1 class="title">' + client.company + '</h1><p style="color:rgba(226,232,240,0.6)">Fleet Report - Submit your data</p></div><div class="info-grid"><div class="info-card"><div class="info-label">Client</div><div class="info-value">' + client.company + '</div></div><div class="info-card"><div class="info-label">Generated</div><div class="info-value">' + new Date().toLocaleDateString() + '</div></div><div class="info-card"><div class="info-label">Vehicles</div><div class="info-value">' + fleet.length + ' Units</div></div></div><div style="background:rgba(251,191,36,0.1);border:2px solid #fbbf24;padding:1rem 1.5rem;border-radius:1rem;margin-bottom:2rem;display:flex;align-items:center;gap:1rem;"><label style="color:#fbbf24;font-weight:900;font-size:0.875rem;text-transform:uppercase;">Report Type:</label><select id="report-frequency" onchange="updatePeriodDate()"><option value="weekly" ' + (reportType==='weekly'?'selected':'') + '>Weekly Report</option><option value="monthly" ' + (reportType==='monthly'?'selected':'') + '>Monthly Report</option></select><div style="flex:1;"><span style="color:rgba(226,232,240,0.6);font-size:0.75rem;display:block;">Period Ending:</span><span id="period-date" style="color:#fbbf24;font-weight:900;font-size:1rem;">-</span></div></div><div style="margin-bottom:2rem;"><div style="font-size:0.875rem;color:rgba(16,185,129,0.8);font-weight:700;">Progress: <span id="completed-count">0</span> of <span id="total-count">' + fleet.length + '</span> vehicles completed</div><div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div></div><div class="data-table"><table><thead><tr><th>#</th><th>Registration</th><th>Type</th><th>Make</th><th>Model</th><th>Year</th><th>Used For</th><th>Target km/L</th><th>Update?</th><th>Remove?</th><th>End Odo</th><th>Total KM</th><th>Fuel Used (L)</th><th>Notes</th></tr></thead><tbody>' + vehicleRows + '</tbody></table></div><div class="add-vehicle-section"><h3 style="color:#3b82f6;font-weight:900;font-size:1.1rem;text-transform:uppercase;margin-bottom:1.5rem;">Add New Vehicles</h3><div id="new-vehicles-container"></div></div><div class="actions" style="margin-bottom:2rem;"><button class="btn btn-secondary" onclick="addNewVehicleRow()">+ Add Vehicle</button><button class="btn btn-primary" onclick="submitReport()">Submit Report</button><button class="btn btn-secondary" onclick="clearForm()">Reset</button></div><p style="text-align:center;font-size:0.75rem;color:rgba(226,232,240,0.5);">Email this file to: <strong>' + (client.email || 'reports@fleetintel.co.za') + '</strong></p></div><script>const reportData={client:\'' + client.company + '\',reportType:\'' + reportType + '\',vehicles:[' + vehiclesData + ']};let nc=0;function initForm(){updatePeriodDate();updateProgress();}function updatePeriodDate(){const t=document.getElementById("report-frequency").value,today=new Date();let e;if(t==="weekly"){const d=today.getDay(),s=d===0?0:7-d;e=new Date(today);e.setDate(today.getDate()+s-7);}else{e=new Date(today.getFullYear(),today.getMonth(),0);}document.getElementById("period-date").textContent=e.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();}function addNewVehicleRow(){const c=document.getElementById("new-vehicles-container"),id=nc++,r=document.createElement("div");r.className="new-vehicle-row";r.id="nv-"+id;r.innerHTML=\'<input type="text" placeholder="Registration" id="nr-\'+id+\'"><select id="nt-\'+id+\'"><option>Heavy</option><option>Medium</option></select><input type="text" placeholder="Make" id="nm-\'+id+\'"><input type="text" placeholder="Model" id="nmo-\'+id+\'"><input type="text" placeholder="Year" id="ny-\'+id+\'"><select id="nu-\'+id+\'"><option>Long Distance</option><option>Local Full</option><option>Local 50%</option></select><input type="number" placeholder="Target km/L" id="nk-\'+id+\'" value="2.3"><button onclick="document.getElementById(\\\'nv-\'+id+\'\\\').remove()" style="padding:0.5rem;background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;cursor:pointer;">Remove</button>\';c.appendChild(r);}function updateProgress(){let done=0;reportData.vehicles.forEach((_,i)=>{if((document.getElementById("endOdo-"+i).value||document.getElementById("totalKm-"+i).value)&&document.getElementById("fuelUsed-"+i).value)done++;});document.getElementById("completed-count").textContent=done;document.getElementById("progress-fill").style.width=((done/reportData.vehicles.length)*100)+"%";}function submitReport(){const sd={client:reportData.client,reportType:document.getElementById("report-frequency").value,periodEnding:document.getElementById("period-date").textContent,submittedAt:new Date().toISOString(),vehicles:[],updates:[],removals:[],newVehicles:[]};reportData.vehicles.forEach((v,i)=>{const u=document.getElementById("update-"+i).checked,r=document.getElementById("remove-"+i).checked,n=document.getElementById("notes-"+i).value;sd.vehicles.push({...v,endOdo:document.getElementById("endOdo-"+i).value||"",totalKm:document.getElementById("totalKm-"+i).value||"",fuelUsed:document.getElementById("fuelUsed-"+i).value||"",notes:n});if(u)sd.updates.push({reg:v.reg,notes:n});if(r)sd.removals.push({reg:v.reg,notes:n});});for(let i=0;i<nc;i++){const e=document.getElementById("nr-"+i);if(e&&e.value)sd.newVehicles.push({reg:e.value,type:document.getElementById("nt-"+i).value,make:document.getElementById("nm-"+i).value,model:document.getElementById("nmo-"+i).value,year:document.getElementById("ny-"+i).value,usedFor:document.getElementById("nu-"+i).value,targetKmL:document.getElementById("nk-"+i).value});}const b=new Blob([JSON.stringify(sd,null,2)],{type:"application/json"}),u=window.URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download="FleetData_'+client.company.replace(/\s+/g,'_')+'_"+new Date().toISOString().split("T")[0]+".json";a.click();alert("Report submitted!");}function clearForm(){if(confirm("Clear all data?"))location.reload();}window.onload=initForm;<\/script></body></html>';
-
-            var blob = new Blob([formHTML], { type: 'text/html' });
-            var url  = URL.createObjectURL(blob);
-            var a    = document.createElement('a');
-            a.href   = url;
-            a.download = client.company.replace(/\s+/g, '_') + '_' + reportType + '_' + new Date().toISOString().split('T')[0] + '.html';
-            a.click();
-            URL.revokeObjectURL(url);
-
-            var allClientsUpdated = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var idx = allClientsUpdated.findIndex(function(c) { return c.id === clientId; });
-            if (idx !== -1) {
-                allClientsUpdated[idx].lastReportSent = new Date().toISOString();
-                allClientsUpdated[idx].reportHistory  = allClientsUpdated[idx].reportHistory || [];
-                allClientsUpdated[idx].reportHistory.push({ date: new Date().toISOString(), type: reportType, generated: true, vehicles: fleet.length });
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClientsUpdated));
-            }
-            showSuccessModal(client.company, new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }));
-        }
-
-        function showSuccessModal(clientName, period) {
-            document.getElementById('successClient').innerText = clientName;
-            document.getElementById('successPeriod').innerText = period.toUpperCase();
-            document.getElementById('successModal').style.display = 'flex';
-        }
-
-        function closeSuccessModal() { document.getElementById('successModal').style.display = 'none'; renderDatabase(); }
-
-        async function sendReminder(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) { return c.id === clientId; });
-            if (!client) return;
-            var subject = (client.reportSchedule === 'weekly' ? 'Weekly' : 'Monthly') + ' Vehicle Data Required - ' + client.company;
-            var body = 'Hi ' + (client.contactName || 'there') + ',\n\nYour ' + client.reportSchedule + ' fleet report is due.\n\nPlease fill out the form and return the data file.\n\nThank you!';
-            window.location.href = 'mailto:' + client.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        }
-
-        async function sendWeeklyReminders() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var weekly = allClients.filter(function(c) { return c.status === 'active' && c.reportSchedule === 'weekly' && getDaysUntilDue(c) <= 2; });
-            if (weekly.length === 0) { alert('No weekly reports due!'); return; }
-            alert(weekly.length + ' weekly report(s) due:\n\n' + weekly.map(function(c) { return c.company; }).join('\n'));
-        }
-
-        async function sendMonthlyReminders() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var monthly = allClients.filter(function(c) { return c.status === 'active' && c.reportSchedule === 'monthly' && getDaysUntilDue(c) <= 7; });
-            if (monthly.length === 0) { alert('No monthly reports due this week!'); return; }
-            alert(monthly.length + ' monthly report(s) due:\n\n' + monthly.map(function(c) { return c.company; }).join('\n'));
-        }
-
-        async function exportDatabase() {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var active = allClients.filter(function(c) { return c.status === 'active'; });
-            var csv = 'Company,Contact,Email,Fleet Size,Schedule,Next Due,Days Until Due\n';
-            active.forEach(function(c) {
-                csv += '"' + c.company + '","' + (c.contactName||'') + '","' + (c.email||'') + '",' + (c.fleetSize||0) + ',"' + (c.reportSchedule||'monthly') + '","' + getNextDueDate(c).toLocaleDateString() + '",' + getDaysUntilDue(c) + '\n';
-            });
-            var blob = new Blob([csv], { type: 'text/csv' });
-            var url  = URL.createObjectURL(blob);
-            var a    = document.createElement('a');
-            a.href = url; a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv'; a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        // ── Mark last invoice paid directly from card ─────────
-        async function markInvoicePaid(clientId) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var idx = allClients.findIndex(function(c) { return c.id === clientId; });
-            if (idx === -1) return;
-            var invHistory = allClients[idx].invoiceHistory || [];
-            if (invHistory.length === 0) return;
-            var last = invHistory[invHistory.length - 1];
-            if (last.paid) return;
-            if (!confirm('Mark ' + last.invNumber + ' (R ' + (last.total||0).toLocaleString('en-ZA', {minimumFractionDigits:2}) + ') as PAID for ' + allClients[idx].company + '?')) return;
-            last.paid    = true;
-            last.paidDate = new Date().toLocaleDateString('en-ZA');
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-            renderDatabase();
-        }
-
-        // ── Save Drive / SLA link on paste ────────────────────
-        async function saveDriveLink(clientId, field, pasteEvent, directValue) {
-            var url = directValue || '';
-            if (pasteEvent) {
-                pasteEvent.preventDefault();
-                url = (pasteEvent.clipboardData || window.clipboardData).getData('text').trim();
-                // Put it in the input so user sees it
-                var inputEl = document.getElementById((field === 'slaFileUrl' ? 'slaLink-' : 'driveLink-') + clientId);
-                if (inputEl) inputEl.value = url;
-            }
-            if (!url || !url.startsWith('http')) return;
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var idx = allClients.findIndex(function(c) { return c.id === clientId; });
-            if (idx === -1) return;
-            allClients[idx][field] = url;
-            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-            // Small visual confirmation then re-render to show button
-            var inputEl2 = document.getElementById((field === 'slaFileUrl' ? 'slaLink-' : 'driveLink-') + clientId);
-            if (inputEl2) {
-                inputEl2.style.borderColor = '#10b981';
-                inputEl2.style.color = '#10b981';
-                inputEl2.value = '✓ Saved!';
-            }
-            setTimeout(function() { renderDatabase(); }, 700);
-        }
-
-        // Init
-        setTimeout(async function() {
-            await purgeOldChurned();
-            await initVehicleDatabase();
-            await renderDatabase();
-        }, 500);
-
-    </script>
+        alert('✅ Synced ' + active.length + ' client(s)!');
+    }
+
+    async function exportCSV() {
+        var all    = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var active = all.filter(function(c) { return c.status === 'active'; });
+        var csv = 'Company,Contact,Email,Fleet,Schedule,Monthly Retainer\n';
+        active.forEach(function(c) {
+            csv += '"'+c.company+'","'+(c.contactName||'')+'","'+(c.email||'')+'",'+
+                   (c.fleet?c.fleet.length:(c.fleetSize||0))+',"'+(c.reportSchedule||'monthly')+'",'+getMonthly(c)+'\n';
+        });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+        a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+    }
+
+    // ── Auto-purge churned > 6 months ────────────────────────
+    async function purgeOldChurned() {
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var cutoff = new Date(); cutoff.setMonth(cutoff.getMonth()-6);
+        var purged = 0;
+        var remaining = all.filter(function(c) {
+            if (c.status !== 'churned') return true;
+            if (!c.churnDate) return true;
+            var d = new Date(c.churnDate);
+            if (!isNaN(d) && d < cutoff) { purged++; sheetRequest('update',c.company,'Deleted').catch(function(){}); return false; }
+            return true;
+        });
+        if (purged > 0) await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(remaining));
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    window.onload = async function() {
+        await purgeOldChurned();
+        renderList();
+    };
+</script>
 </body>
 </html>
-
