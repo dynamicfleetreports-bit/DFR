@@ -310,11 +310,10 @@ function renderTable(){
     _n=_fleet.length;const tb=document.getElementById('tBody');
     if(!_fleet.length){
         const msg=_cid?'No vehicles in fleet — client may not have completed onboarding.':'Select an active client above.';
-        tb.innerHTML=`<tr><td colspan="12"><div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div></td></tr>`;
+        tb.innerHTML=`<tr><td colspan="17"><div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div></td></tr>`;
         return;
     }
     const tOpts=TYPES.map(t=>`<option>${t}</option>`).join('');
-    const uOpts=USAGE.map(u=>`<option>${u}</option>`).join('');
 
     tb.innerHTML=_fleet.map((v,i)=>{
         const e=lookupMfr(v.make,v.model);
@@ -443,7 +442,7 @@ function syncDOM(){
     for(let i=0;i<_fleet.length;i++){
         const g=id=>document.getElementById(id+i)?.value;
         const reg=g('reg'),make=(g('mk')||'').trim(),model=(g('mo')||'').trim();
-        const yr=g('yr'),type=g('typ'),usage=g('usg');
+        const yr=g('yr'),type=g('typ'),lp=g('lp'),tt=g('tt'),ak=g('ak');
         const min=g('min'),avg=g('avg'),tgt=g('tgt'),odo=g('odo'),ful=g('ful');
         if(reg!==undefined)_fleet[i].reg=reg.toUpperCase();
         if(make!==undefined)_fleet[i].make=make;
