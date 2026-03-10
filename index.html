@@ -133,18 +133,15 @@
 
                     // Skip rows already marked Active or Deleted in sheet
                     if (sheetStatus === 'active' || sheetStatus === 'deleted') {
-                        console.log('Skipping (' + sheetStatus + '):', companyName);
                         return;
                     }
 
                     // Already in Firebase — keep as-is, never overwrite
                     if (existingByName[companyName.toLowerCase()]) {
-                        console.log('Already in Firebase:', companyName);
                         return;
                     }
 
                     // Genuinely new — add it
-                    console.log('New prospect:', companyName);
                     addedCount++;
 
                     existingClients.push({
@@ -170,8 +167,6 @@
                         console.warn('Could not mark in sheet:', companyName, err);
                     });
                 });
-
-                console.log('Sync done — ' + addedCount + ' new prospects added');
 
                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(existingClients));
                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
