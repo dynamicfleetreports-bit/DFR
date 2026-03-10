@@ -129,7 +129,7 @@
                     if (!companyName || companyName.toLowerCase() === 'company name') return;
 
                     // Col J (index 9) = status in sheet
-                    const sheetStatus = c[9] && c[9].v ? String(c[9].v).trim().toLowerCase() : '';
+                    const sheetStatus = c[11] && c[11].v ? String(c[11].v).trim().toLowerCase() : '';
 
                     // Skip rows already marked Active or Deleted in sheet
                     if (sheetStatus === 'active' || sheetStatus === 'deleted') {
@@ -152,7 +152,8 @@
                         company:      companyName.toUpperCase(),
                         contactName:  c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
                         email:        c[3] && c[3].v ? String(c[3].v).trim() : '',
-                        contactTel:   '',
+                        contactTel:   c[9]  && c[9].v  ? String(c[9].v).trim()  : '',
+                        driveFolderUrl: c[10] && c[10].v ? String(c[10].v).trim() : '',
                         fleetSize:    c[4] && c[4].v ? parseInt(c[4].v) : 0,
                         vehicleTypes: c[5] && c[5].v ? String(c[5].v) : 'Unknown',
                         city:         'NATIONAL',
@@ -176,7 +177,7 @@
                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
                 document.getElementById('sync-status').innerText = 'SUCCESS';
-                document.getElementById('last-sync-details').innerText = addedCount + ' NEW PROSPECTS ADDED';
+                document.getElementById('last-sync-time').innerText = addedCount + ' NEW PROSPECTS ADDED';
                 setTimeout(function() { document.getElementById('sync-status').innerText = 'READY'; }, 2000);
 
                 updateDisplay();
