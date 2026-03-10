@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Data | Dynamic Fleet Reporting</title>
+    <script type="module" src="firebase-helper.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink:    #0f172a;
+            --mid:    #475569;
+            --soft:   #94a3b8;
+            --line:   #e2e8f0;
+            --bg:     #f8fafc;
+            --white:  #ffffff;
+            --accent: #1e40af;
+            --blue:   #3b82f6;
+            --green:  #059669;
+            --red:    #dc2626;
+            --gold:   #d97706;
+            --r:      12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+        .header {
+            background: var(--white); border-bottom: 1px solid var(--line);
+            padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(15,23,42,0.06);
+        }
+        .header img { height: 34px; }
+        .header-brand { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--ink); }
+        .header-brand span { color: var(--blue); }
+        .header-pill {
+            margin-left: auto; background: #f0fdf4; color: var(--green);
+            font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+            border: 1px solid #bbf7d0; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+
+        .page { max-width: 600px; margin: 0 auto; padding: 24px 16px 80px; }
+
+        /* Period banner */
+        .period-banner {
+            background: linear-gradient(135deg, #0f172a, #1e3a5f);
+            border-radius: var(--r); padding: 20px 20px; color: white; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        }
+        .period-left {}
+        .period-eye { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.6; margin-bottom: 4px; }
+        .period-co { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+        .period-date { font-size: 12px; opacity: 0.7; }
+        .period-right { text-align: right; }
+        .period-count { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #60a5fa; line-height: 1; }
+        .period-clabel { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        .info-box {
+            background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid var(--gold);
+            border-radius: 10px; padding: 12px 14px; margin-bottom: 20px;
+            font-size: 12.5px; color: #92400e; line-height: 1.6;
+        }
+
+        /* Period selector */
+        .period-sel {
+            background: var(--white); border: 1.5px solid var(--line); border-radius: var(--r);
+            padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        }
+        .period-sel label { font-size: 11px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+        .period-sel select {
+            background: var(--bg); border: 1.5px solid var(--line); border-radius: 8px;
+            padding: 8px 30px 8px 10px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+            color: var(--ink); -webkit-appearance: none; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 8px center;
+        }
+        .period-sel select:focus { outline: none; border-color: var(--blue); }
+
+        /* Vehicle rows */
+        .sec-label {
+            font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; color: var(--ink);
+        }
+
+        .v-row {
+            background: var(--white); border: 1.5px solid var(--line); border-radius: var(--r);
+            padding: 14px 16px; margin-bottom: 8px; transition: border-color 0.2s;
+        }
+        .v-row:focus-within { border-color: var(--blue); }
+
+        .v-row-top {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+        }
+        .v-reg {
+            font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800;
+            color: var(--ink); letter-spacing: 0.05em;
+        }
+        .v-detail { font-size: 11px; color: var(--soft); margin-top: 1px; }
+        .v-status { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+        .v-status.ok   { background: #f0fdf4; color: var(--green); border: 1px solid #bbf7d0; }
+        .v-status.edit { background: #eff6ff; color: var(--accent); border: 1px solid #bfdbfe; }
+        .v-status.empty{ background: var(--bg); color: var(--soft); border: 1px solid var(--line); }
+
+        .v-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { font-size: 10px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: 0.1em; }
+        .field .prev { font-size: 9px; color: var(--soft); margin-top: 1px; }
+        .field input {
+            background: var(--bg); border: 1.5px solid var(--line); border-radius: 8px;
+            padding: 11px 12px; font-size: 15px; font-family: 'DM Sans', sans-serif;
+            color: var(--ink); width: 100%; font-weight: 700;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .field input:focus {
+            outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: var(--white);
+        }
+        .field input::placeholder { color: #cbd5e1; font-weight: 400; }
+        .field input.has-value { background: #f0fdf4; border-color: #86efac; color: #065f46; }
+
+        /* Notes per vehicle */
+        .v-notes-toggle {
+            margin-top: 10px; font-size: 11px; color: var(--blue); font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 4px; background: none; border: none; padding: 0; font-family: 'DM Sans', sans-serif;
+        }
+        .v-notes { display: none; margin-top: 8px; }
+        .v-notes textarea {
+            width: 100%; background: var(--bg); border: 1.5px solid var(--line); border-radius: 8px;
+            padding: 10px 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; color: var(--ink);
+            resize: vertical; min-height: 60px;
+        }
+        .v-notes textarea:focus { outline: none; border-color: var(--blue); }
+
+        /* Submit area */
+        .submit-area { margin-top: 28px; }
+        .progress-bar {
+            background: var(--line); border-radius: 4px; height: 6px; margin-bottom: 14px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, var(--blue), var(--green));
+            border-radius: 4px; transition: width 0.4s ease;
+        }
+        .progress-label { font-size: 11px; color: var(--mid); font-weight: 700; margin-bottom: 16px; text-align: center; }
+
+        .btn-submit {
+            width: 100%; background: linear-gradient(135deg, var(--green), #047857);
+            color: white; border: none; padding: 17px; border-radius: var(--r);
+            font-size: 15px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; box-shadow: 0 4px 14px rgba(5,150,105,0.3);
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover { opacity: 0.93; transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .err-box {
+            background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--red);
+            border-radius: 8px; padding: 11px 13px; font-size: 12.5px; color: var(--red);
+            margin-bottom: 14px; display: none; line-height: 1.6;
+        }
+
+        /* No vehicles state */
+        .no-fleet {
+            background: var(--white); border: 1.5px solid var(--line); border-radius: var(--r);
+            padding: 32px 20px; text-align: center; color: var(--mid); margin-bottom: 20px;
+        }
+        .no-fleet-icon { font-size: 40px; margin-bottom: 12px; }
+        .no-fleet-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; margin-bottom: 6px; color: var(--ink); }
+        .no-fleet-sub { font-size: 13px; line-height: 1.5; }
+
+        /* Success screen */
+        .success { display: none; text-align: center; padding: 60px 20px; }
+        .success-icon {
+            width: 68px; height: 68px; background: linear-gradient(135deg, var(--green), #047857);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin: 0 auto 18px; box-shadow: 0 8px 24px rgba(5,150,105,0.25);
+        }
+        .success-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .success-sub { font-size: 13.5px; color: var(--mid); line-height: 1.6; max-width: 300px; margin: 0 auto 24px; }
+        .btn-again {
+            background: var(--white); border: 1.5px solid var(--line); color: var(--accent);
+            padding: 12px 24px; border-radius: 30px; font-size: 13px; font-weight: 700;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+        }
+
+        /* NF screen */
+        .nf { display: none; text-align: center; padding: 70px 20px; }
+        .nf-icon { font-size: 48px; margin-bottom: 16px; }
+        .nf-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+        .nf-sub { font-size: 13px; color: var(--mid); line-height: 1.6; }
+
+        /* Loader */
+        .loader {
+            display: none; position: fixed; inset: 0; background: rgba(248,250,252,0.88);
+            z-index: 200; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+        }
+        .loader.on { display: flex; }
+        .spin { width: 38px; height: 38px; border: 3px solid var(--line); border-top-color: var(--blue); border-radius: 50%; animation: sp 0.7s linear infinite; }
+        @keyframes sp { to { transform: rotate(360deg); } }
+        .loader-txt { font-size: 13px; font-weight: 700; color: var(--mid); }
+
+        @media (max-width: 420px) {
+            .v-fields { grid-template-columns: 1fr; }
+            .period-count { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="spin"></div>
+    <div class="loader-txt" id="loaderTxt">Loading…</div>
+</div>
+
+<div class="header">
+    <img src="Logo.png" alt="DFR" onerror="this.style.display='none'">
+    <div class="header-brand">Dynamic <span>Fleet</span> Reporting</div>
+    <div class="header-pill">Weekly Submission</div>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page" id="pgMain" style="display:none;">
+
+    <div class="period-banner">
+        <div class="period-left">
+            <div class="period-eye">Weekly Data Submission</div>
+            <div class="period-co" id="coName">Loading…</div>
+            <div class="period-date" id="periodDisplay">—</div>
+        </div>
+        <div class="period-right">
+            <div class="period-count" id="fleetCount">—</div>
+            <div class="period-clabel">Vehicles</div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <strong>What to enter:</strong> For each vehicle enter the current odometer reading and the total fuel used since last submission. You can correct any value before submitting. Add a note on any vehicle if something unusual happened (breakdown, tyre, etc).
+    </div>
+
+    <!-- Period selector -->
+    <div class="period-sel">
+        <label>Reporting Period:</label>
+        <select id="selMonth"></select>
+        <select id="selYear"></select>
+    </div>
+
+    <div class="err-box" id="errBox"></div>
+
+    <div class="sec-label">Fleet Readings</div>
+
+    <div id="vList"></div>
+
+    <div class="submit-area">
+        <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+        <div class="progress-label" id="progLabel">0 of 0 vehicles completed</div>
+        <button class="btn-submit" id="subBtn" onclick="submitData()">✓ Submit Weekly Data</button>
+    </div>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div class="page success" id="pgSuccess">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Data Submitted!</div>
+    <div class="success-sub" id="successMsg">Your fleet data has been received. Dynamic Fleet Reporting will process your report shortly.</div>
+    <button class="btn-again" onclick="reopen()">Submit Another Period</button>
+</div>
+
+<!-- NOT FOUND PAGE -->
+<div class="page nf" id="pgNF">
+    <div class="nf-icon">🔍</div>
+    <div class="nf-title">Link Not Found</div>
+    <div class="nf-sub">This link is invalid or expired.<br>Please contact Dynamic Fleet Reporting.<br><br><strong>083 314 9592</strong></div>
+</div>
+
+<script>
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let _cid = null, _client = null, _fleet = [];
+
+window.addEventListener('DOMContentLoaded', async () => {
+    _cid = new URLSearchParams(window.location.search).get('client');
+    if (!_cid) { show('nf'); return; }
+
+    loading('Loading your fleet…');
+    await waitFor(() => typeof cloudStorage !== 'undefined');
+
+    try {
+        const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        _client = all.find(c => c.id === _cid);
+        if (!_client) { doneLoading(); show('nf'); return; }
+
+        _fleet = Array.isArray(_client.fleet) ? _client.fleet : Object.values(_client.fleet || {});
+
+        document.getElementById('coName').textContent    = _client.company;
+        document.getElementById('fleetCount').textContent = _fleet.length;
+
+        initPeriod();
+        buildRows();
+        doneLoading();
+        show('main');
+    } catch(e) {
+        doneLoading(); show('main');
+    }
+});
+
+function waitFor(fn) {
+    return new Promise(res => { const t = setInterval(() => { if(fn()) { clearInterval(t); res(); } }, 60); });
+}
+
+// ── Period picker ─────────────────────────────────────────────────────────────
+function initPeriod() {
+    const ms = document.getElementById('selMonth');
+    const ys = document.getElementById('selYear');
+    const now = new Date();
+    MONTHS.forEach((m,i) => { const o=document.createElement('option'); o.value=i; o.text=m; if(i===now.getMonth()) o.selected=true; ms.appendChild(o); });
+    for (let y = now.getFullYear()-1; y <= now.getFullYear()+1; y++) {
+        const o = document.createElement('option'); o.value=y; o.text=y; if(y===now.getFullYear()) o.selected=true; ys.appendChild(o);
+    }
+    updatePeriodDisplay();
+    ms.addEventListener('change', updatePeriodDisplay);
+    ys.addEventListener('change', updatePeriodDisplay);
+}
+
+function getPeriod() {
+    const m = parseInt(document.getElementById('selMonth').value);
+    const y = parseInt(document.getElementById('selYear').value);
+    return { month: m, year: y, label: MONTHS[m] + ' ' + y };
+}
+
+function updatePeriodDisplay() {
+    document.getElementById('periodDisplay').textContent = 'Reporting period: ' + getPeriod().label;
+}
+
+// ── Build vehicle rows ────────────────────────────────────────────────────────
+function buildRows() {
+    const wrap = document.getElementById('vList');
+    wrap.innerHTML = '';
+
+    if (!_fleet.length) {
+        wrap.innerHTML = `
+            <div class="no-fleet">
+                <div class="no-fleet-icon">🚛</div>
+                <div class="no-fleet-title">No Vehicles Found</div>
+                <div class="no-fleet-sub">Your fleet hasn't been registered yet. Please complete your fleet registration form first, or contact Dynamic Fleet Reporting.</div>
+            </div>`;
+        return;
+    }
+
+    _fleet.forEach((v, i) => {
+        const prev = v.lastOdo || v.odo;
+        const prevFuel = v.lastLiters || v.liters;
+        const detail = [v.make, v.model, v.year ? `(${v.year})` : ''].filter(Boolean).join(' ');
+        const usageBadge = v.usage || v.usedFor ? `<span style="display:inline-block;margin-left:6px;padding:2px 7px;background:rgba(37,99,235,0.12);color:#60a5fa;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">${v.usage||v.usedFor}</span>` : '';
+        const trailerBadge = v.trailerType ? `<span style="display:inline-block;margin-left:4px;padding:2px 7px;background:rgba(16,185,129,0.1);color:#10b981;border-radius:4px;font-size:9px;font-weight:700;">${v.trailerType}</span>` : '';
+
+        const row = document.createElement('div');
+        row.className = 'v-row'; row.id = `vr-${i}`;
+        row.innerHTML = `
+            <div class="v-row-top">
+                <div>
+                    <div class="v-reg">${esc(v.reg)}</div>
+                    <div class="v-detail">${esc(detail) || 'Vehicle details not set'}${usageBadge}${trailerBadge}</div>
+                </div>
+                <div class="v-status empty" id="vs-${i}">Pending</div>
+            </div>
+            <div class="v-fields">
+                <div class="field">
+                    <label>Odometer (km) *</label>
+                    ${prev ? `<div class="prev">Last: ${Number(prev).toLocaleString()} km</div>` : ''}
+                    <input type="number" id="odo-${i}" placeholder="e.g. 245000"
+                        min="0" step="1"
+                        oninput="checkRow(${i})"
+                        onfocus="this.select()">
+                </div>
+                <div class="field">
+                    <label>Fuel Used (L) *</label>
+                    ${prevFuel ? `<div class="prev">Last: ${Number(prevFuel).toLocaleString()} L</div>` : ''}
+                    <input type="number" id="fuel-${i}" placeholder="e.g. 420"
+                        min="0" step="0.1"
+                        oninput="checkRow(${i})"
+                        onfocus="this.select()">
+                </div>
+            </div>
+            <button class="v-notes-toggle" onclick="toggleNotes(${i})">+ Add note for this vehicle</button>
+            <div class="v-notes" id="vn-${i}">
+                <textarea id="note-${i}" placeholder="e.g. Breakdown on 12th, tyre replaced, GPS faulty this week…"></textarea>
+            </div>
+        `;
+        wrap.appendChild(row);
+    });
+
+    updateProgress();
+}
+
+function checkRow(i) {
+    const odo  = document.getElementById(`odo-${i}`)?.value;
+    const fuel = document.getElementById(`fuel-${i}`)?.value;
+    const odoEl  = document.getElementById(`odo-${i}`);
+    const fuelEl = document.getElementById(`fuel-${i}`);
+    const stat   = document.getElementById(`vs-${i}`);
+
+    const hasOdo  = odo  && parseFloat(odo)  > 0;
+    const hasFuel = fuel && parseFloat(fuel) > 0;
+
+    if (hasOdo)  { odoEl.classList.add('has-value');  } else { odoEl.classList.remove('has-value'); }
+    if (hasFuel) { fuelEl.classList.add('has-value'); } else { fuelEl.classList.remove('has-value'); }
+
+    if (hasOdo && hasFuel) {
+        stat.textContent = '✓ Done'; stat.className = 'v-status ok';
+    } else if (hasOdo || hasFuel) {
+        stat.textContent = 'Editing'; stat.className = 'v-status edit';
+    } else {
+        stat.textContent = 'Pending'; stat.className = 'v-status empty';
+    }
+    updateProgress();
+}
+
+function toggleNotes(i) {
+    const el  = document.getElementById(`vn-${i}`);
+    const btn = el.previousElementSibling;
+    if (el.style.display === 'block') {
+        el.style.display = 'none'; btn.textContent = '+ Add note for this vehicle';
+    } else {
+        el.style.display = 'block'; btn.textContent = '− Hide note';
+        el.querySelector('textarea').focus();
+    }
+}
+
+function updateProgress() {
+    const total    = _fleet.length;
+    const complete = _fleet.filter((_, i) => {
+        const odo  = document.getElementById(`odo-${i}`)?.value;
+        const fuel = document.getElementById(`fuel-${i}`)?.value;
+        return odo && parseFloat(odo) > 0 && fuel && parseFloat(fuel) > 0;
+    }).length;
+    const pct = total > 0 ? Math.round((complete / total) * 100) : 0;
+    document.getElementById('progFill').style.width  = pct + '%';
+    document.getElementById('progLabel').textContent = `${complete} of ${total} vehicles completed`;
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+async function submitData() {
+    hideErr();
+    const period = getPeriod();
+    const entries = [], errs = [];
+
+    _fleet.forEach((v, i) => {
+        const odo  = document.getElementById(`odo-${i}`)?.value;
+        const fuel = document.getElementById(`fuel-${i}`)?.value;
+        const note = (document.getElementById(`note-${i}`)?.value || '').trim();
+
+        if (!odo || parseFloat(odo) <= 0)   { errs.push(`${v.reg}: Odometer reading required.`); return; }
+        if (!fuel || parseFloat(fuel) <= 0) { errs.push(`${v.reg}: Fuel used required.`); return; }
+
+        entries.push({
+            reg:    v.reg,
+            odo:    parseFloat(odo),
+            liters: parseFloat(fuel),
+            note:   note || null,
+        });
+    });
+
+    if (errs.length) { showErr(errs.join('<br>')); return; }
+    if (!entries.length) { showErr('No vehicle data to submit.'); return; }
+
+    const btn = document.getElementById('subBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    loading('Submitting your data…');
+
+    try {
+        const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const idx = all.findIndex(c => c.id === _cid);
+        if (idx === -1) throw new Error('Client not found');
+
+        // Build weekly submission record
+        const submission = {
+            period:    period.label,
+            month:     period.month,
+            year:      period.year,
+            submitted: new Date().toISOString(),
+            entries
+        };
+
+        // Save to client weekly submissions array
+        all[idx].weeklySubmissions = all[idx].weeklySubmissions || [];
+        all[idx].weeklySubmissions.push(submission);
+        all[idx].lastSubmission = new Date().toISOString();
+
+        // Also update the fleet array with latest odo/fuel so data-entry sees it
+        all[idx].fleet = (Array.isArray(all[idx].fleet) ? all[idx].fleet : Object.values(all[idx].fleet||{}))
+            .map(v => {
+                const entry = entries.find(e => e.reg === v.reg);
+                if (!entry) return v;
+                return { ...v, odo: entry.odo, liters: entry.liters, lastOdo: entry.odo, lastLiters: entry.liters };
+            });
+
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+        await notifyDFR(all[idx].company, entries.length, period.label);
+
+        doneLoading();
+        document.getElementById('successMsg').textContent =
+            `${entries.length} vehicles submitted for ${period.label}. Dynamic Fleet Reporting will process your report shortly.`;
+        show('success');
+    } catch(e) {
+        doneLoading();
+        btn.disabled = false; btn.textContent = '✓ Submit Weekly Data';
+        showErr('Could not submit. Please check your connection and try again.');
+    }
+}
+
+function reopen() {
+    show('main');
+    buildRows();
+    const btn = document.getElementById('subBtn');
+    btn.disabled = false; btn.textContent = '✓ Submit Weekly Data';
+    updateProgress();
+}
+
+// ── Notify DFR ────────────────────────────────────────────────────────────────
+function notifyDFR(company, count, period) {
+    return new Promise(res => {
+        const cb  = `_cb${Date.now()}`;
+        const msg = encodeURIComponent(`📊 Weekly Data Received\nClient: ${company}\nPeriod: ${period}\nVehicles: ${count}\nReady to import in data-entry.html`);
+        window[cb] = () => { delete window[cb]; res(); };
+        const s = document.createElement('script');
+        s.src = `${APPS_URL}?action=whatsapp&message=${msg}&callback=${cb}`;
+        s.onerror = () => res();
+        document.body.appendChild(s);
+        setTimeout(res, 5000);
+    });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function loading(t) { document.getElementById('loaderTxt').textContent=t||'Loading…'; document.getElementById('loader').classList.add('on'); }
+function doneLoading() { document.getElementById('loader').classList.remove('on'); }
+function showErr(m) { const e=document.getElementById('errBox'); e.innerHTML=m; e.style.display='block'; e.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function hideErr() { document.getElementById('errBox').style.display='none'; }
+function show(s) {
+    document.getElementById('pgMain').style.display    = s==='main'    ? 'block' : 'none';
+    document.getElementById('pgSuccess').style.display = s==='success' ? 'block' : 'none';
+    document.getElementById('pgNF').style.display      = s==='nf'      ? 'block' : 'none';
+}
+function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
