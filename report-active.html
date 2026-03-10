@@ -525,7 +525,9 @@
                     <th>Actual km</th>
                     <th>Litres</th>
                     <th>Act km/L</th>
-                    <th>Target km/L</th>
+                    <th style="color:#93c5fd;">Mfr Min</th>
+                    <th style="color:#6ee7b7;">Suggested</th>
+                    <th style="color:#fcd34d;">Target</th>
                     <th>Wasted L</th>
                     <th>Eff. Loss</th>
                     <th>Speed Loss</th>
@@ -641,6 +643,28 @@ function waitForCloudStorage(cb, n=0) {
     else console.error('cloudStorage unavailable');
 }
 
+// ── VEHICLE DB + SUGGESTED CALC ─────────────────────────────
+let _vdb = {};
+waitForCloudStorage(async () => {
+    try { const r = await cloudStorage.getItem('VEHICLE_DB'); _vdb = r ? JSON.parse(r) : {}; } catch(e){ _vdb={}; }
+});
+function _dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
+function _lookupMfr(make,model){
+    if(!make) return null;
+    const e=_vdb[_dbk(make,model)]; if(e) return e;
+    for(const k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
+    return null;
+}
+function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+    let base = parseFloat(mfrMin);
+    const loadAdj = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[loadProfile]??0;
+    const trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.08,'Rear Tipper':-0.08,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[trailerType]??0;
+    const interlinkAdj = (interlink===true||interlink==='true'||interlink==='Yes') ? -0.04 : 0;
+    const aerokitAdj = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[aerokit]??0;
+    return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+}
+
 // ── MAIN ─────────────────────────────────────────────────────
 waitForCloudStorage(async () => {
     const raw = await cloudStorage.getItem('AUDIT_FINAL');
@@ -697,7 +721,11 @@ waitForCloudStorage(async () => {
         const km  = (v.mK && v.mK > 0) ? parseFloat(v.mK) : v.gpsDist;
         const lit = parseFloat(v.mL) || 0;
         const actEff = (lit > 0 && km > 0) ? (km/lit) : 0;
-        const eWaste = (lit > 0 && km > 0 && actEff < target) ? (lit - km/target) : 0;
+        const dbEntry   = _lookupMfr(v.make, v.model);
+        const vMfrMin   = parseFloat(v.mfr_min) || dbEntry?.mfr_min || null;
+        const vSuggested= calcSuggested(vMfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+        const vTarget   = parseFloat(v.clientTarget) || parseFloat(v.targetKmL) || vSuggested || target;
+        const eWaste = (lit > 0 && km > 0 && actEff < vTarget) ? (lit - km/vTarget) : 0;
         const events = v.violations || 0;
         const sv     = savedMap[v.reg];
         const eLoss  = sv ? (sv.eLoss||0) : eWaste * wPrice;
@@ -705,7 +733,7 @@ waitForCloudStorage(async () => {
         const tLoss  = sv ? (sv.tLoss||0) : eLoss + sLoss;
 
         let score = 100;
-        if (lit>0 && actEff>0 && actEff<target) score -= Math.min(40,((target-actEff)/target)*40);
+        if (lit>0 && actEff>0 && actEff<vTarget) score -= Math.min(40,((vTarget-actEff)/vTarget)*40);
         if (events>0) score -= Math.min(30, events*0.3);
         if (v.duration>300) score -= Math.min(20,(v.duration/60/30)*20);
         if (v.maxSpeed>speedLimit+20) score -= Math.min(10,(v.maxSpeed-speedLimit-20)*0.5);
@@ -713,7 +741,7 @@ waitForCloudStorage(async () => {
         totalScore += score;
         totalWasted += eWaste;
         totalEvents += events;
-        return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score };
+        return { ...v, km, lit, actEff, eWaste, eLoss, sLoss, tLoss, score, vMfrMin, vSuggested, vTarget };
     });
 
     const byScore = [...processed].sort((a,b) => b.score - a.score);
@@ -832,8 +860,10 @@ waitForCloudStorage(async () => {
             <td class="muted">${v.gpsDist.toFixed(0)}</td>
             <td>${v.km.toFixed(0)}</td>
             <td class="muted">${v.lit>0?v.lit.toFixed(1):'—'}</td>
-            <td class="${v.actEff>0&&v.actEff<target?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
-            <td class="muted">${target}</td>
+            <td class="${v.actEff>0&&v.actEff<v.vTarget?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
+            <td class="muted" style="color:#93c5fd;">${v.vMfrMin?v.vMfrMin.toFixed(2):'—'}</td>
+            <td class="muted" style="color:#6ee7b7;">${v.vSuggested?v.vSuggested.toFixed(2):'—'}</td>
+            <td class="muted" style="color:#fcd34d;font-weight:700;">${v.vTarget.toFixed(2)}</td>
             <td class="${v.eWaste>0?'red':'muted'}">${v.eWaste>0?v.eWaste.toFixed(1):'—'}</td>
             <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
             <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
@@ -842,9 +872,9 @@ waitForCloudStorage(async () => {
         </tr>`).join('');
 
     // ── Action report ──
-    const critical  = byLoss.filter(v => v.actEff>0 && v.actEff<target && (v.violations||0)>5);
-    const speedOnly = byLoss.filter(v => (v.actEff>=target||v.actEff===0) && (v.violations||0)>5);
-    const effOnly   = byLoss.filter(v => v.actEff>0 && v.actEff<target && (v.violations||0)<=5);
+    const critical  = byLoss.filter(v => v.actEff>0 && v.actEff<v.vTarget && (v.violations||0)>5);
+    const speedOnly = byLoss.filter(v => (v.actEff>=v.vTarget||v.actEff===0) && (v.violations||0)>5);
+    const effOnly   = byLoss.filter(v => v.actEff>0 && v.actEff<v.vTarget && (v.violations||0)<=5);
     const acceptable= byLoss.filter(v => (v.actEff>=target||v.actEff===0) && (v.violations||0)<=5);
 
     const aTable = (items, bg) => `
