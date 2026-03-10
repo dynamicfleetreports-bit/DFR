@@ -35,7 +35,7 @@
         .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
         .inv-row:last-child { border-bottom:none; }
         .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
-        .fleet-row { display:grid; grid-template-columns:28px 95px 1fr 52px 72px 140px 155px 110px 58px 68px 70px 46px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-row { display:grid; grid-template-columns:28px 95px 1fr 52px 72px 120px 140px 155px 110px 58px 68px 70px 46px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
         .fleet-tbl-wrap { overflow-x:auto; }
         .fleet-sug { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:4px 8px; font-size:10px; font-weight:900; text-align:center; }
         .fleet-row:last-child { border-bottom:none; }
@@ -150,6 +150,7 @@
                         <div class="inv-head">Make / Model</div>
                         <div class="inv-head">Year</div>
                         <div class="inv-head">Type</div>
+                        <div class="inv-head">Usage</div>
                         <div class="inv-head">Load Profile</div>
                         <div class="inv-head">Trailer Type</div>
                         <div class="inv-head">Aerokit</div>
@@ -413,14 +414,13 @@
 
     // ── Fleet table ───────────────────────────────────────────
     var _vdb = {};
-    var _vdbReady = false;
+    function _waitForCS(){ return new Promise(function(res){ var t=setInterval(function(){ if(typeof cloudStorage!=='undefined'){ clearInterval(t); res(); } },60); }); }
     (async function loadVDB(){
         try {
-            await waitFor(()=>typeof cloudStorage!=='undefined');
+            await _waitForCS();
             var r = await cloudStorage.getItem('VEHICLE_DB');
             _vdb = r ? JSON.parse(r) : {};
         } catch(e){ _vdb={}; }
-        _vdbReady = true;
         // Re-render fleet table now that DB is loaded
         if(typeof _fleetData !== 'undefined' && _fleetData.length > 0) renderFleetTable();
     })();
@@ -433,6 +433,7 @@
         return null;
     }
 
+    var USAGE_C        = ['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
     var LOAD_PROFILE_C = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
     var TRAILER_TYPE_C = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
     var AEROKIT_C      = ['None','Roof Fairing Only','Full Aerokit'];
@@ -469,6 +470,7 @@
                 + '<div><input type="text" value="'+(v.make||'')+' '+(v.model||'')+'" onchange="updateFleetMakeModel('+i+',this.value)" placeholder="Volvo FH440"></div>'
                 + '<div><input type="number" value="'+(v.year||'')+'" onchange="updateFleet('+i+',\'year\',this.value)" placeholder="2020" min="1990" max="2030"></div>'
                 + '<div><select onchange="updateFleet('+i+',\'type\',this.value)">'+selOpts(VEHICLE_TYPES,v.type||'Heavy')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'usage\',this.value)">'+selOpts(USAGE_C,v.usage||v.usedFor||'Long Distance')+'</select></div>'
                 + '<div><select onchange="updateFleet('+i+',\'loadProfile\',this.value);renderFleetTable()">'+selOpts(LOAD_PROFILE_C,v.loadProfile||'Fully Loaded')+'</select></div>'
                 + '<div><select onchange="updateFleet('+i+',\'trailerType\',this.value);renderFleetTable()">'+selOpts(TRAILER_TYPE_C,v.trailerType||'Tautliner / Curtainsider')+'</select></div>'
                 + '<div><select onchange="updateFleet('+i+',\'aerokit\',this.value);renderFleetTable()">'+selOpts(AEROKIT_C,v.aerokit||'None')+'</select></div>'
