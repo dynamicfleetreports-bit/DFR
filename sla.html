@@ -695,50 +695,76 @@
             document.getElementById('fleetCount') && (document.getElementById('fleetCount').innerText = fleetSize + ' vehicle' + (fleetSize !== 1 ? 's' : '') + ' at time of signing — ' + tiered.label);
 
             // ── Personalised pricing block ────────────────────────────────────
+            var fleetFee   = fleetSize * tiered.rate;
+            var adminFee   = 1500;
+            var setupFee   = 2500;
+
             document.getElementById('priceSection').innerHTML =
-                '<div class="pricing-client-box">' +
-                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
+                '<div style="border:2px solid #e2e8f0;border-radius:0.75rem;overflow:hidden;margin:0.5rem 0 1.25rem 0;">' +
+
+                    // Header
+                    '<div style="background:#1e3a5f;padding:0.9rem 1.25rem;display:flex;justify-content:space-between;align-items:center;">' +
                         '<div>' +
-                            '<p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);margin-bottom:4px;">Your Personalised Pricing — ' + clientInfo.company + '</p>' +
-                            '<p style="font-size:11px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.7);">' + tiered.label + ' · ' + fleetSize + ' vehicles</p>' +
+                            '<p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);margin-bottom:2px;">Fee Summary</p>' +
+                            '<p style="font-size:13px;font-weight:900;color:white;">' + clientInfo.company + '</p>' +
                         '</div>' +
-                        '<div style="background:rgba(255,255,255,0.1);padding:6px 14px;border-radius:8px;font-size:9px;font-weight:900;color:#86efac;text-transform:uppercase;">Locked at Signing</div>' +
-                    '</div>' +
-                    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;text-align:center;margin-bottom:1rem;">' +
-                        '<div style="background:rgba(255,255,255,0.08);border-radius:0.5rem;padding:0.75rem;">' +
-                            '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Setup Fee</p>' +
-                            '<p style="font-size:1.3rem;font-weight:900;color:white;">R 2,500</p>' +
-                            '<p style="font-size:8px;color:rgba(255,255,255,0.4);">once-off</p>' +
-                        '</div>' +
-                        '<div style="background:rgba(255,255,255,0.08);border-radius:0.5rem;padding:0.75rem;">' +
-                            '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Admin Fee</p>' +
-                            '<p style="font-size:1.3rem;font-weight:900;color:white;">R 1,500</p>' +
-                            '<p style="font-size:8px;color:rgba(255,255,255,0.4);">per month</p>' +
-                        '</div>' +
-                        '<div style="background:rgba(255,255,255,0.08);border-radius:0.5rem;padding:0.75rem;">' +
-                            '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">Per Vehicle (' + fleetSize + ' units)</p>' +
-                            '<p style="font-size:1.3rem;font-weight:900;color:#93c5fd;">R ' + tiered.rate + '</p>' +
-                            '<p style="font-size:8px;color:rgba(255,255,255,0.4);">per vehicle/month</p>' +
-                        '</div>' +
-                        '<div style="background:rgba(255,255,255,0.08);border-radius:0.5rem;padding:0.75rem;">' +
-                            '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:4px;">On-Demand Pool</p>' +
-                            '<p style="font-size:1.3rem;font-weight:900;color:#86efac;">' + fleetSize + '</p>' +
-                            '<p style="font-size:8px;color:rgba(255,255,255,0.4);">reports/month incl.</p>' +
+                        '<div style="background:rgba(255,255,255,0.1);padding:5px 12px;border-radius:6px;font-size:8px;font-weight:900;color:#86efac;text-transform:uppercase;letter-spacing:0.1em;">' +
+                            tiered.label + ' &nbsp;·&nbsp; ' + fleetSize + ' vehicles' +
                         '</div>' +
                     '</div>' +
-                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">' +
-                        '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;padding:1rem;text-align:center;">' +
-                            '<p style="font-size:9px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:6px;">First Invoice (Month 1)</p>' +
-                            '<p style="font-size:1.8rem;font-weight:900;color:white;">R ' + firstMonth.toLocaleString('en-ZA') + '</p>' +
-                            '<p style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:4px;">Setup R2,500 + Admin R1,500 + ' + fleetSize + ' × R' + tiered.rate + ' — excl. VAT</p>' +
+
+                    // Fee rows
+                    '<div style="background:white;">' +
+
+                        // Setup fee row
+                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">' +
+                            '<div>' +
+                                '<p style="font-size:12px;font-weight:700;color:#1e293b;">Implementation / Setup Fee</p>' +
+                                '<p style="font-size:10px;color:#94a3b8;margin-top:1px;">Once-off · due before onboarding begins</p>' +
+                            '</div>' +
+                            '<p style="font-size:16px;font-weight:900;color:#1e293b;">R 2,500</p>' +
                         '</div>' +
-                        '<div style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:0.5rem;padding:1rem;text-align:center;">' +
-                            '<p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#86efac;margin-bottom:6px;">Monthly Retainer (Month 2+)</p>' +
-                            '<p style="font-size:1.8rem;font-weight:900;color:#86efac;">R ' + monthly.toLocaleString('en-ZA') + '</p>' +
-                            '<p style="font-size:9px;color:rgba(134,239,172,0.6);margin-top:4px;">Admin R1,500 + ' + fleetSize + ' × R' + tiered.rate + ' — excl. VAT</p>' +
+
+                        // Admin fee row
+                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">' +
+                            '<div>' +
+                                '<p style="font-size:12px;font-weight:700;color:#1e293b;">Monthly Administration Fee</p>' +
+                                '<p style="font-size:10px;color:#94a3b8;margin-top:1px;">Fixed · covers account management, data processing &amp; support</p>' +
+                            '</div>' +
+                            '<p style="font-size:16px;font-weight:900;color:#1e293b;">R 1,500 <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>' +
                         '</div>' +
+
+                        // Fleet fee row
+                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">' +
+                            '<div>' +
+                                '<p style="font-size:12px;font-weight:700;color:#1e293b;">Fleet Monitoring Fee</p>' +
+                                '<p style="font-size:10px;color:#94a3b8;margin-top:1px;">' + fleetSize + ' vehicles × R' + tiered.rate + '/vehicle · ' + tiered.label + '</p>' +
+                            '</div>' +
+                            '<p style="font-size:16px;font-weight:900;color:#2563eb;">R ' + fleetFee.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>' +
+                        '</div>' +
+
+                        // Monthly total row
+                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:2px solid #e2e8f0;background:#f8fafc;">' +
+                            '<div>' +
+                                '<p style="font-size:12px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:0.05em;">Total Monthly Retainer</p>' +
+                                '<p style="font-size:10px;color:#94a3b8;margin-top:1px;">Admin R1,500 + Fleet R' + fleetFee.toLocaleString('en-ZA') + ' · excl. VAT · from Month 2 onwards</p>' +
+                            '</div>' +
+                            '<p style="font-size:20px;font-weight:900;color:#059669;">R ' + monthly.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>' +
+                        '</div>' +
+
+                        // First invoice callout
+                        '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;background:#eff6ff;">' +
+                            '<div>' +
+                                '<p style="font-size:12px;font-weight:900;color:#1e40af;">First Invoice Total</p>' +
+                                '<p style="font-size:10px;color:#3b82f6;margin-top:1px;">Setup R2,500 + Monthly R' + monthly.toLocaleString('en-ZA') + ' · excl. VAT</p>' +
+                            '</div>' +
+                            '<p style="font-size:20px;font-weight:900;color:#1e40af;">R ' + firstMonth.toLocaleString('en-ZA') + '</p>' +
+                        '</div>' +
+
                     '</div>' +
-                    '<p style="font-size:9px;color:rgba(255,255,255,0.3);text-align:center;margin-top:0.75rem;">Billed in advance on the 25th of each month. Additional on-demand reports: R150/report.</p>' +
+                    '<div style="background:#f8fafc;padding:0.6rem 1.25rem;text-align:center;">' +
+                        '<p style="font-size:9px;color:#94a3b8;">All amounts exclude VAT · Billed in advance on the 25th of each month · Additional on-demand reports R150/report</p>' +
+                    '</div>' +
                 '</div>';
 
             // Pool summary
