@@ -201,7 +201,212 @@
             tr { page-break-inside:avoid; break-inside:avoid; }
             .annual-card,.inaction-row,.cta-box,.dfr-value-box,.locked-table-wrap { page-break-inside:avoid; break-inside:avoid; }
             .section-title { page-break-after:avoid; break-after:avoid; }
-            * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+
+            /* ── FULL B&W PRINT OVERRIDE ──────────────────────────────
+               Strips all color. Every element becomes black ink on white
+               with borders and shading for structure only.
+            ──────────────────────────────────────────────────────────── */
+
+            /* Remove all background colors — white everywhere */
+            *, *::before, *::after {
+                color: black !important;
+                background: white !important;
+                background-image: none !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: economy !important;
+                print-color-adjust: economy !important;
+            }
+
+            /* Cover page — white with strong border instead of dark bg */
+            .cover-page {
+                border: 2px solid black !important;
+                border-radius: 0 !important;
+            }
+            .cover-accent-top,
+            .cover-accent-bottom { background: black !important; height: 3px !important; }
+            .cover-company { color: black !important; font-size: 42px !important; }
+            .cover-eyebrow, .cover-logo-brand, .cover-logo-sub,
+            .cover-prepared, .cover-prepared span, .cover-period-box .lbl,
+            .cover-period-box .val { color: black !important; }
+            .cover-badge {
+                background: black !important; color: white !important;
+                border: 1px solid black !important;
+            }
+            .cover-loss-wrap {
+                border: 2px solid black !important;
+                border-top: 4px solid black !important;
+            }
+            .cover-loss-amount { color: black !important; font-size: 52px !important; }
+            .cover-loss-label, .cover-loss-sub { color: black !important; }
+            .cover-stat {
+                border: 1px solid #aaa !important;
+                background: #f5f5f5 !important;
+            }
+            .cover-stat .val { color: black !important; }
+            .cover-stat .lbl { color: #444 !important; }
+            .cover-period-box { border: 1px solid #aaa !important; background: #f5f5f5 !important; }
+
+            /* Page headers — dark band becomes outlined box */
+            .page-header {
+                background: white !important;
+                border: 1.5px solid black !important;
+                border-left: 5px solid black !important;
+            }
+            .ph-brand, .ph-client, .ph-page, .ph-period { color: black !important; }
+
+            /* Discovery banner */
+            .discovery-banner {
+                background: #f0f0f0 !important;
+                border-left: 5px solid black !important;
+                border: 1px solid #aaa !important;
+            }
+            .discovery-banner .eyebrow,
+            .discovery-banner h2,
+            .discovery-banner p { color: black !important; }
+
+            /* Hero tiles — all become light grey boxes with black borders */
+            .hero-tile,
+            .hero-tile.t-gold,
+            .hero-tile.t-red,
+            .hero-tile.t-loss,
+            .hero-tile.t-annual {
+                background: #f5f5f5 !important;
+                border: 1px solid #aaa !important;
+                border-top: 3px solid black !important;
+            }
+            .tile-icon { display: none !important; } /* emoji may print oddly */
+            .tile-label, .tile-value, .tile-sub { color: black !important; }
+            .hero-tile.t-loss .tile-value,
+            .hero-tile.t-annual .tile-value { font-size: 18px !important; }
+
+            /* Spec cards */
+            .spec-card,
+            .spec-card.mfr-card,
+            .spec-card.act-card,
+            .spec-card.gap-card {
+                background: #f5f5f5 !important;
+                border: 1px solid #aaa !important;
+                border-top: 3px solid black !important;
+            }
+            .sc-label, .sc-value, .sc-sub { color: black !important; }
+
+            /* Bar chart prints fine in B&W — black + grey bars */
+            .chart-card-title { color: black !important; }
+
+            /* Gauge canvas — keep it, drawGauge uses canvas which prints greyscale ok */
+            .gauge-score, .gauge-desc { color: black !important; }
+
+            /* Mfr bar */
+            .mfr-bar-track { background: #ccc !important; border: 1px solid #aaa !important; }
+            .mfr-bar-fill  { background: #555 !important; }
+            .mfr-marker    { background: black !important; }
+            .mfr-marker-label { color: black !important; }
+
+            /* Insight box */
+            .insight-box {
+                background: #f5f5f5 !important;
+                border: 1px solid #aaa !important;
+                border-left: 5px solid black !important;
+            }
+            .insight-box .eyebrow,
+            .insight-box .headline,
+            .insight-box .body { color: black !important; }
+
+            /* Reveal strip */
+            .reveal-strip {
+                background: #f0f0f0 !important;
+                border: 1.5px solid black !important;
+                border-left: 5px solid black !important;
+            }
+            .reveal-strip .label,
+            .reveal-strip .value { color: black !important; }
+            .cta-pill {
+                background: black !important;
+                color: white !important;
+                border: 1px solid black !important;
+            }
+
+            /* Table */
+            .dfr-table thead tr { background: #222 !important; }
+            .dfr-table thead th { color: white !important; background: #222 !important; border-color: #555 !important; }
+            .dfr-table thead th.gold { background: #444 !important; }
+            .dfr-table tbody tr:nth-child(even) { background: #f5f5f5 !important; }
+            .dfr-table td.reg { color: black !important; border-left-color: black !important; }
+            .dfr-table td.muted { color: #444 !important; }
+            .blurred-cell { filter: blur(4px) !important; color: #333 !important; }
+            .blurred-cell.loss { color: #333 !important; }
+
+            /* Lock overlay */
+            .lock-overlay { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.95)) !important; }
+            .lock-badge {
+                background: black !important; color: white !important;
+                border: 2px solid black !important;
+                box-shadow: none !important;
+            }
+            .lock-sub { color: #444 !important; }
+
+            /* Section title */
+            .section-title {
+                border-bottom: 2px solid black !important;
+                color: black !important;
+            }
+            .section-title .accent { color: black !important; }
+
+            /* Key findings cards */
+            #keyFindings > div {
+                background: #f5f5f5 !important;
+                border: 1px solid #aaa !important;
+                border-left: 4px solid black !important;
+            }
+
+            /* Annual card */
+            .annual-card {
+                background: #f0f0f0 !important;
+                border: 1.5px solid black !important;
+                border-top: 4px solid black !important;
+            }
+            .annual-stat .lbl, .annual-stat .val, .annual-stat .sub { color: black !important; }
+            .annual-stat.highlight .val { font-size: 36px !important; }
+
+            /* Inaction cards */
+            .inaction-card {
+                background: #f5f5f5 !important;
+                border: 1px solid #aaa !important;
+                border-top: 3px solid black !important;
+            }
+            .inaction-card .period,
+            .inaction-card .amount,
+            .inaction-card .desc { color: black !important; }
+
+            /* DFR value box */
+            .dfr-value-box {
+                background: #f0f0f0 !important;
+                border: 1.5px solid black !important;
+            }
+            .dfr-value-title, .dfr-feature .text, .dfr-feature .text strong { color: black !important; }
+            .dfr-feature .icon { display: none !important; }
+
+            /* CTA box */
+            .cta-box {
+                background: #222 !important;
+                border: 2px solid black !important;
+            }
+            .cta-left .headline,
+            .cta-left .sub { color: white !important; }
+            .cta-contact {
+                background: rgba(255,255,255,0.15) !important;
+                border: 1px solid rgba(255,255,255,0.3) !important;
+            }
+            .cta-contact .val { color: white !important; }
+
+            /* Closing bar */
+            .closing-bar { border-top: 2px solid black !important; }
+            .closing-bar .brand,
+            .closing-bar .contact { color: black !important; }
+            .closing-bar .micro { color: #555 !important; }
+
+            /* Chart card backgrounds */
+            .chart-card { background: white !important; border: 1px solid #aaa !important; }
         }
     </style>
 </head>
@@ -595,9 +800,30 @@ waitForCloudStorage(async () => {
 
     // Doughnut
     new Chart(document.getElementById('lossChart'),{
-        type:'doughnut',
-        data:{labels:['Efficiency Loss','Speed Loss'],datasets:[{data:[effLoss,speedLoss],backgroundColor:['#0f172a','#d97706'],borderWidth:0}]},
-        options:{cutout:'70%',plugins:{legend:{position:'bottom',labels:{font:{weight:'bold',family:'Outfit',size:8},padding:6}}}}
+        type:'bar',
+        data:{
+            labels:['Efficiency Loss','Speed Loss'],
+            datasets:[{
+                data:[effLoss,speedLoss],
+                backgroundColor:['#0f172a','#94a3b8'],
+                borderColor:['#0f172a','#64748b'],
+                borderWidth:1,
+                borderRadius:4,
+                borderSkipped:false
+            }]
+        },
+        options:{
+            indexAxis:'y',
+            responsive:true,
+            plugins:{
+                legend:{display:false},
+                tooltip:{callbacks:{label:ctx=>' R '+Math.round(ctx.raw).toLocaleString()}}
+            },
+            scales:{
+                x:{ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k',font:{size:7,family:'Outfit',weight:'bold'},color:'#64748b'},grid:{color:'#f1f5f9'}},
+                y:{ticks:{font:{size:8,family:'Outfit',weight:'bold'},color:'#0f172a'},grid:{display:false}}
+            }
+        }
     });
 
     // Blurred table — reg + make/model + type visible, all numbers blurred
