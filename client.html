@@ -565,7 +565,7 @@
             toast('No fleet registered yet — send onboarding form first.', 'red');
             return;
         }
-        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/weekly-form.html?client=' + _clientId;
+        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/client-weekly-data-form.html?client=' + _clientId;
         var phone   = (_client.contactTel || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = '27' + phone.slice(1);
         var name    = _client.contactName ? _client.contactName.split(' ')[0] : 'there';
