@@ -130,20 +130,25 @@
             <table>
                 <thead><tr>
                     <th>#</th>
-                    <th>Registration / Usage</th>
+                    <th style="min-width:110px;">Registration</th>
                     <th>Yr</th>
                     <th>Type</th>
                     <th>Make</th>
                     <th>Model</th>
+                    <th style="min-width:140px;">Load Profile</th>
+                    <th style="min-width:150px;">Trailer Type</th>
+                    <th style="min-width:70px;">Interlink</th>
+                    <th style="min-width:120px;">Aerokit</th>
                     <th class="th-blue">Mfr Min</th>
                     <th class="th-blue">Mfr Avg</th>
                     <th></th>
+                    <th class="th-green" style="color:#10b981;">Suggested</th>
                     <th class="th-amber">Client Target</th>
                     <th>Odo (km)</th>
                     <th>Fuel (L)</th>
                 </tr></thead>
                 <tbody id="tBody">
-                    <tr><td colspan="12"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
+                    <tr><td colspan="17"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -164,7 +169,47 @@
 <script>
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const TYPES=['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
-const USAGE=['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
+const LOAD_PROFILE=['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
+const TRAILER_TYPE=['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
+const AEROKIT=['None','Roof Fairing Only','Full Aerokit'];
+
+// ── Suggested consumption formula ─────────────────────────────────────────
+function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+    let base = parseFloat(mfrMin);
+
+    // Load profile adjustment
+    const loadAdj = {
+        'Fully Loaded':                0,
+        'Loaded Out / Empty Return':   0.18,
+        'Mixed / Variable':            0.10,
+        'Local Stop-Start':           -0.15
+    }[loadProfile] ?? 0;
+
+    // Trailer drag adjustment
+    const trailerAdj = {
+        'Tautliner / Curtainsider':   -0.05,
+        'Flatdeck / Lowbed':           0,
+        'Tanker':                      0.03,
+        'Side Tipper':                -0.08,
+        'Rear Tipper':                -0.08,
+        'Livestock / Animal Trailer': -0.06,
+        'Rigid Body (No Trailer)':     0
+    }[trailerType] ?? 0;
+
+    // Interlink adds drag
+    const interlinkAdj = (interlink === true || interlink === 'true' || interlink === 'Yes') ? -0.04 : 0;
+
+    // Aerokit improvement
+    const aerokitAdj = {
+        'None':              0,
+        'Roof Fairing Only': 0.05,
+        'Full Aerokit':      0.10
+    }[aerokit] ?? 0;
+
+    const total = base * (1 + loadAdj + trailerAdj + interlinkAdj + aerokitAdj);
+    return Math.round(total * 100) / 100;
+}
 
 let _cid=null,_client=null,_fleet=[],_vdb={},_n=0;
 
@@ -285,21 +330,32 @@ function renderTable(){
         const dbShow=(mMin||mAvg||e)?'':'show';
 
         const selType=(x)=>TYPES.map(t=>`<option${v.type===t?' selected':''}>${t}</option>`).join('');
-        const selUsage=(x)=>USAGE.map(u=>`<option${(v.usage||v.usedFor)===u?' selected':''}>${u}</option>`).join('');
+        const selLoad=(x)=>LOAD_PROFILE.map(u=>`<option${v.loadProfile===u?' selected':''}>${u}</option>`).join('');
+        const selTrailer=(x)=>TRAILER_TYPE.map(u=>`<option${v.trailerType===u?' selected':''}>${u}</option>`).join('');
+        const selAero=(x)=>AEROKIT.map(u=>`<option${v.aerokit===u?' selected':''}>${u}</option>`).join('');
+        const suggested=calcSuggested(v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min),v.loadProfile,v.trailerType,v.interlink,v.aerokit);
 
         return `<tr id="tr${i}">
             <td style="width:28px;font-size:11px;font-weight:700;color:#475569;">${i+1}</td>
             <td>
-                <input class="di reg-cell" style="width:85px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
-                <select class="di" style="width:100%;margin-top:3px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsage()}</select>
+                <input class="di reg-cell" style="min-width:110px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
             </td>
             <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
             <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
             <td><input class="di" style="width:90px;" id="mk${i}" placeholder="Make" value="${x(v.make)}" oninput="uf(${i},'make',this.value);lkRow(${i})"></td>
             <td><input class="di" style="width:108px;" id="mo${i}" placeholder="Model" value="${x(v.model)}" oninput="uf(${i},'model',this.value);lkRow(${i})"></td>
-            <td><input class="${minCls}" style="width:66px;" type="number" step="0.01" id="min${i}" placeholder="—" value="${mMin}" oninput="uf(${i},'mfr_min',this.value);uEdit(${i})"></td>
+            <td><select class="di" style="min-width:140px;font-size:10px;" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad()}</select></td>
+            <td><select class="di" style="min-width:150px;font-size:10px;" id="tt${i}" onchange="uf(${i},'trailerType',this.value);updSuggested(${i})">${selTrailer()}</select></td>
+            <td style="text-align:center;">
+                <label style="font-size:10px;color:#94a3b8;cursor:pointer;">
+                    <input type="checkbox" id="il${i}" ${(v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?'checked':''} onchange="uf(${i},'interlink',this.checked);updSuggested(${i})" style="margin-right:4px;">Yes
+                </label>
+            </td>
+            <td><select class="di" style="min-width:120px;font-size:10px;" id="ak${i}" onchange="uf(${i},'aerokit',this.value);updSuggested(${i})">${selAero()}</select></td>
+            <td><input class="${minCls}" style="width:66px;" type="number" step="0.01" id="min${i}" placeholder="—" value="${mMin}" oninput="uf(${i},'mfr_min',this.value);uEdit(${i});updSuggested(${i})"></td>
             <td><input class="${avgCls}" style="width:66px;" type="number" step="0.01" id="avg${i}" placeholder="—" value="${mAvg}" oninput="uf(${i},'mfr_avg',this.value);uEdit(${i})"></td>
             <td><button class="btn-sdb ${dbShow}" id="dbb${i}" onclick="sdb(${i})">Save to DB</button></td>
+            <td><input class="di" style="width:66px;background:rgba(16,185,129,0.07);color:#10b981;font-weight:700;" type="number" step="0.01" id="sug${i}" placeholder="—" value="${suggested||''}" readonly title="Suggested target based on Mfr Min + load/trailer/aerokit factors"></td>
             <td><input class="${tgtCls}" style="width:68px;" type="number" step="0.1" id="tgt${i}" placeholder="Set target" value="${x(v.clientTarget)}" oninput="uf(${i},'clientTarget',this.value)"></td>
             <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
                 ${fw?'<span class="w-badge">weekly</span>':''}
@@ -351,7 +407,15 @@ async function sdb(i){
     if(me)me.className='di af';if(ae)ae.className='di af';
     updateStats();checkUnk();
 }
-function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
+function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,aerokit:'None',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
+
+function updSuggested(i){
+    const v=_fleet[i];if(!v)return;
+    const mfrMin=v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min);
+    const sug=calcSuggested(mfrMin,v.loadProfile,v.trailerType,v.interlink,v.aerokit);
+    const el=document.getElementById('sug'+i);
+    if(el){el.value=sug||'';}
+}
 
 function updateStats(){
     const t=_fleet.length;
