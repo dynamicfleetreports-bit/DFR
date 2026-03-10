@@ -133,6 +133,7 @@
                     <th style="min-width:110px;">Registration</th>
                     <th>Yr</th>
                     <th>Type</th>
+                    <th style="min-width:120px;">Usage</th>
                     <th>Make</th>
                     <th>Model</th>
                     <th style="min-width:140px;">Load Profile</th>
@@ -148,7 +149,7 @@
                     <th>Fuel (L)</th>
                 </tr></thead>
                 <tbody id="tBody">
-                    <tr><td colspan="17"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
+                    <tr><td colspan="18"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
                 </tbody>
             </table>
         </div>
@@ -329,6 +330,7 @@ function renderTable(){
         const dbShow=(mMin||mAvg||e)?'':'show';
 
         const selType=(x)=>TYPES.map(t=>`<option${v.type===t?' selected':''}>${t}</option>`).join('');
+        const selUsageC=(x)=>['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'].map(u=>`<option${(v.usage||v.usedFor)===u?' selected':''}>${u}</option>`).join('');
         const selLoad=(x)=>LOAD_PROFILE.map(u=>`<option${v.loadProfile===u?' selected':''}>${u}</option>`).join('');
         const selTrailer=(x)=>TRAILER_TYPE.map(u=>`<option${v.trailerType===u?' selected':''}>${u}</option>`).join('');
         const selAero=(x)=>AEROKIT.map(u=>`<option${v.aerokit===u?' selected':''}>${u}</option>`).join('');
@@ -341,6 +343,7 @@ function renderTable(){
             </td>
             <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
             <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
+            <td><select class="di" style="min-width:120px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsageC()}</select></td>
             <td><input class="di" style="width:90px;" id="mk${i}" placeholder="Make" value="${x(v.make)}" oninput="uf(${i},'make',this.value);lkRow(${i})"></td>
             <td><input class="di" style="width:108px;" id="mo${i}" placeholder="Model" value="${x(v.model)}" oninput="uf(${i},'model',this.value);lkRow(${i})"></td>
             <td><select class="di" style="min-width:140px;font-size:10px;" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad()}</select></td>
@@ -406,7 +409,7 @@ async function sdb(i){
     if(me)me.className='di af';if(ae)ae.className='di af';
     updateStats();checkUnk();
 }
-function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,aerokit:'None',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
+function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,aerokit:'None',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
 
 function updSuggested(i){
     const v=_fleet[i];if(!v)return;
@@ -480,8 +483,12 @@ async function saveAndAudit(){
     _fleet.forEach(v=>{
         if(!v.reg)return;
         draft.auditData[v.reg]={reg:v.reg,make:v.make||'',model:v.model||'',year:v.year||'',type:v.type||'Heavy',
-            usedFor:v.usage||v.usedFor||'Long Distance',mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,
-            clientTarget:v.clientTarget||null,odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null};
+            usage:v.usage||v.usedFor||'Long Distance',
+            loadProfile:v.loadProfile||'Fully Loaded',trailerType:v.trailerType||'Tautliner / Curtainsider',
+            interlink:v.interlink||false,aerokit:v.aerokit||'None',
+            mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,
+            clientTarget:v.clientTarget||null,targetKmL:v.clientTarget||null,
+            odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null};
     });
     await cloudStorage.setItem(draftKey,JSON.stringify(draft));
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
