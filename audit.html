@@ -150,7 +150,10 @@
 
         <div class="audit-panel">
             <div class="grid-header">
-                <div class="col-reg">Registration</div><div class="col-type">Type</div>
+                <div class="col-reg">Registration</div><div class="col-type">Type / Usage</div>
+                <div class="col-data" style="color:#60a5fa;font-size:8px;">Mfr Min</div>
+                <div class="col-data" style="color:#10b981;font-size:8px;">Suggested</div>
+                <div class="col-data" style="color:#fbbf24;font-size:8px;">Client Target</div>
                 <div class="col-data">GPS KM</div><div class="col-data">Act Odo</div>
                 <div class="col-drift">Drift</div><div class="col-money">Eff. Loss</div>
                 <div class="col-data">Liters</div><div class="col-perf">Wasted L</div>
@@ -234,6 +237,30 @@
 
     <script>
         let auditData = {};
+        let _vdb = {};
+        (async function loadVDB(){
+            try {
+                await new Promise(res=>{const t=setInterval(()=>{if(typeof cloudStorage!=='undefined'){clearInterval(t);res();}},60);});
+                const r = await cloudStorage.getItem('VEHICLE_DB');
+                _vdb = r ? JSON.parse(r) : {};
+            } catch(e){ _vdb={}; }
+        })();
+        function _dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
+        function _lookupMfr(make,model){
+            if(!make) return null;
+            const e=_vdb[_dbk(make,model)]; if(e) return e;
+            for(const k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
+            return null;
+        }
+        function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+            if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+            let base = parseFloat(mfrMin);
+            const loadAdj = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[loadProfile]??0;
+            const trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.08,'Rear Tipper':-0.08,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[trailerType]??0;
+            const interlinkAdj = (interlink===true||interlink==='true'||interlink==='Yes') ? -0.04 : 0;
+            const aerokitAdj = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[aerokit]??0;
+            return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+        }
         let activeRows = [];
         let activeMode = '';
         let currentClientName = '';
@@ -325,8 +352,6 @@
                     }
                 }
             }
-
-            console.log('Current client:', currentClientName);
         }
 
         async function loadAuditDraft(clientName) {
@@ -489,8 +514,16 @@
                 newData[k] = {
                     reg: auditData[k].reg, type: auditData[k].type || 'Heavy',
                     make: auditData[k].make || '', model: auditData[k].model || '',
-                    year: auditData[k].year || '', usedFor: auditData[k].usedFor || 'Long Distance',
-                    targetKmL: auditData[k].targetKmL || '2.3',
+                    year: auditData[k].year || '',
+                    usage: auditData[k].usage || auditData[k].usedFor || 'Long Distance',
+                    loadProfile: auditData[k].loadProfile || 'Fully Loaded',
+                    trailerType: auditData[k].trailerType || 'Tautliner / Curtainsider',
+                    interlink: auditData[k].interlink || false,
+                    aerokit: auditData[k].aerokit || 'None',
+                    mfr_min: auditData[k].mfr_min || null,
+                    mfr_avg: auditData[k].mfr_avg || null,
+                    clientTarget: auditData[k].clientTarget || null,
+                    targetKmL: auditData[k].targetKmL || auditData[k].clientTarget || '2.3',
                     gps: activeMode === 'usage' ? 0 : (auditData[k].gps || 0),
                     odo: auditData[k].odo || '', liters: auditData[k].liters || '',
                     speeds: activeMode === 'speed' ? [] : (auditData[k].speeds || []),
@@ -524,8 +557,15 @@
                         reg: row[currentMapping.reg].trim(),
                         type: auditData[key]?.type || 'Heavy', make: auditData[key]?.make || '',
                         model: auditData[key]?.model || '', year: auditData[key]?.year || '',
-                        usedFor: auditData[key]?.usedFor || 'Long Distance',
-                        targetKmL: auditData[key]?.targetKmL || '2.3',
+                        usage: auditData[key]?.usage || auditData[key]?.usedFor || 'Long Distance',
+                        loadProfile: auditData[key]?.loadProfile || 'Fully Loaded',
+                        trailerType: auditData[key]?.trailerType || 'Tautliner / Curtainsider',
+                        interlink: auditData[key]?.interlink || false,
+                        aerokit: auditData[key]?.aerokit || 'None',
+                        mfr_min: auditData[key]?.mfr_min || null,
+                        mfr_avg: auditData[key]?.mfr_avg || null,
+                        clientTarget: auditData[key]?.clientTarget || null,
+                        targetKmL: auditData[key]?.targetKmL || auditData[key]?.clientTarget || '2.3',
                         gps: 0, odo: auditData[key]?.odo || '', liters: auditData[key]?.liters || '',
                         speeds: [], duration: 0, maxSpeed: 0
                     };
@@ -576,7 +616,10 @@
                 const odoVal = parseFloat(v.odo) || v.gps || 0;
                 const isUsingGps = !parseFloat(v.odo) && v.gps > 0;
                 const manualL = parseFloat(v.liters) || 0;
-                const target = parseFloat(v.targetKmL) || globalTarget;
+                const dbEntry   = _lookupMfr(v.make, v.model);
+                const mfrMin    = parseFloat(v.mfr_min) || (dbEntry?.mfr_min) || null;
+                const suggested = calcSuggested(mfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+                const target    = parseFloat(v.clientTarget) || parseFloat(v.targetKmL) || suggested || globalTarget;
                 const actKmL = (manualL > 0 && odoVal > 0) ? (odoVal / manualL) : 0;
                 const wastedL = (manualL > 0 && odoVal > 0 && actKmL < target) ? (manualL - (odoVal / target)) : 0;
                 const drift = (parseFloat(v.odo) > 0 && v.gps > 0) ? (parseFloat(v.odo) - v.gps) : 0;
@@ -619,7 +662,13 @@
                 container.innerHTML += `
                     <div class="vehicle-row">
                         <div class="col-reg font-medium text-[12px] truncate">${v.reg}${isUsingGps ? ' <span title="Using GPS km" style="color:#6366f1;font-size:9px;">GPS</span>' : ''}</div>
-                        <div class="col-type"><select onchange="auditData['${k}'].type=this.value; renderGrid(); autoSaveAuditDraft();" class="manual-input"><option value="Heavy"${v.type==='Heavy'?' selected':''}>Heavy</option><option value="Medium"${v.type==='Medium'?' selected':''}>Medium</option></select></div>
+                        <div class="col-type" style="font-size:10px;">
+                            <div style="font-weight:700;color:white;">${v.type||'Heavy'}</div>
+                            <div style="color:#64748b;font-size:9px;">${v.usage||v.usedFor||'—'}</div>
+                        </div>
+                        <div class="col-data text-[11px]" style="color:#60a5fa;">${mfrMin ? mfrMin.toFixed(2) : '<span style="opacity:0.3">—</span>'}</div>
+                        <div class="col-data text-[11px]" style="color:#10b981;">${suggested ? suggested.toFixed(2) : '<span style="opacity:0.3">—</span>'}</div>
+                        <div class="col-data text-[11px]" style="color:#fbbf24;font-weight:700;">${target.toFixed(2)}</div>
                         <div class="col-data text-[11px] opacity-40">${v.gps.toFixed(0)}</div>
                         <div class="col-data">${odoDisplay}</div>
                         <div class="col-drift text-[11px] ${Math.abs(drift) > 50 ? 'text-red-400 font-bold' : 'text-slate-500'}">${drift !== 0 ? drift.toFixed(0) : '—'}</div>
