@@ -170,7 +170,8 @@ let _cid=null,_client=null,_fleet=[],_vdb={},_n=0;
 
 function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
 
-window.addEventListener('DOMContentLoaded',async()=>{\n    initPeriod();
+window.addEventListener('DOMContentLoaded',async()=>{
+    initPeriod();
     await waitFor(()=>typeof cloudStorage!=='undefined');
     await loadVDB();
     await fillPicker();
