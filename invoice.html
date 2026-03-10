@@ -41,7 +41,13 @@
 
 <!-- ── Top bar ── -->
 <div class="no-print max-w-[860px] mx-auto mb-5 flex justify-between items-center flex-wrap gap-3">
-    <button onclick="window.history.back()" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">← Back</button>
+    <div class="flex gap-3 flex-wrap">
+        <button onclick="window.location.href='index.html'"    class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🏠 Dashboard</button>
+        <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🔭 Pipeline</button>
+        <button onclick="window.location.href='database.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🗄️ Clients</button>
+        <button onclick="window.location.href='audit.html'"    class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">📊 Audit</button>
+        <button onclick="window.location.href='churned.html'"  class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🔴 Churned</button>
+    </div>
     <div class="flex gap-3 flex-wrap items-center">
         <select id="clientPicker" onchange="loadClient(this.value)"
             style="background:white;border:1px solid #cbd5e1;border-radius:20px;padding:7px 16px;font-size:10px;font-weight:900;text-transform:uppercase;font-family:Outfit,sans-serif;cursor:pointer;color:#1e293b;">
@@ -103,13 +109,14 @@
             <p class="font-black text-slate-900 text-sm">Dynamic Fleet Reporting</p>
             <p class="text-slate-500 text-xs mt-1">Spitskop Farm, Moorreesburg</p>
             <p class="text-slate-500 text-xs">083 314 9592</p>
-            <p class="text-slate-500 text-xs">dynamicfleetreports@gmail.com</p>
+            <p class="text-slate-500 text-xs"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d1b5a8bfb0bcb8b2b7bdb4b4a5a3b4a1bea3a5a291b6bcb0b8bdffb2bebc">[email&#160;protected]</a></p>
         </div>
         <div>
             <p class="label mb-2">Bill To</p>
             <p id="billName" class="font-black text-slate-900 text-sm">—</p>
             <p id="billContact" class="text-slate-500 text-xs mt-1"></p>
             <p id="billEmail" class="text-slate-500 text-xs"></p>
+            <p id="billAddress" class="text-slate-500 text-xs mt-1"></p>
             <p id="billSlaRef" class="text-[9px] text-slate-400 mt-2 font-bold uppercase"></p>
         </div>
     </div>
@@ -187,7 +194,7 @@
             <div class="bank-row"><span class="bank-key">Account Number</span><span class="bank-val">1569394626</span></div>
             <div class="bank-row"><span class="bank-key">Branch Code</span><span class="bank-val">470010</span></div>
         </div>
-        <p class="text-[9px] text-slate-400 mt-3 font-bold">Payment due within <strong class="text-slate-600">7 days</strong> of invoice date. Please email proof of payment to <strong class="text-slate-600">dynamicfleetreports@gmail.com</strong></p>
+        <p class="text-[9px] text-slate-400 mt-3 font-bold">Payment due within <strong class="text-slate-600">7 days</strong> of invoice date. Please email proof of payment to <strong class="text-slate-600"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bbdfc2d5dad6d2d8ddd7dedecfc9decbd4c9cfc8fbdcd6dad2d795d8d4d6">[email&#160;protected]</a></strong></p>
     </div>
 
     <!-- ── Notes ── -->
@@ -197,7 +204,7 @@
     <footer class="mt-10 pt-6 border-t border-slate-100 flex justify-between items-end">
         <div>
             <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape</p>
-            <p class="text-[8px] text-slate-300 mt-1">dynamicfleetreports@gmail.com &nbsp;|&nbsp; 083 314 9592</p>
+            <p class="text-[8px] text-slate-300 mt-1"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bfdbc6d1ded2d6dcd9d3dadacbcddacfd0cdcbccffd8d2ded6d391dcd0d2">[email&#160;protected]</a> &nbsp;|&nbsp; 083 314 9592</p>
         </div>
         <div class="text-right">
             <p class="text-[8px] text-slate-400 font-bold uppercase">Thank you for your business</p>
@@ -207,7 +214,7 @@
 
 </div><!-- end invoice-card -->
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     var _currentClientId = null;
     var _currentClient   = null;
     var _overageCount    = 1;
@@ -256,7 +263,7 @@
     async function peekInvoiceNumber() {
         var raw = await cloudStorage.getItem('INVOICE_COUNTER');
         var counter = (raw ? parseInt(raw) : 0) + 1;
-        return 'INV-' + new Date().getFullYear() + '-' + String(counter).padStart(4, '0');
+        return 'INV-' + new Date().getFullYear() + '-' + String(counter).padStart(4, '0') + '-PEEK';
     }
 
     // ── Load clients into picker ──────────────────────────────────────────────
@@ -297,15 +304,24 @@
         var dueD     = new Date(now); dueD.setDate(dueD.getDate() + 7);
         var dueDate  = dueD.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        document.getElementById('invNumber').innerText  = _invNumber;
+        document.getElementById('invNumber').innerText  = _invNumber.replace('-PEEK','');
         document.getElementById('invDate').innerText    = invDate;
         document.getElementById('dueDate').innerText    = dueDate;
-        document.getElementById('footerRef').innerText  = _invNumber;
+        document.getElementById('footerRef').innerText  = _invNumber.replace('-PEEK','');
 
         // Bill to
         document.getElementById('billName').innerText    = client.company;
         document.getElementById('billContact').innerText = client.contactName || '';
         document.getElementById('billEmail').innerText   = client.email || '';
+        // Build address string from billing fields
+        var addrParts = [
+            client.billingStreet,
+            client.billingSuburb,
+            client.billingCity,
+            client.billingProvince,
+            client.billingPostal
+        ].filter(Boolean);
+        document.getElementById('billAddress').innerText = addrParts.join(', ');
         document.getElementById('billSlaRef').innerText  = client.slaRef ? 'SLA Ref: ' + client.slaRef : '';
 
         // Check if already has an invoice this period — show note
@@ -513,17 +529,4 @@
             'Dynamic Fleet Reporting\n' +
             'dynamicfleetreports@gmail.com | 083 314 9592'
         );
-        window.location.href = 'mailto:' + (client.email || '') + '?subject=' + subject + '&body=' + body;
-    }
-
-    // ── Init ──────────────────────────────────────────────────────────────────
-    window.onload = async function() {
-        initPickers();
-        var params     = new URLSearchParams(window.location.search);
-        var clientId   = params.get('clientId');
-        await populatePicker(clientId || null);
-    };
-</script>
-
-</body>
-</html>
+        window.location.href = 'mailto:' + (client.email || '') + '?subject=' + subject + '
