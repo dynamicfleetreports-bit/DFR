@@ -40,7 +40,12 @@
 
     <!-- ── Top action bar (no-print) ───────────────────────────────────────── -->
     <div class="no-print max-w-[900px] mx-auto mb-6 flex justify-between items-center flex-wrap gap-3">
-        <button onclick="window.history.back()" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">← Back to Pipeline</button>
+        <div class="flex gap-2 flex-wrap">
+            <button onclick="window.location.href='index.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🏠 Dashboard</button>
+            <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🔭 Pipeline</button>
+            <button onclick="window.location.href='database.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🗄️ Clients</button>
+            <button onclick="window.location.href='invoice.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🧾 Invoice</button>
+        </div>
         <div class="flex gap-3 flex-wrap">
             <button onclick="sendViaEmail()" id="sendEmailBtn"
                 style="background:#0f766e;color:white;padding:8px 20px;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;cursor:pointer;letter-spacing:0.08em;"
@@ -297,12 +302,12 @@
 
             <!-- Manual sign option -->
             <div class="mt-8 p-4 bg-slate-50 border border-slate-200 rounded text-xs text-slate-500 text-center leading-relaxed">
-                <strong class="text-slate-700">Prefer to sign manually?</strong> Click <strong>"Print / Save PDF"</strong> above, print this document, sign in the space provided, scan or photograph the signed page, and return it via email to <strong>dynamicfleetreports@gmail.com</strong> with the subject line <strong>"Signed SLA – <span class="signedSlaCompany">[Company Name]</span> – <span id="docRefFooter"></span>"</strong>. The Agreement becomes effective upon receipt of the signed copy.
+                <strong class="text-slate-700">Prefer to sign manually?</strong> Click <strong>"Print / Save PDF"</strong> above, print this document, sign in the space provided, scan or photograph the signed page, and return it via email to <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b6d2cfd8d7dbdfd5d0dad3d3c2c4d3c6d9c4c2c5f6d1dbd7dfda98d5d9db">[email&#160;protected]</a></strong> with the subject line <strong>"Signed SLA – <span class="signedSlaCompany">[Company Name]</span> – <span id="docRefFooter"></span>"</strong>. The Agreement becomes effective upon receipt of the signed copy.
             </div>
         </div>
 
         <footer class="mt-10 text-center border-t border-slate-100 pt-6">
-            <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape &nbsp;|&nbsp; dynamicfleetreports@gmail.com &nbsp;|&nbsp; 083 314 9592</p>
+            <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape &nbsp;|&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a7c3dec9c6cacec4c1cbc2c2d3d5c2d7c8d5d3d4e7c0cac6cecb89c4c8ca">[email&#160;protected]</a> &nbsp;|&nbsp; 083 314 9592</p>
             <p class="text-[8px] text-slate-300 mt-1">Ref: <span id="docRefFooter2"></span> &nbsp;|&nbsp; This document is legally binding upon execution. Please retain a copy for your records.</p>
         </footer>
 
@@ -414,7 +419,7 @@
             <div>
                 <p class="font-black uppercase mb-1">Schedule A — Issued by</p>
                 <p>Dynamic Fleet Reporting, Moorreesburg</p>
-                <p>dynamicfleetreports@gmail.com</p>
+                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="caaeb3a4aba7a3a9aca6afafbeb8afbaa5b8beb98aada7aba3a6e4a9a5a7">[email&#160;protected]</a></p>
             </div>
             <div class="text-right">
                 <p class="font-black uppercase mb-1">Incorporated into Agreement</p>
@@ -425,7 +430,7 @@
 
     </div><!-- end contract-card -->
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
         var _cbCounter       = 0;
         var _resolvedClient  = null;
@@ -740,11 +745,4 @@
             document.getElementById('poolSection').innerHTML =
                 '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">' +
                     '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Monthly Pool</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">' + fleetSize + '</p><p style="font-size:9px;color:#94a3b8;">reports included</p></div>' +
-                    '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Overage Rate</p><p style="font-size:1.8rem;font-weight:900;color:#ea580c;">R 150</p><p style="font-size:9px;color:#94a3b8;">per additional report</p></div>' +
-                    '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Report Types</p><p style="font-size:1rem;font-weight:900;color:#334155;margin-top:0.4rem;">Efficiency &amp; Speed</p><p style="font-size:9px;color:#94a3b8;">any combination</p></div>' +
-                '</div>';
-        };
-    </script>
-
-</body>
-</html>
+                    '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Overage Rate</p><p style="font-si
