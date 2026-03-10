@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Registration | Dynamic Fleet Reporting</title>
+    <script type="module" src="firebase-helper.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink:    #0f172a;
+            --mid:    #475569;
+            --soft:   #94a3b8;
+            --line:   #e2e8f0;
+            --bg:     #f8fafc;
+            --white:  #ffffff;
+            --accent: #1e40af;
+            --blue:   #3b82f6;
+            --green:  #059669;
+            --red:    #dc2626;
+            --gold:   #d97706;
+            --r:      14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+        .header {
+            background: var(--white); border-bottom: 1px solid var(--line);
+            padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(15,23,42,0.06);
+        }
+        .header img { height: 34px; }
+        .header-brand { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 800; color: var(--ink); }
+        .header-brand span { color: var(--blue); }
+        .header-pill {
+            margin-left: auto; background: #eff6ff; color: var(--accent);
+            font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+            border: 1px solid #bfdbfe; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+
+        .page { max-width: 600px; margin: 0 auto; padding: 24px 16px 80px; }
+
+        .welcome {
+            background: linear-gradient(135deg, var(--accent), #1d4ed8);
+            border-radius: var(--r); padding: 26px 22px; color: white; margin-bottom: 20px;
+        }
+        .welcome-eye { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; }
+        .welcome-title { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 800; margin-bottom: 8px; }
+        .welcome-sub { font-size: 13px; opacity: 0.85; line-height: 1.55; }
+        .welcome-co {
+            margin-top: 14px; background: rgba(255,255,255,0.15); border-radius: 8px;
+            padding: 9px 13px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+        }
+
+        .info-box {
+            background: #fffbeb; border: 1px solid #fde68a; border-left: 4px solid var(--gold);
+            border-radius: 10px; padding: 13px 15px; margin-bottom: 20px;
+            font-size: 12.5px; color: #92400e; line-height: 1.6;
+        }
+
+        .sec-label {
+            font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .sec-label .badge {
+            background: var(--accent); color: white; font-size: 10px; font-weight: 700;
+            padding: 2px 7px; border-radius: 20px; font-family: 'DM Sans', sans-serif;
+        }
+
+        .v-card {
+            background: var(--white); border: 1.5px solid var(--line); border-radius: var(--r);
+            padding: 16px; margin-bottom: 10px; transition: border-color 0.2s;
+        }
+        .v-card:focus-within { border-color: var(--blue); }
+        .v-card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .v-num { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
+        .btn-rm {
+            background: none; border: 1px solid #fecaca; color: var(--red);
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+        }
+        .btn-rm:hover { background: #fef2f2; }
+
+        .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .fg:last-child { margin-bottom: 0; }
+        .field { display: flex; flex-direction: column; gap: 4px; }
+        .field label { font-size: 10px; font-weight: 700; color: var(--soft); text-transform: uppercase; letter-spacing: 0.1em; }
+        .field input, .field select {
+            background: var(--bg); border: 1.5px solid var(--line); border-radius: 8px;
+            padding: 11px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--ink);
+            width: 100%; transition: border-color 0.15s, box-shadow 0.15s; -webkit-appearance: none; appearance: none;
+        }
+        .field input:focus, .field select:focus {
+            outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: var(--white);
+        }
+        .field input::placeholder { color: #cbd5e1; }
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;
+        }
+
+        .btn-add {
+            width: 100%; background: var(--white); border: 2px dashed #bfdbfe;
+            color: var(--accent); padding: 15px; border-radius: var(--r);
+            font-size: 14px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-bottom: 24px; transition: background 0.15s;
+        }
+        .btn-add:hover { background: #eff6ff; }
+
+        .btn-submit {
+            width: 100%; background: linear-gradient(135deg, var(--green), #047857);
+            color: white; border: none; padding: 17px; border-radius: var(--r);
+            font-size: 15px; font-weight: 700; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; box-shadow: 0 4px 14px rgba(5,150,105,0.3);
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover { opacity: 0.93; transform: translateY(-1px); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .err-box {
+            background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--red);
+            border-radius: 8px; padding: 11px 13px; font-size: 12.5px; color: var(--red);
+            margin-bottom: 14px; display: none; line-height: 1.6;
+        }
+        .empty-hint { text-align: center; padding: 28px 16px; color: var(--soft); font-size: 13px; }
+
+        /* Success screen */
+        .success { display: none; text-align: center; padding: 60px 20px; }
+        .success-icon {
+            width: 68px; height: 68px; background: linear-gradient(135deg, var(--green), #047857);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; margin: 0 auto 18px; box-shadow: 0 8px 24px rgba(5,150,105,0.25);
+        }
+        .success-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+        .success-sub { font-size: 13.5px; color: var(--mid); line-height: 1.6; max-width: 300px; margin: 0 auto; }
+
+        /* 404 screen */
+        .nf { display: none; text-align: center; padding: 70px 20px; }
+        .nf-icon { font-size: 48px; margin-bottom: 16px; }
+        .nf-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+        .nf-sub { font-size: 13px; color: var(--mid); line-height: 1.6; }
+
+        /* Loading */
+        .loader {
+            display: none; position: fixed; inset: 0; background: rgba(248,250,252,0.88);
+            z-index: 200; align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+        }
+        .loader.on { display: flex; }
+        .spin {
+            width: 38px; height: 38px; border: 3px solid var(--line);
+            border-top-color: var(--blue); border-radius: 50%; animation: sp 0.7s linear infinite;
+        }
+        @keyframes sp { to { transform: rotate(360deg); } }
+        .loader-txt { font-size: 13px; font-weight: 700; color: var(--mid); }
+
+        @media (max-width: 480px) {
+            .fg { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="spin"></div>
+    <div class="loader-txt" id="loaderTxt">Loading…</div>
+</div>
+
+<div class="header">
+    <img src="Logo.png" alt="DFR" onerror="this.style.display='none'">
+    <div class="header-brand">Dynamic <span>Fleet</span> Reporting</div>
+    <div class="header-pill">Fleet Registration</div>
+</div>
+
+<!-- MAIN PAGE -->
+<div class="page" id="pgMain" style="display:none;">
+
+    <div class="welcome">
+        <div class="welcome-eye">Welcome to DFR</div>
+        <div class="welcome-title">Register Your Fleet</div>
+        <div class="welcome-sub">Add all the vehicles in your fleet below. You can return to this link at any time to add or update vehicles.</div>
+        <div class="welcome-co">🏢 <span id="coName">Loading…</span></div>
+    </div>
+
+    <div class="info-box">
+        <strong>How to fill this in:</strong> Add one entry per vehicle. Registration must match your telematics system exactly. <strong>Target km/L</strong> is what you realistically expect each vehicle to achieve under normal conditions — leave blank if unsure, we'll set it together.
+    </div>
+
+    <div class="err-box" id="errBox"></div>
+
+    <div class="sec-label">
+        Your Vehicles <span class="badge" id="vCount">0</span>
+    </div>
+
+    <div id="vList">
+        <div class="empty-hint" id="emptyHint">No vehicles added yet — tap the button below to start.</div>
+    </div>
+
+    <button class="btn-add" onclick="addCard()">＋ Add Vehicle</button>
+
+    <button class="btn-submit" id="subBtn" onclick="submit()">✓ Save Fleet Register</button>
+</div>
+
+<!-- SUCCESS PAGE -->
+<div class="page success" id="pgSuccess">
+    <div class="success-icon">✓</div>
+    <div class="success-title">Fleet Registered!</div>
+    <div class="success-sub">Your fleet details have been saved. Dynamic Fleet Reporting has been notified and will follow up shortly.<br><br>You can return to this link at any time to add or update vehicles.</div>
+</div>
+
+<!-- NOT FOUND PAGE -->
+<div class="page nf" id="pgNF">
+    <div class="nf-icon">🔍</div>
+    <div class="nf-title">Link Not Found</div>
+    <div class="nf-sub">This registration link is invalid or expired.<br>Please contact Dynamic Fleet Reporting for a new link.<br><br><strong>083 314 9592</strong></div>
+</div>
+
+<script>
+const APPS_URL   = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+const MAKES      = ['','DAF','FAW','Ford','Freightliner','Fuso','GWM','Hino','Isuzu','Isuzu LDV','Iveco','Mahindra','MAN','Mercedes-Benz','Nissan','Powerstar','Scania','Shacman','Tata','Toyota','UD Trucks','Volkswagen','Volvo','Other'];
+const LOAD_PROFILE = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
+const TRAILER_TYPE = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
+const AEROKIT      = ['None','Roof Fairing Only','Full Aerokit'];
+
+let _cid = null, _client = null, _n = 0;
+
+window.addEventListener('DOMContentLoaded', async () => {
+    _cid = new URLSearchParams(window.location.search).get('client');
+    if (!_cid) { show('nf'); return; }
+
+    loading('Loading your details…');
+    await waitFor(() => typeof cloudStorage !== 'undefined');
+
+    try {
+        const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        _client = all.find(c => c.id === _cid);
+        if (!_client) { doneLoading(); show('nf'); return; }
+
+        document.getElementById('coName').textContent = _client.company;
+
+        const fleet = Array.isArray(_client.fleet) ? _client.fleet : Object.values(_client.fleet || {});
+        if (fleet.length > 0) fleet.forEach(v => addCard(v));
+
+        doneLoading(); show('main');
+    } catch(e) {
+        doneLoading(); show('main');
+    }
+});
+
+function waitFor(fn) {
+    return new Promise(res => { const t = setInterval(() => { if(fn()) { clearInterval(t); res(); } }, 60); });
+}
+
+function addCard(data) {
+    const i = _n++;
+    document.getElementById('emptyHint').style.display = 'none';
+
+    const mkOpts = MAKES.map(m => `<option value="${esc(m)}"${data && data.make===m?' selected':''}>${m||'— Select Make —'}</option>`).join('');
+    const lpOpts = LOAD_PROFILE.map(u => `<option value="${esc(u)}"${data && data.loadProfile===u?' selected':''}>${u}</option>`).join('');
+    const ttOpts = TRAILER_TYPE.map(u => `<option value="${esc(u)}"${data && data.trailerType===u?' selected':''}>${u}</option>`).join('');
+    const akOpts = AEROKIT.map(u => `<option value="${esc(u)}"${data && data.aerokit===u?' selected':''}>${u}</option>`).join('');
+    const ilChk  = (data?.interlink===true||data?.interlink==='true'||data?.interlink==='Yes') ? 'checked' : '';
+
+    const d = document.createElement('div');
+    d.className = 'v-card'; d.id = `vc-${i}`;
+    d.innerHTML = `
+        <div class="v-card-hd">
+            <div class="v-num" id="vn-${i}">Vehicle ${document.querySelectorAll('.v-card').length + 1}</div>
+            <button class="btn-rm" onclick="rmCard(${i})">✕ Remove</button>
+        </div>
+
+        <div class="fg">
+            <div class="field">
+                <label>Registration *</label>
+                <input id="r-${i}" type="text" placeholder="ABC123GP" maxlength="12" value="${esc(data?.reg||'')}" oninput="this.value=this.value.toUpperCase()">
+            </div>
+            <div class="field">
+                <label>Year</label>
+                <input id="y-${i}" type="number" placeholder="2020" min="1990" max="2030" value="${esc(data?.year||'')}">
+            </div>
+        </div>
+
+        <div class="fg">
+            <div class="field">
+                <label>Make *</label>
+                <select id="mk-${i}">${mkOpts}</select>
+            </div>
+            <div class="field">
+                <label>Model</label>
+                <input id="mo-${i}" type="text" placeholder="e.g. R450, 1934" value="${esc(data?.model||'')}">
+            </div>
+        </div>
+
+        <div class="section-divider" style="margin:12px 0 8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Operating Profile</div>
+
+        <div class="fg">
+            <div class="field">
+                <label>Load Profile *</label>
+                <select id="lp-${i}">${lpOpts}</select>
+            </div>
+            <div class="field">
+                <label>Trailer Type *</label>
+                <select id="tt-${i}">${ttOpts}</select>
+            </div>
+        </div>
+
+        <div class="fg">
+            <div class="field">
+                <label>Aerokit Fitted</label>
+                <select id="ak-${i}">${akOpts}</select>
+            </div>
+            <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:22px;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">
+                    <input type="checkbox" id="il-${i}" ${ilChk} style="width:18px;height:18px;accent-color:#2563eb;">
+                    Interlink / Double Trailer
+                </label>
+            </div>
+        </div>
+
+        <div class="section-divider" style="margin:12px 0 8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;">Target (optional)</div>
+
+        <div class="fg">
+            <div class="field">
+                <label>Your Target km/L <span style="font-size:9px;opacity:.7;">(leave blank — we'll suggest one)</span></label>
+                <input id="t-${i}" type="number" placeholder="e.g. 3.5" step="0.1" min="0.5" max="30" value="${esc(data?.clientTarget||data?.targetKmL||'')}">
+            </div>
+        </div>
+    `;
+    document.getElementById('vList').appendChild(d);
+    recount();
+}
+
+function rmCard(i) {
+    const el = document.getElementById(`vc-${i}`);
+    if (el) el.remove();
+    recount();
+    renumber();
+    if (!document.querySelectorAll('.v-card').length) {
+        document.getElementById('emptyHint').style.display = 'block';
+    }
+}
+
+function recount() {
+    document.getElementById('vCount').textContent = document.querySelectorAll('.v-card').length;
+}
+
+function renumber() {
+    document.querySelectorAll('.v-card').forEach((c, i) => {
+        const nm = c.querySelector('[id^="vn-"]');
+        if (nm) nm.textContent = `Vehicle ${i+1}`;
+    });
+}
+
+function collect() {
+    const cards = document.querySelectorAll('.v-card');
+    const out = [], errs = [];
+    cards.forEach((c, i) => {
+        const id  = c.id.replace('vc-','');
+        const reg = (document.getElementById(`r-${id}`)?.value||'').trim().toUpperCase();
+        const mk  = document.getElementById(`mk-${id}`)?.value||'';
+        const mo  = (document.getElementById(`mo-${id}`)?.value||'').trim();
+        const yr  = document.getElementById(`y-${id}`)?.value||'';
+        const lp  = document.getElementById(`lp-${id}`)?.value||LOAD_PROFILE[0];
+        const tt  = document.getElementById(`tt-${id}`)?.value||TRAILER_TYPE[0];
+        const ak  = document.getElementById(`ak-${id}`)?.value||'None';
+        const il  = document.getElementById(`il-${id}`)?.checked||false;
+        const tg  = document.getElementById(`t-${id}`)?.value||'';
+        if (!reg) { errs.push(`Vehicle ${i+1}: Registration required.`); return; }
+        if (!mk)  { errs.push(`Vehicle ${i+1}: Make required.`); return; }
+        out.push({ reg, make:mk, model:mo, year:yr?parseInt(yr):null,
+            loadProfile:lp, trailerType:tt, aerokit:ak, interlink:il,
+            clientTarget:tg?parseFloat(tg):null, mfr_min:null, mfr_avg:null,
+            odo:null, liters:null, gps:null, speeds:null });
+    });
+    return { vehicles:out, errs };
+}
+
+async function submit() {
+    hideErr();
+    const { vehicles, errs } = collect();
+    if (errs.length)      { showErr(errs.join('<br>')); return; }
+    if (!vehicles.length) { showErr('Please add at least one vehicle before saving.'); return; }
+
+    const btn = document.getElementById('subBtn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+    loading('Saving your fleet…');
+
+    try {
+        const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const idx = all.findIndex(c => c.id === _cid);
+        if (idx === -1) throw new Error('Client not found');
+
+        // Merge — preserve DFR-set mfr specs for any already-processed vehicles
+        const prev = Array.isArray(all[idx].fleet) ? all[idx].fleet : Object.values(all[idx].fleet||{});
+        const merged = vehicles.map(v => {
+            const p = prev.find(e => e.reg === v.reg);
+            // Preserve DFR-set fields (mfr specs, odo, liters) but always use client's latest operating profile
+            return p ? { ...v, mfr_min: p.mfr_min, mfr_avg: p.mfr_avg, odo: p.odo, liters: p.liters } : v;
+        });
+
+        all[idx].fleet               = merged;
+        all[idx].fleetSize           = merged.length;
+        all[idx].onboardingSubmitted = true;
+        all[idx].onboardingDate      = new Date().toISOString();
+
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+        await notifyDFR(all[idx].company, merged.length);
+
+        doneLoading(); show('success');
+    } catch(e) {
+        doneLoading();
+        btn.disabled = false; btn.textContent = '✓ Save Fleet Register';
+        showErr('Could not save. Please check your connection and try again.');
+    }
+}
+
+function notifyDFR(company, count) {
+    return new Promise(res => {
+        const cb  = `_cb${Date.now()}`;
+        const msg = encodeURIComponent(`🚛 Onboarding Submitted\nClient: ${company}\nVehicles: ${count}\nAction: Set Mfr specs + targets in data-entry.html`);
+        window[cb] = () => { delete window[cb]; res(); };
+        const s = document.createElement('script');
+        s.src = `${APPS_URL}?action=whatsapp&message=${msg}&callback=${cb}`;
+        s.onerror = () => res();
+        document.body.appendChild(s);
+        setTimeout(res, 5000);
+    });
+}
+
+function loading(txt) { document.getElementById('loaderTxt').textContent = txt||'Loading…'; document.getElementById('loader').classList.add('on'); }
+function doneLoading() { document.getElementById('loader').classList.remove('on'); }
+function showErr(m) { const e=document.getElementById('errBox'); e.innerHTML=m; e.style.display='block'; e.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function hideErr() { document.getElementById('errBox').style.display='none'; }
+function show(s) {
+    document.getElementById('pgMain').style.display    = s==='main'    ? 'block' : 'none';
+    document.getElementById('pgSuccess').style.display = s==='success' ? 'block' : 'none';
+    document.getElementById('pgNF').style.display      = s==='nf'      ? 'block' : 'none';
+}
+function esc(v) { return String(v||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;'); }
+</script>
+</body>
+</html>
