@@ -265,8 +265,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const clientFromUrl = urlParams.get('client');
 
-            if (clientFromUrl) {
-                const decodedClient = decodeURIComponent(clientFromUrl);
+            // Resolve company name — prefer ?client= name, fall back to ?id= lookup
+            let resolvedName = clientFromUrl ? decodeURIComponent(clientFromUrl) : null;
+            if (!resolvedName) {
+                const clientIdFromUrl = urlParams.get('id');
+                if (clientIdFromUrl) {
+                    const allForLookup = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+                    const found = allForLookup.find(c => c.id === clientIdFromUrl);
+                    if (found) resolvedName = found.company;
+                }
+            }
+
+            if (resolvedName) {
+                const decodedClient = resolvedName;
                 currentClientName = decodedClient;
                 document.getElementById('client-name').textContent = decodedClient.toUpperCase();
                 await cloudStorage.setItem('currentAuditClient', decodedClient);
