@@ -35,7 +35,9 @@
         .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
         .inv-row:last-child { border-bottom:none; }
         .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
-        .fleet-row { display:grid; grid-template-columns:40px 1fr 80px 80px 80px 90px; gap:0; padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-row { display:grid; grid-template-columns:32px 100px 60px 70px 110px 130px 150px 110px 70px 70px 70px 60px; gap:0; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-tbl-wrap { overflow-x:auto; }
+        .fleet-sug { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:4px 8px; font-size:10px; font-weight:900; text-align:center; }
         .fleet-row:last-child { border-bottom:none; }
         input, select { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:7px 10px; color:white; font-size:12px; font-family:Outfit,sans-serif; outline:none; width:100%; box-sizing:border-box; }
         input:focus, select:focus { border-color:#10b981; }
@@ -141,15 +143,23 @@
                 </div>
             </div>
             <div style="background:rgba(15,23,42,0.5);border-radius:1rem;overflow:hidden;">
-                <div class="fleet-row" style="background:rgba(15,23,42,0.8);">
-                    <div class="inv-head">#</div>
-                    <div class="inv-head">Registration</div>
-                    <div class="inv-head">Type</div>
-                    <div class="inv-head">Make / Model</div>
-                    <div class="inv-head">Target km/L</div>
-                    <div class="inv-head">Remove</div>
+                <div class="fleet-tbl-wrap">
+                    <div class="fleet-row" style="background:rgba(15,23,42,0.8);">
+                        <div class="inv-head">#</div>
+                        <div class="inv-head">Reg</div>
+                        <div class="inv-head">Year</div>
+                        <div class="inv-head">Type</div>
+                        <div class="inv-head">Make / Model</div>
+                        <div class="inv-head">Load Profile</div>
+                        <div class="inv-head">Trailer Type</div>
+                        <div class="inv-head">Aerokit</div>
+                        <div class="inv-head">Interlink</div>
+                        <div class="inv-head" style="color:#10b981;">Suggested</div>
+                        <div class="inv-head" style="color:#fbbf24;">Target</div>
+                        <div class="inv-head">Remove</div>
+                    </div>
+                    <div id="fleetTable"></div>
                 </div>
-                <div id="fleetTable"></div>
             </div>
         </div>
 
@@ -402,6 +412,25 @@
     }
 
     // ── Fleet table ───────────────────────────────────────────
+    var LOAD_PROFILE_C = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
+    var TRAILER_TYPE_C = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
+    var AEROKIT_C      = ['None','Roof Fairing Only','Full Aerokit'];
+    var VEHICLE_TYPES  = ['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
+
+    function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+        if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+        var base = parseFloat(mfrMin);
+        var loadAdj = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[loadProfile]||0;
+        var trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.08,'Rear Tipper':-0.08,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[trailerType]||0;
+        var interlinkAdj = (interlink===true||interlink==='true'||interlink==='Yes') ? -0.04 : 0;
+        var aerokitAdj = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[aerokit]||0;
+        return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+    }
+
+    function selOpts(arr, val) {
+        return arr.map(function(o){ return '<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>'; }).join('');
+    }
+
     function renderFleetTable() {
         var t = document.getElementById('fleetTable');
         if (_fleetData.length===0) {
@@ -409,12 +438,21 @@
             return;
         }
         t.innerHTML = _fleetData.map(function(v,i) {
+            var sug = calcSuggested(v.mfr_min, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+            var tgt = v.clientTarget || v.targetKmL || '';
+            var ilChk = (v.interlink===true||v.interlink==='true'||v.interlink==='Yes') ? 'checked' : '';
             return '<div class="fleet-row">'
-                + '<div style="color:rgba(255,255,255,0.3);font-weight:900;">'+( i+1)+'</div>'
-                + '<div><input type="text" value="'+(v.reg||'')+'" onchange="updateFleet('+i+',\'reg\',this.value)" placeholder="ABC123GP"></div>'
-                + '<div><select onchange="updateFleet('+i+',\'type\',this.value)"><option '+(v.type==='Heavy'?'selected':'')+'>Heavy</option><option '+(v.type==='Medium'?'selected':'')+'>Medium</option></select></div>'
+                + '<div style="color:rgba(255,255,255,0.3);font-weight:900;">'+(i+1)+'</div>'
+                + '<div><input type="text" value="'+(v.reg||'')+'" onchange="updateFleet('+i+',\'reg\',this.value)" placeholder="ABC123GP" style="text-transform:uppercase;"></div>'
+                + '<div><input type="number" value="'+(v.year||'')+'" onchange="updateFleet('+i+',\'year\',this.value)" placeholder="2020" min="1990" max="2030"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'type\',this.value)">'+selOpts(VEHICLE_TYPES,v.type||'Heavy')+'</select></div>'
                 + '<div><input type="text" value="'+(v.make||'')+' '+(v.model||'')+'" onchange="updateFleetMakeModel('+i+',this.value)" placeholder="Volvo FH440"></div>'
-                + '<div><input type="number" value="'+(v.targetKmL||2.3)+'" step="0.1" onchange="updateFleet('+i+',\'targetKmL\',this.value)" style="width:80px;"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'loadProfile\',this.value);renderFleetTable()">'+selOpts(LOAD_PROFILE_C,v.loadProfile||'Fully Loaded')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'trailerType\',this.value);renderFleetTable()">'+selOpts(TRAILER_TYPE_C,v.trailerType||'Tautliner / Curtainsider')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'aerokit\',this.value);renderFleetTable()">'+selOpts(AEROKIT_C,v.aerokit||'None')+'</select></div>'
+                + '<div style="text-align:center;"><label style="font-size:10px;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;"><input type="checkbox" '+ilChk+' onchange="updateFleet('+i+',\'interlink\',this.checked);renderFleetTable()" style="width:14px;height:14px;accent-color:#2563eb;"> Yes</label></div>'
+                + '<div>'+(sug ? '<span class="fleet-sug">'+sug+'</span>' : '<span style="color:rgba(255,255,255,0.15);font-size:10px;">—</span>')+'</div>'
+                + '<div><input type="number" value="'+tgt+'" step="0.1" onchange="updateFleet('+i+',\'clientTarget\',this.value)" placeholder="Set" style="color:#fbbf24;font-weight:700;"></div>'
                 + '<div><button onclick="removeVehicle('+i+')" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;">✕</button></div>'
                 + '</div>';
         }).join('');
@@ -422,8 +460,9 @@
 
     function updateFleet(i,field,val) { if(_fleetData[i]) _fleetData[i][field]=val; }
     function updateFleetMakeModel(i,val) { var parts=val.trim().split(' '); _fleetData[i].make=parts[0]||''; _fleetData[i].model=parts.slice(1).join(' ')||''; }
-    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',make:'',model:'',year:'',usedFor:'Long Distance',targetKmL:'2.3'}); renderFleetTable(); }
+    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',make:'',model:'',year:'',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',aerokit:'None',interlink:false,clientTarget:null,mfr_min:null,mfr_avg:null}); renderFleetTable(); }
     function removeVehicle(i) { if(confirm('Remove vehicle?')){ _fleetData.splice(i,1); renderFleetTable(); } }
+
 
     async function saveFleet() {
         var valid = _fleetData.filter(function(v){ return v.reg&&v.reg.trim(); });
