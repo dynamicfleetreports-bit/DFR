@@ -4,371 +4,430 @@
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fleet Intel | Manual Data Entry</title>
+    <title>Data Entry | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; padding: 0; }
-        .sticky-header { position: sticky; top: 0; background: #020617; z-index: 100; padding: 2rem 2rem 0 2rem; }
-        .container { max-width: 1900px; margin: 0 auto; }
-        .scroll-content { padding: 0 2rem 2rem 2rem; }
-        .entry-table { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.5rem; }
-        
-        .table-header, .table-row { 
-            display: flex !important;
-            gap: 0.75rem; 
-            padding: 0.75rem 1rem; 
-            align-items: center;
-        }
-        .table-header { border-bottom: 2px solid #10b981; margin-bottom: 0.5rem; }
-        .table-row { border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .table-row:hover { background: rgba(16, 185, 129, 0.05); }
-        .header-cell { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #10b981; opacity: 0.8; }
-        
-        .col-num   { width: 40px !important; flex-shrink: 0; }
-        .col-reg   { width: 160px !important; flex-shrink: 0; }
-        .col-type  { width: 100px !important; flex-shrink: 0; }
-        .col-make  { width: 110px !important; flex-shrink: 0; }
-        .col-model { width: 110px !important; flex-shrink: 0; }
-        .col-year  { width: 80px !important; flex-shrink: 0; }
-        .col-used  { width: 140px !important; flex-shrink: 0; }
-        .col-kml   { width: 80px !important; flex-shrink: 0; }
-        .col-odo   { width: 120px !important; flex-shrink: 0; }
-        .col-liters{ width: 120px !important; flex-shrink: 0; }
-        
-        .data-input { background: #0f172a; border: 2px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.6rem; color: white; width: 100%; font-size: 13px; outline: none; transition: all 0.2s; }
-        .data-input:focus { border-color: #10b981; background: #1e293b; }
-        .data-input::-webkit-outer-spin-button, .data-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .data-input[type=number] { -moz-appearance: textfield; }
-        .progress-bar { background: rgba(15, 23, 42, 0.6); height: 8px; border-radius: 999px; overflow: hidden; margin-bottom: 2rem; }
-        .progress-fill { background: linear-gradient(90deg, #10b981, #34d399); height: 100%; transition: width 0.3s; }
+        body { font-family: 'Outfit', sans-serif; background: #020617; color: #e2e8f0; margin: 0; }
+        #sidebar { width: 220px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 1.5rem 0.75rem; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
+        .logo-area { padding: 0 0.5rem 2rem 0.5rem; }
+        .logo-area img { height: 36px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1rem; margin-bottom: 2px; border-radius: 0.6rem; color: #64748b; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
+        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
+        .nav-sep { height: 1px; background: rgba(255,255,255,0.05); margin: 8px 0; }
+        #main { margin-left: 220px; min-height: 100vh; }
+        .top-bar { background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 40; flex-wrap: wrap; }
+        .top-bar h1 { font-size: 22px; font-weight: 900; font-style: italic; text-transform: uppercase; color: white; line-height: 1; }
+        .top-bar p  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #10b981; margin-bottom: 2px; }
+        .content { padding: 1.5rem 2rem; }
+        .client-bar { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .client-bar label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
+        .c-sel { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; font-family: 'Outfit',sans-serif; font-weight: 700; font-size: 13px; padding: 8px 12px; cursor: pointer; }
+        .c-sel:focus { outline: none; border-color: #10b981; }
+        .pill { font-size: 10px; font-weight: 700; padding: 5px 11px; border-radius: 20px; }
+        .pill-green  { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #10b981; }
+        .pill-amber  { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; cursor: pointer; }
+        .pill-purple { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: #818cf8; }
+        .stats-row { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+        .stat { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 10px 16px; flex: 1; min-width: 80px; }
+        .stat .lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 3px; }
+        .stat .val { font-size: 18px; font-weight: 900; }
+        .c-blue { color: #60a5fa; } .c-green { color: #10b981; } .c-amber { color: #fbbf24; } .c-red { color: #f87171; } .c-purple { color: #c4b5fd; }
+        .db-alert { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-left: 4px solid #fbbf24; border-radius: 0.75rem; padding: 11px 14px; margin-bottom: 1.25rem; display: none; font-size: 12px; color: #fbbf24; font-weight: 600; }
+        .tbl-wrap { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.25rem; overflow-x: auto; margin-bottom: 1.25rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+        thead tr { border-bottom: 2px solid rgba(16,185,129,0.25); }
+        thead th { padding: 9px 8px; font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981; text-align: left; white-space: nowrap; }
+        thead th.th-blue { color: #60a5fa; } thead th.th-amber { color: #fbbf24; }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        td { padding: 6px 7px; vertical-align: middle; }
+        .di { background: rgba(15,23,42,0.8); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 7px; color: white; font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 600; width: 100%; transition: border-color 0.15s; -moz-appearance: textfield; }
+        .di::-webkit-outer-spin-button,.di::-webkit-inner-spin-button { -webkit-appearance:none; }
+        .di:focus { outline: none; border-color: #10b981; background: #0f172a; }
+        .di.af  { border-color: rgba(96,165,250,0.45); color: #93c5fd; }
+        .di.hv  { border-color: rgba(16,185,129,0.45); }
+        .di.unk { border-color: rgba(251,191,36,0.35); color: #fbbf24; }
+        .di.tgt { border-color: rgba(168,85,247,0.45); color: #c4b5fd; }
+        .reg-cell { font-size: 12px; font-weight: 900; color: white; }
+        .btn-sdb { font-size: 9px; font-weight: 900; text-transform: uppercase; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 3px 7px; border-radius: 4px; cursor: pointer; white-space: nowrap; display: none; font-family: 'Outfit',sans-serif; }
+        .btn-sdb:hover { background: rgba(251,191,36,0.2); }
+        .btn-sdb.show { display: inline-block; }
+        .w-badge { font-size: 7px; color: #10b981; font-weight: 700; display: block; letter-spacing: 0.05em; text-transform: uppercase; }
+        .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 11px 20px; border-radius: 0.75rem; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; border: none; font-family: 'Outfit',sans-serif; transition: all 0.15s; }
+        .btn-p  { background: #10b981; color: #020617; }
+        .btn-p:hover { background: #059669; }
+        .btn-s  { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
+        .btn-s:hover { background: rgba(255,255,255,0.09); color: white; }
+        .btn-b  { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; }
+        .btn-b:hover { background: rgba(96,165,250,0.18); }
+        .empty-st { text-align: center; padding: 48px; color: #475569; }
+        .empty-st .ico { font-size: 38px; margin-bottom: 10px; }
+        .empty-st .ttl { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 6px; }
+        .empty-st .sub { font-size: 11px; line-height: 1.5; }
+        .prog-bar { background: rgba(15,23,42,0.6); height: 5px; border-radius: 99px; overflow: hidden; margin-bottom: 1rem; }
+        .prog-fill { background: linear-gradient(90deg,#10b981,#34d399); height: 100%; transition: width 0.4s; border-radius: 99px; }
+        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: #10b981; color: #020617; padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 900; transform: translateY(80px); opacity: 0; transition: all 0.3s; pointer-events: none; }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.err  { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
-    <div class="sticky-header">
-        <div class="container">
-            <div class="mb-8">
-                <div class="flex justify-between items-end mb-4">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Manual Data Input</p>
-                        <h1 class="text-4xl font-black italic uppercase text-white">
-                            <span id="client-name">Loading...</span>
-                        </h1>
-                    </div>
-                    <div class="text-right">
-                        <p id="progress-text" class="text-2xl font-black text-emerald-400">0 / 0</p>
-                        <p class="text-[9px] font-black uppercase text-white/30 tracking-widest">Vehicles Completed</p>
-                    </div>
-                </div>
-                
-                <div class="progress-bar">
-                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
-                </div>
+<div id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="DFR" onerror="this.style.display='none'"></div>
+    <a href="index.html"      class="nav-item">🏠 Dashboard</a>
+    <a href="pipeline.html"   class="nav-item">🔭 Pipeline</a>
+    <a href="database.html"   class="nav-item">🗄️ Clients</a>
+    <div class="nav-sep"></div>
+    <a href="data-entry.html" class="nav-item active">📋 Data Entry</a>
+    <a href="audit.html"      class="nav-item">📊 Audit</a>
+    <div class="nav-sep"></div>
+    <a href="sla.html"        class="nav-item">📄 SLA</a>
+    <a href="invoice.html"    class="nav-item">🧾 Invoice</a>
+    <a href="churned.html"    class="nav-item">🔴 Churned</a>
+</div>
 
-                <div class="flex gap-4 mb-4">
-                    <div class="bg-emerald-500/10 border border-emerald-500/30 px-6 py-3 rounded-xl">
-                        <p class="text-[9px] font-black text-emerald-400 uppercase opacity-60">Audit Period</p>
-                        <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">-</p>
-                    </div>
-                    <div class="bg-blue-500/10 border border-blue-500/30 px-6 py-3 rounded-xl">
-                        <p class="text-[9px] font-black text-blue-400 uppercase opacity-60">Total Vehicles</p>
-                        <p id="total-vehicles" class="text-sm font-black text-blue-400 uppercase mt-1">0</p>
-                    </div>
-                </div>
-            </div>
+<div id="main">
+    <div class="top-bar">
+        <div>
+            <p>Fleet Data Entry</p>
+            <h1 id="clientTitle">Select a Client</h1>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="pill pill-green" id="periodPill" style="display:none;"></span>
+            <span class="pill pill-amber" id="pendingPill" style="display:none;" onclick="loadPendingWeekly()"></span>
+            <span class="pill pill-purple" id="obPill" style="display:none;">✓ Onboarding Received</span>
         </div>
     </div>
 
-    <div class="scroll-content">
-        <div class="container">
-            <div class="entry-table">
-                <div class="table-header">
-                    <div class="header-cell col-num">#</div>
-                    <div class="header-cell col-reg">Registration</div>
-                    <div class="header-cell col-type">Type</div>
-                    <div class="header-cell col-make">Make</div>
-                    <div class="header-cell col-model">Model</div>
-                    <div class="header-cell col-year">Year</div>
-                    <div class="header-cell col-used">Used For</div>
-                    <div class="header-cell col-kml">Target km/L</div>
-                    <div class="header-cell col-odo">Actual Odo (km)</div>
-                    <div class="header-cell col-liters">Fuel Used (L)</div>
-                </div>
-                <div id="entry-rows">
-                    <!-- ✅ Loading state shown while cloudStorage initialises -->
-                    <div id="loading-msg" class="py-12 text-center text-slate-500 text-sm font-bold uppercase tracking-widest">
-                        ⏳ Loading vehicles...
-                    </div>
-                </div>
-            </div>
+    <div class="content">
+        <div class="client-bar">
+            <label>Client</label>
+            <select id="cSel" class="c-sel" onchange="loadClient(this.value)">
+                <option value="">— Select Active Client —</option>
+            </select>
+            <label>Period</label>
+            <select id="mSel" class="c-sel" style="min-width:110px;"></select>
+            <select id="ySel" class="c-sel" style="min-width:80px;"></select>
+        </div>
 
-            <div class="mt-8 flex gap-4">
-                <button onclick="saveAndContinue()" class="flex-1 bg-emerald-500 text-slate-900 font-black py-4 rounded-xl uppercase text-sm hover:bg-emerald-400 transition shadow-lg">
-                    💾 Save & Continue to Audit
-                </button>
-                <button onclick="autoFillForTesting()" class="bg-orange-500/20 border border-orange-500/30 text-orange-400 font-black py-4 px-6 rounded-xl uppercase text-sm hover:bg-orange-500/30 transition">
-                    🧪 Auto-Fill (Testing)
-                </button>
-                <button onclick="window.location.href='audit.html'" class="bg-white/5 border border-white/10 text-white font-black py-4 px-6 rounded-xl uppercase text-sm hover:bg-white/10 transition">
-                    ← Back
-                </button>
-            </div>
+        <div class="db-alert" id="dbAlert">⚠️ <span id="dbMsg"></span> — Use <strong>Save to DB</strong> buttons to add them for future clients.</div>
 
-            <div class="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                <p class="text-[11px] font-bold text-blue-300">
-                    💡 <strong>Tip:</strong> Use <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Tab</kbd> or <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Enter</kbd> to move between Odo and Liters fields. 
-                    Press <kbd class="bg-blue-500/20 px-2 py-1 rounded text-[10px]">Ctrl+S</kbd> to quick save.
-                </p>
-            </div>
+        <div class="stats-row" id="statsRow" style="display:none;">
+            <div class="stat"><div class="lbl">Vehicles</div><div class="val c-blue" id="sTotal">—</div></div>
+            <div class="stat"><div class="lbl">Mfr Specs</div><div class="val c-green" id="sMfr">—</div></div>
+            <div class="stat"><div class="lbl">Unknown</div><div class="val c-amber" id="sUnk">—</div></div>
+            <div class="stat"><div class="lbl">Targets Set</div><div class="val c-purple" id="sTgt">—</div></div>
+            <div class="stat"><div class="lbl">Ready for Audit</div><div class="val c-green" id="sCmp">—</div></div>
+        </div>
+
+        <div id="progWrap" style="display:none;"><div class="prog-bar"><div class="prog-fill" id="pFill" style="width:0%"></div></div></div>
+
+        <div class="tbl-wrap">
+            <table>
+                <thead><tr>
+                    <th>#</th>
+                    <th>Registration / Usage</th>
+                    <th>Yr</th>
+                    <th>Type</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th class="th-blue">Mfr Min</th>
+                    <th class="th-blue">Mfr Avg</th>
+                    <th></th>
+                    <th class="th-amber">Client Target</th>
+                    <th>Odo (km)</th>
+                    <th>Fuel (L)</th>
+                </tr></thead>
+                <tbody id="tBody">
+                    <tr><td colspan="12"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="action-row" id="actRow" style="display:none;">
+            <button class="btn btn-p" onclick="saveAndAudit()">💾 Save & Run Audit</button>
+            <button class="btn btn-b" onclick="runLookupAll()">🔍 Re-run Mfr Lookup</button>
+            <button class="btn btn-s" onclick="saveDraft()">💾 Save Draft</button>
+            <button class="btn btn-s" onclick="addRow()">＋ Add Vehicle</button>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#334155;display:none;" id="tips">
+            💡 Tab/Enter navigates odo → fuel → next row · Ctrl+S saves draft · <span style="color:#60a5fa;">Blue</span> = auto-filled from DB · <span style="color:#c4b5fd;">Purple</span> = target set · <span style="color:#fbbf24;">Yellow</span> = unknown make/model
         </div>
     </div>
+</div>
+<div id="toast"></div>
 
-    <script>
-        let auditData = {};
-        let currentClientName = '';
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TYPES=['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
+const USAGE=['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
 
-        // ✅ FIX: Wait for cloudStorage to be available before loading data.
-        // firebase-helper.js loads as a module (async) so cloudStorage may not
-        // exist yet when window.onload fires. Poll until it's ready.
-        function waitForCloudStorage(callback, attempts = 0) {
-            if (typeof cloudStorage !== 'undefined') {
-                callback();
-            } else if (attempts < 50) {
-                // Retry every 100ms for up to 5 seconds
-                setTimeout(() => waitForCloudStorage(callback, attempts + 1), 100);
-            } else {
-                document.getElementById('loading-msg').innerHTML =
-                    '❌ Storage failed to initialise. Please refresh the page.';
-                console.error('cloudStorage never became available');
-            }
+let _cid=null,_client=null,_fleet=[],_vdb={},_n=0;
+
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+
+window.addEventListener('DOMContentLoaded',async()=>{\n    initPeriod();
+    await waitFor(()=>typeof cloudStorage!=='undefined');
+    await loadVDB();
+    await fillPicker();
+    const cid=new URLSearchParams(window.location.search).get('client');
+    if(cid){
+        // If the option isn't in the picker yet (e.g. client not active), add it
+        const sel=document.getElementById('cSel');
+        if(!sel.querySelector('option[value="'+cid+'"]')){
+            const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+            const c=all.find(x=>x.id===cid);
+            if(c){const o=document.createElement('option');o.value=c.id;o.text=c.company;sel.appendChild(o);}
         }
+        sel.value=cid;
+        await loadClient(cid);
+    }
+    document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveDraft();}});
+});
 
-        async function loadData() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const clientFromUrl = urlParams.get('client');
+function initPeriod(){
+    const ms=document.getElementById('mSel'),ys=document.getElementById('ySel'),now=new Date();
+    MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.text=m;if(i===now.getMonth())o.selected=true;ms.appendChild(o);});
+    for(let y=now.getFullYear()-1;y<=now.getFullYear()+1;y++){const o=document.createElement('option');o.value=y;o.text=y;if(y===now.getFullYear())o.selected=true;ys.appendChild(o);}
+}
+function getPeriod(){const m=parseInt(document.getElementById('mSel').value),y=parseInt(document.getElementById('ySel').value);return{month:m,year:y,label:MONTHS[m]+' '+y};}
 
-            if (clientFromUrl) {
-                currentClientName = decodeURIComponent(clientFromUrl);
-            } else {
-                currentClientName = await cloudStorage.getItem('currentAuditClient') || 'Unknown Client';
-            }
+async function loadVDB(){try{const r=await cloudStorage.getItem('VEHICLE_DB');_vdb=r?JSON.parse(r):{};}catch(e){_vdb={};}}
+function dbk(make,model){return(make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase();}
+function lookupMfr(make,model){
+    if(!make)return null;
+    let e=_vdb[dbk(make,model)];if(e)return e;
+    for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|'))return _vdb[k];}
+    return null;
+}
+async function saveVDB(make,model,min,avg,type){
+    const k=dbk(make,model);
+    _vdb[k]={make,model,mfr_min:parseFloat(min)||null,mfr_avg:parseFloat(avg)||null,type:type||'Heavy'};
+    await cloudStorage.setItem('VEHICLE_DB',JSON.stringify(_vdb));
+    toast('Saved to vehicle DB ✓');
+}
 
-            document.getElementById('client-name').textContent = currentClientName.toUpperCase();
+async function fillPicker(){
+    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const sel=document.getElementById('cSel');
+    sel.innerHTML='<option value="">— Select Active Client —</option>';
+    all.filter(c=>c.status==='active').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.text=c.company;sel.appendChild(o);});
+}
 
-            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
+async function loadClient(cid){
+    if(!cid){_cid=null;_client=null;_fleet=[];document.getElementById('clientTitle').textContent='Select a Client';renderTable();return;}
+    _cid=cid;
+    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    _client=all.find(c=>c.id===cid);
+    if(!_client){toast('Client not found',true);return;}
+    document.getElementById('clientTitle').textContent=_client.company.toUpperCase();
+    _fleet=(Array.isArray(_client.fleet)?_client.fleet:Object.values(_client.fleet||{})).map(v=>{
+        if(!v.mfr_min&&!v.mfr_avg){const e=lookupMfr(v.make,v.model);if(e)return{...v,mfr_min:e.mfr_min,mfr_avg:e.mfr_avg,_af:true};}
+        return v;
+    });
+    checkPending();
+    document.getElementById('obPill').style.display=_client.onboardingSubmitted?'inline-block':'none';
+    document.getElementById('statsRow').style.display='flex';
+    document.getElementById('actRow').style.display='flex';
+    document.getElementById('progWrap').style.display='block';
+    document.getElementById('tips').style.display='block';
+    renderTable();updateStats();checkUnk();
+}
 
-            let savedDraft = null;
-            try {
-                savedDraft = await cloudStorage.getItem(draftKey);
-            } catch(e) {
-                console.error('Error reading draft:', e);
-            }
+function checkPending(){
+    if(!_client)return;
+    const subs=_client.weeklySubmissions||[];
+    const pp=document.getElementById('pendingPill');
+    if(!subs.length){pp.style.display='none';return;}
+    const last=subs[subs.length-1],p=getPeriod();
+    if(last.month===p.month&&last.year===p.year&&!last.processed){
+        pp.style.display='inline-block';pp.textContent='📥 Weekly Data: '+last.period;
+    } else pp.style.display='none';
+}
 
-            if (savedDraft) {
-                try {
-                    const draft = JSON.parse(savedDraft);
-                    auditData = draft.auditData || {};
+async function loadPendingWeekly(){
+    if(!_client)return;
+    const subs=_client.weeklySubmissions||[];if(!subs.length){toast('No pending data',true);return;}
+    const last=subs[subs.length-1];let loaded=0;
+    _fleet=_fleet.map(v=>{const e=(last.entries||[]).find(x=>x.reg===v.reg);if(e){loaded++;return{...v,odo:e.odo,liters:e.liters,_fw:true};}return v;});
+    renderTable();updateStats();toast('Loaded '+loaded+' vehicles from weekly submission ✓');
+    document.getElementById('pendingPill').style.display='none';
+    document.getElementById('mSel').value=last.month;document.getElementById('ySel').value=last.year;
+    document.getElementById('periodPill').textContent=last.period;document.getElementById('periodPill').style.display='inline-block';
+}
 
-                    console.log('Draft loaded. Vehicles found:', Object.keys(auditData).length);
+function renderTable(){
+    _n=_fleet.length;const tb=document.getElementById('tBody');
+    if(!_fleet.length){
+        const msg=_cid?'No vehicles in fleet — client may not have completed onboarding.':'Select an active client above.';
+        tb.innerHTML=`<tr><td colspan="12"><div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div></td></tr>`;
+        return;
+    }
+    const tOpts=TYPES.map(t=>`<option>${t}</option>`).join('');
+    const uOpts=USAGE.map(u=>`<option>${u}</option>`).join('');
 
-                    if (draft.auditPeriod) {
-                        document.getElementById('audit-period').textContent = draft.auditPeriod;
-                    }
+    tb.innerHTML=_fleet.map((v,i)=>{
+        const e=lookupMfr(v.make,v.model);
+        const mMin=v.mfr_min||(e&&e.mfr_min)||'';
+        const mAvg=v.mfr_avg||(e&&e.mfr_avg)||'';
+        const af=v._af||e;
+        const fw=v._fw;
+        const minCls=af&&mMin?'di af':(!mMin?'di unk':'di');
+        const avgCls=af&&mAvg?'di af':(!mAvg?'di unk':'di');
+        const tgtCls=v.clientTarget?'di tgt':'di';
+        const odoCls=v.odo?'di hv':'di';
+        const fulCls=v.liters?'di hv':'di';
+        const dbShow=(mMin||mAvg||e)?'':'show';
 
-                    // Fill in any missing fields with defaults
-                    Object.keys(auditData).forEach(key => {
-                        if (!auditData[key].make)      auditData[key].make = '';
-                        if (!auditData[key].model)     auditData[key].model = '';
-                        if (!auditData[key].year)      auditData[key].year = '';
-                        if (!auditData[key].usedFor)   auditData[key].usedFor = 'Long Distance';
-                        if (!auditData[key].targetKmL) auditData[key].targetKmL = '2.3';
-                    });
+        const selType=(x)=>TYPES.map(t=>`<option${v.type===t?' selected':''}>${t}</option>`).join('');
+        const selUsage=(x)=>USAGE.map(u=>`<option${(v.usage||v.usedFor)===u?' selected':''}>${u}</option>`).join('');
 
-                    if (Object.keys(auditData).length === 0) {
-                        document.getElementById('loading-msg').innerHTML =
-                            '⚠️ Draft found but contains no vehicles. Please re-upload your CSVs on the audit page.';
-                        return;
-                    }
+        return `<tr id="tr${i}">
+            <td style="width:28px;font-size:11px;font-weight:700;color:#475569;">${i+1}</td>
+            <td>
+                <input class="di reg-cell" style="width:85px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
+                <select class="di" style="width:100%;margin-top:3px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsage()}</select>
+            </td>
+            <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
+            <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
+            <td><input class="di" style="width:90px;" id="mk${i}" placeholder="Make" value="${x(v.make)}" oninput="uf(${i},'make',this.value);lkRow(${i})"></td>
+            <td><input class="di" style="width:108px;" id="mo${i}" placeholder="Model" value="${x(v.model)}" oninput="uf(${i},'model',this.value);lkRow(${i})"></td>
+            <td><input class="${minCls}" style="width:66px;" type="number" step="0.01" id="min${i}" placeholder="—" value="${mMin}" oninput="uf(${i},'mfr_min',this.value);uEdit(${i})"></td>
+            <td><input class="${avgCls}" style="width:66px;" type="number" step="0.01" id="avg${i}" placeholder="—" value="${mAvg}" oninput="uf(${i},'mfr_avg',this.value);uEdit(${i})"></td>
+            <td><button class="btn-sdb ${dbShow}" id="dbb${i}" onclick="sdb(${i})">Save to DB</button></td>
+            <td><input class="${tgtCls}" style="width:68px;" type="number" step="0.1" id="tgt${i}" placeholder="Set target" value="${x(v.clientTarget)}" oninput="uf(${i},'clientTarget',this.value)"></td>
+            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
+                ${fw?'<span class="w-badge">weekly</span>':''}
+                <input class="${odoCls}" style="width:86px;" type="number" id="odo${i}" placeholder="km" value="${x(v.odo)}"
+                    oninput="uf(${i},'odo',this.value);updProg()" onfocus="this.select()"
+                    onkeydown="nav(event,${i},'ful')">
+            </td>
+            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
+                ${fw?'<span class="w-badge">weekly</span>':''}
+                <input class="${fulCls}" style="width:86px;" type="number" step="0.1" id="ful${i}" placeholder="L" value="${x(v.liters)}"
+                    oninput="uf(${i},'liters',this.value);updProg()" onfocus="this.select()"
+                    onkeydown="nav(event,${i+1<_n?i+1:i},'odo')">
+            </td>
+        </tr>`;
+    }).join('');
+    updProg();
+}
 
-                    renderTable();
-                } catch (e) {
-                    console.error('Error parsing draft:', e);
-                    document.getElementById('loading-msg').innerHTML =
-                        '❌ Error loading audit data. Please return to the audit page.';
-                }
-            } else {
-                document.getElementById('loading-msg').innerHTML =
-                    '⚠️ No audit data found. Redirecting to upload page...';
-                setTimeout(() => {
-                    window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
-                }, 1500);
-            }
-        }
+function nav(e,r,f){if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();const t=document.getElementById(f+r);if(t){t.focus();t.select();}}}
+function uf(i,f,v){if(!_fleet[i])return;const numFs=['odo','liters','mfr_min','mfr_avg','clientTarget','year'];_fleet[i][f]=numFs.includes(f)?(v===''?null:parseFloat(v)||v):v;}
+function uEdit(i){_fleet[i]._af=false;const b=document.getElementById('dbb'+i);if(b)b.classList.add('show');}
 
-        function renderTable() {
-            const container = document.getElementById('entry-rows');
-            const vehicles = Object.keys(auditData);
-            document.getElementById('total-vehicles').textContent = vehicles.length;
+function lkRow(i){
+    const make=(document.getElementById('mk'+i)?.value||'').trim();
+    const model=(document.getElementById('mo'+i)?.value||'').trim();
+    if(!make)return;
+    const e=lookupMfr(make,model);
+    const minEl=document.getElementById('min'+i),avgEl=document.getElementById('avg'+i),dbBtn=document.getElementById('dbb'+i);
+    if(e&&!_fleet[i]?._ue){
+        if(minEl){minEl.value=e.mfr_min||'';minEl.className='di af';_fleet[i].mfr_min=e.mfr_min;}
+        if(avgEl){avgEl.value=e.mfr_avg||'';avgEl.className='di af';_fleet[i].mfr_avg=e.mfr_avg;}
+        if(dbBtn)dbBtn.classList.remove('show');
+    } else if(!e){if(dbBtn)dbBtn.classList.add('show');}
+    updateStats();checkUnk();
+}
+function runLookupAll(){for(let i=0;i<_fleet.length;i++)lkRow(i);toast('Mfr lookup complete ✓');}
 
-            let completedCount = 0;
-            let html = '';
+async function sdb(i){
+    const make=(document.getElementById('mk'+i)?.value||'').trim();
+    const model=(document.getElementById('mo'+i)?.value||'').trim();
+    const min=document.getElementById('min'+i)?.value;
+    const avg=document.getElementById('avg'+i)?.value;
+    const type=document.getElementById('typ'+i)?.value||'Heavy';
+    if(!make){toast('Enter a make first',true);return;}
+    if(!min&&!avg){toast('Enter Mfr Min or Avg first',true);return;}
+    await saveVDB(make,model,min,avg,type);
+    const b=document.getElementById('dbb'+i);if(b)b.classList.remove('show');
+    const me=document.getElementById('min'+i),ae=document.getElementById('avg'+i);
+    if(me)me.className='di af';if(ae)ae.className='di af';
+    updateStats();checkUnk();
+}
+function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
 
-            vehicles.forEach((key, index) => {
-                const v = auditData[key];
-                const isComplete = v.odo && v.liters;
-                if (isComplete) completedCount++;
+function updateStats(){
+    const t=_fleet.length;
+    const m=_fleet.filter(v=>v.mfr_min||v.mfr_avg||lookupMfr(v.make,v.model)).length;
+    document.getElementById('sTotal').textContent=t;
+    document.getElementById('sMfr').textContent=m;
+    document.getElementById('sUnk').textContent=t-m;
+    document.getElementById('sTgt').textContent=_fleet.filter(v=>v.clientTarget).length;
+    document.getElementById('sCmp').textContent=_fleet.filter(v=>v.odo&&v.liters).length;
+}
+function updProg(){
+    updateStats();
+    const t=_fleet.length;
+    const c=_fleet.filter((_,i)=>{const o=document.getElementById('odo'+i)?.value,f=document.getElementById('ful'+i)?.value;return o&&parseFloat(o)>0&&f&&parseFloat(f)>0;}).length;
+    document.getElementById('pFill').style.width=(t>0?Math.round(c/t*100):0)+'%';
+}
+function checkUnk(){
+    const u=_fleet.filter(v=>v.make&&!lookupMfr(v.make,v.model)&&!v.mfr_avg);
+    const al=document.getElementById('dbAlert');
+    if(u.length){document.getElementById('dbMsg').textContent=u.length+' unknown: '+[...new Set(u.map(v=>(v.make+' '+(v.model||'')).trim()))].join(', ');al.style.display='block';}
+    else al.style.display='none';
+}
 
-                html += `
-                    <div class="table-row">
-                        <span class="text-white/40 font-bold text-sm col-num">${index + 1}</span>
-                        <span class="font-medium text-white text-sm col-reg">${v.reg}</span>
-                        <select data-key="${key}" data-field="type" class="data-input col-type" onchange="updateValue(this)">
-                            <option value="Heavy"${v.type === 'Heavy' ? ' selected' : ''}>Heavy</option>
-                            <option value="Medium"${v.type === 'Medium' ? ' selected' : ''}>Medium</option>
-                        </select>
-                        <input type="text" placeholder="Make" value="${v.make || ''}" 
-                               data-key="${key}" data-field="make"
-                               class="data-input col-make" oninput="updateValue(this)">
-                        <input type="text" placeholder="Model" value="${v.model || ''}" 
-                               data-key="${key}" data-field="model"
-                               class="data-input col-model" oninput="updateValue(this)">
-                        <input type="text" placeholder="Year" value="${v.year || ''}" 
-                               data-key="${key}" data-field="year"
-                               class="data-input col-year" oninput="updateValue(this)">
-                        <select data-key="${key}" data-field="usedFor" class="data-input col-used" 
-                                onchange="updateValue(this); updateTargetKmL(this)">
-                            <option value="Long Distance"${v.usedFor === 'Long Distance' ? ' selected' : ''}>Long Distance</option>
-                            <option value="Local Full"${v.usedFor === 'Local Full' ? ' selected' : ''}>Local Full</option>
-                            <option value="Local 50%"${v.usedFor === 'Local 50%' ? ' selected' : ''}>Local 50%</option>
-                        </select>
-                        <input type="number" step="0.1" placeholder="2.3" value="${v.targetKmL || '2.3'}" 
-                               data-key="${key}" data-field="targetKmL"
-                               class="data-input col-kml" oninput="updateValue(this)">
-                        <input type="number" placeholder="Enter km" value="${v.odo || ''}" 
-                               data-key="${key}" data-field="odo"
-                               class="data-input col-odo odo-input" oninput="updateValue(this)">
-                        <input type="number" placeholder="Enter liters" value="${v.liters || ''}" 
-                               data-key="${key}" data-field="liters"
-                               class="data-input col-liters liters-input" oninput="updateValue(this)">
-                    </div>
-                `;
-            });
+function syncDOM(){
+    for(let i=0;i<_fleet.length;i++){
+        const g=id=>document.getElementById(id+i)?.value;
+        const reg=g('reg'),make=(g('mk')||'').trim(),model=(g('mo')||'').trim();
+        const yr=g('yr'),type=g('typ'),usage=g('usg');
+        const min=g('min'),avg=g('avg'),tgt=g('tgt'),odo=g('odo'),ful=g('ful');
+        if(reg!==undefined)_fleet[i].reg=reg.toUpperCase();
+        if(make!==undefined)_fleet[i].make=make;
+        if(model!==undefined)_fleet[i].model=model;
+        if(yr!==undefined)_fleet[i].year=yr?parseInt(yr):null;
+        if(type!==undefined)_fleet[i].type=type;
+        if(usage!==undefined)_fleet[i].usage=usage;
+        if(min!==undefined)_fleet[i].mfr_min=min?parseFloat(min):null;
+        if(avg!==undefined)_fleet[i].mfr_avg=avg?parseFloat(avg):null;
+        if(tgt!==undefined)_fleet[i].clientTarget=tgt?parseFloat(tgt):null;
+        if(odo!==undefined)_fleet[i].odo=odo?parseFloat(odo):null;
+        if(ful!==undefined)_fleet[i].liters=ful?parseFloat(ful):null;
+    }
+}
 
-            container.innerHTML = html;
-            updateProgress(completedCount, vehicles.length);
-            setupNavigation();
-        }
+async function saveDraft(){
+    if(!_cid){toast('No client selected',true);return;}
+    syncDOM();
+    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const i=all.findIndex(c=>c.id===_cid);if(i===-1)return;
+    all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
+    _client=all[i];toast('Draft saved ✓');
+}
 
-        function updateValue(input) {
-            const key = input.getAttribute('data-key');
-            const field = input.getAttribute('data-field');
-            if (auditData[key]) {
-                auditData[key][field] = input.value;
-                updateProgress();
-            }
-        }
+async function saveAndAudit(){
+    if(!_cid){toast('No client selected',true);return;}
+    syncDOM();
+    const period=getPeriod();
+    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const i=all.findIndex(c=>c.id===_cid);if(i===-1)return;
+    all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
+    const draftKey='AUDIT_DRAFT_'+_client.company.toUpperCase().replace(/\s+/g,'_');
+    const draft={clientId:_cid,clientName:_client.company,auditPeriod:period.label,savedAt:new Date().toISOString(),auditData:{}};
+    _fleet.forEach(v=>{
+        if(!v.reg)return;
+        draft.auditData[v.reg]={reg:v.reg,make:v.make||'',model:v.model||'',year:v.year||'',type:v.type||'Heavy',
+            usedFor:v.usage||v.usedFor||'Long Distance',mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,
+            clientTarget:v.clientTarget||null,odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null};
+    });
+    await cloudStorage.setItem(draftKey,JSON.stringify(draft));
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
+    await cloudStorage.setItem('currentAuditClient',_client.company);
+    toast('Saved — launching audit…');
+    setTimeout(()=>window.location.href='audit.html?client='+encodeURIComponent(_client.company)+'&id='+_cid,700);
+}
 
-        function updateTargetKmL(select) {
-            const key = select.getAttribute('data-key');
-            const usedFor = select.value;
-            const kmLInput = document.querySelector(`input[data-key="${key}"][data-field="targetKmL"]`);
-            const map = { 'Long Distance': '2.3', 'Local Full': '2.1', 'Local 50%': '2.8' };
-            if (kmLInput && !kmLInput.value) {
-                kmLInput.value = map[usedFor] || '2.3';
-                auditData[key].targetKmL = kmLInput.value;
-            }
-        }
-
-        function updateProgress(completed, total) {
-            if (completed === undefined) {
-                const vehicles = Object.keys(auditData);
-                total = vehicles.length;
-                completed = vehicles.filter(k => auditData[k].odo && auditData[k].liters).length;
-            }
-            const percentage = total > 0 ? (completed / total) * 100 : 0;
-            document.getElementById('progress-text').textContent = `${completed} / ${total}`;
-            document.getElementById('progress-fill').style.width = percentage + '%';
-        }
-
-        function setupNavigation() {
-            const inputs = document.querySelectorAll('.odo-input, .liters-input');
-            inputs.forEach((input, index) => {
-                input.addEventListener('focus', function() { this.select(); });
-                input.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === 'Tab') {
-                        e.preventDefault();
-                        if (index < inputs.length - 1) inputs[index + 1].focus();
-                    }
-                });
-            });
-        }
-
-        async function saveDraft() {
-            if (!currentClientName) return;
-            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = await cloudStorage.getItem(draftKey);
-            if (savedDraft) {
-                const draft = JSON.parse(savedDraft);
-                draft.auditData = auditData;
-                draft.savedAt = new Date().toISOString();
-                await cloudStorage.setItem(draftKey, JSON.stringify(draft));
-            }
-        }
-
-        async function saveAndContinue() {
-            await saveDraft();
-
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-            if (clientIndex !== -1) {
-                allClients[clientIndex].auditStatus = 'in-progress';
-                allClients[clientIndex].lastEditedDate = new Date().toISOString();
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-            }
-
-            alert('✅ Data saved successfully!');
-            window.location.href = 'audit.html?client=' + encodeURIComponent(currentClientName);
-        }
-
-        async function autoFillForTesting() {
-            if (!confirm('Auto-fill all empty fields with test data?')) return;
-            const makes   = ['Volvo', 'Scania', 'MAN', 'Mercedes', 'Isuzu'];
-            const models  = ['FH440', 'R450', 'TGX', 'Actros', 'FTR'];
-            const years   = ['2020', '2021', '2022', '2023', '2024'];
-            const usage   = ['Long Distance', 'Local Full', 'Local 50%'];
-            Object.keys(auditData).forEach(key => {
-                const v = auditData[key];
-                if (!v.make)     v.make     = makes[Math.floor(Math.random() * makes.length)];
-                if (!v.model)    v.model    = models[Math.floor(Math.random() * models.length)];
-                if (!v.year)     v.year     = years[Math.floor(Math.random() * years.length)];
-                if (!v.usedFor)  v.usedFor  = usage[Math.floor(Math.random() * usage.length)];
-                if (!v.targetKmL) {
-                    v.targetKmL = v.usedFor === 'Local 50%' ? '2.8' : v.usedFor === 'Local Full' ? '2.1' : '2.3';
-                }
-                if (!v.odo)    v.odo    = Math.floor(Math.random() * 5000) + 15000;
-                if (!v.liters) v.liters = Math.floor(Math.random() * 2000) + 5000;
-            });
-            renderTable();
-            alert('✅ Test data filled! Remember to save.');
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveAndContinue();
-            }
-        });
-
-        // ✅ FIX: setInterval callback must be async to use await
-        setInterval(async () => {
-            if (typeof cloudStorage !== 'undefined' && currentClientName) {
-                await saveDraft();
-                console.log('Auto-saved at', new Date().toLocaleTimeString());
-            }
-        }, 30000);
-
-        // ✅ FIX: Don't use window.onload — wait for cloudStorage module to be ready first
-        waitForCloudStorage(loadData);
-    </script>
+function toast(msg,isErr){const e=document.getElementById('toast');e.textContent=msg;e.className='show'+(isErr?' err':'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='',2800);}
+function x(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+</script>
 </body>
 </html>
