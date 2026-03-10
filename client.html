@@ -476,40 +476,46 @@
         window.location.href = 'database.html';
     }
 
-    // ── Send onboarding form link ─────────────────────────────
+    // ── Send onboarding form via WhatsApp ─────────────────────
     function sendOnboardingForm() {
-        var link = window.location.origin + '/onboarding.html?client=' + _clientId;
-        // Try clipboard first
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(link).then(function() {
-                toast('Onboarding link copied to clipboard ✓', 'green');
-            }).catch(function() { promptCopyLink(link); });
-        } else {
-            promptCopyLink(link);
-        }
+        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/onboarding.html?client=' + _clientId;
+        var phone   = (_client.contactTel || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+        var name    = _client.contactName ? _client.contactName.split(' ')[0] : 'there';
+        var message = encodeURIComponent(
+            'Hi ' + name + ', please use the link below to register your fleet with Dynamic Fleet Reporting.\n\n' +
+            'Just open it in your browser, add your vehicles and tap Submit — it only takes a few minutes.\n\n' +
+            link + '\n\n' +
+            'You can use the same link at any time to add or update vehicles.'
+        );
+        var waUrl = phone
+            ? 'https://wa.me/' + phone + '?text=' + message
+            : 'https://wa.me/?text=' + message;
+        window.open(waUrl, '_blank');
+        toast('Opening WhatsApp…', 'green');
     }
 
-    function promptCopyLink(link) {
-        var msg = 'Onboarding form link (copy and WhatsApp to client):\n\n' + link;
-        window.prompt(msg, link);
-    }
-
-    // ── Generate weekly form ──────────────────────────────────
+    // ── Send weekly form via WhatsApp ─────────────────────────
     async function genWeeklyForm() {
-        var c = _client;
-        var fleet = Array.isArray(c.fleet) ? c.fleet : Object.values(c.fleet||{});
+        var fleet = Array.isArray(_client.fleet) ? _client.fleet : Object.values(_client.fleet || {});
         if (fleet.length === 0) {
             toast('No fleet registered yet — send onboarding form first.', 'red');
             return;
         }
-        var link = window.location.origin + '/weekly-form.html?client=' + _clientId;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(link).then(function() {
-                toast('Weekly form link copied to clipboard ✓', 'green');
-            }).catch(function() { promptCopyLink(link); });
-        } else {
-            promptCopyLink(link);
-        }
+        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/weekly-form.html?client=' + _clientId;
+        var phone   = (_client.contactTel || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+        var name    = _client.contactName ? _client.contactName.split(' ')[0] : 'there';
+        var message = encodeURIComponent(
+            'Hi ' + name + ', your weekly fleet data submission is due.\n\n' +
+            'Please open the link below, enter your odometer and fuel readings for each vehicle, and tap Submit.\n\n' +
+            link
+        );
+        var waUrl = phone
+            ? 'https://wa.me/' + phone + '?text=' + message
+            : 'https://wa.me/?text=' + message;
+        window.open(waUrl, '_blank');
+        toast('Opening WhatsApp…', 'green');
     }
 
     // ── Sync fleet from audit ─────────────────────────────────
