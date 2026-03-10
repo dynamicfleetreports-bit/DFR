@@ -35,7 +35,7 @@
         .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
         .inv-row:last-child { border-bottom:none; }
         .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
-        .fleet-row { display:grid; grid-template-columns:32px 100px 60px 70px 110px 130px 150px 110px 70px 70px 70px 60px; gap:0; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-row { display:grid; grid-template-columns:28px 90px 52px 80px 1fr 140px 160px 110px 60px 68px 72px 50px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
         .fleet-tbl-wrap { overflow-x:auto; }
         .fleet-sug { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:4px 8px; font-size:10px; font-weight:900; text-align:center; }
         .fleet-row:last-child { border-bottom:none; }
@@ -412,6 +412,23 @@
     }
 
     // ── Fleet table ───────────────────────────────────────────
+    var _vdb = {};
+    (async function loadVDB(){
+        try {
+            await waitFor(()=>typeof cloudStorage!=='undefined');
+            var r = await cloudStorage.getItem('VEHICLE_DB');
+            _vdb = r ? JSON.parse(r) : {};
+        } catch(e){ _vdb={}; }
+    })();
+
+    function dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
+    function lookupMfr(make,model){
+        if(!make) return null;
+        var e=_vdb[dbk(make,model)]; if(e) return e;
+        for(var k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
+        return null;
+    }
+
     var LOAD_PROFILE_C = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
     var TRAILER_TYPE_C = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
     var AEROKIT_C      = ['None','Roof Fairing Only','Full Aerokit'];
@@ -438,7 +455,8 @@
             return;
         }
         t.innerHTML = _fleetData.map(function(v,i) {
-            var sug = calcSuggested(v.mfr_min, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+            var mfrMin = v.mfr_min || (lookupMfr(v.make, v.model) && lookupMfr(v.make, v.model).mfr_min);
+            var sug = calcSuggested(mfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
             var tgt = v.clientTarget || v.targetKmL || '';
             var ilChk = (v.interlink===true||v.interlink==='true'||v.interlink==='Yes') ? 'checked' : '';
             return '<div class="fleet-row">'
