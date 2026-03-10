@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DFR — Import Vehicle DB</title>
+<script type="module" src="firebase-helper.js"></script>
+<style>
+  body { font-family: Outfit, sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 2rem; box-sizing: border-box; }
+  .card { background: #1e293b; border-radius: 1rem; padding: 2rem; max-width: 520px; width: 100%; text-align: center; }
+  h1 { font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; }
+  p { font-size: 13px; color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.6; }
+  button { background: #2563eb; color: white; border: none; border-radius: 0.5rem; padding: 0.75rem 2rem; font-size: 14px; font-weight: 900; cursor: pointer; width: 100%; margin-bottom: 0.75rem; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.green { background: #059669; }
+  .status { font-size: 13px; font-weight: 700; margin-top: 1rem; min-height: 1.5rem; }
+  .ok { color: #10b981; } .err { color: #ef4444; }
+  .stats { background: #0f172a; border-radius: 0.5rem; padding: 1rem; margin-top: 1rem; font-size: 12px; color: #64748b; text-align: left; }
+  .stats b { color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🚛 Vehicle DB Import</h1>
+  <p>This will load <strong>104 vehicles</strong> across 19 makes into the DFR Vehicle Database. Existing entries will be preserved — only new entries are added.</p>
+  <button id="importBtn" onclick="doImport()">Import Vehicle DB →</button>
+  <button class="green" onclick="window.location.href='data-entry.html'">← Back to Data Entry</button>
+  <div class="status" id="status"></div>
+  <div class="stats" id="stats" style="display:none;"></div>
+</div>
+
+<script>
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+
+async function doImport(){
+  const btn = document.getElementById('importBtn');
+  const st  = document.getElementById('status');
+  btn.disabled = true;
+  st.className = 'status';
+  st.textContent = 'Connecting…';
+
+  await waitFor(()=>typeof cloudStorage !== 'undefined');
+  st.textContent = 'Loading existing DB…';
+
+  try {
+    const existing = await cloudStorage.getItem('VEHICLE_DB');
+    const vdb = existing ? JSON.parse(existing) : {};
+    const before = Object.keys(vdb).length;
+
+    const newData = SEED_DATA;
+    let added = 0;
+    for(const [k,v] of Object.entries(newData)){
+      if(!vdb[k]){ vdb[k]=v; added++; }
+    }
+
+    await cloudStorage.setItem('VEHICLE_DB', JSON.stringify(vdb));
+    const after = Object.keys(vdb).length;
+
+    st.className = 'status ok';
+    st.textContent = `✓ Done! ${added} new entries added. Total: ${after} vehicles.`;
+
+    const makes = [...new Set(Object.values(vdb).map(v=>v.make))].sort();
+    document.getElementById('stats').style.display = 'block';
+    document.getElementById('stats').innerHTML =
+      `<b>Total entries:</b> ${after}<br>` +
+      `<b>New entries added:</b> ${added}<br>` +
+      `<b>Previously existed:</b> ${before}<br>` +
+      `<b>Makes covered:</b> ${makes.join(', ')}`;
+
+  } catch(e){
+    st.className = 'status err';
+    st.textContent = 'Error: ' + e.message;
+    btn.disabled = false;
+  }
+}
+</script>
+
+<script>
+const SEED_DATA = {"scania|r450": {"make": "Scania", "model": "R450", "type": "Heavy", "mfr_min": 3.13, "mfr_avg": 3.57}, "scania|r460": {"make": "Scania", "model": "R460", "type": "Heavy", "mfr_min": 3.2, "mfr_avg": 3.64}, "scania|r500": {"make": "Scania", "model": "R500", "type": "Heavy", "mfr_min": 3.03, "mfr_avg": 3.45}, "scania|r540": {"make": "Scania", "model": "R540", "type": "Heavy", "mfr_min": 2.94, "mfr_avg": 3.33}, "scania|r580": {"make": "Scania", "model": "R580", "type": "Heavy", "mfr_min": 2.86, "mfr_avg": 3.23}, "scania|r730": {"make": "Scania", "model": "R730", "type": "Heavy", "mfr_min": 2.63, "mfr_avg": 3.03}, "scania|g410": {"make": "Scania", "model": "G410", "type": "Heavy", "mfr_min": 3.03, "mfr_avg": 3.45}, "scania|g440": {"make": "Scania", "model": "G440", "type": "Heavy", "mfr_min": 2.99, "mfr_avg": 3.4}, "scania|g460": {"make": "Scania", "model": "G460", "type": "Heavy", "mfr_min": 3.08, "mfr_avg": 3.51}, "scania|g500": {"make": "Scania", "model": "G500", "type": "Heavy", "mfr_min": 2.94, "mfr_avg": 3.33}, "scania|p360": {"make": "Scania", "model": "P360", "type": "Heavy", "mfr_min": 3.23, "mfr_avg": 3.7}, "scania|p410": {"make": "Scania", "model": "P410", "type": "Heavy", "mfr_min": 3.13, "mfr_avg": 3.57}, "volvo|fh420": {"make": "Volvo", "model": "FH420", "type": "Heavy", "mfr_min": 2.86, "mfr_avg": 3.33}, "volvo|fh440": {"make": "Volvo", "model": "FH440", "type": "Heavy", "mfr_min": 2.82, "mfr_avg": 3.23}, "volvo|fh460": {"make": "Volvo", "model": "FH460", "type": "Heavy", "mfr_min": 2.86, "mfr_avg": 3.33}, "volvo|fh500": {"make": "Volvo", "model": "FH500", "type": "Heavy", "mfr_min": 2.78, "mfr_avg": 3.23}, "volvo|fh520": {"make": "Volvo", "model": "FH520", "type": "Heavy", "mfr_min": 2.75, "mfr_avg": 3.13}, "volvo|fh540": {"make": "Volvo", "model": "FH540", "type": "Heavy", "mfr_min": 2.7, "mfr_avg": 3.08}, "volvo|fh560": {"make": "Volvo", "model": "FH560", "type": "Heavy", "mfr_min": 2.63, "mfr_avg": 3.03}, "volvo|fm420": {"make": "Volvo", "model": "FM420", "type": "Heavy", "mfr_min": 2.78, "mfr_avg": 3.23}, "volvo|fm440": {"make": "Volvo", "model": "FM440", "type": "Heavy", "mfr_min": 2.75, "mfr_avg": 3.13}, "volvo|fm460": {"make": "Volvo", "model": "FM460", "type": "Heavy", "mfr_min": 2.7, "mfr_avg": 3.08}, "mercedes-benz|actros 2636": {"make": "Mercedes-Benz", "model": "Actros 2636", "type": "Heavy", "mfr_min": 2.13, "mfr_avg": 3.03}, "mercedes-benz|actros 2644": {"make": "Mercedes-Benz", "model": "Actros 2644", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 3.08}, "mercedes-benz|actros 2652": {"make": "Mercedes-Benz", "model": "Actros 2652", "type": "Heavy", "mfr_min": 2.06, "mfr_avg": 3.13}, "mercedes-benz|actros 2660": {"make": "Mercedes-Benz", "model": "Actros 2660", "type": "Heavy", "mfr_min": 1.96, "mfr_avg": 3.03}, "mercedes-benz|actros 3344": {"make": "Mercedes-Benz", "model": "Actros 3344", "type": "Heavy", "mfr_min": 1.96, "mfr_avg": 2.86}, "mercedes-benz|actros 3352": {"make": "Mercedes-Benz", "model": "Actros 3352", "type": "Heavy", "mfr_min": 1.89, "mfr_avg": 2.78}, "mercedes-benz|axor 2628": {"make": "Mercedes-Benz", "model": "Axor 2628", "type": "Heavy", "mfr_min": 2.17, "mfr_avg": 2.94}, "mercedes-benz|axor 2640": {"make": "Mercedes-Benz", "model": "Axor 2640", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 2.86}, "mercedes-benz|atego 2628": {"make": "Mercedes-Benz", "model": "Atego 2628", "type": "Medium", "mfr_min": 3.33, "mfr_avg": 4.17}, "man|tgx 26.440": {"make": "MAN", "model": "TGX 26.440", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 3.03}, "man|tgx 26.480": {"make": "MAN", "model": "TGX 26.480", "type": "Heavy", "mfr_min": 2.06, "mfr_avg": 3.08}, "man|tgx 26.510": {"make": "MAN", "model": "TGX 26.510", "type": "Heavy", "mfr_min": 2.06, "mfr_avg": 3.13}, "man|tgx 26.540": {"make": "MAN", "model": "TGX 26.540", "type": "Heavy", "mfr_min": 2.04, "mfr_avg": 3.08}, "man|tgs 26.440": {"make": "MAN", "model": "TGS 26.440", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 3.03}, "man|tgs 26.480": {"make": "MAN", "model": "TGS 26.480", "type": "Heavy", "mfr_min": 2.05, "mfr_avg": 3.08}, "man|tgs 27.440": {"make": "MAN", "model": "TGS 27.440", "type": "Heavy", "mfr_min": 2.04, "mfr_avg": 2.99}, "man|tgs 27.480": {"make": "MAN", "model": "TGS 27.480", "type": "Heavy", "mfr_min": 2.04, "mfr_avg": 3.03}, "man|tgs 33.440": {"make": "MAN", "model": "TGS 33.440", "type": "Heavy", "mfr_min": 1.85, "mfr_avg": 2.7}, "man|tgm 18.250": {"make": "MAN", "model": "TGM 18.250", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.55}, "man|tgm 18.280": {"make": "MAN", "model": "TGM 18.280", "type": "Medium", "mfr_min": 3.45, "mfr_avg": 4.35}, "hino|700 2841": {"make": "Hino", "model": "700 2841", "type": "Heavy", "mfr_min": 2.22, "mfr_avg": 2.78}, "hino|700 3241": {"make": "Hino", "model": "700 3241", "type": "Heavy", "mfr_min": 2.13, "mfr_avg": 2.63}, "hino|700 4140": {"make": "Hino", "model": "700 4140", "type": "Heavy", "mfr_min": 2, "mfr_avg": 2.5}, "hino|500 1626": {"make": "Hino", "model": "500 1626", "type": "Medium", "mfr_min": 4, "mfr_avg": 5}, "hino|500 2632": {"make": "Hino", "model": "500 2632", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.35}, "hino|500 2636": {"make": "Hino", "model": "500 2636", "type": "Medium", "mfr_min": 3.45, "mfr_avg": 4.17}, "hino|300 815": {"make": "Hino", "model": "300 815", "type": "Medium", "mfr_min": 5.56, "mfr_avg": 6.67}, "hino|300 1016": {"make": "Hino", "model": "300 1016", "type": "Medium", "mfr_min": 5, "mfr_avg": 6.25}, "ud trucks|quon gw 26.420": {"make": "UD Trucks", "model": "Quon GW 26.420", "type": "Heavy", "mfr_min": 2.22, "mfr_avg": 2.78}, "ud trucks|quon gw 26.450": {"make": "UD Trucks", "model": "Quon GW 26.450", "type": "Heavy", "mfr_min": 2.17, "mfr_avg": 2.7}, "ud trucks|quon cw 26.420": {"make": "UD Trucks", "model": "Quon CW 26.420", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 2.63}, "ud trucks|quester cgw 26.420": {"make": "UD Trucks", "model": "Quester CGW 26.420", "type": "Heavy", "mfr_min": 2.22, "mfr_avg": 2.78}, "ud trucks|croner lke 250": {"make": "UD Trucks", "model": "Croner LKE 250", "type": "Medium", "mfr_min": 3.85, "mfr_avg": 4.76}, "ud trucks|croner mke 210": {"make": "UD Trucks", "model": "Croner MKE 210", "type": "Medium", "mfr_min": 4.35, "mfr_avg": 5.26}, "faw|jh6 28.500ft": {"make": "FAW", "model": "JH6 28.500FT", "type": "Heavy", "mfr_min": 2, "mfr_avg": 2.7}, "faw|jh6 28.420ft": {"make": "FAW", "model": "JH6 28.420FT", "type": "Heavy", "mfr_min": 2.08, "mfr_avg": 2.78}, "faw|j5p 28.280fl": {"make": "FAW", "model": "J5P 28.280FL", "type": "Heavy", "mfr_min": 2.17, "mfr_avg": 2.86}, "faw|j5p 18.240fl": {"make": "FAW", "model": "J5P 18.240FL", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.35}, "faw|j5k 6.130fl": {"make": "FAW", "model": "J5K 6.130FL", "type": "Medium", "mfr_min": 5.88, "mfr_avg": 7.14}, "iveco|stralis 480": {"make": "Iveco", "model": "Stralis 480", "type": "Heavy", "mfr_min": 1.85, "mfr_avg": 2.5}, "iveco|stralis 440": {"make": "Iveco", "model": "Stralis 440", "type": "Heavy", "mfr_min": 1.89, "mfr_avg": 2.56}, "iveco|trakker 440": {"make": "Iveco", "model": "Trakker 440", "type": "Heavy", "mfr_min": 1.72, "mfr_avg": 2.27}, "iveco|eurocargo 160": {"make": "Iveco", "model": "Eurocargo 160", "type": "Medium", "mfr_min": 3.85, "mfr_avg": 4.76}, "powerstar|vx 2642": {"make": "Powerstar", "model": "VX 2642", "type": "Heavy", "mfr_min": 1.79, "mfr_avg": 2.38}, "powerstar|vx 2652": {"make": "Powerstar", "model": "VX 2652", "type": "Heavy", "mfr_min": 1.72, "mfr_avg": 2.27}, "powerstar|vx 2638": {"make": "Powerstar", "model": "VX 2638", "type": "Heavy", "mfr_min": 1.85, "mfr_avg": 2.44}, "shacman|x3000 480hp": {"make": "Shacman", "model": "X3000 480HP", "type": "Heavy", "mfr_min": 1.85, "mfr_avg": 2.5}, "shacman|x3000 430hp": {"make": "Shacman", "model": "X3000 430HP", "type": "Heavy", "mfr_min": 1.89, "mfr_avg": 2.56}, "isuzu|fvz 1400": {"make": "Isuzu", "model": "FVZ 1400", "type": "Heavy", "mfr_min": 2.86, "mfr_avg": 3.7}, "isuzu|fvz 260-15": {"make": "Isuzu", "model": "FVZ 260-15", "type": "Heavy", "mfr_min": 2.78, "mfr_avg": 3.57}, "isuzu|gxz 360-30": {"make": "Isuzu", "model": "GXZ 360-30", "type": "Heavy", "mfr_min": 2.5, "mfr_avg": 3.23}, "isuzu|fsr 800": {"make": "Isuzu", "model": "FSR 800", "type": "Medium", "mfr_min": 4.35, "mfr_avg": 5.56}, "isuzu|npr 400": {"make": "Isuzu", "model": "NPR 400", "type": "Medium", "mfr_min": 5.56, "mfr_avg": 7.14}, "isuzu|nqr 500": {"make": "Isuzu", "model": "NQR 500", "type": "Medium", "mfr_min": 5, "mfr_avg": 6.25}, "isuzu|nqr 87": {"make": "Isuzu", "model": "NQR 87", "type": "Medium", "mfr_min": 5.56, "mfr_avg": 6.67}, "tata|prima 4038s": {"make": "Tata", "model": "Prima 4038S", "type": "Heavy", "mfr_min": 2.17, "mfr_avg": 2.86}, "tata|prima 3138k": {"make": "Tata", "model": "Prima 3138K", "type": "Heavy", "mfr_min": 2.27, "mfr_avg": 2.99}, "tata|lpt 1518": {"make": "Tata", "model": "LPT 1518", "type": "Medium", "mfr_min": 3.85, "mfr_avg": 5}, "tata|lpt 1618": {"make": "Tata", "model": "LPT 1618", "type": "Medium", "mfr_min": 3.7, "mfr_avg": 4.76}, "fuso|fighter 1624": {"make": "Fuso", "model": "Fighter 1624", "type": "Medium", "mfr_min": 4.17, "mfr_avg": 5.26}, "fuso|fighter 2628": {"make": "Fuso", "model": "Fighter 2628", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.55}, "fuso|shogun 3337": {"make": "Fuso", "model": "Shogun 3337", "type": "Heavy", "mfr_min": 2.5, "mfr_avg": 3.13}, "fuso|shogun 2637": {"make": "Fuso", "model": "Shogun 2637", "type": "Heavy", "mfr_min": 2.63, "mfr_avg": 3.23}, "nissan|ud 290": {"make": "Nissan", "model": "UD 290", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.55}, "nissan|ud 370": {"make": "Nissan", "model": "UD 370", "type": "Medium", "mfr_min": 3.23, "mfr_avg": 4.17}, "ford|cargo 2530": {"make": "Ford", "model": "Cargo 2530", "type": "Medium", "mfr_min": 3.57, "mfr_avg": 4.35}, "ford|cargo 3330": {"make": "Ford", "model": "Cargo 3330", "type": "Heavy", "mfr_min": 2.78, "mfr_avg": 3.57}, "toyota|dyna 300": {"make": "Toyota", "model": "Dyna 300", "type": "Medium", "mfr_min": 6.25, "mfr_avg": 7.69}, "toyota|dyna 200": {"make": "Toyota", "model": "Dyna 200", "type": "Medium", "mfr_min": 7.14, "mfr_avg": 8.33}, "toyota|land cruiser 79": {"make": "Toyota", "model": "Land Cruiser 79", "type": "LDV", "mfr_min": 8.33, "mfr_avg": 10}, "toyota|hilux 2.8 gd-6": {"make": "Toyota", "model": "Hilux 2.8 GD-6", "type": "LDV", "mfr_min": 10.42, "mfr_avg": 12.5}, "toyota|hilux 2.4 gd-6": {"make": "Toyota", "model": "Hilux 2.4 GD-6", "type": "LDV", "mfr_min": 11.11, "mfr_avg": 13.33}, "ford|ranger 2.0 bi-turbo": {"make": "Ford", "model": "Ranger 2.0 Bi-Turbo", "type": "LDV", "mfr_min": 10, "mfr_avg": 12.5}, "ford|ranger 3.2 tdci": {"make": "Ford", "model": "Ranger 3.2 TDCi", "type": "LDV", "mfr_min": 9.09, "mfr_avg": 11.11}, "volkswagen|amarok 3.0 tdi": {"make": "Volkswagen", "model": "Amarok 3.0 TDI", "type": "LDV", "mfr_min": 9.09, "mfr_avg": 11.11}, "volkswagen|crafter 2.0 tdi": {"make": "Volkswagen", "model": "Crafter 2.0 TDI", "type": "Medium", "mfr_min": 7.69, "mfr_avg": 9.09}, "gwm|cannon 2.0 diesel": {"make": "GWM", "model": "Cannon 2.0 Diesel", "type": "LDV", "mfr_min": 10.42, "mfr_avg": 12.5}, "gwm|steed 2.0 diesel": {"make": "GWM", "model": "Steed 2.0 Diesel", "type": "LDV", "mfr_min": 10.42, "mfr_avg": 12.5}, "mahindra|pik up 2.2 crde": {"make": "Mahindra", "model": "Pik Up 2.2 CRDe", "type": "LDV", "mfr_min": 9.09, "mfr_avg": 11.11}, "mahindra|bolero maxitruck": {"make": "Mahindra", "model": "Bolero Maxitruck", "type": "Medium", "mfr_min": 7.14, "mfr_avg": 8.33}, "isuzu|d-max 1.9 ddi": {"make": "Isuzu", "model": "D-MAX 1.9 DDi", "type": "LDV", "mfr_min": 12.5, "mfr_avg": 14.29}, "isuzu|d-max 3.0 ddi": {"make": "Isuzu", "model": "D-MAX 3.0 DDi", "type": "LDV", "mfr_min": 10, "mfr_avg": 12.5}};
+</script>
+</body>
+</html>
