@@ -23,7 +23,6 @@
 
         .report-page { background:white; padding:8mm; }
 
-        /* Report header */
         .rep-header { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid var(--green); padding-bottom:5mm; margin-bottom:5mm; }
         .rep-title { font-family:"Bebas Neue",sans-serif; font-size:30px; letter-spacing:3px; color:var(--ink); line-height:1; margin-top:4px; }
         .rep-title span { color:var(--green); }
@@ -36,12 +35,10 @@
         .rep-meta-block.dark  { background:var(--ink); color:white; }
         .rep-meta-block.blue  { background:#1e40af; color:white; }
 
-        /* Scope bar */
         .scope-bar { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4px 5mm; margin-bottom:4mm; display:flex; justify-content:space-between; align-items:center; }
         .scope-item .lbl { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); display:block; }
         .scope-item .val { font-size:11px; font-weight:900; color:var(--ink); }
 
-        /* Hero tiles */
         .hero-tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:4mm; }
         .hero-tile { background:var(--paper); border:1px solid #e2e8f0; border-top:2px solid #cbd5e1; border-radius:8px; padding:6px 4px; text-align:center; }
         .hero-tile.t-red   { background:#fff1f2; border-top-color:var(--red-light); }
@@ -57,14 +54,11 @@
         .tile-sub { font-size:6.5px; color:var(--slate); font-weight:600; display:block; }
         .hero-tile.t-loss .tile-sub { color:rgba(255,255,255,0.4); }
 
-        /* Chart */
         .chart-card { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4mm; margin-bottom:4mm; }
         .chart-card-title { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); margin-bottom:6px; }
 
-        /* Section title */
         .section-title { font-family:"Bebas Neue",sans-serif; font-size:14px; letter-spacing:3px; color:var(--ink); border-bottom:2px solid var(--green); padding-bottom:3px; margin-bottom:6px; }
 
-        /* Table */
         .dfr-table { width:100%; border-collapse:collapse; font-size:8.5px; }
         .dfr-table thead tr { background:var(--ink); }
         .dfr-table thead th { color:white; font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; padding:6px 5px; border:1px solid #334155; text-align:center; }
@@ -81,19 +75,16 @@
         .dfr-table td.muted { color:var(--slate); font-weight:600; }
         .dfr-table td.loss  { color:var(--red); font-style:italic; font-weight:900; }
 
-        /* Disclaimer */
         .disclaimer { border:1px solid #e2e8f0; border-radius:8px; padding:4mm; margin-top:5mm; margin-bottom:4mm; background:var(--paper); }
         .disclaimer h4 { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:var(--slate); margin-bottom:4px; }
         .disclaimer p  { font-size:8px; color:var(--slate); line-height:1.5; font-weight:600; }
 
-        /* Signatures */
         .sig-row { display:flex; justify-content:space-between; margin:6mm 0 4mm; }
         .sig-block { width:45%; }
         .sig-line  { border-bottom:2px solid var(--ink); height:50px; margin-bottom:3px; }
         .sig-label { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); }
         .sig-date  { font-size:7.5px; color:#cbd5e1; margin-top:2px; }
 
-        /* Footer */
         .rep-footer { border-top:3px solid var(--green); padding-top:3mm; display:flex; justify-content:space-between; align-items:center; }
         .rep-footer .brand { font-family:"Bebas Neue",sans-serif; font-size:13px; letter-spacing:2px; color:var(--ink); }
         .rep-footer .sub   { font-size:7.5px; color:var(--slate); font-weight:600; }
@@ -167,7 +158,7 @@
         </div>
 
         <div class="sig-row">
-                    <div class="sig-block">
+            <div class="sig-block">
                 <div class="sig-line"></div>
                 <div class="sig-label">Signature — Fleet Manager</div>
                 <div class="sig-date">Date: _______________</div>
@@ -212,6 +203,32 @@ function waitForCloudStorage(cb, n) {
     else console.error("cloudStorage unavailable");
 }
 
+// ── VEHICLE DB + SUGGESTED CALC ─────────────────────────────
+var _vdb = {};
+waitForCloudStorage(function() {
+    cloudStorage.getItem("VEHICLE_DB").then(function(r){ _vdb = r ? JSON.parse(r) : {}; }).catch(function(){ _vdb={}; });
+});
+function _dbk(make,model){ return ((make||"").trim().toLowerCase()+"|"+(model||"").trim().toLowerCase()); }
+function _lookupMfr(make,model){
+    if(!make) return null;
+    var e=_vdb[_dbk(make,model)]; if(e) return e;
+    var keys=Object.keys(_vdb), pfx=(make||"").trim().toLowerCase()+"|";
+    for(var i=0;i<keys.length;i++){ if(keys[i].startsWith(pfx)) return _vdb[keys[i]]; }
+    return null;
+}
+function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+    var base = parseFloat(mfrMin);
+    var loadMap    = {"Fully Loaded":0,"Loaded Out / Empty Return":0.18,"Mixed / Variable":0.10,"Local Stop-Start":-0.15};
+    var trailerMap = {"Tautliner / Curtainsider":-0.05,"Flatdeck / Lowbed":0,"Tanker":0.03,"Side Tipper":-0.08,"Rear Tipper":-0.08,"Livestock / Animal Trailer":-0.06,"Rigid Body (No Trailer)":0};
+    var aerokitMap = {"None":0,"Roof Fairing Only":0.05,"Full Aerokit":0.10};
+    var loadAdj    = loadMap[loadProfile]    !== undefined ? loadMap[loadProfile]    : 0;
+    var trailerAdj = trailerMap[trailerType] !== undefined ? trailerMap[trailerType] : 0;
+    var interlinkAdj = (interlink===true||interlink==="true"||interlink==="Yes") ? -0.04 : 0;
+    var aerokitAdj = aerokitMap[aerokit]    !== undefined ? aerokitMap[aerokit]    : 0;
+    return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+}
+
 waitForCloudStorage(async function() {
     var raw = await cloudStorage.getItem("AUDIT_FINAL");
     if (!raw) { alert("No report data found. Please generate from the audit page."); return; }
@@ -219,7 +236,7 @@ waitForCloudStorage(async function() {
     var data         = JSON.parse(raw);
     var fleet        = Object.values(data.fleet || {});
     var client       = data.client;
-    var target       = parseFloat(client.target) || 2.3;
+    var globalTarget = parseFloat(client.target) || 2.3;
     var speedLimit   = data.speedLimit || 80;
     var customReport = data.customReport || {};
     var focus        = customReport.focus || "combined";
@@ -234,7 +251,7 @@ waitForCloudStorage(async function() {
     document.getElementById("repDate").innerText       = fmtDate(now);
     document.getElementById("reportCreated").innerText = fmtFull(now);
     document.getElementById("scopeSpeedLimit").innerText = speedLimit;
-    document.getElementById("scopeTarget").innerText     = target;
+    document.getElementById("scopeTarget").innerText     = globalTarget;
     document.getElementById("scopePrice").innerText      = wPrice.toFixed(2);
     document.getElementById("selectedCount").innerText   = customReport.vehicleCount || fleet.length;
     document.getElementById("totalCount").innerText      = customReport.totalVehicles || fleet.length;
@@ -246,15 +263,21 @@ waitForCloudStorage(async function() {
     document.title = fname;
     document.getElementById("suggestedFilename").innerText = fname + ".pdf";
 
-    // Process fleet
+    // ── Process fleet with per-vehicle targets ──
     var totalKM=0, totalLiters=0, totalEffLoss=0, totalSpdLoss=0, totalLoss=0;
     var totalEvents=0, totalDuration=0, highestMaxSpeed=0, totalWasted=0;
 
     var processed = fleet.map(function(v) {
-        var km      = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
-        var lit     = parseFloat(v.mL) || 0;
-        var actEff  = (lit > 0 && km > 0) ? (km / lit) : 0;
-        var wastedL = (lit > 0 && km > 0 && actEff < target) ? (lit - km / target) : 0;
+        var km     = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
+        var lit    = parseFloat(v.mL) || 0;
+        var actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
+
+        var dbEntry    = _lookupMfr(v.make, v.model);
+        var vMfrMin    = parseFloat(v.mfr_min) || (dbEntry && dbEntry.mfr_min) || null;
+        var vSuggested = calcSuggested(vMfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+        var vTarget    = parseFloat(v.clientTarget) || parseFloat(v.targetKmL) || vSuggested || globalTarget;
+
+        var wastedL = (lit > 0 && km > 0 && actEff < vTarget) ? (lit - km / vTarget) : 0;
         var effLoss = wastedL * wPrice;
         var events  = v.violations || 0;
         var spdLoss = 0;
@@ -263,7 +286,7 @@ waitForCloudStorage(async function() {
                 if (speed > speedLimit) {
                     var over = speed - speedLimit;
                     var dist = speed * 0.9 * (5 / 60);
-                    spdLoss += (dist / target) * (over / 100) * wPrice;
+                    spdLoss += (dist / vTarget) * (over / 100) * wPrice;
                 }
             });
         } else {
@@ -282,7 +305,8 @@ waitForCloudStorage(async function() {
         totalWasted   += wastedL;
         if (maxSpeed > highestMaxSpeed) highestMaxSpeed = maxSpeed;
         return Object.assign({}, v, {km:km, lit:lit, actEff:actEff, wastedL:wastedL,
-            effLoss:effLoss, spdLoss:spdLoss, tLoss:tLoss, events:events, duration:duration, maxSpeed:maxSpeed});
+            effLoss:effLoss, spdLoss:spdLoss, tLoss:tLoss, events:events,
+            duration:duration, maxSpeed:maxSpeed, vTarget:vTarget, vMfrMin:vMfrMin, vSuggested:vSuggested});
     });
 
     var avgKmL = totalLiters > 0 ? (totalKM / totalLiters) : 0;
@@ -307,7 +331,7 @@ waitForCloudStorage(async function() {
     }
     document.getElementById("heroTiles").innerHTML = t;
 
-    // Chart
+    // Chart — efficiency chart uses per-vehicle target bars
     var ctx = document.getElementById("reportChart").getContext("2d");
     var labels = processed.map(function(v){ return v.reg; });
     if (focus === "speed") {
@@ -326,8 +350,8 @@ waitForCloudStorage(async function() {
         new Chart(ctx, { type:"bar",
             data:{ labels:labels, datasets:[
                 { label:"Actual km/L", data:processed.map(function(v){ return v.actEff>0?parseFloat(v.actEff.toFixed(2)):0; }),
-                  backgroundColor:processed.map(function(v){ return v.actEff>0&&v.actEff<target?"#ef4444":"#10b981"; }), borderRadius:4 },
-                { label:"Target km/L", data:processed.map(function(){ return target; }), backgroundColor:"#cbd5e1", borderRadius:4 }
+                  backgroundColor:processed.map(function(v){ return v.actEff>0&&v.actEff<v.vTarget?"#ef4444":"#10b981"; }), borderRadius:4 },
+                { label:"Target km/L", data:processed.map(function(v){ return v.vTarget; }), backgroundColor:"#cbd5e1", borderRadius:4 }
             ]},
             options:{ indexAxis:"y", plugins:{legend:{labels:{font:{family:"Outfit",weight:"600",size:9}}}},
                 scales:{ x:{beginAtZero:true,ticks:{font:{family:"Outfit",weight:"600",size:9}}},
@@ -362,9 +386,9 @@ waitForCloudStorage(async function() {
         }).join("");
     } else if (focus === "efficiency") {
         document.getElementById("tableTitle").innerText = "Efficiency Details";
-        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>GPS km</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th>Wasted L</th><th class="red">Eff. Loss</th></tr>';
+        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>GPS km</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th style="color:#6ee7b7;">Suggested</th><th style="color:#fcd34d;">Target</th><th>Wasted L</th><th class="red">Eff. Loss</th></tr>';
         bodyHTML = processed.map(function(v) {
-            var ec = v.actEff>0&&v.actEff<target?"red":v.actEff>0?"green":"muted";
+            var ec = v.actEff>0&&v.actEff<v.vTarget?"red":v.actEff>0?"green":"muted";
             return "<tr>" +
                 '<td class="left reg">' + v.reg + "</td>" +
                 '<td class="muted">' + (v.type||"Heavy") + "</td>" +
@@ -372,20 +396,24 @@ waitForCloudStorage(async function() {
                 "<td>" + v.km.toFixed(0) + "</td>" +
                 '<td class="muted">' + (v.lit>0?v.lit.toFixed(1):"—") + "</td>" +
                 '<td class="' + ec + '">' + (v.actEff>0?v.actEff.toFixed(2):"—") + "</td>" +
+                '<td class="muted" style="color:#6ee7b7;">' + (v.vSuggested?v.vSuggested.toFixed(2):"—") + "</td>" +
+                '<td class="muted" style="color:#fcd34d;font-weight:900;">' + v.vTarget.toFixed(2) + "</td>" +
                 '<td class="' + (v.wastedL>0?"amber":"muted") + '">' + (v.wastedL>0?v.wastedL.toFixed(2):"—") + "</td>" +
                 '<td class="loss">R ' + Math.round(v.effLoss).toLocaleString() + "</td></tr>";
         }).join("");
     } else {
         document.getElementById("tableTitle").innerText = "Combined Loss Details";
-        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th>Eff. Loss</th><th>Violations</th><th>Spd Loss</th><th class="red">Total Loss</th></tr>';
+        headHTML = '<tr><th class="left">Registration</th><th>Type</th><th>Actual km</th><th>Litres</th><th>Act km/L</th><th style="color:#6ee7b7;">Suggested</th><th style="color:#fcd34d;">Target</th><th>Eff. Loss</th><th>Violations</th><th>Spd Loss</th><th class="red">Total Loss</th></tr>';
         bodyHTML = processed.map(function(v) {
-            var ec = v.actEff>0&&v.actEff<target?"red":v.actEff>0?"green":"muted";
+            var ec = v.actEff>0&&v.actEff<v.vTarget?"red":v.actEff>0?"green":"muted";
             return "<tr>" +
                 '<td class="left reg">' + v.reg + "</td>" +
                 '<td class="muted">' + (v.type||"Heavy") + "</td>" +
                 "<td>" + v.km.toFixed(0) + "</td>" +
                 '<td class="muted">' + (v.lit>0?v.lit.toFixed(1):"—") + "</td>" +
                 '<td class="' + ec + '">' + (v.actEff>0?v.actEff.toFixed(2):"—") + "</td>" +
+                '<td class="muted" style="color:#6ee7b7;">' + (v.vSuggested?v.vSuggested.toFixed(2):"—") + "</td>" +
+                '<td class="muted" style="color:#fcd34d;font-weight:900;">' + v.vTarget.toFixed(2) + "</td>" +
                 '<td class="amber">R ' + Math.round(v.effLoss).toLocaleString() + "</td>" +
                 '<td class="' + (v.events>0?"red":"muted") + '">' + v.events + "</td>" +
                 '<td class="red">R ' + Math.round(v.spdLoss).toLocaleString() + "</td>" +
