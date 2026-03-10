@@ -157,7 +157,7 @@
         <div class="action-row" id="actRow" style="display:none;">
             <button class="btn btn-p" onclick="saveAndAudit()">💾 Save & Run Audit</button>
             <button class="btn btn-b" onclick="runLookupAll()">🔍 Re-run Mfr Lookup</button>
-            <button class="btn btn-s" onclick="saveDraft()">💾 Save Draft</button>
+            <button class="btn btn-s" onclick="saveDraft()">💾 Save & Return</button>
             <button class="btn btn-s" onclick="addRow()">＋ Add Vehicle</button>
         </div>
         <div style="margin-top:10px;font-size:10px;color:#334155;display:none;" id="tips">
@@ -471,7 +471,9 @@ async function saveDraft(){
     const i=all.findIndex(c=>c.id===_cid);if(i===-1){toast('Client not found in DB',true);return;}
     all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
-    _client=all[i];toast('Draft saved ✓');
+    _client=all[i];
+    toast('Saved — returning to client…');
+    setTimeout(()=>window.location.href='client.html?id='+_cid, 700);
 }
 
 async function saveAndAudit(){
