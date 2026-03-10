@@ -120,10 +120,14 @@
         <div class="section">
             <div class="section-title">Actions</div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
-                <button onclick="genWeeklyForm()" class="action-btn btn-solid-emerald">📋 Generate Weekly Form</button>
-                <button onclick="window.location.href='audit.html?client='+encodeURIComponent(_client.company)" class="action-btn btn-solid-blue">📊 Run Audit</button>
-                <button onclick="syncFromAudit()" class="action-btn btn-blue">📥 Sync Fleet from Audit</button>
+                <button onclick="sendOnboardingForm()" class="action-btn btn-blue">📲 Send Onboarding Form</button>
+                <button onclick="genWeeklyForm()" class="action-btn btn-solid-emerald">📋 Send Weekly Form</button>
+                <button onclick="window.location.href='data-entry.html?client='+_clientId" class="action-btn btn-solid-blue">📋 Open Data Entry</button>
+                <button onclick="window.location.href='audit.html?client='+encodeURIComponent(_client.company)+'&id='+_clientId" class="action-btn btn-solid-blue">📊 Run Audit</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-top:0.75rem;">
                 <button onclick="sendReminder()" class="action-btn btn-yellow">✉️ Send Data Reminder</button>
+                <button onclick="syncFromAudit()" class="action-btn btn-blue">📥 Sync Fleet from Audit</button>
             </div>
         </div>
 
@@ -472,14 +476,40 @@
         window.location.href = 'database.html';
     }
 
+    // ── Send onboarding form link ─────────────────────────────
+    function sendOnboardingForm() {
+        var link = window.location.origin + '/onboarding.html?client=' + _clientId;
+        // Try clipboard first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function() {
+                toast('Onboarding link copied to clipboard ✓', 'green');
+            }).catch(function() { promptCopyLink(link); });
+        } else {
+            promptCopyLink(link);
+        }
+    }
+
+    function promptCopyLink(link) {
+        var msg = 'Onboarding form link (copy and WhatsApp to client):\n\n' + link;
+        window.prompt(msg, link);
+    }
+
     // ── Generate weekly form ──────────────────────────────────
     async function genWeeklyForm() {
         var c = _client;
-        var fleet = c.fleet||[];
-        if (fleet.length===0) { alert('No fleet data. Add vehicles first.'); return; }
-        // Build AUDIT_FINAL and redirect to audit to generate form
-        toast('Opening report form...', 'blue');
-        window.location.href = 'database_full.html?generateForm='+_clientId;
+        var fleet = Array.isArray(c.fleet) ? c.fleet : Object.values(c.fleet||{});
+        if (fleet.length === 0) {
+            toast('No fleet registered yet — send onboarding form first.', 'red');
+            return;
+        }
+        var link = window.location.origin + '/weekly-form.html?client=' + _clientId;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link).then(function() {
+                toast('Weekly form link copied to clipboard ✓', 'green');
+            }).catch(function() { promptCopyLink(link); });
+        } else {
+            promptCopyLink(link);
+        }
     }
 
     // ── Sync fleet from audit ─────────────────────────────────
