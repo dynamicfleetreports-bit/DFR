@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Hub | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink:#0f172a; --bg:#020617; --panel:#0f172a; --border:rgba(255,255,255,0.06);
+            --green:#10b981; --blue:#3b82f6; --gold:#f59e0b; --red:#ef4444; --purple:#8b5cf6;
+            --pink:#ec4899; --teal:#06b6d4;
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Outfit',sans-serif; background:var(--bg); color:#e2e8f0; display:flex; min-height:100vh; }
+
+        /* Sidebar */
+        #sidebar { width:260px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:2rem 1rem; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; }
+        .logo-area { padding:0 1rem 2.5rem; }
+        .nav-item { display:flex; align-items:center; padding:0.85rem 1rem; margin-bottom:0.25rem; border-radius:0.75rem; color:#64748b; text-transform:uppercase; font-size:11px; font-weight:900; letter-spacing:0.1em; text-decoration:none; transition:all 0.2s; }
+        .nav-item:hover { color:#e2e8f0; background:rgba(255,255,255,0.03); }
+        .nav-item.active { background:rgba(16,185,129,0.1); color:var(--green); }
+
+        /* Main */
+        .main { flex:1; overflow-y:auto; padding:3rem; }
+
+        /* Header */
+        .page-header { margin-bottom:2.5rem; }
+        .page-eyebrow { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; color:var(--green); margin-bottom:0.75rem; }
+        .page-title { font-size:3.5rem; font-weight:900; font-style:italic; text-transform:uppercase; letter-spacing:-0.02em; line-height:1; color:white; }
+        .page-title span { color:var(--green); }
+        .page-sub { font-size:13px; color:#64748b; margin-top:0.75rem; font-weight:600; }
+
+        /* Platform tabs */
+        .platform-tabs { display:flex; gap:0.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+        .tab { padding:8px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer; border:1.5px solid rgba(255,255,255,0.1); color:#64748b; background:none; transition:all 0.2s; font-family:'Outfit',sans-serif; }
+        .tab:hover { color:white; border-color:rgba(255,255,255,0.3); }
+        .tab.active { color:white; }
+        .tab-fb.active    { background:rgba(24,119,242,0.15); border-color:#1877f2; color:#60a5fa; }
+        .tab-li.active    { background:rgba(0,119,181,0.15); border-color:#0077b5; color:#38bdf8; }
+        .tab-ig.active    { background:rgba(236,72,153,0.15); border-color:#ec4899; color:#f472b6; }
+        .tab-wa.active    { background:rgba(37,211,102,0.15); border-color:#25d366; color:#4ade80; }
+        .tab-tt.active    { background:rgba(255,255,255,0.08); border-color:white; color:white; }
+        .tab-email.active { background:rgba(245,158,11,0.15); border-color:#f59e0b; color:#fbbf24; }
+
+        /* Platform section */
+        .platform-section { display:none; }
+        .platform-section.active { display:block; }
+
+        /* Platform banner */
+        .platform-banner { border-radius:1rem; padding:1.5rem 2rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+        .pb-fb    { background:linear-gradient(135deg,rgba(24,119,242,0.15),rgba(24,119,242,0.05)); border:1px solid rgba(24,119,242,0.3); }
+        .pb-li    { background:linear-gradient(135deg,rgba(0,119,181,0.15),rgba(0,119,181,0.05)); border:1px solid rgba(0,119,181,0.3); }
+        .pb-ig    { background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(236,72,153,0.05)); border:1px solid rgba(236,72,153,0.3); }
+        .pb-wa    { background:linear-gradient(135deg,rgba(37,211,102,0.15),rgba(37,211,102,0.05)); border:1px solid rgba(37,211,102,0.3); }
+        .pb-tt    { background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.15); }
+        .pb-email { background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05)); border:1px solid rgba(245,158,11,0.3); }
+        .pb-title { font-size:1.5rem; font-weight:900; font-style:italic; text-transform:uppercase; color:white; }
+        .pb-meta  { font-size:11px; color:rgba(255,255,255,0.4); font-weight:700; margin-top:2px; }
+        .pb-tip   { background:rgba(0,0,0,0.3); border-radius:8px; padding:10px 14px; font-size:11px; color:rgba(255,255,255,0.6); font-weight:600; max-width:340px; line-height:1.5; }
+        .pb-tip strong { color:var(--green); }
+
+        /* Post cards grid */
+        .posts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(520px,1fr)); gap:1.5rem; }
+
+        /* Post card */
+        .post-card { background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:1rem; overflow:hidden; }
+        .post-card-head { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+        .post-tag { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; padding:3px 8px; border-radius:4px; }
+        .post-card-body { padding:16px; }
+        .post-preview { background:#000d1a; border-radius:8px; padding:14px; font-size:13px; line-height:1.7; color:#cbd5e1; white-space:pre-wrap; font-family:'Outfit',sans-serif; max-height:280px; overflow-y:auto; border:1px solid rgba(255,255,255,0.04); }
+        .post-preview::-webkit-scrollbar { width:4px; }
+        .post-preview::-webkit-scrollbar-track { background:transparent; }
+        .post-preview::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+        .post-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+        .btn-copy { background:var(--green); color:#020617; border:none; padding:8px 18px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; letter-spacing:0.05em; }
+        .btn-copy:hover { background:#059669; transform:translateY(-1px); }
+        .btn-copy.copied { background:#6366f1; }
+        .hashtag-wrap { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:6px 10px; font-size:10px; color:#64748b; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+
+        /* Email cards are wider */
+        .email-card { background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:1rem; overflow:hidden; margin-bottom:1.5rem; }
+        .email-card-head { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .email-subject { font-size:11px; color:#64748b; font-weight:700; margin-top:3px; }
+        .email-when { font-size:10px; font-weight:900; padding:4px 10px; border-radius:4px; background:rgba(245,158,11,0.1); color:#f59e0b; text-transform:uppercase; }
+        .email-body-wrap { padding:16px 20px; }
+        .email-preview { background:#000d1a; border-radius:8px; padding:16px; font-size:13px; line-height:1.8; color:#cbd5e1; white-space:pre-wrap; font-family:'Outfit',sans-serif; max-height:360px; overflow-y:auto; border:1px solid rgba(255,255,255,0.04); }
+        .email-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; }
+
+        /* Tips box */
+        .tips-box { background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:1rem; padding:1.25rem 1.5rem; margin-bottom:1.5rem; }
+        .tips-title { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#818cf8; margin-bottom:0.75rem; }
+        .tips-list { display:flex; flex-direction:column; gap:6px; }
+        .tips-list li { font-size:12px; color:rgba(255,255,255,0.5); font-weight:600; list-style:none; padding-left:1.25rem; position:relative; }
+        .tips-list li::before { content:'→'; position:absolute; left:0; color:#818cf8; }
+
+        /* WhatsApp special */
+        .wa-note { background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.15); border-radius:8px; padding:12px 14px; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:1rem; font-weight:600; }
+        .wa-note strong { color:#4ade80; }
+
+        @media(max-width:900px) {
+            .posts-grid { grid-template-columns:1fr; }
+            .main { padding:1.5rem; }
+            #sidebar { display:none; }
+        }
+    </style>
+</head>
+<body>
+
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
+    <nav>
+        <a href="index.html"     class="nav-item">Dashboard</a>
+        <a href="pipeline.html"  class="nav-item">Prospect Pipeline</a>
+        <a href="database.html"  class="nav-item">Active Database</a>
+        <a href="audit.html"     class="nav-item">Forensic Audit</a>
+        <a href="churned.html"   class="nav-item">Churned Clients</a>
+        <a href="invoice.html"   class="nav-item">Invoices</a>
+        <a href="settings.html"  class="nav-item">⚙ Settings</a>
+        <a href="marketing.html" class="nav-item active">📣 Marketing</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <div class="page-header">
+        <div class="page-eyebrow">Client Acquisition</div>
+        <h1 class="page-title">Marketing <span>Hub</span></h1>
+        <p class="page-sub">Ready-to-post content for every platform — just copy, paste and post. No marketing experience needed.</p>
+    </div>
+
+    <!-- Platform Tabs -->
+    <div class="platform-tabs">
+        <button class="tab tab-fb active"    onclick="switchTab('fb',this)">📘 Facebook</button>
+        <button class="tab tab-li"           onclick="switchTab('li',this)">💼 LinkedIn</button>
+        <button class="tab tab-ig"           onclick="switchTab('ig',this)">📸 Instagram</button>
+        <button class="tab tab-wa"           onclick="switchTab('wa',this)">💬 WhatsApp</button>
+        <button class="tab tab-tt"           onclick="switchTab('tt',this)">🎵 TikTok</button>
+        <button class="tab tab-email active" onclick="switchTab('email',this)" style="margin-left:auto;">📧 Email Templates</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         FACEBOOK
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section active" id="section-fb">
+        <div class="platform-banner pb-fb">
+            <div>
+                <div class="pb-title">📘 Facebook</div>
+                <div class="pb-meta">Best times: Tue–Thu · 12pm–2pm &amp; 6pm–8pm · Post 3x per week</div>
+            </div>
+            <div class="pb-tip"><strong>Your best platform.</strong> SA fleet owners are 35–55, very active on Facebook. Groups like "SA Trucking" and "Transport SA" are gold — join them and post there too.</div>
+        </div>
+
+        <div class="tips-box">
+            <div class="tips-title">💡 Quick Tips</div>
+            <ul class="tips-list">
+                <li>Always end with a question or call to action — "Comment YES if you want in"</li>
+                <li>Post in SA trucking Facebook groups — massive free reach</li>
+                <li>Reply to every comment within 1 hour — the algorithm rewards it</li>
+                <li>A bad photo of a real truck beats a perfect stock image every time</li>
+            </ul>
+        </div>
+
+        <div class="posts-grid">
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">💸 Money Shock</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Use this first</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb1">😱 I need to be honest with you.
+
+Last month I audited a transport company's fleet right here in SA.
+
+The owner is a hard worker. Good guy. Been in the business 15 years.
+
+But his fleet was silently bleeding R 87,000 every single month.
+
+Not from theft. Not from diesel prices. From things nobody ever told him to track:
+
+🔴 23 drivers speeding consistently — R 42,000/month in wasted fuel
+🔴 12 trucks running way below their efficiency targets — R 28,000/month gone
+🔴 No system to catch it — so it kept happening month after month
+
+When I showed him the numbers he went quiet for a long time.
+
+Then he said: "Why has nobody ever shown me this before?"
+
+That question hit me hard.
+
+So I'm doing something about it.
+
+For the next 30 days I'm offering FREE fleet audits to SA transport companies.
+
+I'll analyse your fleet data, find exactly where the money is going, and give you a step-by-step plan to fix it.
+
+No charge. No obligation. Just the truth about your fleet.
+
+If you run 5 or more vehicles and you want to know the truth — comment AUDIT below or WhatsApp me on 083 314 9592.
+
+Limited to 10 companies this month. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">❓ Curiosity Hook</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb2">Quick question for fleet owners 👇
+
+If I told you one of your drivers is costing you R 3,200 extra per month in fuel alone — would you know which one?
+
+Most owners say no.
+
+Not because they don't care. But because nobody's tracking it.
+
+Your GPS company gives you data. But data isn't insight.
+
+Here's what actually matters:
+✅ Which vehicles are hitting their km/L targets?
+✅ Which drivers are speeding regularly?
+✅ How does this month compare to last month?
+✅ Which truck is quietly costing you a fortune?
+
+We track all of this. And we show you exactly how to fix what's broken.
+
+🎁 This month we're offering FREE fleet efficiency audits for SA transport companies.
+
+5+ vehicles. No cost. Full report. Action plan included.
+
+Interested? Drop a 🚛 in the comments or WhatsApp 083 314 9592
+
+Share this if you know a fleet owner who needs to see it. 👇</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">📈 Before & After</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb3">Real numbers from a real client. 👇
+
+BEFORE working with us:
+❌ Fleet efficiency score: 64%
+❌ Monthly fuel waste: R 91,000
+❌ 8 drivers with no performance tracking
+❌ Owner flying blind every month
+
+AFTER 60 days:
+✅ Fleet efficiency score: 86%
+✅ Monthly savings: R 74,000
+✅ Every driver knows their score
+✅ Owner gets a clear report every week
+
+Same trucks. Same routes. Same drivers.
+
+Just a proper system to measure, report and fix what's broken.
+
+That's what we do at Dynamic Fleet Reporting.
+
+We don't sell GPS. We don't sell fuel. We sell clarity.
+
+We take your fleet data and turn it into money back in your pocket.
+
+If your fleet is running without proper efficiency reporting, you're losing money you don't even know about.
+
+📞 083 314 9592
+📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="44203d2a25292d2722282121303621342b363037042329252d286a272b29">[email&#160;protected]</a>
+
+Or comment below — happy to chat. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(139,92,246,0.15);color:#c4b5fd;">😤 Pain Point</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb4">To every transport business owner in SA who's tired of:
+
+😤 Diesel prices eating your margins alive
+😤 Drivers you suspect are wasting fuel but can't prove it
+😤 End-of-month fuel bills that make your stomach drop
+😤 Feeling like you're working harder for less every year
+
+I hear you. And I want to help.
+
+Most fleet owners are fighting the wrong battle.
+
+They negotiate on diesel price. They shout at drivers. They buy new GPS gadgets.
+
+But the real money is in efficiency — and you can't fix what you're not measuring.
+
+Here's the truth:
+A 10% improvement in fleet efficiency on a 20-truck fleet saves you roughly R 40,000 per month.
+
+Not from diesel price. From driving smarter.
+
+We've helped fleets across SA find those savings with a simple monthly reporting system.
+
+And right now we're offering the first audit completely FREE.
+
+No catch. You get a full report, a fleet score, and a clear action plan.
+
+If nothing else, you'll know exactly where you stand.
+
+WhatsApp me: 083 314 9592
+Or email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="13776a7d727e7a70757f7676676176637c61676053747e727a7f3d707c7e">[email&#160;protected]</a>
+
+Tag a fleet owner who needs to see this. 👇</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(59,130,246,0.15);color:#93c5fd;">🏆 Social Proof</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb5">A client called me last week to say thank you.
+
+He runs a 28-truck fleet doing long distance between Joburg and Cape Town.
+
+Six months ago his fleet score was 61%. He didn't even know what a fleet score was.
+
+Today it's 83%.
+
+That's R 68,000 per month he's no longer wasting.
+
+He told me: "I've been in transport for 20 years. Nobody ever put it this simply for me. I always felt like the data was too much. Now I look forward to my weekly report."
+
+That's why I do this.
+
+Not every fleet owner is an Excel expert. Not everyone has time to dig through GPS reports.
+
+You just need someone to do it for you and tell you: here's what's good, here's what's not, here's what to fix.
+
+That's exactly what Dynamic Fleet Reporting does.
+
+If you want that same clarity for your fleet — reach out.
+
+First audit is free. Always.
+
+📞 083 314 9592
+🌐 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1b7f62757a7672787d777e7e6f697e6b74696f685b7c767a727735787476">[email&#160;protected]</a></div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb5',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">⏰ Urgency</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #6 — End of month</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="fb6">End of month coming up. 📅
+
+Which means fleet owners across SA are about to open their fuel reconciliation and feel that familiar sinking feeling.
+
+"Where did all that money go?"
+
+If that's you — I want to help.
+
+This month I have 4 free audit slots left.
+
+Here's what you get:
+📊 Full fleet efficiency report
+🚨 Every driver ranked by fuel cost
+🔍 Vehicles flagged below target
+💰 Exact monthly loss calculated in rands
+✅ Step-by-step action plan to fix it
+
+Takes you 10 minutes to send me your data.
+Takes me 48 hours to give you answers.
+
+5+ vehicles qualifies. Any GPS system. Any truck type.
+
+Comment READY or WhatsApp 083 314 9592 before the slots fill up.
+
+Don't go into another month without knowing what your fleet is actually costing you. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('fb6',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica #EndOfMonth</div>
+                </div>
+            </div>
+
+        </div><!-- /posts-grid fb -->
+    </div><!-- /section-fb -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         LINKEDIN
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section" id="section-li">
+        <div class="platform-banner pb-li">
+            <div>
+                <div class="pb-title">💼 LinkedIn</div>
+                <div class="pb-meta">Best times: Tue–Thu · 8am–10am · Post 2x per week</div>
+            </div>
+            <div class="pb-tip"><strong>Target audience here:</strong> Transport managers, logistics directors, ops managers at medium-to-large companies. Be professional but still personal. Stories outperform statistics.</div>
+        </div>
+
+        <div class="tips-box">
+            <div class="tips-title">💡 LinkedIn Strategy</div>
+            <ul class="tips-list">
+                <li>Connect with transport managers, fleet managers and logistics directors — 20 per day</li>
+                <li>Comment on posts in the transport/logistics space before posting your own — builds visibility</li>
+                <li>LinkedIn rewards long-form content — don't be afraid of a long post</li>
+                <li>End every post with a direct question to drive comments</li>
+            </ul>
+        </div>
+
+        <div class="posts-grid">
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📖 Story Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Strong opener</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="li1">I asked a fleet manager a simple question last week:
+
+"What's your worst-performing vehicle this month?"
+
+He paused. Pulled up a spreadsheet. Scrolled for two minutes. Then said:
+
+"Honestly? I'm not sure."
+
+He manages 35 trucks. Has a GPS system. Has a dedicated admin. Has been doing this for 12 years.
+
+But he couldn't tell me, off the top of his head, which vehicle was costing him the most money.
+
+This is the norm, not the exception.
+
+Most fleet managers are drowning in data but starving for insight.
+
+GPS reports give you thousands of rows. But nobody's translating that into: here's your problem, here's what it's costing, here's how to fix it.
+
+That gap is exactly what I built Dynamic Fleet Reporting to solve.
+
+We take your raw GPS and fuel data, and every week we give you:
+→ A fleet efficiency score (0–100)
+→ Every vehicle ranked by performance
+→ Every driver ranked by fuel cost
+→ A clear action list — not a 40-page report nobody reads
+
+The fleet manager I mentioned? We onboarded him 3 months ago.
+
+He now answers that question in under 10 seconds.
+
+And his fleet is saving R 54,000 per month compared to when we started.
+
+If your fleet reporting feels like guesswork — I'd love to show you what structured looks like.
+
+First audit is free. No obligation.
+
+What does your fleet reporting look like right now?</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('li1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📊 Data & Insight</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="li2">The average SA heavy fleet is operating at 67% efficiency.
+
+That means for every R100 you spend on diesel, R33 is being wasted.
+
+Not stolen. Not misused. Just... inefficient.
+
+Here's where that waste typically hides:
+
+1. Speeding (the biggest one)
+   Every km/h over 80 increases fuel consumption exponentially.
+   A driver averaging 95km/h vs 85km/h costs you about R 2,800 extra per month. Per driver.
+
+2. Load profile mismatch
+   A fully-loaded long-distance truck has a very different target than a local distribution vehicle.
+   Most fleets use one target for everything — and wonder why the numbers don't make sense.
+
+3. No vehicle-level tracking
+   Fleet average looks fine. But two underperforming vehicles are dragging it down.
+   You can't see it because you're looking at totals.
+
+4. Reactive not proactive
+   Most fleets only notice problems when the fuel bill arrives.
+   By then, the damage is done.
+
+The fix isn't complicated. It's consistent weekly reporting, per vehicle, with clear targets.
+
+That's what we do.
+
+If you manage a fleet of 5+ vehicles and want to see what structured reporting looks like — reach out.
+
+First analysis is on us.
+
+📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8aeef3e4ebe7e3e9ece6efeffef8effae5f8fef9caede7ebe3e6a4e9e5e7">[email&#160;protected]</a>
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('li2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations #FleetManagement</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🤝 Value Offer</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="li3">I'm going to do something unusual.
+
+I'm going to tell you exactly what I charge — and then offer to do it for free.
+
+Our monthly fleet reporting service costs between R 3,500 and R 7,500 per month depending on fleet size.
+
+For that, clients get:
+→ Weekly efficiency report per vehicle
+→ Driver performance rankings
+→ Manufacturer benchmark comparisons
+→ Monthly summary with trend analysis
+→ Direct WhatsApp support
+
+The average client saves 18–24% on fleet fuel costs within 90 days.
+
+On a 20-truck fleet, that's typically R 45,000–R 65,000 per month in savings.
+
+The service pays for itself many times over.
+
+But I know asking a business to trust a new service isn't easy.
+
+So here's my offer:
+
+Send me your last month's fleet data — GPS reports, fuel records, whatever you have — and I'll do a full forensic audit at no cost.
+
+You'll get a proper report. Real numbers. Real recommendations.
+
+If you like what you see, we talk about working together.
+If not, you keep the report and walk away. No hard feelings.
+
+I've been doing this for SA transport companies and the results speak for themselves.
+
+Want to see what your fleet is actually costing you?
+
+Drop me a message or email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e7839e89868a8e84818b82829395829788959394a7808a868e8bc984888a">[email&#160;protected]</a>
+
+What's your biggest fleet cost headache right now? 👇</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('li3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment #FleetManagement</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🎯 Direct Pitch</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="li4">If you manage a fleet in South Africa, this is for you.
+
+I'm [Your Name], founder of Dynamic Fleet Reporting.
+
+We specialise in one thing: turning fleet data into money back in your pocket.
+
+We work with SA transport companies to:
+✅ Benchmark every vehicle against manufacturer targets
+✅ Track driver efficiency weekly — not monthly when it's too late
+✅ Identify your worst-performing vehicles before they kill your margins
+✅ Deliver simple, clear reports your whole team can understand
+
+We're not a GPS company. We're not a fuel card company.
+
+We're the people who take all that data and tell you what it actually means — and what to do about it.
+
+Current availability: 3 new client slots this month.
+
+If you want to know what your fleet is really costing you, let's talk.
+
+Free audit. 48-hour turnaround. Zero obligation.
+
+DM me or email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="76120f18171b1f15101a1313020413061904020536111b171f1a5815191b">[email&#160;protected]</a>
+
+Repost if you know someone in SA transport who'd benefit. 🙏</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('li4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting</div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /section-li -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         INSTAGRAM
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section" id="section-ig">
+        <div class="platform-banner pb-ig">
+            <div>
+                <div class="pb-title">📸 Instagram</div>
+                <div class="pb-meta">Best times: Mon, Wed, Fri · 7pm–9pm · Post 4x per week</div>
+            </div>
+            <div class="pb-tip"><strong>Keep it punchy.</strong> Instagram is visual first — pair these captions with a photo of a truck, a road, your logo, or even a screenshot of a report. Short hooks in the first line are everything.</div>
+        </div>
+
+        <div class="tips-box">
+            <div class="tips-title">💡 Instagram Tips</div>
+            <ul class="tips-list">
+                <li>First line is everything — Instagram cuts off after 2 lines. Make it impossible not to tap "more"</li>
+                <li>Use 20–25 hashtags — mix big ones (#trucking) with niche ones (#SATrucking)</li>
+                <li>Stories every day — even just a quote or a stat. Keeps you visible</li>
+                <li>Reels get 3x the reach of normal posts right now — TikTok content reposts perfectly</li>
+            </ul>
+        </div>
+
+        <div class="posts-grid">
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🪝 Hard Hook</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="ig1">Your fleet lost R 87,000 last month. 💸
+
+You just didn't know where.
+
+Most SA fleet owners are working harder every year and making less — not because of diesel prices, but because of efficiency losses nobody's tracking.
+
+Speeding. Overloading. Wrong load profiles. Vehicles running 30% below target.
+
+We find it. We prove it. We fix it.
+
+🎁 FREE fleet audit — link in bio.
+
+5+ vehicles. 48 hours. Full report.
+
+Drop a 🚛 if you want in.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('ig1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">📊 Stats</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="ig2">Numbers that should make every fleet owner uncomfortable 👇
+
+73% — fleets operating below their efficiency target
+R 87k — average monthly waste we find per fleet
+60 days — average time to see a 20% improvement
+R 1.04M — what that waste costs you per year
+
+Still think your fleet is fine? 🤔
+
+We offer FREE forensic fleet audits for SA transport companies.
+
+We take your GPS data, run the numbers, and show you exactly where the money is going.
+
+No GPS? No problem — we work with basic fuel and odometer data too.
+
+📲 WhatsApp 083 314 9592 or link in bio.
+
+Save this post and come back when the end-of-month fuel bill arrives. 👇</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('ig2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🔄 Before/After</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="ig3">Same fleet. 60 days apart. 📈
+
+BEFORE:
+Fleet score: 64% 😰
+Monthly waste: R 91,000
+Worst driver costing R 4,100 extra per month
+Owner had no idea
+
+AFTER:
+Fleet score: 86% 🏆
+Monthly savings: R 74,000
+Every driver has a target and knows their score
+Owner gets a clear weekly report
+
+We didn't buy new trucks. We didn't change routes.
+
+We just gave them a proper reporting system and showed them what the numbers meant.
+
+That's Dynamic Fleet Reporting.
+
+🎁 Your first audit is FREE.
+📲 083 314 9592 | link in bio</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('ig3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">💬 Relatable</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="ig4">Every fleet owner I talk to says the same things 😅
+
+"Diesel is killing us"
+"I think some drivers are wasting fuel but I can't prove it"
+"I just pay the bill at the end of the month and hope for the best"
+
+Sound familiar?
+
+The problem isn't diesel. The problem is not knowing.
+
+When you know exactly which truck is underperforming and by how much — you can fix it.
+
+When you know which driver is costing you R 3,500 extra per month — you can coach them.
+
+That's the power of proper fleet reporting.
+
+We work with SA transport companies of all sizes — 5 trucks to 80+ trucks.
+
+And we start with a FREE audit so you can see exactly what we find before you spend a cent.
+
+👇 Comment or DM to grab one of this month's free slots.
+
+Tag a fleet owner who needs this. 🙏</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('ig4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics</div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /section-ig -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         WHATSAPP
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section" id="section-wa">
+        <div class="platform-banner pb-wa">
+            <div>
+                <div class="pb-title">💬 WhatsApp</div>
+                <div class="pb-meta">Status: Daily · Direct message: As needed · Groups: 2–3x per week</div>
+            </div>
+            <div class="pb-tip"><strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts. Fleet owner groups are pure gold. Be conversational — never copy/paste salesy text here.</div>
+        </div>
+
+        <div class="wa-note">
+            <strong>💡 How to use WhatsApp for marketing:</strong> Post to your Status daily (simple stats or quotes work perfectly). Join SA trucking/transport WhatsApp groups and add value before promoting. For direct messages, only message people who've shown interest — never cold spam.
+        </div>
+
+        <div class="posts-grid">
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #1</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa1">🚛 Fleet fact of the day:
+
+A driver averaging 95km/h instead of 85km/h costs you approximately R 2,800 extra per month in fuel.
+
+On a 10-truck fleet, that's R 28,000/month if all drivers are doing it.
+
+Are you tracking your drivers' speeds per vehicle?
+
+📞 083 314 9592 — free fleet audit available this month</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa1',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post as WhatsApp Status — no hashtags needed</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa2">Quick question for fleet owners 👇
+
+Do you know your fleet's average km/L this month?
+
+Most owners don't — not because they don't care, but because nobody's set up a proper system to track it.
+
+We fix that.
+
+FREE fleet audit — 083 314 9592 📲</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa2',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post as WhatsApp Status</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Group Message</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Transport Group Post</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa3">Hi all 👋
+
+Not here to spam — just a quick one for any fleet owners in the group.
+
+I run Dynamic Fleet Reporting — we help SA transport companies find and fix hidden fuel losses.
+
+This month I'm offering free fleet audits to 10 companies.
+
+You send me your fleet data (GPS reports or basic fuel/odo records) and I send you back a full efficiency report within 48 hours. No charge.
+
+If you're interested or know someone who might be — WhatsApp me directly on 083 314 9592.
+
+Thanks 🙏</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa3',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">For SA trucking/transport WhatsApp groups</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Follow-Up DM</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">After someone shows interest</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa4">Hi [Name] 👋
+
+Thanks for reaching out about the fleet audit.
+
+To get started I just need a few things from you:
+
+1️⃣ Your fleet list — even just reg numbers, make and model works
+2️⃣ Last month's odometer readings per vehicle
+3️⃣ Total fuel used per vehicle last month
+4️⃣ If you have GPS reports (speeding/usage) from Ctrack, MiX, Cartrack etc — even better, but not essential
+
+You can WhatsApp it right here, email it to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f5e8fff0fcf8f2f7fdf4f4e5e3f4e1fee3e5e2d1f6fcf0f8fdbff2fefc">[email&#160;protected]</a>, or share a Google Drive link.
+
+Once I have it, I'll have your full report back to you within 48 hours.
+
+Any questions just shout 🙂</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa4',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Send as direct WhatsApp after first contact</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa5">End of month tomorrow 📅
+
+If your fuel bill is about to make you cringe — we need to talk.
+
+We find the hidden losses most fleet owners don't even know to look for.
+
+Last client: R 74,000 saved per month. Same fleet, same drivers.
+
+FREE audit available — 083 314 9592 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa5',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post last day of each month as Status</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Cold Intro DM</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">When messaging someone new</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="wa6">Hi [Name], hope you're well 👋
+
+I saw you're in the transport industry — apologies for the cold message.
+
+I run Dynamic Fleet Reporting. We help SA fleet owners find hidden fuel losses — most of our clients save between R 40k–R 90k per month once we set up proper efficiency reporting.
+
+I'm offering free audits this month to a few new companies — no catch, just want to show you what we find.
+
+If it's of any interest let me know and I'll send you more info.
+
+If not, no worries at all — have a good one! 🙂</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('wa6',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Use carefully — only for warm connections, not strangers</div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /section-wa -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         TIKTOK
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section" id="section-tt">
+        <div class="platform-banner pb-tt">
+            <div>
+                <div class="pb-title">🎵 TikTok / Reels</div>
+                <div class="pb-meta">Best times: Mon–Fri · 6pm–10pm · Post 3–5x per week</div>
+            </div>
+            <div class="pb-tip"><strong>Fastest growing reach in SA.</strong> You don't need to dance. Point-to-text videos of fleet stats go viral. Film yourself in front of a truck for instant credibility. Post the same video to Instagram Reels — double the reach for zero extra work.</div>
+        </div>
+
+        <div class="tips-box">
+            <div class="tips-title">💡 How to Film These Without Being Cringe</div>
+            <ul class="tips-list">
+                <li>Stand in front of a truck or in a yard — instant credibility. Your phone camera is fine</li>
+                <li>Speak naturally — stumbling over words actually builds trust on TikTok</li>
+                <li>Use text overlays for every key stat — many people watch without sound</li>
+                <li>Keep it under 60 seconds — hook in first 3 seconds or people scroll</li>
+                <li>Post the exact same video to Instagram Reels and YouTube Shorts</li>
+            </ul>
+        </div>
+
+        <div class="posts-grid">
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #1 — 30 sec</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="tt1">🎬 SCRIPT #1 — "The Number"
+[Film yourself standing next to a truck]
+
+Hook (0–3 sec):
+"I'm going to show you a number that's going to upset you."
+
+Middle (3–20 sec):
+"The average South African heavy fleet is wasting R 87,000 per month. Not on theft. Not on diesel prices. On inefficiency that nobody's tracking."
+
+"That's one driver doing it. That's twelve trucks running below their target. That's no system to catch it."
+
+CTA (20–30 sec):
+"I'm [name] from Dynamic Fleet Reporting. We find that money and we show you how to get it back. Free audit available this month. WhatsApp me — 083 314 9592. Link in bio."
+
+---
+
+CAPTION TO POST:
+Is your fleet wasting R 87k a month? 💸 Most SA fleet owners have no idea. We find the hidden losses and show you exactly how to fix it. FREE audit available — link in bio 📲 #FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica #FleetEfficiency</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('tt1',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #2 — 45 sec</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="tt2">🎬 SCRIPT #2 — "The Driver"
+[Film yourself — can be in car, office or yard]
+
+Hook (0–3 sec):
+"One of your drivers is costing you R 3,200 extra per month. Do you know which one?"
+
+Middle (3–30 sec):
+"I asked that question to a fleet owner last week. He manages 30 trucks. Has GPS. Has an admin. Been doing this 12 years."
+
+"He couldn't answer it."
+
+"Not because he doesn't care — but because nobody's set up a system to track it properly."
+
+"Here's the thing. Every km/h over 80 that your driver does burns exponentially more fuel. One driver averaging 95 instead of 85 costs you about R 2,800 a month. Extra. Just from speed."
+
+"Multiply that by 10 drivers doing it. That's R 28,000 a month. Gone."
+
+CTA (30–45 sec):
+"We track this. Per driver. Per vehicle. Every week."
+
+"And we start with a FREE audit so you can see exactly what we find before you spend a cent."
+
+"WhatsApp me on 083 314 9592. Link in bio."
+
+---
+
+CAPTION:
+Do you know which driver is costing you the most? 👀 Most fleet owners don't — until we show them. FREE fleet audit available this month. #SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('tt2',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica</div>
+                </div>
+            </div>
+
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #3 — 20 sec (Reel format)</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="tt3">🎬 SCRIPT #3 — "The Simple One"
+[Quick punchy format — text overlays on screen work great]
+
+Hook (0–2 sec):
+"Three questions every fleet owner should be able to answer."
+
+List (2–15 sec):
+"One — what's your fleet's average km/L this month?"
+"Two — which truck is your worst performer?"
+"Three — which driver costs you the most in fuel?"
+
+Twist (15–18 sec):
+"If you couldn't answer all three — you need what we do."
+
+CTA (18–20 sec):
+"Free audit. 083 314 9592. Link in bio."
+
+---
+
+CAPTION:
+Can you answer all 3? 👀 If not, your fleet is probably leaking money every month. We fix that. FREE audit — link in bio 🔗 #FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency #SouthAfrica</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('tt3',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency</div>
+                </div>
+            </div>
+
+        </div>
+    </div><!-- /section-tt -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         EMAIL TEMPLATES
+    ════════════════════════════════════════════════ -->
+    <div class="platform-section" id="section-email">
+        <div class="platform-banner pb-email">
+            <div>
+                <div class="pb-title">📧 Email Templates</div>
+                <div class="pb-meta">Respond within 1 hour of any enquiry · Follow up at Day 1, 3, 7, 14</div>
+            </div>
+            <div class="pb-tip"><strong>Speed is everything.</strong> Responding within 1 hour increases conversion by 7x vs 24 hours. Have these saved and ready to go the moment someone contacts you.</div>
+        </div>
+
+        <div class="tips-box">
+            <div class="tips-title">💡 Email Strategy</div>
+            <ul class="tips-list">
+                <li>Always personalise — use their name and company every time</li>
+                <li>Subject lines with numbers or R amounts get opened more</li>
+                <li>Keep it short and scannable — fleet owners are busy people</li>
+                <li>One clear call to action per email — don't give them 3 things to do</li>
+            </ul>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 1 — Initial Response</div>
+                    <div class="email-subject">Subject: Your free fleet audit — here's how it works</div>
+                </div>
+                <span class="email-when">Send within 1 hour</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em1">Hi [First Name],
+
+Thanks for reaching out about the free fleet audit — really glad you did.
+
+Here's exactly how it works:
+
+You send me your fleet data. I run the analysis. You get a full report within 48 hours.
+
+TO GET STARTED I NEED:
+
+From your GPS provider (MiX, Cartrack, Ctrack, etc):
+• Usage report (CSV) — last 30 days
+• Speeding/violations report (CSV) — last 30 days
+
+From your own records:
+• Vehicle list — reg numbers, make and model
+• Odometer readings — start and end of last month
+• Total litres used per vehicle last month
+
+Don't have GPS reports? No problem — the basic vehicle data is enough to get started.
+
+HOW TO SEND:
+Email to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="16726f78777b7f75707a7373626473667964626556717b777f7a3875797b">[email&#160;protected]</a>
+Or WhatsApp to 083 314 9592
+Or share a Google Drive link
+
+WHAT YOU'LL GET BACK:
+✅ Fleet efficiency score (0–100)
+✅ Every vehicle ranked by performance vs manufacturer target
+✅ Your worst-performing vehicles identified
+✅ Exact monthly losses calculated in rands
+✅ Driver performance breakdown (if GPS data available)
+✅ Step-by-step action plan
+
+Questions? Just reply to this email or call me directly.
+
+Looking forward to showing you what your fleet is really doing.
+
+[Your Name]
+Dynamic Fleet Reporting
+083 314 9592
+<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="aecad7c0cfc3c7cdc8c2cbcbdadccbdec1dcdaddeec9c3cfc7c280cdc1c3">[email&#160;protected]</a></div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em1',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 2 — Day 3 Follow-Up</div>
+                    <div class="email-subject">Subject: Still keen on the audit? [Company Name]</div>
+                </div>
+                <span class="email-when">Day 3 — no response</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em2">Hi [First Name],
+
+Just checking in — did my email land okay?
+
+I sent you details about the free fleet audit a few days ago and haven't heard back. Totally understand if timing isn't right.
+
+If you're still interested, the good news is you don't need anything fancy to get started.
+
+Even just a basic spreadsheet with:
+• Registration numbers
+• Kilometres driven last month
+• Litres used last month
+
+...is enough for me to do an initial efficiency analysis and give you a meaningful report.
+
+Takes you about 10 minutes to pull together. Takes me 48 hours to turn into something useful.
+
+Still interested? Just hit reply and I'll take it from there.
+
+If the timing's not right, no worries at all — just let me know and I can follow up next month.
+
+[Your Name]
+083 314 9592</div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em2',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 3 — Day 7 Final Nudge</div>
+                    <div class="email-subject">Subject: Last one from me — free audit expires [Date]</div>
+                </div>
+                <span class="email-when">Day 7 — still no response</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em3">Hi [First Name],
+
+This is my last follow-up — I don't want to be a pest.
+
+I've been holding a free audit slot for [Company Name] but I do have a waiting list building up.
+
+If you'd like to use it, I need to hear from you by [Date 3 days from now].
+
+After that I'll release the slot to the next company on the list.
+
+What you get:
+→ Full fleet efficiency report
+→ Every vehicle benchmarked against manufacturer targets
+→ Exact rand value of monthly losses
+→ Action plan to fix it
+
+Zero cost. Zero obligation.
+
+If the timing just isn't right, that's completely fine — just reply and say so and I won't follow up again.
+
+Either way, good luck with the fleet. 🚛
+
+[Your Name]
+083 314 9592</div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em3',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 4 — Data Received Confirmation</div>
+                    <div class="email-subject">Subject: Got it — your audit is running now</div>
+                </div>
+                <span class="email-when">Send immediately when data arrives</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em4">Hi [First Name],
+
+Perfect — I've got your data and I'm starting the analysis now.
+
+You'll have a full report within 48 hours.
+
+What I'm working on:
+🔍 Benchmarking every vehicle against manufacturer targets
+📊 Calculating your fleet efficiency score
+💰 Identifying exactly where money is being lost
+✅ Building your action plan
+
+I'll email you the report and we can set up a quick 15-minute call to walk through the findings together.
+
+In the meantime — any questions just shout.
+
+[Your Name]
+Dynamic Fleet Reporting
+083 314 9592</div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em4',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 5 — Audit Results Delivery</div>
+                    <div class="email-subject">Subject: Your fleet audit results — R [amount]/month found</div>
+                </div>
+                <span class="email-when">Send with completed report attached</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em5">Hi [First Name],
+
+Your audit is done. I've attached the full report.
+
+Here's the headline:
+
+Fleet Efficiency Score: [X]%
+Monthly losses identified: R [amount]
+Vehicles below target: [X] of [total]
+Biggest opportunity: [one-line summary]
+
+The full breakdown — including your action plan — is in the report.
+
+I'd love to walk you through it on a quick call. Usually takes 15–20 minutes and gives you a chance to ask questions.
+
+Are any of these times convenient?
+• [Day] at [time]?
+• [Day] at [time]?
+• Or suggest a time that works for you
+
+Looking forward to helping you get that money back.
+
+[Your Name]
+Dynamic Fleet Reporting
+083 314 9592
+
+P.S. Check page [X] of the report for the Quick Wins section — three things you can do this week with immediate impact.</div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em5',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+        <div class="email-card">
+            <div class="email-card-head">
+                <div>
+                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 6 — Re-engagement (Day 14)</div>
+                    <div class="email-subject">Subject: Thought you'd want to see this [Company Name]</div>
+                </div>
+                <span class="email-when">Day 14 — if still cold</span>
+            </div>
+            <div class="email-body-wrap">
+                <div class="email-preview" id="em6">Hi [First Name],
+
+Quick one — I promise this is the last time I'll reach out unsolicited.
+
+I just finished an audit for a transport company similar to yours.
+
+Found R 91,000 in monthly losses. Fleet of 28 trucks, long distance, similar operation.
+
+The owner's reaction: "I've been in this business 18 years and nobody has ever shown me this."
+
+He's now a monthly client. Fleet score improved from 63% to 84% in 60 days.
+
+If there's ever a time you want to know what your fleet is actually costing you — the offer still stands.
+
+Free audit. 48 hours. No obligation.
+
+[Your Name]
+083 314 9592
+
+(And if the timing really isn't right — just say the word and I'll stop bothering you. No hard feelings at all.) 😊</div>
+            </div>
+            <div class="email-footer">
+                <button class="btn-copy" onclick="copyPost('em6',this)">📋 Copy Email</button>
+            </div>
+        </div>
+
+    </div><!-- /section-email -->
+
+</main>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function switchTab(id, el) {
+    // Hide all sections
+    document.querySelectorAll('.platform-sect
