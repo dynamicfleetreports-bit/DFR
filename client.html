@@ -35,7 +35,7 @@
         .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
         .inv-row:last-child { border-bottom:none; }
         .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
-        .fleet-row { display:grid; grid-template-columns:28px 95px 1fr 52px 72px 120px 140px 155px 110px 58px 68px 70px 46px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-row { display:grid; grid-template-columns:28px 95px 100px 100px 52px 72px 120px 140px 155px 110px 58px 68px 70px 46px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
         .fleet-tbl-wrap { overflow-x:auto; }
         .fleet-sug { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:4px 8px; font-size:10px; font-weight:900; text-align:center; }
         .fleet-row:last-child { border-bottom:none; }
@@ -147,7 +147,8 @@
                     <div class="fleet-row" style="background:rgba(15,23,42,0.8);">
                         <div class="inv-head">#</div>
                         <div class="inv-head">Reg</div>
-                        <div class="inv-head">Make / Model</div>
+                        <div class="inv-head">Make</div>
+                        <div class="inv-head">Model</div>
                         <div class="inv-head">Year</div>
                         <div class="inv-head">Type</div>
                         <div class="inv-head">Usage</div>
@@ -467,7 +468,7 @@
             return '<div class="fleet-row">'
                 + '<div style="color:rgba(255,255,255,0.3);font-weight:900;">'+(i+1)+'</div>'
                 + '<div><input type="text" value="'+(v.reg||'')+'" onchange="updateFleet('+i+',\'reg\',this.value)" placeholder="ABC123GP" style="text-transform:uppercase;"></div>'
-                + '<div><input type="text" value="'+(v.make||'')+' '+(v.model||'')+'" onchange="updateFleetMakeModel('+i+',this.value)" placeholder="Volvo FH440"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'make\',this.value);refreshFleetModels('+i+')">'+selMakes(v.make||'')+'</select></div>'                + '<div><select onchange="updateFleet('+i+',\'model\',this.value);updateFleetMfr('+i+')">'+selModels(v.make||'',v.model||'')+'</select></div>'
                 + '<div><input type="number" value="'+(v.year||'')+'" onchange="updateFleet('+i+',\'year\',this.value)" placeholder="2020" min="1990" max="2030"></div>'
                 + '<div><select onchange="updateFleet('+i+',\'type\',this.value)">'+selOpts(VEHICLE_TYPES,v.type||'Heavy')+'</select></div>'
                 + '<div><select onchange="updateFleet('+i+',\'usage\',this.value)">'+selOpts(USAGE_C,v.usage||v.usedFor||'Long Distance')+'</select></div>'
@@ -483,8 +484,31 @@
     }
 
     function updateFleet(i,field,val) { if(_fleetData[i]) _fleetData[i][field]=val; }
-    function updateFleetMakeModel(i,val) { var parts=val.trim().split(' '); _fleetData[i].make=parts[0]||''; _fleetData[i].model=parts.slice(1).join(' ')||''; }
-    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',make:'',model:'',year:'',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',aerokit:'None',interlink:false,clientTarget:null,mfr_min:null,mfr_avg:null}); renderFleetTable(); }
+    function selMakes(cur) {
+        var makes = [''].concat(Object.values(_vdb).map(function(e){return e.make;}).filter(function(m,i,a){return m&&a.indexOf(m)===i;}).sort()).concat(['Other']);
+        return makes.map(function(m){return '<option value="'+m+'"'+(m===cur?' selected':'')+'>'+( m||'— Make —')+'</option>';}).join('');
+    }
+    function selModels(make, cur) {
+        var models = make ? Object.values(_vdb).filter(function(e){return e.make&&e.make.toLowerCase()===make.toLowerCase();}).map(function(e){return e.model;}).filter(Boolean).sort() : [];
+        var opts = [''].concat(models);
+        if(cur && opts.indexOf(cur)===-1) opts.push(cur);
+        opts.push('Other');
+        return opts.map(function(m){return '<option value="'+m+'"'+(m===cur?' selected':'')+'>'+( m||'— Model —')+'</option>';}).join('');
+    }
+    function refreshFleetModels(i) {
+        var make = _fleetData[i]&&_fleetData[i].make||'';
+        var row  = document.querySelectorAll('.fleet-row:not([style*="background:rgba(15"])')[i];
+        if(!row) return renderFleetTable();
+        var moSel = row.querySelectorAll('select')[1];
+        if(!moSel) return;
+        moSel.innerHTML = selModels(make,'');
+    }
+    function updateFleetMfr(i) {
+        var v = _fleetData[i]; if(!v) return;
+        var entry = lookupMfr(v.make, v.model);
+        if(entry && !v.mfr_min) { _fleetData[i].mfr_min = entry.mfr_min; _fleetData[i].mfr_avg = entry.mfr_avg; renderFleetTable(); }
+    }
+    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',usage:'Long Distance',make:'',model:'',year:'',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',aerokit:'None',interlink:false,clientTarget:null,mfr_min:null,mfr_avg:null}); renderFleetTable(); }
     function removeVehicle(i) { if(confirm('Remove vehicle?')){ _fleetData.splice(i,1); renderFleetTable(); } }
 
 
