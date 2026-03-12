@@ -218,10 +218,11 @@
 
 <script>
 const APPS_URL   = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
-const MAKES      = ['','DAF','FAW','Ford','Freightliner','Fuso','GWM','Hino','Isuzu','Isuzu LDV','Iveco','Mahindra','MAN','Mercedes-Benz','Nissan','Powerstar','Scania','Shacman','Tata','Toyota','UD Trucks','Volkswagen','Volvo','Other'];
+// MAKES now loaded dynamically from VEHICLE_DB via _vdbMakes()
 const LOAD_PROFILE = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
 const TRAILER_TYPE = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
 const AEROKIT      = ['None','Roof Fairing Only','Full Aerokit'];
+const USAGE        = ['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
 
 let _cid = null, _client = null, _n = 0;
 
@@ -231,6 +232,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     loading('Loading your details…');
     await waitFor(() => typeof cloudStorage !== 'undefined');
+    // Load Vehicle DB for make/model dropdowns
+    try { const r = await cloudStorage.getItem('VEHICLE_DB'); _vdb = r ? JSON.parse(r) : {}; } catch(e){ _vdb={}; }
 
     try {
         const all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
@@ -248,15 +251,53 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+let _vdb = {};
+function _vdbMakes() {
+    const makes = new Set();
+    Object.values(_vdb).forEach(v => { if(v.make) makes.add(v.make); });
+    return ['', ...Array.from(makes).sort(), 'Other'];
+}
+function _vdbModels(make) {
+    if(!make) return [];
+    return Object.values(_vdb)
+        .filter(v => v.make && v.make.toLowerCase() === make.toLowerCase())
+        .map(v => v.model).filter(Boolean).sort();
+}
 function waitFor(fn) {
     return new Promise(res => { const t = setInterval(() => { if(fn()) { clearInterval(t); res(); } }, 60); });
+}
+function refreshModels(idx) {
+    const make  = document.getElementById('mk-'+idx)?.value||'';
+    const moSel = document.getElementById('mo-'+idx);
+    if(!moSel) return;
+    const models = _vdbModels(make);
+    moSel.innerHTML = '<option value="">— Select Model —</option>'
+        + models.map(m=>'<option value="'+m+'">'+m+'</option>').join('')
+        + '<option value="Other">Other</option>';
+    if(models.length===1){
+        moSel.value=models[0];
+        const entry=Object.values(_vdb).find(v=>v.make&&v.make.toLowerCase()===make.toLowerCase()&&v.model===models[0]);
+        if(entry) autoFillMfr(idx,entry);
+    }
+}
+function autoFillMfr(idx,entry){
+    const minEl=document.getElementById('mfr-min-'+idx);
+    const avgEl=document.getElementById('mfr-avg-'+idx);
+    if(minEl&&entry.mfr_min){minEl.value=entry.mfr_min;minEl.style.color='#10b981';}
+    if(avgEl&&entry.mfr_avg){avgEl.value=entry.mfr_avg;avgEl.style.color='#10b981';}
 }
 
 function addCard(data) {
     const i = _n++;
     document.getElementById('emptyHint').style.display = 'none';
 
-    const mkOpts = MAKES.map(m => `<option value="${esc(m)}"${data && data.make===m?' selected':''}>${m||'— Select Make —'}</option>`).join('');
+    const makes   = _vdbMakes();
+    const mkOpts  = makes.map(m => `<option value="${esc(m)}"${data && data.make===m?' selected':''}>${m||'— Select Make —'}</option>`).join('');
+    const models  = data?.make ? _vdbModels(data.make) : [];
+    const moOpts  = ['', ...models, data?.model && !models.includes(data.model) ? data.model : null]
+        .filter(Boolean)
+        .map(m => `<option value="${esc(m)}"${data?.model===m?' selected':''}>${m}</option>`).join('');
+    const usgOpts= USAGE.map(u => `<option value="${esc(u)}"${data && data.usage===u?' selected':''}>${u}</option>`).join('');
     const lpOpts = LOAD_PROFILE.map(u => `<option value="${esc(u)}"${data && data.loadProfile===u?' selected':''}>${u}</option>`).join('');
     const ttOpts = TRAILER_TYPE.map(u => `<option value="${esc(u)}"${data && data.trailerType===u?' selected':''}>${u}</option>`).join('');
     const akOpts = AEROKIT.map(u => `<option value="${esc(u)}"${data && data.aerokit===u?' selected':''}>${u}</option>`).join('');
@@ -284,11 +325,14 @@ function addCard(data) {
         <div class="fg">
             <div class="field">
                 <label>Make *</label>
-                <select id="mk-${i}">${mkOpts}</select>
+                <select id="mk-${i}" onchange="refreshModels(${i})">${mkOpts}</select>
             </div>
             <div class="field">
                 <label>Model</label>
-                <input id="mo-${i}" type="text" placeholder="e.g. R450, 1934" value="${esc(data?.model||'')}">
+                <select id="mo-${i}">
+                    ${moOpts ? moOpts : '<option value="">— Select Model —</option>'}
+                    <option value="Other">Other</option>
+                </select>
             </div>
         </div>
 
@@ -296,9 +340,16 @@ function addCard(data) {
 
         <div class="fg">
             <div class="field">
+                <label>Usage / Route Type *</label>
+                <select id="usg-${i}">${usgOpts}</select>
+            </div>
+            <div class="field">
                 <label>Load Profile *</label>
                 <select id="lp-${i}">${lpOpts}</select>
             </div>
+        </div>
+
+        <div class="fg">
             <div class="field">
                 <label>Trailer Type *</label>
                 <select id="tt-${i}">${ttOpts}</select>
@@ -361,6 +412,7 @@ function collect() {
         const mk  = document.getElementById(`mk-${id}`)?.value||'';
         const mo  = (document.getElementById(`mo-${id}`)?.value||'').trim();
         const yr  = document.getElementById(`y-${id}`)?.value||'';
+        const usg = document.getElementById(`usg-${id}`)?.value||USAGE[0];
         const lp  = document.getElementById(`lp-${id}`)?.value||LOAD_PROFILE[0];
         const tt  = document.getElementById(`tt-${id}`)?.value||TRAILER_TYPE[0];
         const ak  = document.getElementById(`ak-${id}`)?.value||'None';
@@ -369,7 +421,7 @@ function collect() {
         if (!reg) { errs.push(`Vehicle ${i+1}: Registration required.`); return; }
         if (!mk)  { errs.push(`Vehicle ${i+1}: Make required.`); return; }
         out.push({ reg, make:mk, model:mo, year:yr?parseInt(yr):null,
-            loadProfile:lp, trailerType:tt, aerokit:ak, interlink:il,
+            usage:usg, loadProfile:lp, trailerType:tt, aerokit:ak, interlink:il,
             clientTarget:tg?parseFloat(tg):null, mfr_min:null, mfr_avg:null,
             odo:null, liters:null, gps:null, speeds:null });
     });
