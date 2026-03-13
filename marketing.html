@@ -154,13 +154,16 @@
     </div>
 
     <!-- Platform Tabs -->
-    <div class="platform-tabs">
-        <button class="tab tab-fb active"    onclick="switchTab('fb',this)">📘 Facebook</button>
-        <button class="tab tab-li"           onclick="switchTab('li',this)">💼 LinkedIn</button>
-        <button class="tab tab-ig"           onclick="switchTab('ig',this)">📸 Instagram</button>
-        <button class="tab tab-wa"           onclick="switchTab('wa',this)">💬 WhatsApp</button>
-        <button class="tab tab-tt"           onclick="switchTab('tt',this)">🎵 TikTok</button>
-        <button class="tab tab-email active" onclick="switchTab('email',this)" style="margin-left:auto;">📧 Email Templates</button>
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap;">
+        <div class="platform-tabs" style="margin-bottom:0;flex:1;">
+            <button class="tab tab-fb active"    onclick="switchTab('fb',this)">📘 Facebook</button>
+            <button class="tab tab-li"           onclick="switchTab('li',this)">💼 LinkedIn</button>
+            <button class="tab tab-ig"           onclick="switchTab('ig',this)">📸 Instagram</button>
+            <button class="tab tab-wa"           onclick="switchTab('wa',this)">💬 WhatsApp</button>
+            <button class="tab tab-tt"           onclick="switchTab('tt',this)">🎵 TikTok</button>
+            <button class="tab tab-email"        onclick="switchTab('email',this)">📧 Email</button>
+        </div>
+        <button id="openPlatformBtn" onclick="openPlatform('fb')" style="background:rgba(16,185,129,0.15);color:var(--green);border:1.5px solid rgba(16,185,129,0.4);padding:8px 18px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:0.06em;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.25)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">🚀 Open Facebook</button>
     </div>
 
     <!-- ═══════════════════════════════════════════════
@@ -1392,6 +1395,50 @@ function copyBioLink(btn) {
     });
 }
 
+const PLATFORM_URLS = {
+    fb:    'https://www.facebook.com',
+    li:    'https://www.linkedin.com/feed/',
+    ig:    'https://www.instagram.com',
+    wa:    'https://web.whatsapp.com',
+    tt:    'https://www.tiktok.com',
+    email: 'https://mail.google.com'
+};
+
+const PLATFORM_NAMES = {
+    fb: 'Facebook', li: 'LinkedIn', ig: 'Instagram',
+    wa: 'WhatsApp Web', tt: 'TikTok', email: 'Gmail'
+};
+
+function openPlatform(id) {
+    window.open(PLATFORM_URLS[id], '_blank');
+}
+
 function switchTab(id, el) {
     // Hide all sections
-    document.querySelectorAll('.platform-sect
+    document.querySelectorAll('.platform-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('section-' + id).classList.add('active');
+    el.classList.add('active');
+
+    // Update the open-platform button
+    const openBtn = document.getElementById('openPlatformBtn');
+    if (openBtn) {
+        openBtn.textContent = '🚀 Open ' + PLATFORM_NAMES[id];
+        openBtn.onclick = () => openPlatform(id);
+        openBtn.dataset.platform = id;
+    }
+}
+
+function copyPost(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>
+</body>
+</html>
