@@ -170,6 +170,10 @@
                 <div class="brand">Dynamic Fleet Reporting</div>
                 <div class="sub">Professional Fleet Intelligence &amp; Forensic Auditing Services</div>
             </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <canvas id="qrCanvas" width="54" height="54" style="border-radius:4px;display:block;box-shadow:0 1px 4px rgba(0,0,0,0.15);border:2px solid white;"></canvas>
+                <div style="font-size:6.5px;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#64748b;">Scan to discover</div>
+            </div>
             <div class="contact">
                 <div>📞 083 314 9592</div>
                 <div class="dfr-email"></div>
@@ -186,6 +190,24 @@
 document.querySelectorAll(".dfr-email").forEach(function(el){
     el.textContent = ["dynamicfleetreports","gmail.com"].join("@");
 });
+
+function drawQR(id) {
+    var canvas = document.getElementById(id);
+    if (!canvas) return;
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){ canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); };
+    img.onerror = function(){
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('QR', canvas.width/2, canvas.height/2 + 4);
+    };
+    img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=108x108&data=' + encodeURIComponent('https://dynamicfleetreports-bit.github.io/DFR/discover.html') + '&color=0a0f1e&bgcolor=ffffff&margin=2';
+}
 
 function buildFilename(name, period, focus) {
     var clean = name.toUpperCase().replace(/\s+/g,"_").replace(/[^A-Z0-9_]/g,"");
@@ -423,6 +445,8 @@ waitForCloudStorage(async function() {
     document.getElementById("tableHead").innerHTML = headHTML;
     document.getElementById("tableBody").innerHTML = bodyHTML;
 });
+
+drawQR('qrCanvas');
 </script>
 </body>
 </html>
