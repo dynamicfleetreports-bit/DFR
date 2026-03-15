@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Portal | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.07);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+        .topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+        .tb-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--grn);}
+        .tb-brand span{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--mut);display:block;margin-top:1px;}
+        .tb-partner{text-align:right;}
+        .tb-pname{font-size:14px;font-weight:900;color:white;}
+        .tb-pcode{font-size:10px;color:var(--mut);font-family:'Courier New',monospace;margin-top:1px;}
+        /* Login */
+        .login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
+        .login-card{background:var(--panel);border:1px solid var(--brd);border-radius:20px;padding:2.5rem;width:420px;max-width:100%;text-align:center;}
+        .lc-icon{font-size:3rem;margin-bottom:1rem;}
+        .lc-title{font-size:1.4rem;font-weight:900;color:white;margin-bottom:0.4rem;}
+        .lc-sub{font-size:13px;color:var(--mut);margin-bottom:1.75rem;line-height:1.6;}
+        .lc-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1rem;color:var(--txt);font-family:'Outfit',sans-serif;font-size:14px;outline:none;text-align:center;letter-spacing:0.08em;font-weight:700;transition:border-color 0.2s;margin-bottom:1rem;}
+        .lc-input:focus{border-color:var(--grn);}
+        .lc-btn{width:100%;background:var(--grn);border:none;color:#020617;padding:0.85rem;border-radius:10px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
+        .lc-btn:hover{background:var(--gd);}
+        .lc-err{color:#f87171;font-size:12px;margin-top:0.5rem;display:none;}
+        .lc-signup{margin-top:1.25rem;font-size:12px;color:var(--mut);}
+        .lc-signup a{color:var(--grn);text-decoration:none;font-weight:700;}
+        /* Portal */
+        .portal{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
+        .portal.on{display:block;}
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+        .sc{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:14px;padding:1.25rem;}
+        .sc-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.4rem;}
+        .sc-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
+        .sc-val.grn{color:var(--grn);} .sc-val.gld{color:var(--gld);} .sc-val.blu{color:var(--blu);}
+        .sc-sub{font-size:11px;color:var(--mut);margin-top:2px;}
+        /* Ref link */
+        .ref-box{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:14px;padding:1.25rem 1.75rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
+        .ref-icon{font-size:2rem;}
+        .ref-body{flex:1;min-width:200px;}
+        .ref-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:3px;}
+        .ref-sub{font-size:11px;color:var(--mut);margin-bottom:7px;}
+        .ref-link-row{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
+        .ref-link-val{background:#000d1a;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:8px 13px;font-family:'Courier New',monospace;font-size:12px;color:var(--grn);font-weight:700;flex:1;min-width:240px;word-break:break-all;}
+        .btn-copy{background:var(--grn);color:#020617;border:none;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;}
+        .btn-copy:hover{background:var(--gd);}
+        .btn-copy.copied{background:#6366f1;}
+        /* Alerts */
+        .alert-row{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;font-size:12.5px;}
+        .alert-text{flex:1;color:#fde68a;} .alert-text strong{color:white;}
+        /* Bonus tracker */
+        .bonus-track{background:rgba(245,158,11,0.06);border:1.5px solid rgba(245,158,11,0.25);border-radius:14px;padding:1.5rem;margin-bottom:2rem;}
+        .bt-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:1rem;}
+        .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
+        .bt-item{text-align:center;}
+        .bt-val{font-size:1.4rem;font-weight:900;color:white;}
+        .bt-val.grn{color:var(--grn);} .bt-val.gld{color:var(--gld);}
+        .bt-lbl{font-size:10px;color:var(--mut);font-weight:700;margin-top:2px;}
+        .bar-wrap{margin-top:1rem;}
+        .bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:3px;}
+        .bar-track{background:rgba(255,255,255,0.06);border-radius:20px;height:9px;overflow:hidden;}
+        .bar-fill{height:100%;background:var(--gld);border-radius:20px;transition:width 0.5s;}
+        .bonus-tiers{display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap;}
+        .bt-tier{flex:1;min-width:110px;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:8px;padding:0.55rem 0.75rem;text-align:center;}
+        .bt-tier.on{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);}
+        .bt-tier-lbl{font-size:10px;font-weight:900;color:var(--mut);}
+        .bt-tier.on .bt-tier-lbl{color:var(--gld);}
+        .bt-tier-val{font-size:12px;font-weight:700;color:white;margin-top:2px;}
+        .bt-est{margin-top:0.75rem;font-size:11px;color:#64748b;}
+        /* Earnings */
+        .earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;}
+        .earn-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:14px;padding:1.25rem;}
+        .earn-card-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.75rem;}
+        .earn-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd);font-size:12.5px;}
+        .earn-row:last-child{border-bottom:none;}
+        .earn-lbl{color:var(--mut);} .earn-val{font-weight:800;color:white;}
+        .earn-val.grn{color:var(--grn);} .earn-val.gld{color:var(--gld);}
+        /* Tables */
+        .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin:0 0 1rem;}
+        .sec-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);}
+        .sec-count{font-size:11px;font-weight:700;color:var(--mut);background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:20px;}
+        .pt{width:100%;border-collapse:collapse;margin-bottom:2.5rem;font-size:12.5px;}
+        .pt th{background:rgba(255,255,255,0.03);color:var(--mut);font-weight:900;text-transform:uppercase;font-size:9px;letter-spacing:0.15em;padding:9px 13px;border-bottom:1px solid var(--brd);text-align:left;}
+        .pt td{padding:10px 13px;border-bottom:1px solid var(--brd);color:#cbd5e1;vertical-align:middle;}
+        .pt tr:hover td{background:rgba(255,255,255,0.02);}
+        .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;}
+        .pill-p{background:rgba(59,130,246,0.15);color:#60a5fa;}
+        .pill-a{background:rgba(16,185,129,0.15);color:var(--grn);}
+        .prog-wrap{display:flex;flex-direction:column;gap:3px;}
+        .prog-item{display:flex;align-items:center;gap:5px;font-size:11px;}
+        .pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+        .pdot.done{background:var(--grn);} .pdot.pend{background:var(--gld);} .pdot.miss{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);}
+        .prog-lbl{color:var(--mut);} .prog-lbl.done{color:#a7f3d0;} .prog-lbl.pend{color:#fde68a;}
+        .empty-msg{text-align:center;color:var(--mut);font-size:13px;padding:20px;}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="tb-brand">Dynamic Fleet Reporting<span>Referral Partner Portal</span></div>
+    <div class="tb-partner" id="tbPartner" style="display:none;">
+        <div class="tb-pname" id="tbPname">—</div>
+        <div class="tb-pcode" id="tbPcode">—</div>
+    </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+    <div class="login-card">
+        <div class="lc-icon">🤝</div>
+        <div class="lc-title">Partner Portal</div>
+        <div class="lc-sub">Enter your referral code to view your dashboard, track your referrals, and see your earnings.</div>
+        <input class="lc-input" type="text" id="loginCode" placeholder="e.g. ref_your_name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')login()">
+        <button class="lc-btn" onclick="login()">View My Dashboard →</button>
+        <div class="lc-err" id="loginErr">Code not recognised. Check your WhatsApp for your referral link — your code is the part after <em>?ref=</em></div>
+        <div class="lc-signup">Not a partner yet? <a href="partner-signup.html">Apply here →</a></div>
+    </div>
+</div>
+
+<!-- PORTAL -->
+<div class="portal" id="portal">
+
+    <div class="stats-row">
+        <div class="sc"><div class="sc-label">Total Referrals</div><div class="sc-val blu" id="sTot">0</div><div class="sc-sub">All time</div></div>
+        <div class="sc"><div class="sc-label">Active Clients</div><div class="sc-val grn" id="sAct">0</div><div class="sc-sub">Paying &amp; live</div></div>
+        <div class="sc"><div class="sc-label">Monthly Commission</div><div class="sc-val gld" id="sComm">R 0</div><div class="sc-sub">Current estimate</div></div>
+        <div class="sc"><div class="sc-label">Outstanding</div><div class="sc-val" id="sOwed">R 0</div><div class="sc-sub">Not yet paid</div></div>
+    </div>
+
+    <div class="ref-box">
+        <div class="ref-icon">🔗</div>
+        <div class="ref-body">
+            <div class="ref-label">Your Referral Link</div>
+            <div class="ref-sub">Share this link everywhere. Every lead that comes through it is automatically linked to you.</div>
+            <div class="ref-link-row">
+                <div class="ref-link-val" id="refLinkVal">—</div>
+                <button class="btn-copy" id="copyBtn" onclick="copyLink()">📋 Copy Link</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertsWrap" style="margin-bottom:1.5rem;"></div>
+
+    <div class="bonus-track">
+        <div class="bt-title">🏆 Annual Bonus Tracker — <span id="bYear">2026</span></div>
+        <div class="bt-grid">
+            <div class="bt-item"><div class="bt-val" id="bStart">0</div><div class="bt-lbl">Clients at Year Start</div></div>
+            <div class="bt-item"><div class="bt-val grn" id="bNow">0</div><div class="bt-lbl">Active Clients Now</div></div>
+            <div class="bt-item"><div class="bt-val gld" id="bGrowth">0%</div><div class="bt-lbl">Portfolio Growth</div></div>
+        </div>
+        <div class="bar-wrap">
+            <div class="bar-labels"><span>0%</span><span>1% → 1 month bonus</span><span>11% → 2 months</span><span>21%+ → 3 months</span></div>
+            <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+        </div>
+        <div class="bonus-tiers">
+            <div class="bt-tier" id="bt1"><div class="bt-tier-lbl">1–10% Growth</div><div class="bt-tier-val">1 Month Bonus</div></div>
+            <div class="bt-tier" id="bt2"><div class="bt-tier-lbl">11–20% Growth</div><div class="bt-tier-val">2 Months Bonus</div></div>
+            <div class="bt-tier" id="bt3"><div class="bt-tier-lbl">21%+ Growth</div><div class="bt-tier-val">3 Months Bonus</div></div>
+        </div>
+        <div class="bt-est" id="btEst"></div>
+    </div>
+
+    <div class="earn-grid">
+        <div class="earn-card">
+            <div class="earn-card-title">💰 Earnings Summary</div>
+            <div class="earn-row"><span class="earn-lbl">Commission Rate</span><span class="earn-val" id="eRate">15%</span></div>
+            <div class="earn-row"><span class="earn-lbl">This Month (est.)</span><span class="earn-val grn" id="eMonth">R 0</span></div>
+            <div class="earn-row"><span class="earn-lbl">YTD Earned</span><span class="earn-val grn" id="eYTD">R 0</span></div>
+            <div class="earn-row"><span class="earn-lbl">YTD Paid</span><span class="earn-val" id="ePaid">R 0</span></div>
+            <div class="earn-row"><span class="earn-lbl">Outstanding</span><span class="earn-val gld" id="eOwed">R 0</span></div>
+        </div>
+        <div class="earn-card">
+            <div class="earn-card-title">📊 Portfolio by Tier</div>
+            <div id="tierBreakdown"></div>
+        </div>
+    </div>
+
+    <div class="sec-hdr"><div class="sec-title">🔭 Your Prospect Pipeline</div><div class="sec-count" id="prosCnt">0 prospects</div></div>
+    <table class="pt" id="prosTable">
+        <thead><tr><th>Company</th><th>Contact</th><th>Fleet Size</th><th>Status</th><th>SLA Progress</th><th>Outstanding</th></tr></thead>
+        <tbody id="prosBody"><tr><td colspan="6" class="empty-msg">No prospects yet — start sharing your referral link!</td></tr></tbody>
+    </table>
+
+    <div class="sec-hdr"><div class="sec-title">✅ Your Active Clients</div><div class="sec-count" id="actCnt">0 clients</div></div>
+    <table class="pt">
+        <thead><tr><th>Company</th><th>Fleet</th><th>Monthly Retainer</th><th>Your Commission</th><th>Schedule</th><th>Active Since</th></tr></thead>
+        <tbody id="actBody"><tr><td colspan="6" class="empty-msg">No active clients yet.</td></tr></tbody>
+    </table>
+
+</div>
+
+<script>
+const DISCOVER_URL='https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+let _partner=null,_allClients=[],_allPartners=[];
+
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
+
+// Auto-login from URL ?ref= or ?pid=
+document.addEventListener('DOMContentLoaded',function(){
+    const p=new URLSearchParams(window.location.search);
+    const ref=p.get('ref')||p.get('pid');
+    if(ref){ document.getElementById('loginCode').value=ref; ready().then(login); }
+});
+
+async function login(){
+    const input=document.getElementById('loginCode').value.trim().toLowerCase();
+    if(!input) return;
+    try{
+        await ready();
+        _allPartners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+        _allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+        const refCode=input.startsWith('ref_')?input:'ref_'+input.replace(/\s+/g,'_');
+        _partner=_allPartners.find(p=>{
+            const code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            return code===refCode||p.id===input||code===input;
+        });
+        if(!_partner){ document.getElementById('loginErr').style.display='block'; return; }
+        if(_partner.status==='inactive'){ document.getElementById('loginErr').textContent='This account is currently inactive. Contact DFR.'; document.getElementById('loginErr').style.display='block'; return; }
+        showPortal();
+    }catch(e){ document.getElementById('loginErr').style.display='block'; }
+}
+
+function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
+function getTier(f){ return f<=15?{rate:200,lbl:'T1'}:f<=30?{rate:175,lbl:'T2'}:{rate:150,lbl:'T3'}; }
+function getFS(c){ return c.fleet?c.fleet.length:(c.fleetSize||0); }
+function getRetainer(c){ const f=getFS(c),t=getTier(f); return 1500+(f*t.rate); }
+function getMyClients(status){
+    const code=getRefCode(_partner);
+    return _allClients.filter(c=>{
+        const match=(c.referralPartnerId===_partner.id)||(c.referralCode===code);
+        return match&&(status?c.status===status:true);
+    });
+}
+
+function showPortal(){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('portal').classList.add('on');
+    document.getElementById('tbPartner').style.display='block';
+    document.getElementById('tbPname').textContent=_partner.name;
+    document.getElementById('tbPcode').textContent=getRefCode(_partner);
+    document.getElementById('refLinkVal').textContent=DISCOVER_URL+'?ref='+getRefCode(_partner);
+    renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
+}
+
+function renderStats(){
+    const all=getMyClients(),active=getMyClients('active');
+    const rate=_partner.commRate||15;
+    const comm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
+    const owed=(_partner.commissionHistory||[]).filter(h=>!h.paid).reduce((s,h)=>s+h.amount,0)+((_partner.bonusHistory||[]).filter(b=>!b.paid).reduce((s,b)=>s+b.amount,0));
+    document.getElementById('sTot').textContent=all.length;
+    document.getElementById('sAct').textContent=active.length;
+    document.getElementById('sComm').textContent='R '+Math.round(comm).toLocaleString('en-ZA');
+    document.getElementById('sOwed').textContent='R '+owed.toLocaleString('en-ZA');
+}
+
+function renderAlerts(){
+    const pros=getMyClients('prospect');
+    const alerts=pros.map(c=>{
+        const issues=[];
+        if(!c.slaDate&&!c.slaExecuted) issues.push('SLA not yet sent');
+        else if(!c.slaExecuted&&!c.slaReceivedDate) issues.push('⏳ Awaiting signed SLA');
+        if(!c.driveFolderUrl) issues.push('Drive folder not linked');
+        if(!c.onboardingSubmitted) issues.push('Onboarding form pending');
+        return issues.length?{company:c.company,issues}:null;
+    }).filter(Boolean);
+    const wrap=document.getElementById('alertsWrap');
+    if(!alerts.length){ wrap.innerHTML=''; return; }
+    wrap.innerHTML='<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:0.75rem;">⚠ Outstanding Items In Your Pipeline</div>'+alerts.map(a=>`<div class="alert-row"><div>⚠</div><div class="alert-text"><strong>${a.company}:</strong> ${a.issues.join(' · ')}</div></div>`).join('');
+}
+
+function renderBonusTracker(){
+    const now=new Date();
+    const active=getMyClients('active');
+    const start=_partner.clientsAtYearStart||0;
+    const cur=active.length;
+    const growth=start>0?Math.round(((cur-start)/start)*100):0;
+    document.getElementById('bYear').textContent=now.getFullYear();
+    document.getElementById('bStart').textContent=start;
+    document.getElementById('bNow').textContent=cur;
+    document.getElementById('bGrowth').textContent=growth+'%';
+    document.getElementById('barFill').style.width=Math.min(Math.max(growth,0),30)/30*100+'%';
+    ['bt1','bt2','bt3'].forEach(id=>document.getElementById(id).classList.remove('on'));
+    let bm=0;
+    if(growth>=21){document.getElementById('bt3').classList.add('on');bm=3;}
+    else if(growth>=11){document.getElementById('bt2').classList.add('on');bm=2;}
+    else if(growth>=1){document.getElementById('bt1').classList.add('on');bm=1;}
+    const rate=_partner.commRate||15;
+    const monthComm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
+    const bonusEst=Math.round(monthComm*bm);
+    const est=document.getElementById('btEst');
+    if(bm>0) est.innerHTML=`&#127942; You've unlocked <strong style="color:var(--gld);">${bm} month${bm>1?'s':''} bonus</strong> — estimated <strong style="color:var(--gld);">R ${bonusEst.toLocaleString('en-ZA')}</strong> payable in November.`;
+    else if(start>0){ const need=Math.max(0,Math.ceil(start*0.01)-(cur-start)); est.innerHTML=`Need <strong style="color:#94a3b8;">${need} more client${need!==1?'s':''} to reach 1% growth and unlock a bonus.</strong>`; }
+    else est.textContent='Bonus tracking begins once your first client is active at the start of the year.';
+}
+
+function renderEarnings(){
+    const rate=_partner.commRate||15;
+    const active=getMyClients('active');
+    const now=new Date();
+    const h=_partner.commissionHistory||[];
+    const bon=_partner.bonusHistory||[];
+    const monthComm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
+    const ytdE=h.filter(x=>new Date(x.date).getFullYear()===now.getFullYear()).reduce((s,x)=>s+x.amount,0);
+    const ytdP=h.filter(x=>x.paid&&new Date(x.date).getFullYear()===now.getFullYear()).reduce((s,x)=>s+x.amount,0);
+    const owed=h.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0)+bon.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0);
+    document.getElementById('eRate').textContent=rate+'%';
+    document.getElementById('eMonth').textContent='R '+Math.round(monthComm).toLocaleString('en-ZA');
+    document.getElementById('eYTD').textContent='R '+ytdE.toLocaleString('en-ZA');
+    document.getElementById('ePaid').textContent='R '+ytdP.toLocaleString('en-ZA');
+    document.getElementById('eOwed').textContent='R '+owed.toLocaleString('en-ZA');
+    const t1=active.filter(c=>getFS(c)<=15),t2=active.filter(c=>{const f=getFS(c);return f>15&&f<=30;}),t3=active.filter(c=>getFS(c)>30);
+    document.getElementById('tierBreakdown').innerHTML=[['Tier 1 (1–15 veh)',t1],['Tier 2 (16–30 veh)',t2],['Tier 3 (31+)',t3]].map(([lbl,arr])=>{
+        const c=arr.reduce((s,x)=>s+getRetainer(x)*(rate/100),0);
+        return `<div class="earn-row"><span class="earn-lbl">${lbl} (${arr.length})</span><span class="earn-val grn">R ${Math.round(c).toLocaleString('en-ZA')}/mo</span></div>`;
+    }).join('')+`<div class="earn-row" style="border-top:2px solid rgba(16,185,129,0.2);margin-top:4px;"><span class="earn-lbl" style="color:#cbd5e1;font-weight:800;">Total Monthly</span><span class="earn-val grn" style="font-size:1rem;">R ${Math.round(monthComm).toLocaleString('en-ZA')}</span></div>`;
+}
+
+function renderProspects(){
+    const pros=getMyClients('prospect');
+    document.getElementById('prosCnt').textContent=pros.length+' prospect'+(pros.length!==1?'s':'');
+    if(!pros.length){ document.getElementById('prosBody').innerHTML='<tr><td colspan="6" class="empty-msg">No prospects yet — start sharing your referral link!</td></tr>'; return; }
+    document.getElementById('prosBody').innerHTML=pros.map(c=>{
+        const f=getFS(c);
+        const slaGen=c.slaDate||c.slaSentDate,slaRec=c.slaExecuted||c.slaReceivedDate;
+        const prog=`<div class="prog-wrap">
+            <div class="prog-item"><div class="pdot ${slaGen?'done':'miss'}"></div><div class="prog-lbl ${slaGen?'done':''}">SLA Generated</div></div>
+            <div class="prog-item"><div class="pdot ${slaRec?'done':slaGen?'pend':'miss'}"></div><div class="prog-lbl ${slaRec?'done':slaGen?'pend':''}">SLA Signed</div></div>
+            <div class="prog-item"><div class="pdot ${c.onboardingSubmitted?'done':slaRec?'pend':'miss'}"></div><div class="prog-lbl ${c.onboardingSubmitted?'done':slaRec?'pend':''}">Onboarding Done</div></div>
+        </div>`;
+        const out=[];
+        if(!slaGen) out.push('SLA not sent');
+        else if(!slaRec) out.push('⏳ Awaiting signed SLA');
+        if(!c.onboardingSubmitted) out.push('Onboarding pending');
+        return `<tr><td><strong>${c.company}</strong></td><td style="color:var(--mut);">${c.contactName||'—'}</td><td>${f>0?f+' veh':'—'}</td><td><span class="pill pill-p">Prospect</span></td><td>${prog}</td><td>${out.length?out.map(o=>`<div style="font-size:11px;color:#fde68a;">${o}</div>`).join(''):'<div style="font-size:11px;color:#a7f3d0;">✓ All good</div>'}</td></tr>`;
+    }).join('');
+}
+
+function renderActive(){
+    const active=getMyClients('active');
+    const rate=_partner.commRate||15;
+    document.getElementById('actCnt').textContent=active.length+' client'+(active.length!==1?'s':'');
+    if(!active.length){ document.getElementById('actBody').innerHTML='<tr><td colspan="6" class="empty-msg">No active clients yet.</td></tr>'; return; }
+    document.getElementById('actBody').innerHTML=active.map(c=>{
+        const f=getFS(c),r=getRetainer(c),comm=Math.round(r*(rate/100));
+        const since=c.activationDate?new Date(c.activationDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—';
+        return `<tr><td><strong>${c.company}</strong><br><span style="font-size:11px;color:var(--mut);">${c.contactName||'—'}</span></td><td>${f} veh<br><span style="font-size:10px;color:var(--mut);">${getTier(f).lbl}</span></td><td>R ${r.toLocaleString('en-ZA')}<span style="font-size:10px;color:var(--mut);">/mo</span></td><td style="color:var(--grn);font-weight:800;">R ${comm.toLocaleString('en-ZA')}<span style="font-size:10px;color:var(--mut);font-weight:600;">/mo</span></td><td>${c.reportSchedule==='weekly'?'📅 Weekly':'📆 Monthly'}</td><td style="color:var(--mut);font-size:12px;">${since}</td></tr>`;
+    }).join('');
+}
+
+function copyLink(){
+    const link=document.getElementById('refLinkVal').textContent;
+    navigator.clipboard.writeText(link).then(()=>{
+        const btn=document.getElementById('copyBtn');
+        btn.textContent='✅ Copied!'; btn.classList.add('copied');
+        setTimeout(()=>{ btn.textContent='📋 Copy Link'; btn.classList.remove('copied'); },2000);
+    });
+}
+</script>
+</body>
+</html>

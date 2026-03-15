@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Agreement | DFR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root{--grn:#10b981;--ink:#0f172a;--slate:#475569;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:#020617;color:#e2e8f0;min-height:100vh;}
+        .topbar{background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.07);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .tb-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:7px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-right:0.5rem;}
+        .tb-btn:hover{background:rgba(255,255,255,0.1);}
+        .tb-btn.grn{background:var(--grn);color:#020617;border-color:var(--grn);}
+        .tb-btn.grn:hover{background:#059669;}
+        .tb-btn:disabled{opacity:0.3;cursor:not-allowed;}
+        .tb-status{font-size:11px;font-weight:700;color:#64748b;}
+        .doc-wrap{max-width:794px;margin:2rem auto;background:white;color:var(--ink);box-shadow:0 25px 60px rgba(0,0,0,0.4);border-radius:4px;overflow:hidden;}
+        .doc-cover{background:var(--ink);padding:40px 50px 35px;}
+        .cv-brand{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:4px;color:var(--grn);}
+        .cv-brand .sub{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.35);display:block;margin-top:2px;}
+        .cv-title{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:white;margin-top:18px;line-height:1;}
+        .cv-sub{font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:2px;}
+        .cv-ref{font-size:10px;color:rgba(255,255,255,0.2);margin-top:14px;font-family:'Courier New',monospace;}
+        .doc-body{padding:38px 50px;}
+        .parties-box{background:#f8fafc;border-left:4px solid var(--grn);border-radius:4px;padding:14px 18px;margin-bottom:24px;}
+        .pb-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:8px;}
+        .pb-row{display:flex;gap:2rem;margin-bottom:4px;flex-wrap:wrap;}
+        .pb-item{font-size:12px;} .pb-item strong{display:block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--slate);margin-bottom:1px;}
+        .sec-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.25em;color:var(--grn);margin:22px 0 7px;border-bottom:1px solid #e2e8f0;padding-bottom:5px;}
+        .doc-p{font-size:12.5px;line-height:1.75;color:#334155;margin-bottom:9px;}
+        .doc-ol{margin:7px 0 10px 18px;} .doc-ol li{font-size:12.5px;line-height:1.75;color:#334155;margin-bottom:4px;}
+        .hl-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:12px 16px;margin:12px 0;}
+        .hl-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#166534;margin-bottom:6px;}
+        .hl-box p{font-size:12.5px;color:#166534;line-height:1.6;}
+        .comm-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;}
+        .comm-table th{background:var(--ink);color:white;padding:7px 11px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;}
+        .comm-table td{padding:7px 11px;border-bottom:1px solid #e2e8f0;color:#334155;}
+        .comm-table tr:nth-child(even) td{background:#f8fafc;}
+        .sig-section{margin-top:32px;padding-top:22px;border-top:2px solid #e2e8f0;}
+        .sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:18px;}
+        .sig-party{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--slate);margin-bottom:4px;}
+        .sig-name{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;}
+        .sig-line{border-bottom:1px solid #334155;height:32px;margin-bottom:5px;}
+        .sig-label{font-size:10px;color:var(--slate);}
+        .tick-section{margin-top:24px;}
+        .tick-row{display:flex;align-items:flex-start;gap:11px;padding:9px 13px;border:1px solid #e2e8f0;border-radius:7px;margin-bottom:7px;cursor:pointer;transition:all 0.2s;}
+        .tick-row:hover{border-color:var(--grn);background:#f0fdf4;}
+        .tick-row.ticked{border-color:var(--grn);background:#f0fdf4;}
+        .tick-box{width:19px;height:19px;min-width:19px;border:2px solid #cbd5e1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s;}
+        .tick-row.ticked .tick-box{background:var(--grn);border-color:var(--grn);color:white;}
+        .tick-text{font-size:12px;color:#334155;line-height:1.5;}
+        .doc-footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:12px 50px;display:flex;justify-content:space-between;font-size:10px;color:var(--slate);}
+        @media print{body{background:white;}.topbar{display:none;}.doc-wrap{box-shadow:none;margin:0;}}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <button class="tb-btn" onclick="window.location.href='loyalty-club.html'">&#127942; Loyalty</button>
+        <button class="tb-btn" onclick="window.location.href='partners.html'">← Back to Partners</button>
+        <button class="tb-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+        <button class="tb-btn grn" id="submitBtn" onclick="checkAndSubmit()" disabled>✍️ Sign &amp; Activate Partner</button>
+    </div>
+    <div class="tb-status" id="tbStatus">Loading...</div>
+</div>
+
+<div class="doc-wrap">
+    <div class="doc-cover">
+        <div class="cv-brand">Dynamic Fleet Reporting<span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing Services</span></div>
+        <div class="cv-title">REFERRAL PARTNER<br>AGREEMENT</div>
+        <div class="cv-sub">Commission-Based Referral Partnership</div>
+        <div class="cv-ref" id="cvRef">REF: RPA-LOADING &nbsp;·&nbsp; DATE: —</div>
+    </div>
+    <div class="doc-body">
+        <div class="parties-box">
+            <div class="pb-title">The Parties</div>
+            <div class="pb-row">
+                <div class="pb-item"><strong>Service Provider</strong>Dynamic Fleet Reporting</div>
+                <div class="pb-item"><strong>Address</strong>Spitskop Farm, Moorreesburg</div>
+                <div class="pb-item"><strong>Contact</strong>083 314 9592 · dynamicfleetreports&#64;gmail&#46;com</div>
+            </div>
+            <div class="pb-row">
+                <div class="pb-item"><strong>Referral Partner</strong><span id="pName">—</span></div>
+                <div class="pb-item"><strong>Phone</strong><span id="pPhone">—</span></div>
+                <div class="pb-item"><strong>Email</strong><span id="pEmail">—</span></div>
+            </div>
+            <div class="pb-row">
+                <div class="pb-item"><strong>ID / Reg</strong><span id="pID">—</span></div>
+                <div class="pb-item"><strong>Address</strong><span id="pAddress">—</span></div>
+            </div>
+        </div>
+
+        <div class="sec-title">1. Purpose</div>
+        <p class="doc-p">This agreement governs the referral partnership between Dynamic Fleet Reporting ("DFR") and the Referral Partner named above. The Partner refers potential clients to DFR in exchange for commission payments as defined herein. The Partner's role is strictly limited to referral and advertising — all client management, auditing, reporting, and service delivery remains exclusively DFR's responsibility.</p>
+
+        <div class="sec-title">2. The Partner's Role</div>
+        <p class="doc-p">The Partner shall promote DFR's fleet reporting and forensic auditing services to transport companies and fleet operators using their unique referral link. The Partner shall NOT make pricing commitments on DFR's behalf, contact or manage referred clients directly, represent themselves as a DFR employee, or solicit clients to competing services during or for 12 months after this agreement.</p>
+
+        <div class="sec-title">3. Commission Structure</div>
+        <div class="hl-box"><div class="hl-title">💰 Commission Summary</div><p>Base rate: <strong id="commRateHL">15%</strong> of monthly retainer · Payable after client invoice confirmed paid · Setup fees excluded · Paid within 7 business days</p></div>
+        <ol class="doc-ol">
+            <li><strong>Rate:</strong> <span id="commRateTxt">15%</span> of the client's monthly retainer (admin fee + vehicle rate). The once-off R2,500 setup fee is excluded.</li>
+            <li><strong>Trigger:</strong> Commission is only due after DFR has confirmed receipt of the client's payment.</li>
+            <li><strong>Duration:</strong> Commission is payable for the full lifetime of the client's contract, provided this agreement remains active.</li>
+            <li><strong>Payment:</strong> EFT to the Partner's nominated bank account within 7 business days of the monthly commission calculation date.</li>
+        </ol>
+
+        <div class="sec-title">4. Pricing Reference</div>
+        <table class="comm-table">
+            <thead><tr><th>Tier</th><th>Fleet Size</th><th>Rate/Vehicle</th><th>Example (20 vehicles)</th></tr></thead>
+            <tbody>
+                <tr><td>Tier 1</td><td>1–15</td><td>R200/month</td><td>R1,500 + R3,000 = R4,500/month</td></tr>
+                <tr><td>Tier 2</td><td>16–30</td><td>R175/month</td><td>R1,500 + R3,500 = R5,000/month</td></tr>
+                <tr><td>Tier 3</td><td>31+</td><td>R150/month</td><td>R1,500 + R5,250 = R6,750/month</td></tr>
+            </tbody>
+        </table>
+        <p class="doc-p" style="font-size:11px;color:#64748b;">Commission example at <span id="commEx">15%</span>: A 20-vehicle Tier 2 client (R5,000/month) earns the Partner R750/month · R9,000/year.</p>
+
+        <div class="sec-title">5. Annual Performance Bonus</div>
+        <table class="comm-table">
+            <thead><tr><th>Portfolio Growth (Jan–Nov)</th><th>Bonus</th></tr></thead>
+            <tbody>
+                <tr><td>0% or decline</td><td>No bonus</td></tr>
+                <tr><td>1% – 10% growth</td><td>1 additional month's commission</td></tr>
+                <tr><td>11% – 20% growth</td><td>2 additional months' commission</td></tr>
+                <tr><td>21%+ growth</td><td>3 additional months' commission</td></tr>
+            </tbody>
+        </table>
+        <p class="doc-p">Growth is measured as increase in active referred clients from January 1st to November 30th. Bonus is calculated from November's active client commission and paid in November.</p>
+
+        <div class="sec-title">6. Banking Details</div>
+        <div class="parties-box" style="margin-top:0;">
+            <div class="pb-row">
+                <div class="pb-item"><strong>Bank</strong><span id="pBank">—</span></div>
+                <div class="pb-item"><strong>Account Holder</strong><span id="pName2">—</span></div>
+                <div class="pb-item"><strong>Account Number</strong><span id="pAccNum">—</span></div>
+                <div class="pb-item"><strong>Branch Code</strong><span id="pBranch">—</span></div>
+                <div class="pb-item"><strong>Account Type</strong><span id="pAccType">—</span></div>
+            </div>
+        </div>
+
+        <div class="sec-title">7. Confidentiality &amp; IP</div>
+        <p class="doc-p">All client information, pricing, system details, and business processes are strictly confidential. All reports, templates, systems, and brand materials remain the exclusive intellectual property of DFR and may not be reproduced, resold, or distributed without written consent.</p>
+
+        <div class="sec-title">8. Termination</div>
+        <ol class="doc-ol">
+            <li>Either party may terminate with 30 days' written notice.</li>
+            <li>Commission already earned on existing clients remains payable for 3 months post-termination.</li>
+            <li>DFR may terminate immediately for breach, dishonesty, or reputational damage.</li>
+        </ol>
+
+        <div class="sec-title">9. General</div>
+        <ol class="doc-ol">
+            <li>Governed by the laws of the Republic of South Africa.</li>
+            <li>The Partner is an independent contractor — no employment benefits, UIF, or PAYE applies.</li>
+            <li>Disputes shall first be addressed through good-faith negotiation.</li>
+        </ol>
+
+        <div class="sig-section">
+            <div class="sec-title" style="margin-top:0;">Execution &amp; Acceptance</div>
+            <p class="doc-p">By ticking all boxes below and clicking "Sign &amp; Activate Partner", both parties confirm they have read, understood, and agree to the terms of this Referral Partner Agreement.</p>
+            <div class="tick-section">
+                <div class="tick-row" id="t1" onclick="toggleTick('t1')"><div class="tick-box" id="t1b"></div><div class="tick-text">I have read and understood the Referral Partner Agreement in full, including the commission structure, annual bonus terms, and confidentiality obligations.</div></div>
+                <div class="tick-row" id="t2" onclick="toggleTick('t2')"><div class="tick-box" id="t2b"></div><div class="tick-text">I confirm my banking details above are correct and authorise Dynamic Fleet Reporting to make commission payments to the nominated account.</div></div>
+                <div class="tick-row" id="t3" onclick="toggleTick('t3')"><div class="tick-box" id="t3b"></div><div class="tick-text">I agree to act in accordance with this agreement and understand DFR may terminate immediately if I breach any of its terms.</div></div>
+            </div>
+            <div class="sig-grid">
+                <div><div class="sig-party">Referral Partner</div><div class="sig-name" id="sigName">—</div><div class="sig-line"></div><div class="sig-label">Signature &amp; Date</div></div>
+                <div><div class="sig-party">Dynamic Fleet Reporting</div><div class="sig-name">Authorised Signatory</div><div class="sig-line"></div><div class="sig-label">Signature &amp; Date</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="doc-footer">
+        <span>Dynamic Fleet Reporting · Spitskop Farm, Moorreesburg · 083 314 9592</span>
+        <span id="footRef">RPA-LOADING</span>
+    </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+let _partner=null;
+const ticks={t1:false,t2:false,t3:false};
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
+
+ready().then(async()=>{
+    const pid=new URLSearchParams(window.location.search).get('pid');
+    if(!pid){document.getElementById('tbStatus').textContent='No partner specified';return;}
+    const partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+    _partner=partners.find(p=>p.id===pid);
+    if(!_partner){document.getElementById('tbStatus').textContent='Partner not found';return;}
+    populateDoc();
+});
+
+function populateDoc(){
+    const p=_partner;
+    const now=new Date();
+    const dateStr=now.toLocaleDateString('en-ZA',{day:'2-digit',month:'long',year:'numeric'}).toUpperCase();
+    const ref='RPA-'+p.id.replace('partner_','').slice(-6).toUpperCase();
+    document.getElementById('cvRef').textContent='REF: '+ref+'  ·  DATE: '+dateStr;
+    document.getElementById('footRef').textContent=ref;
+    document.getElementById('pName').textContent=p.name;
+    document.getElementById('pName2').textContent=p.accHolder||p.name;
+    document.getElementById('sigName').textContent=p.name;
+    document.getElementById('pPhone').textContent=p.phone||'—';
+    document.getElementById('pEmail').textContent=p.email||'—';
+    document.getElementById('pID').textContent=p.idNumber||'—';
+    document.getElementById('pAddress').textContent=p.address||'—';
+    document.getElementById('pBank').textContent=p.bank||'—';
+    document.getElementById('pAccNum').textContent=p.accNum||'—';
+    document.getElementById('pBranch').textContent=p.branch||'—';
+    document.getElementById('pAccType').textContent=p.accType||'—';
+    const r=(p.commRate||15)+'%';
+    document.getElementById('commRateHL').textContent=r;
+    document.getElementById('commRateTxt').textContent=r;
+    document.getElementById('commEx').textContent=r;
+    document.getElementById('tbStatus').textContent=p.status==='active'?'✅ Active':p.status==='pending'?'⏳ Pending':'⚪ Inactive';
+}
+
+function toggleTick(id){
+    ticks[id]=!ticks[id];
+    document.getElementById(id).classList.toggle('ticked',ticks[id]);
+    document.getElementById(id+'b').textContent=ticks[id]?'✓':'';
+    document.getElementById('submitBtn').disabled=!(ticks.t1&&ticks.t2&&ticks.t3);
+}
+
+async function checkAndSubmit(){
+    if(!ticks.t1||!ticks.t2||!ticks.t3){alert('Please tick all three boxes.');return;}
+    if(!confirm('Sign this agreement and activate '+_partner.name+' as a Referral Partner?'))return;
+    const partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+    const idx=partners.findIndex(p=>p.id===_partner.id);
+    if(idx>-1){
+        partners[idx].status='active';
+        partners[idx].agreementSignedDate=new Date().toISOString();
+        partners[idx].clientsAtYearStart=0;
+        await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(partners));
+        document.getElementById('tbStatus').textContent='✅ Active Partner';
+        document.getElementById('submitBtn').disabled=true;
+        document.getEleme
+        document.getElementById('submitBtn').textContent='\u2705 Signed & Activated';
+        alert('Agreement signed. Partner is now active. Return to partners.html and click "Resend Link" to send their referral link via WhatsApp.');
+    }
+}
+</script>
+</body>
+</html>

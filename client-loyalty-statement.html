@@ -58,6 +58,7 @@
 <div class="topbar">
     <div>
         <button class="tb-btn" onclick="window.location.href='loyalty-club.html'">&#8592; Back</button>
+        <button class="tb-btn" onclick="window.location.href='partners.html'">&#129309; Partners</button>
         <button class="tb-btn grn" onclick="window.print()">&#128424; Print / PDF</button>
         <button class="tb-btn" onclick="emailStatement()">&#128231; Email to Client</button>
     </div>
@@ -107,12 +108,12 @@
         </table>
     </div>
     <div class="doc-footer">
-        <span>Dynamic Fleet Reporting &middot; 083 314 9592 &middot; dynamicfleetreports@gmail.com</span>
+        <span>Dynamic Fleet Reporting &middot; 083 314 9592 &middot; dynamicfleetreports&#64;gmail&#46;com</span>
         <span id="footRef">LYST-LOADING</span>
     </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 var _client=null;
 function waitFor(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);});}
 waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async function(){
@@ -178,12 +179,7 @@ function emailStatement(){
     var sub=encodeURIComponent('Your DFR Loyalty Club Statement');
     var bod=encodeURIComponent('Hi '+(_client.contactName||'')+',
 
-Please find your DFR Loyalty Club statement attached. It shows your referral history, credits earned, and free months banked.
-
-Thank you for being a valued DFR Loyalty Club member!
-
-Dynamic Fleet Reporting
-083 314 9592');
+Please find your DFR Loyalty Club statement attached. It shows your referral history, credits earned, and free months banked.\n\nThank you for being a valued DFR Loyalty Club member!\n\nDynamic Fleet Reporting\n083 314 9592');
     window.location.href='mailto:'+(_client.email||'')+'?subject='+sub+'&body='+bod;
 }
 </script>

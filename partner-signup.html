@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Referral Partner | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.07);--grn:#10b981;--gd:#059669;--gold:#f59e0b;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+        .topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+        .tb-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--grn);}
+        .tb-brand span{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--mut);display:block;margin-top:1px;}
+        .wrap{max-width:680px;margin:3rem auto;padding:0 1.5rem;}
+        .hero{text-align:center;margin-bottom:2.5rem;}
+        .eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.4em;color:var(--grn);margin-bottom:0.75rem;}
+        h1{font-size:2.8rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;line-height:1;}
+        h1 span{color:var(--grn);}
+        .sub{font-size:14px;color:var(--mut);margin-top:0.75rem;line-height:1.6;}
+        .comm-box{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:14px;padding:1.5rem;margin-bottom:2rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;}
+        .cb-val{font-size:1.8rem;font-weight:900;color:var(--grn);}
+        .cb-label{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:0.15em;margin-top:3px;}
+        .card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:16px;padding:2rem;margin-bottom:1.25rem;}
+        .card-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:1.25rem;}
+        .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+        .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;}
+        .fg{display:flex;flex-direction:column;gap:0.4rem;}
+        .fg.full{grid-column:1/-1;}
+        .fg label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);}
+        .fg input,.fg select,.fg textarea{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:0.7rem 0.9rem;color:var(--txt);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
+        .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--grn);}
+        .fg select option{background:#0f172a;}
+        .fg textarea{resize:vertical;min-height:80px;}
+        .terms-box{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1.25rem;max-height:200px;overflow-y:auto;font-size:12px;color:var(--mut);line-height:1.7;margin-bottom:1rem;}
+        .terms-box::-webkit-scrollbar{width:4px;}
+        .terms-box::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+        .check-row{display:flex;align-items:flex-start;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--brd);border-radius:8px;margin-bottom:0.5rem;cursor:pointer;transition:all 0.2s;}
+        .check-row:hover{border-color:rgba(16,185,129,0.3);}
+        .check-row.checked{border-color:var(--grn);background:rgba(16,185,129,0.06);}
+        .check-box{width:18px;height:18px;min-width:18px;border:2px solid #475569;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s;margin-top:2px;}
+        .check-row.checked .check-box{background:var(--grn);border-color:var(--grn);color:#020617;}
+        .check-text{font-size:12.5px;color:#cbd5e1;line-height:1.5;}
+        .submit-btn{width:100%;background:var(--grn);border:none;color:#020617;padding:1rem;border-radius:10px;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:1rem;}
+        .submit-btn:hover{background:var(--gd);}
+        .submit-btn:disabled{opacity:0.4;cursor:not-allowed;}
+        .err{color:#f87171;font-size:12px;margin-top:0.5rem;display:none;}
+        /* Success */
+        .success-screen{display:none;text-align:center;padding:3rem 2rem;}
+        .success-icon{font-size:4rem;margin-bottom:1rem;}
+        .success-title{font-size:2rem;font-weight:900;color:white;margin-bottom:0.5rem;}
+        .success-sub{font-size:14px;color:var(--mut);line-height:1.7;margin-bottom:1.5rem;}
+        .ref-preview{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:1rem 1.5rem;font-family:'Courier New',monospace;font-size:13px;color:var(--grn);word-break:break-all;margin:1rem 0;}
+        .loader{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.8);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
+        .loader.on{display:flex;}
+        .spin{width:40px;height:40px;border:3px solid rgba(16,185,129,0.2);border-top-color:var(--grn);border-radius:50%;animation:spin 0.8s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .loader-txt{font-size:13px;font-weight:700;color:var(--mut);}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="tb-brand">Dynamic Fleet Reporting<span>Referral Partner Programme</span></div>
+    <a href="https://dynamicfleetreports-bit.github.io/DFR/discover.html" style="font-size:11px;font-weight:700;color:var(--mut);text-decoration:none;">← Back to Discover Page</a>
+</div>
+
+<div class="wrap">
+    <div id="formSection">
+        <div class="hero">
+            <div class="eyebrow">Earn With Us</div>
+            <h1>Become a Referral <span>Partner</span></h1>
+            <p class="sub">Refer fleet operators to Dynamic Fleet Reporting and earn 15% commission on every invoice they pay — for the lifetime of their contract. No experience needed. No targets. Just refer and earn.</p>
+        </div>
+
+        <div class="comm-box">
+            <div><div class="cb-val">15%</div><div class="cb-label">Commission Rate</div></div>
+            <div><div class="cb-val">Lifetime</div><div class="cb-label">Per Client Duration</div></div>
+            <div><div class="cb-val">R750+</div><div class="cb-label">Per Client Per Month</div></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">01 — Your Personal Details</div>
+            <div class="grid2">
+                <div class="fg"><label>Full Name *</label><input type="text" id="name" placeholder="e.g. Johan van der Merwe"></div>
+                <div class="fg"><label>Contact Number *</label><input type="tel" id="phone" placeholder="083 000 0000"></div>
+                <div class="fg full"><label>Email Address *</label><input type="email" id="email" placeholder="name@email.com"></div>
+                <div class="fg"><label>ID Number</label><input type="text" id="idNum" placeholder="South African ID number"></div>
+                <div class="fg"><label>Town / City</label><input type="text" id="city" placeholder="Where are you based?"></div>
+                <div class="fg full"><label>Address (for records)</label><input type="text" id="address" placeholder="Street, Suburb, City, Province, Postal Code"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">02 — Banking Details (for commission payments)</div>
+            <div class="grid2">
+                <div class="fg"><label>Bank Name *</label>
+                    <select id="bank">
+                        <option value="">— Select Bank —</option>
+                        <option>Absa</option><option>Capitec</option><option>FNB</option>
+                        <option>Nedbank</option><option>Standard Bank</option><option>Investec</option>
+                        <option>African Bank</option><option>TymeBank</option><option>Other</option>
+                    </select>
+                </div>
+                <div class="fg"><label>Account Type *</label>
+                    <select id="accType">
+                        <option>Cheque</option><option>Savings</option><option>Current</option>
+                    </select>
+                </div>
+                <div class="fg"><label>Account Number *</label><input type="text" id="accNum" placeholder="Account number"></div>
+                <div class="fg"><label>Branch Code *</label><input type="text" id="branch" placeholder="e.g. 250655"></div>
+                <div class="fg full"><label>Account Holder Name (if different from above)</label><input type="text" id="accHolder" placeholder="Leave blank if same as your name"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">03 — How You Plan to Refer Clients (optional)</div>
+            <div class="fg">
+                <label>Tell us briefly how you plan to promote DFR</label>
+                <textarea id="approach" placeholder="e.g. I work in the transport industry and have contacts at several fleet companies. I plan to share the referral link on social media and in industry WhatsApp groups..."></textarea>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">04 — Terms &amp; Acceptance</div>
+            <div class="terms-box">
+                <strong style="color:#cbd5e1;">Referral Partner Programme — Key Terms</strong><br><br>
+                <strong>Commission:</strong> 15% of the monthly retainer (excluding setup fees) for each referred client, payable after the client's invoice is confirmed paid by DFR. Commission is paid within 7 business days of the monthly calculation date.<br><br>
+                <strong>Your Role:</strong> You refer potential clients to DFR using your unique referral link. DFR handles all client interaction, auditing, reporting, and invoicing. You do not contact or manage clients on DFR's behalf.<br><br>
+                <strong>Annual Bonus:</strong> Portfolio growth bonuses are assessed each November. Growth of 1–10% earns 1 extra month's commission; 11–20% earns 2 months; 21%+ earns 3 months.<br><br>
+                <strong>Activation:</strong> Your application will be reviewed by DFR within 48 hours. You will receive a WhatsApp confirmation with your referral link once approved.<br><br>
+                <strong>Confidentiality:</strong> All client information, pricing, and business processes are strictly confidential. You may not share client details with any third party.<br><br>
+                <strong>Termination:</strong> Either party may end the partnership with 30 days notice. Commission on existing clients continues for 3 months post-termination.<br><br>
+                <strong>Independent Contractor:</strong> You are not an employee of DFR. No UIF, PAYE, or employment benefits apply.
+            </div>
+            <div class="check-row" id="chk1" onclick="toggleCheck('chk1')">
+                <div class="check-box" id="chk1-box"></div>
+                <div class="check-text">I have read and agree to the Referral Partner Programme terms above, including the commission structure, confidentiality obligations, and termination conditions.</div>
+            </div>
+            <div class="check-row" id="chk2" onclick="toggleCheck('chk2')">
+                <div class="check-box" id="chk2-box"></div>
+                <div class="check-text">I confirm my banking details are correct and authorise DFR to make commission payments to the account provided.</div>
+            </div>
+            <div class="check-row" id="chk3" onclick="toggleCheck('chk3')">
+                <div class="check-box" id="chk3-box"></div>
+                <div class="check-text">I understand my application requires DFR's approval before I become active, and that I will receive my referral link via WhatsApp once approved.</div>
+            </div>
+            <div class="err" id="formErr">Please complete all required fields and tick all three boxes before submitting.</div>
+            <button class="submit-btn" id="submitBtn" onclick="submitApplication()">Submit Application →</button>
+        </div>
+    </div>
+
+    <div class="success-screen" id="successScreen">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">Application Received!</div>
+        <div class="success-sub">
+            Thank you — your Referral Partner application has been submitted to Dynamic Fleet Reporting.<br><br>
+            We will review your details and WhatsApp you within <strong style="color:white;">48 hours</strong> with your unique referral link and portal access.<br><br>
+            Your referral code will be:
+        </div>
+        <div class="ref-preview" id="successCode">—</div>
+        <p style="font-size:12px;color:var(--mut);">Questions? WhatsApp us on 083 314 9592</p>
+    </div>
+</div>
+
+<div class="loader" id="loader"><div class="spin"></div><div class="loader-txt" id="loaderTxt">Submitting application...</div></div>
+
+<script>
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+const checks = {chk1:false,chk2:false,chk3:false};
+
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+
+function toggleCheck(id){
+    checks[id]=!checks[id];
+    document.getElementById(id).classList.toggle('checked',checks[id]);
+    document.getElementById(id+'-box').textContent=checks[id]?'✓':'';
+}
+
+function getRefCode(name){
+    return 'ref_'+name.toLowerCase().trim().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+}
+
+async function submitApplication(){
+    const name=document.getElementById('name').value.trim();
+    const phone=document.getElementById('phone').value.trim();
+    const email=document.getElementById('email').value.trim();
+    const bank=document.getElementById('bank').value;
+    const accNum=document.getElementById('accNum').value.trim();
+    const branch=document.getElementById('branch').value.trim();
+
+    if(!name||!phone||!email||!bank||!accNum||!branch||!checks.chk1||!checks.chk2||!checks.chk3){
+        document.getElementById('formErr').style.display='block';
+        return;
+    }
+    document.getElementById('formErr').style.display='none';
+    document.getElementById('loader').classList.add('on');
+    document.getElementById('loaderTxt').textContent='Submitting your application...';
+
+    const refCode = getRefCode(name);
+    const newPartner = {
+        id:        'partner_'+Date.now(),
+        name, phone, email,
+        idNumber:  document.getElementById('idNum').value.trim(),
+        city:      document.getElementById('city').value.trim(),
+        address:   document.getElementById('address').value.trim(),
+        bank,
+        accType:   document.getElementById('accType').value,
+        accNum,
+        branch,
+        accHolder: document.getElementById('accHolder').value.trim() || name,
+        approach:  document.getElementById('approach').value.trim(),
+        commRate:  15,
+        status:    'pending',
+        createdAt: new Date().toISOString(),
+        signupDate: new Date().toISOString(),
+        selfSignup: true,
+        commissionHistory: [],
+        bonusHistory: [],
+        clientsAtYearStart: 0,
+    };
+
+    try {
+        await waitFor(()=>typeof cloudStorage!=='undefined');
+        const existing = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+
+        // Check for duplicate
+        const dup = existing.find(p => p.phone===phone || p.email===email);
+        if(dup){
+            document.getElementById('loader').classList.remove('on');
+            document.getElementById('formErr').textContent = 'An application with this phone or email already exists. Please contact DFR directly.';
+            document.getElementById('formErr').style.display='block';
+            return;
+        }
+
+        existing.push(newPartner);
+        await cloudStorage.setItem('REFERRAL_PARTNERS', JSON.stringify(existing));
+
+        // Notify DFR via WhatsApp
+        document.getElementById('loaderTxt').textContent='Notifying DFR team...';
+        await notifyWA('🤝 NEW PARTNER APPLICATION\nName: '+name+'\nPhone: '+phone+'\nEmail: '+email+'\nBank: '+bank+' | Acc: '+accNum+'\nReview in partners.html and activate to send their referral link.');
+
+        document.getElementById('loader').classList.remove('on');
+        document.getElementById('successCode').textContent = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref='+refCode;
+        document.getElementById('formSection').style.display='none';
+        document.getElementById('successScreen').style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
+    } catch(e){
+        document.getElementById('loader').classList.remove('on');
+        document.getElementById('formErr').textContent='Submission failed: '+e.message+'. Please try again or WhatsApp 083 314 9592.';
+        document.getElementById('formErr').style.display='block';
+    }
+}
+
+function notifyWA(msg){
+    return new Promise(res=>{
+        const cb='_cb'+Date.now();
+        window[cb]=()=>{ delete window[cb]; res(); };
+        const s=document.createElement('script');
+        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
+        s.onerror=()=>res();
+        document.body.appendChild(s);
+        setTimeout(res,5000);
+    });
+}
+</script>
+</body>
+</html>

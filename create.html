@@ -120,17 +120,38 @@
         </div>
 
         <div class="form-section">
-            <span class="section-label">06 — Referral Partner</span>
+            <span class="section-label">06 — Referral Source</span>
             <div class="grid grid-cols-2 gap-5">
                 <div>
-                    <label>Referred By</label>
+                    <label>Referred by Partner</label>
                     <select id="referralPartnerId" onchange="onPartnerChange()">
-                        <option value="">— Direct / No Partner —</option>
+                        <option value="">— No Partner —</option>
                     </select>
                 </div>
                 <div>
-                    <label>Referral Code</label>
+                    <label>Partner Referral Code</label>
                     <input type="text" id="referralCode" placeholder="Auto-filled from partner selection" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5" style="margin-top:1rem;">
+                <div>
+                    <label>Referred by Existing Client (Loyalty Club)</label>
+                    <select id="referredByClient">
+                        <option value="">— No Client Referral —</option>
+                    </select>
+                </div>
+                <div>
+                    <label>How They Heard About DFR</label>
+                    <select id="leadSource">
+                        <option value="direct">Direct contact</option>
+                        <option value="facebook">Facebook</option>
+                        <option value="linkedin">LinkedIn</option>
+                        <option value="whatsapp">WhatsApp</option>
+                        <option value="referral_client">Existing client referral</option>
+                        <option value="referral_partner">Referral partner</option>
+                        <option value="google">Google search</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
             </div>
         </div>

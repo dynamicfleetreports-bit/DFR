@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referral Partners | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;}
+        #sidebar{width:260px;background:var(--panel);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+        .logo-area{padding:0 1rem 2.5rem;}
+        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;}
+        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
+        .nav-item.active{background:rgba(16,185,129,0.1);color:var(--grn);}
+        .main{flex:1;padding:3rem;overflow-y:auto;}
+        .eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.4em;color:var(--grn);margin-bottom:0.75rem;}
+        .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
+        .page-title span{color:var(--grn);}
+        .page-sub{font-size:13px;color:#64748b;margin-top:0.5rem;font-weight:600;}
+        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:2rem 0;}
+        .stat-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:1.25rem;}
+        .stat-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.5rem;}
+        .stat-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
+        .stat-val.green{color:var(--grn);} .stat-val.gold{color:var(--gld);} .stat-val.blue{color:var(--blu);}
+        .toolbar{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+        .btn{padding:9px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .btn-green{background:var(--grn);color:#020617;} .btn-green:hover{background:var(--gd);}
+        .btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;} .btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
+        .btn-gold{background:rgba(245,158,11,0.15);color:var(--gld);border:1px solid rgba(245,158,11,0.3);} .btn-gold:hover{background:rgba(245,158,11,0.25);}
+        /* Pending badge */
+        .pending-banner{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:none;}
+        .pending-banner.show{display:block;}
+        .pb-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--gld);margin-bottom:0.75rem;}
+        .pending-list{display:flex;flex-direction:column;gap:0.5rem;}
+        .pending-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:8px;padding:0.75rem 1rem;}
+        .pi-name{font-size:13px;font-weight:800;color:white;}
+        .pi-info{font-size:11px;color:var(--mut);margin-top:2px;}
+        .pi-actions{display:flex;gap:0.5rem;}
+        .btn-approve{background:rgba(16,185,129,0.15);border:none;color:var(--grn);padding:6px 14px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
+        .btn-approve:hover{background:rgba(16,185,129,0.3);}
+        .btn-decline{background:rgba(239,68,68,0.1);border:none;color:#f87171;padding:6px 14px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
+        .btn-decline:hover{background:rgba(239,68,68,0.2);}
+        /* Partner cards */
+        .partners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:1.5rem;}
+        .partner-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:16px;overflow:hidden;transition:border-color 0.2s;}
+        .partner-card:hover{border-color:rgba(16,185,129,0.25);}
+        .partner-card.inactive{opacity:0.5;}
+        .pc-header{padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);}
+        .pc-name{font-size:1.05rem;font-weight:900;color:white;}
+        .pc-code{font-size:10px;font-weight:700;color:#64748b;margin-top:2px;font-family:'Courier New',monospace;}
+        .sbadge{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;padding:3px 10px;border-radius:20px;}
+        .sa{background:rgba(16,185,129,0.15);color:var(--grn);}
+        .si2{background:rgba(100,116,139,0.15);color:#64748b;}
+        .sp{background:rgba(245,158,11,0.15);color:var(--gld);}
+        .pc-body{padding:1.25rem 1.5rem;}
+        .pc-info-row{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap;}
+        .pc-info{font-size:12px;color:#64748b;} .pc-info strong{color:#cbd5e1;display:block;font-size:11px;}
+        .pc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+        .pc-metric{background:rgba(255,255,255,0.03);border-radius:8px;padding:0.75rem;text-align:center;}
+        .pc-metric-val{font-size:1.2rem;font-weight:900;color:white;}
+        .pc-metric-val.green{color:var(--grn);} .pc-metric-val.gold{color:var(--gld);} .pc-metric-val.blue{color:var(--blu);}
+        .pc-metric-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-top:2px;}
+        .ref-link-box{background:#000d1a;border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:0.6rem 0.85rem;display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;}
+        .ref-link-text{font-size:11px;color:#10b981;font-family:'Courier New',monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .btn-copy-link{background:rgba(16,185,129,0.15);border:none;color:var(--grn);padding:5px 12px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;}
+        .btn-copy-link:hover{background:rgba(16,185,129,0.3);}
+        .client-list-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.5rem;}
+        .client-pill{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:20px;padding:3px 10px;font-size:11px;color:#94a3b8;margin:2px;}
+        .client-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--grn);}
+        .pc-footer{padding:0.85rem 1.5rem;border-top:1px solid var(--brd);display:flex;gap:0.5rem;flex-wrap:wrap;}
+        .btn-sm{padding:6px 13px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .bsb{background:rgba(59,130,246,0.15);color:#60a5fa;} .bsb:hover{background:rgba(59,130,246,0.25);}
+        .bsg{background:rgba(245,158,11,0.15);color:var(--gld);} .bsg:hover{background:rgba(245,158,11,0.25);}
+        .bsr{background:rgba(239,68,68,0.1);color:#f87171;} .bsr:hover{background:rgba(239,68,68,0.2);}
+        .bsgr{background:rgba(16,185,129,0.15);color:var(--grn);} .bsgr:hover{background:rgba(16,185,129,0.25);}
+        .bspur{background:rgba(139,92,246,0.15);color:#c4b5fd;} .bspur:hover{background:rgba(139,92,246,0.25);}
+        /* Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+        .modal-overlay.open{display:flex;}
+        .modal{background:#0f172a;border:1px solid var(--brd);border-radius:20px;padding:2rem;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+        .modal-title{font-size:1.2rem;font-weight:900;color:white;margin-bottom:1.5rem;}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+        .form-group{display:flex;flex-direction:column;gap:0.4rem;}
+        .form-group.full{grid-column:1/-1;}
+        .form-group label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;}
+        .form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:0.6rem 0.85rem;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--grn);}
+        .form-group textarea{resize:vertical;min-height:70px;}
+        .modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;}
+        /* Comm/Bonus preview table */
+        .prev-table{width:100%;border-collapse:collapse;font-size:12px;}
+        .prev-table th{background:rgba(255,255,255,0.05);color:#64748b;font-weight:900;text-transform:uppercase;font-size:9px;letter-spacing:0.1em;padding:7px 10px;text-align:left;border-bottom:1px solid var(--brd);}
+        .prev-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.04);color:#cbd5e1;}
+        .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
+        .toast.show{transform:translateY(0);opacity:1;}
+        .empty-state{text-align:center;padding:4rem 2rem;color:#64748b;}
+        .empty-state .icon{font-size:3rem;margin-bottom:1rem;}
+    </style>
+</head>
+<body>
+
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
+    <nav>
+        <a href="index.html"     class="nav-item">Dashboard</a>
+        <a href="pipeline.html"  class="nav-item">Prospect Pipeline</a>
+        <a href="database.html"  class="nav-item">Active Database</a>
+        <a href="audit.html"     class="nav-item">Forensic Audit</a>
+        <a href="churned.html"   class="nav-item">Churned Clients</a>
+        <a href="invoice.html"   class="nav-item">Invoices</a>
+        <a href="partners.html"  class="nav-item active">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+        <a href="settings.html"  class="nav-item">⚙ Settings</a>
+        <a href="marketing.html" class="nav-item">📣 Marketing</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <div class="eyebrow">Business Development</div>
+    <h1 class="page-title">Referral <span>Partners</span></h1>
+    <p class="page-sub">Manage referral partners, approve applications, track commissions and bonuses.</p>
+
+    <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Active Partners</div><div class="stat-val green" id="sActive">0</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-val gold" id="sPending">0</div></div>
+        <div class="stat-card"><div class="stat-label">MRR via Partners</div><div class="stat-val green" id="sMRR">R 0</div></div>
+        <div class="stat-card"><div class="stat-label">Comm Due This Month</div><div class="stat-val gold" id="sComm">R 0</div></div>
+    </div>
+
+    <!-- Pending Applications Banner -->
+    <div class="pending-banner" id="pendingBanner">
+        <div class="pb-title">⏳ Pending Partner Applications — Review &amp; Approve</div>
+        <div class="pending-list" id="pendingList"></div>
+    </div>
+
+    <div class="toolbar">
+        <button class="btn btn-green" onclick="openAddModal()">➕ Add Partner Manually</button>
+        <button class="btn btn-outline" onclick="window.open('partner-signup.html','_blank')">🔗 Partner Signup Page</button>
+        <button class="btn btn-outline" onclick="openCommModal()">💰 Run Monthly Commissions</button>
+        <button class="btn btn-gold"    onclick="openBonusModal()">🏆 Run Annual Bonus</button>
+    </div>
+
+    <div class="partners-grid" id="partnersGrid">
+        <div class="empty-state"><div class="icon">🤝</div><p>No referral partners yet.</p><button class="btn btn-green" onclick="openAddModal()">➕ Add First Partner</button></div>
+    </div>
+</main>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="partnerModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Add Referral Partner</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="pName" placeholder="e.g. Johan van der Merwe"></div>
+      <div class="form-group"><label>Contact Number *</label><input type="text" id="pPhone" placeholder="083 000 0000"></div>
+      <div class="form-group full"><label>Email Address *</label><input type="email" id="pEmail" placeholder="name@email.com"></div>
+      <div class="form-group"><label>ID Number</label><input type="text" id="pID"></div>
+      <div class="form-group"><label>Address</label><input type="text" id="pAddress"></div>
+      <div class="form-group"><label>Bank Name</label><input type="text" id="pBank" placeholder="e.g. FNB"></div>
+      <div class="form-group"><label>Account Number</label><input type="text" id="pAccNum"></div>
+      <div class="form-group"><label>Branch Code</label><input type="text" id="pBranch"></div>
+      <div class="form-group"><label>Account Type</label>
+        <select id="pAccType"><option>Cheque</option><option>Savings</option><option>Current</option></select>
+      </div>
+      <div class="form-group"><label>Commission Rate (%)</label><input type="number" id="pCommRate" value="15" min="1" max="30" step="0.5"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="pStatus"><option value="pending">Pending</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+      </div>
+      <div class="form-group full"><label>Notes</label><textarea id="pNotes"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('partnerModal')">Cancel</button>
+      <button class="btn btn-green"  onclick="savePartner()">💾 Save Partner</button>
+    </div>
+  </div>
+</div>
+
+<!-- Commission Modal -->
+<div class="modal-overlay" id="commModal">
+  <div class="modal">
+    <div class="modal-title">💰 Run Monthly Commissions</div>
+    <p style="color:#94a3b8;font-size:13px;margin-bottom:1rem;">Calculates commission for all active partners based on their referred clients' paid invoices.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div class="form-group"><label>Month</label><select id="commMonth"></select></div>
+      <div class="form-group"><label>Year</label><select id="commYear"></select></div>
+    </div>
+    <div id="commPreview"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('commModal')">Cancel</button>
+      <button class="btn btn-gold"    onclick="previewComm()">👁 Preview</button>
+      <button class="btn btn-green"   id="confirmCommBtn" onclick="confirmComm()" style="display:none;">✓ Confirm &amp; Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bonus Modal -->
+<div class="modal-overlay" id="bonusModal">
+  <div class="modal">
+    <div class="modal-title">🏆 Run Annual Bonus</div>
+    <p style="color:#94a3b8;font-size:13px;margin-bottom:1rem;">Year-end portfolio growth bonuses. Run in November.</p>
+    <div class="form-group" style="margin-bottom:1rem;"><label>Year</label><select id="bonusYear"></select></div>
+    <div id="bonusPreview"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('bonusModal')">Cancel</button>
+      <button class="btn btn-gold"    onclick="previewBonus()">👁 Preview</button>
+      <button class="btn btn-green"   id="confirmBonusBtn" onclick="confirmBonus()" style="display:none;">✓ Confirm &amp; Record</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DISCOVER_URL='https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+const APPS_URL='https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+let _partners=[],_clients=[],_editId=null,_pendingComm=[],_pendingBonus=[];
+
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+async function ready(){ await waitFor(()=>typeof cloudStorage!=='undefined'); }
+
+ready().then(loadData);
+
+async function loadData(){
+    try{
+        _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+        _clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    }catch(e){ _partners=[];_clients=[]; }
+    initPickers();
+    renderAll();
+}
+
+function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
+function getRefLink(p){ return DISCOVER_URL+'?ref='+getRefCode(p); }
+function getTier(f){ return f<=15?{rate:200}:f<=30?{rate:175}:{rate:150}; }
+function getFS(c){ return c.fleet?c.fleet.length:(c.fleetSize||0); }
+function getRetainer(c){ const f=getFS(c),t=getTier(f); return 1500+(f*t.rate); }
+function getPartnerClients(pid,status){
+    const p=_partners.find(x=>x.id===pid);
+    return _clients.filter(c=>{
+        const byId=c.referralPartnerId===pid;
+        const byCode=p&&c.referralCode===getRefCode(p);
+        return (byId||byCode)&&(status?c.status===status:true);
+    });
+}
+
+function renderAll(){ updateStats(); renderPending(); renderPartners(); }
+
+function updateStats(){
+    const active=_partners.filter(p=>p.status==='active').length;
+    const pending=_partners.filter(p=>p.status==='pending').length;
+    let mrr=0,comm=0;
+    _partners.filter(p=>p.status==='active').forEach(p=>{
+        getPartnerClients(p.id,'active').forEach(c=>{
+            const r=getRetainer(c); mrr+=r; comm+=r*((p.commRate||15)/100);
+        });
+    });
+    document.getElementById('sActive').textContent=active;
+    document.getElementById('sPending').textContent=pending;
+    document.getElementById('sMRR').textContent='R '+mrr.toLocaleString('en-ZA');
+    document.getElementById('sComm').textContent='R '+Math.round(comm).toLocaleString('en-ZA');
+}
+
+function renderPending(){
+    const pending=_partners.filter(p=>p.status==='pending');
+    const banner=document.getElementById('pendingBanner');
+    const list=document.getElementById('pendingList');
+    if(!pending.length){ banner.classList.remove('show'); return; }
+    banner.classList.add('show');
+    list.innerHTML=pending.map(p=>`
+        <div class="pending-item">
+            <div>
+                <div class="pi-name">${p.name}</div>
+                <div class="pi-info">${p.phone} &middot; ${p.email} &middot; ${p.bank||'No bank'} ${p.accNum||''} &middot; Applied: ${p.signupDate?new Date(p.signupDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'Manual entry'}</div>
+            </div>
+            <div class="pi-actions">
+                <button class="btn-approve" onclick="approvePartner('${p.id}')">✓ Approve &amp; Activate</button>
+                <button class="btn-decline" onclick="declinePartner('${p.id}')">✕ Decline</button>
+            </div>
+        </div>`).join('');
+}
+
+async function approvePartner(id){
+    const p=_partners.find(x=>x.id===id);
+    if(!p||!confirm('Approve and activate '+p.name+'? They will receive a WhatsApp with their referral link.')) return;
+    p.status='active';
+    p.activatedAt=new Date().toISOString();
+    p.clientsAtYearStart=0;
+    p.commissionHistory=p.commissionHistory||[];
+    p.bonusHistory=p.bonusHistory||[];
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    // Send WA to partner
+    const link=getRefLink(p);
+    const portalLink='https://dynamicfleetreports-bit.github.io/DFR/partner-portal.html?ref='+getRefCode(p);
+    const msg='🎉 Welcome to the DFR Referral Partner Programme, '+p.name+'!\n\nYour application has been approved. Here are your details:\n\n🔗 Your Referral Link:\n'+link+'\n\n📊 Your Partner Portal (bookmark this):\n'+portalLink+'\n\nShare your referral link in your marketing. Every lead that comes through it is automatically linked to you.\n\nCommission: '+( p.commRate||15)+'% of monthly retainer, paid after client's invoice is confirmed paid.\n\nWelcome aboard! 🚛\nDynamic Fleet Reporting\n083 314 9592';
+    await notifyWA(msg,p.phone);
+    toast('Partner approved and WhatsApp sent ✓','green');
+    renderAll();
+}
+
+async function declinePartner(id){
+    const p=_partners.find(x=>x.id===id);
+    if(!p||!confirm('Decline and remove this application for '+p.name+'?')) return;
+    _partners=_partners.filter(x=>x.id!==id);
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    toast('Application declined and removed');
+    renderAll();
+}
+
+function renderPartners(){
+    const active=_partners.filter(p=>p.status!=='pending');
+    const grid=document.getElementById('partnersGrid');
+    if(!active.length){ grid.innerHTML='<div class="empty-state"><div class="icon">🤝</div><p>No active or inactive partners yet.</p></div>'; return; }
+    grid.innerHTML=active.map(p=>{
+        const code=getRefCode(p);
+        const link=getRefLink(p);
+        const pc=getPartnerClients(p.id,'active');
+        const mrr=pc.reduce((s,c)=>s+getRetainer(c),0);
+        const comm=mrr*((p.commRate||15)/100);
+        const ytd=(p.commissionHistory||[]).filter(h=>new Date(h.date).getFullYear()===new Date().getFullYear()).reduce((s,h)=>s+h.amount,0);
+        const owed=(p.commissionHistory||[]).filter(h=>!h.paid).reduce((s,h)=>s+h.amount,0)+((p.bonusHistory||[]).filter(b=>!b.paid).reduce((s,b)=>s+b.amount,0));
+        const sc=p.status==='active'?'sa':p.status==='inactive'?'si2':'sp';
+        const sl=p.status==='active'?'Active':p.status==='inactive'?'Inactive':'Pending';
+        const pills=pc.length?pc.map(c=>`<span class="client-pill"><span class="dot"></span>${c.company}</span>`).join(''):'<span style="font-size:11px;color:#475569;">No active referred clients yet</span>';
+        const activateBtn=p.status==='active'
+            ?`<button class="btn-sm bsr" onclick="setStatus('${p.id}','inactive')">⏸ Deactivate</button>`
+            :`<button class="btn-sm bsgr" onclick="setStatus('${p.id}','active')">▶ Activate</button>`;
+        return `<div class="partner-card ${p.status!=='active'?'inactive':''}">
+            <div class="pc-header">
+                <div><div class="pc-name">${p.name}</div><div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm</div></div>
+                <span class="sbadge ${sc}">${sl}</span>
+            </div>
+            <div class="pc-body">
+                <div class="pc-info-row">
+                    <div class="pc-info"><strong>Phone</strong>${p.phone||'—'}</div>
+                    <div class="pc-info"><strong>Email</strong>${p.email||'—'}</div>
+                    <div class="pc-info"><strong>Bank</strong>${p.bank?p.bank+' · '+p.accNum:'—'}</div>
+                </div>
+                <div class="pc-metrics">
+                    <div class="pc-metric"><div class="pc-metric-val blue">${pc.length}</div><div class="pc-metric-label">Active Clients</div></div>
+                    <div class="pc-metric"><div class="pc-metric-val green">R ${Math.round(comm).toLocaleString('en-ZA')}</div><div class="pc-metric-label">Comm/Month</div></div>
+                    <div class="pc-metric"><div class="pc-metric-val gold">R ${owed.toLocaleString('en-ZA')}</div><div class="pc-metric-label">Outstanding</div></div>
+                </div>
+                <div class="ref-link-box">
+                    <span class="ref-link-text">${link}</span>
+                    <button class="btn-copy-link" onclick="copyLink('${link}',this)">📋 Copy</button>
+                </div>
+                <div class="client-list-title">Referred Active Clients</div>
+                <div>${pills}</div>
+            </div>
+            <div class="pc-footer">
+                <button class="btn-sm bsb"   onclick="editPartner('${p.id}')">✏️ Edit</button>
+                <button class="btn-sm bsg"   onclick="openAgreement('${p.id}')">📄 Agreement</button>
+                <button class="btn-sm bsgr"  onclick="viewStatement('${p.id}')">💰 Statement</button>
+                <button class="btn-sm bspur" onclick="window.open('partner-portal.html?ref=${code}','_blank')">👁 View Portal</button>
+                <button class="btn-sm bsgr"  onclick="resendWelcome('${p.id}')">📲 Resend Link</button>
+                ${activateBtn}
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function openAddModal(){
+    _editId=null;
+    document.getElementById('modalTitle').textContent='Add Referral Partner';
+    ['pName','pPhone','pEmail','pID','pBank','pAccNum','pBranch','pAddress','pNotes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pCommRate').value='15';
+    document.getElementById('pAccType').value='Cheque';
+    document.getElementById('pStatus').value='pending';
+    document.getElementById('partnerModal').classList.add('open');
+}
+
+function editPartner(id){
+    const p=_partners.find(x=>x.id===id); if(!p) return;
+    _editId=id;
+    document.getElementById('modalTitle').textContent='Edit Partner';
+    document.getElementById('pName').value=p.name||'';
+    document.getElementById('pPhone').value=p.phone||'';
+    document.getElementById('pEmail').value=p.email||'';
+    document.getElementById('pID').value=p.idNumber||'';
+    document.getElementById('pBank').value=p.bank||'';
+    document.getElementById('pAccNum').value=p.accNum||'';
+    document.getElementById('pBranch').value=p.branch||'';
+    document.getElementById('pAddress').value=p.address||'';
+    document.getElementById('pNotes').value=p.notes||'';
+    document.getElementById('pCommRate').value=p.commRate||15;
+    document.getElementById('pAccType').value=p.accType||'Cheque';
+    document.getElementById('pStatus').value=p.status||'pending';
+    document.getElementById('partnerModal').classList.add('open');
+}
+
+async function savePartner(){
+    const name=document.getElementById('pName').value.trim();
+    const phone=document.getElementById('pPhone').value.trim();
+    const email=document.getElementById('pEmail').value.trim();
+    if(!name||!phone||!email){ toast('Name, phone and email required','red'); return; }
+    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim()};
+    if(_editId){
+        const idx=_partners.findIndex(p=>p.id===_editId);
+        if(idx>-1) _partners[idx]=Object.assign({},_partners[idx],data);
+    }else{
+        data.id='partner_'+Date.now();
+        data.createdAt=new Date().toISOString();
+        data.commissionHistory=[];
+        data.bonusHistory=[];
+        data.clientsAtYearStart=0;
+        _partners.push(data);
+    }
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    closeModal('partnerModal');
+    renderAll();
+    toast('Partner saved ✓','green');
+}
+
+async function setStatus(id,status){
+    const p=_partners.find(x=>x.id===id); if(!p) return;
+    p.status=status;
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    renderAll();
+    toast('Status updated ✓');
+}
+
+async function resendWelcome(id){
+    const p=_partners.find(x=>x.id===id); if(!p) return;
+    const link=getRefLink(p);
+    const portalLink='https://dynamicfleetreports-bit.github.io/DFR/partner-portal.html?ref='+getRefCode(p);
+    const msg='Hi '+p.name+', here are your DFR Referral Partner details:\n\n🔗 Referral Link:\n'+link+'\n\n📊 Partner Portal:\n'+portalLink+'\n\nDynamic Fleet Reporting · 083 314 9592';
+    await notifyWA(msg,p.phone);
+    toast('WhatsApp sent to '+p.name+' ✓','green');
+}
+
+function openAgreement(id){ window.open('partner-agreement.html?pid='+encodeURIComponent(id),'_blank'); }
+function viewStatement(id){ window.location.href='partner-commission.html?pid='+encodeURIComponent(id); }
+function copyLink(link,btn){ navigator.clipboard.writeText(link).then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; setTimeout(()=>btn.textContent=o,2000); }); }
+
+function initPickers(){
+    const now=new Date();
+    const ms=document.getElementById('commMonth');
+    const ys=document.getElementById('commYear');
+    const by=document.getElementById('bonusYear');
+    if(ms.options.length>0) return; // already init
+    MONTHS.forEach((m,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=m; if(i===now.getMonth()) o.selected=true; ms.appendChild(o); });
+    for(let y=now.getFullYear();y>=now.getFullYear()-3;y--){
+        const o1=document.createElement('option'); o1.value=y; o1.textContent=y; if(y===now.getFullYear()) o1.selected=true; ys.appendChild(o1);
+        const o2=document.createElement('option'); o2.value=y; o2.textContent=y; if(y===now.getFullYear()) o2.selected=true; by.appendChild(o2);
+    }
+}
+
+function openCommModal(){ initPickers(); document.getElementById('commModal').classList.add('open'); document.getElementById('commPreview').innerHTML=''; document.getElementById('confirmCommBtn').style.display='none'; }
+function openBonusModal(){ initPickers(); document.getElementById('bonusModal').classList.add('open'); document.getElementById('bonusPreview').innerHTML=''; document.getElementById('confirmBonusBtn').style.display='none'; }
+
+function previewComm(){
+    const month=parseInt(document.getElementById('commMonth').value);
+    const year=parseInt(document.getElementById('commYear').value);
+    _pendingComm=[];
+    const active=_partners.filter(p=>p.status==='active');
+    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Paid Clients</th><th>MRR</th><th>Commission</th></tr></thead><tbody>';
+    let grand=0;
+    active.forEach(p=>{
+        const pc=getPartnerClients(p.id,'active');
+        const paid=pc.filter(c=>(c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
+        const mrr=paid.reduce((s,c)=>s+getRetainer(c),0);
+        const comm=Math.round(mrr*((p.commRate||15)/100));
+        grand+=comm;
+        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:paid.length,mrr,comm,month,year});
+        html+=`<tr><td>${p.name}</td><td style="color:#60a5fa;">${paid.length}</td><td style="color:#10b981;">R ${mrr.toLocaleString('en-ZA')}</td><td style="color:#f59e0b;font-weight:800;">R ${comm.toLocaleString('en-ZA')}</td></tr>`;
+    });
+    html+=`<tr><td colspan="3" style="font-weight:900;padding-top:8px;">Total Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
+    html+='</tbody></table>';
+    document.getElementById('commPreview').innerHTML=html;
+    document.getElementById('confirmCommBtn').style.display='inline-block';
+}
+
+async function confirmComm(){
+    for(const c of _pendingComm){
+        const p=_partners.find(x=>x.id===c.partnerId); if(!p) continue;
+        if(!p.commissionHistory) p.commissionHistory=[];
+        p.commissionHistory.push({date:new Date().toISOString(),month:c.month,year:c.year,clients:c.clients,mrr:c.mrr,amount:c.comm,paid:false});
+        // Notify partner
+        if(c.comm>0){
+            const msg='💰 Commission Statement — '+MONTHS[c.month]+' '+c.year+'\n\nHi '+p.name+',\n\nYour commission for ${MONTHS[c.month]} ${c.year} has been calculated:\n\nClients: '+c.clients+'\nMRR Generated: R '+c.mrr.toLocaleString('en-ZA')+'\nYour Commission ('+( p.commRate||15)+'%): R '+c.comm.toLocaleString('en-ZA')+'\n\nThis will be paid to your '+( p.bank||'nominated')+' account within 7 business days.\n\nThank you!\nDynamic Fleet Reporting';
+            await notifyWA(msg,p.phone);
+        }
+    }
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    closeModal('commModal');
+    renderAll();
+    toast('Commissions recorded and partners notified ✓','green');
+}
+
+function previewBonus(){
+    const year=parseInt(document.getElementById('bonusYear').value);
+    _pendingBonus=[];
+    const active=_partners.filter(p=>p.status==='active');
+    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Start</th><th>Now</th><th>Growth</th><th>Bonus</th></tr></thead><tbody>';
+    let grand=0;
+    active.forEach(p=>{
+        const cur=getPartnerClients(p.id,'active').length;
+        const start=p.clientsAtYearStart||0;
+        const growth=start>0?Math.round(((cur-start)/start)*100):0;
+        const monthly=getPartnerClients(p.id,'active').reduce((s,c)=>s+getRetainer(c)*((p.commRate||15)/100),0);
+        let bm=0,bl='No Bonus';
+        if(growth>=21){bm=3;bl='3 months (21%+)';}
+        else if(growth>=11){bm=2;bl='2 months (11-20%)';}
+        else if(growth>=1){bm=1;bl='1 month (1-10%)';}
+        const bonus=Math.round(monthly*bm);
+        grand+=bonus;
+        _pendingBonus.push({partnerId:p.id,partnerName:p.name,start,cur,growth,bonusMonths:bm,bonus,year});
+        const gc=growth>=21?'#10b981':growth>=11?'#60a5fa':growth>=1?'#f59e0b':'#ef4444';
+        html+=`<tr><td>${p.name}<br><span style="font-size:10px;color:#64748b;">${bl}</span></td><td style="color:#94a3b8;">${start}</td><td style="color:#94a3b8;">${cur}</td><td style="font-weight:800;color:${gc};">${growth}%</td><td style="color:#f59e0b;font-weight:800;">R ${bonus.toLocaleString('en-ZA')}</td></tr>`;
+    });
+    html+=`<tr><td colspan="4" style="font-weight:900;padding-top:8px;">Total Bonus Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
+    html+='</tbody></table>';
+    document.getElementById('bonusPreview').innerHTML=html;
+    document.getElementById('confirmBonusBtn').style.display='inline-block';
+}
+
+async function confirmBonus(){
+    for(const b of _pendingBonus){
+        const p=_partners.find(x=>x.id===b.partnerId); if(!p) continue;
+        if(!p.bonusHistory) p.bonusHistory=[];
+        p.bonusHistory.push({date:new Date().toISOString(),year:b.year,startClients:b.start,endClients:b.cur,growth:b.growth,bonusMonths:b.bonusMonths,amount:b.bonus,paid:false});
+        p.clientsAtYearStart=b.cur;
+        if(b.bonus>0){
+            const msg='🏆 Annual Bonus — '+b.year+'\n\nHi '+p.name+',\n\nCongratulations! Your year-end portfolio growth bonus has been calculated:\n\nPortfolio Growth: '+b.growth+'% ('+b.start+' → '+b.cur+' clients)\nBonus: '+b.bonusMonths+' month'+( b.bonusMonths>1?'s':'')+' commission\nBonus Amount: R '+b.bonus.toLocaleString('en-ZA')+'\n\nThis will be paid to your '+( p.bank||'nominated')+' account.\n\nThank you for growing with DFR!\nDynamic Fleet Reporting';
+            await notifyWA(msg,p.phone);
+        }
+    }
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    closeModal('bonusModal');
+    renderAll();
+    toast('Bonuses recorded and partners notified ✓','green');
+}
+
+async function notifyWA(msg,toPhone){
+    // Send to partner's number via CallMeBot if different from DFR number
+    // For now sends to DFR owner as well as partner (if CallMeBot set up for partner)
+    return new Promise(res=>{
+        const cb='_cb'+Date.now();
+        window[cb]=()=>{ delete window[cb]; res(); };
+        const s=document.createElement('script');
+        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
+        s.onerror=()=>res();
+        document.body.appendChild(s);
+        setTimeout(res,5000);
+    });
+}
+
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function toast(msg,color='green'){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.4)';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
