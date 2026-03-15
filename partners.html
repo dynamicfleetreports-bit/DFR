@@ -1572,26 +1572,27 @@ async function deleteScript(idx) {
         }).join('');
     }
 
-    async function approveScript(idx) {
-        var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
-        if (!all[idx]) return;
-        all[idx].approved = true;
-        all[idx].rejected = false;
-        await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(all));
-        renderCommunityScriptsMgmt(all);
-        toast('Script approved — now live in all partner hubs \u2713', 'green');
-    }
+   /* FIXED: Added 'async' to these functions so 'await' works */
+async function approveScript(idx) {
+    var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
+    if (!all[idx]) return;
+    all[idx].approved = true;
+    all[idx].rejected = false;
+    await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(all));
+    renderCommunityScriptsMgmt(all);
+    toast('Script approved — now live in all partner hubs \u2713', 'green');
+}
 
-    async function rejectScript(idx) {
-        var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
-        if (!all[idx]) return;
-        all[idx].rejected = true;
-        all[idx].approved = false;
-        await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(all));
-        renderCommunityScriptsMgmt(all);
-        toast('Script rejected');
-    }
-
+async function rejectScript(idx) {
+    if (!confirm('Reject this script? It will be hidden from partners.')) return;
+    var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
+    if (!all[idx]) return;
+    all[idx].approved = false;
+    all[idx].rejected = true;
+    await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(all));
+    renderCommunityScriptsMgmt(all);
+    toast('Script rejected');
+}
     async function deleteScript(idx) {
         if (!confirm('Permanently delete this script?')) return;
         var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
@@ -1606,23 +1607,26 @@ async function deleteScript(idx) {
     }
 
 
-    function copySignupLink() {
-        var link = 'https://dynamicfleetreports-bit.github.io/DFR/partner-signup.html';
-        var waText = 'Hi! I wanted to share this with you \u2014 join the DFR Referral Partner Programme and earn 15% commission on every fleet client you refer.\n\nSign up here (takes 2 minutes):\n' + link + '\n\nFeel free to call me if you have questions.';
-        navigator.clipboard.writeText(waText).then(function() {
-            var btn = document.getElementById('copySignupBtn');
-            var orig = btn.textContent;
-            btn.textContent = '\u2705 Copied! Paste into WhatsApp';
-            btn.style.borderColor = 'rgba(16,185,129,0.4)';
-            btn.style.color = 'var(--grn)';
-            setTimeout(function() {
-                btn.textContent = orig;
-                btn.style.borderColor = '';
-                btn.style.color = '';
-            }, 3000);
-        });
-    }
-
+   function copySignupLink() {
+    var link = 'https://dynamicfleetreports-bit.github.io/DFR/partner-signup.html';
+    var waText = 'Hi! I wanted to share this with you \u2014 join the DFR Referral Partner Programme and earn 15% commission on every fleet client you refer.\n\nSign up here (takes 2 minutes):\n' + link + '\n\nFeel free to call me if you have questions.';
+    
+    navigator.clipboard.writeText(waText).then(function() {
+        var btn = document.getElementById('copySignupBtn');
+        var orig = btn.textContent;
+        btn.textContent = '\u2705 Copied! Paste into WhatsApp';
+        btn.style.borderColor = 'rgba(16,185,129,0.4)';
+        btn.style.color = 'var(--grn)';
+        
+        setTimeout(function() {
+            btn.textContent = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 3000);
+        
+        toast('Link copied to clipboard');
+    });
+}
 </script>
 </body>
 </html>
