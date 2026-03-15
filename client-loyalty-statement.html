@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loyalty Statement | DFR</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root{--grn:#10b981;--gld:#f59e0b;--pur:#7c3aed;--ink:#0f172a;--slate:#475569;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:#020617;color:#e2e8f0;min-height:100vh;}
+        .topbar{background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.07);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .tb-btn{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#e2e8f0;padding:7px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-right:0.5rem;}
+        .tb-btn:hover{background:rgba(255,255,255,0.1);}
+        .tb-btn.grn{background:var(--grn);color:#020617;border-color:var(--grn);}
+        .doc-wrap{max-width:794px;margin:2rem auto;background:white;color:var(--ink);box-shadow:0 25px 60px rgba(0,0,0,0.4);border-radius:4px;overflow:hidden;}
+        .doc-header{background:var(--ink);padding:30px 48px;display:flex;justify-content:space-between;align-items:flex-start;}
+        .dh-brand{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--grn);}
+        .dh-sub{font-family:'Outfit',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.3);display:block;margin-top:2px;}
+        .dh-right{text-align:right;}
+        .dh-type{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gld);}
+        .dh-ref{font-size:10px;color:rgba(255,255,255,0.25);margin-top:3px;font-family:'Courier New',monospace;}
+        .doc-body{padding:32px 48px;}
+        .pi-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #e2e8f0;}
+        .pil{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--slate);margin-bottom:3px;}
+        .piv{font-size:13px;font-weight:700;color:var(--ink);}
+        .pis{font-size:11px;color:var(--slate);}
+        .sum-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:22px;}
+        .sum-card{border-radius:8px;padding:12px 14px;text-align:center;}
+        .sum-card.grn{background:#f0fdf4;border:1px solid #bbf7d0;}
+        .sum-card.gld{background:#fffbeb;border:1px solid #fde68a;}
+        .sum-card.pur{background:#f5f3ff;border:1px solid #ddd6fe;}
+        .sum-card.blu{background:#eff6ff;border:1px solid #bfdbfe;}
+        .sum-val{font-size:1.4rem;font-weight:900;}
+        .sum-card.grn .sum-val{color:#059669;}
+        .sum-card.gld .sum-val{color:#d97706;}
+        .sum-card.pur .sum-val{color:#6d28d9;}
+        .sum-card.blu .sum-val{color:#1d4ed8;}
+        .sum-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.2em;color:var(--slate);margin-top:3px;}
+        .sec-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid #e2e8f0;}
+        table.stmt{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:12px;}
+        table.stmt th{background:#f1f5f9;color:var(--slate);font-weight:900;text-transform:uppercase;font-size:9px;letter-spacing:0.1em;padding:7px 11px;text-align:left;border-bottom:2px solid #e2e8f0;}
+        table.stmt td{padding:7px 11px;border-bottom:1px solid #f1f5f9;color:#334155;}
+        .badge-grn{background:#dcfce7;color:#166534;font-size:9px;font-weight:900;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
+        .badge-gld{background:#fef3c7;color:#92400e;font-size:9px;font-weight:900;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
+        .badge-pur{background:#ede9fe;color:#4c1d95;font-size:9px;font-weight:900;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
+        .prog-bar{background:#f1f5f9;border-radius:20px;height:10px;overflow:hidden;margin:8px 0;}
+        .prog-fill{height:100%;background:var(--gld);border-radius:20px;}
+        .bank-box{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:10px;padding:14px 18px;margin-bottom:18px;}
+        .bb-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#6d28d9;margin-bottom:8px;}
+        .bb-body{font-size:12.5px;color:#4c1d95;line-height:1.7;}
+        .doc-footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:11px 48px;display:flex;justify-content:space-between;font-size:10px;color:var(--slate);}
+        @media print{body{background:white;}.topbar{display:none;}.doc-wrap{box-shadow:none;margin:0;}}
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div>
+        <button class="tb-btn" onclick="window.location.href='loyalty-club.html'">&#8592; Back</button>
+        <button class="tb-btn grn" onclick="window.print()">&#128424; Print / PDF</button>
+        <button class="tb-btn" onclick="emailStatement()">&#128231; Email to Client</button>
+    </div>
+    <span style="font-size:11px;color:#64748b;" id="tbInfo">Loading...</span>
+</div>
+
+<div class="doc-wrap">
+    <div class="doc-header">
+        <div><div class="dh-brand">Dynamic Fleet Reporting<span class="dh-sub">DFR Loyalty Club Statement</span></div></div>
+        <div class="dh-right"><div class="dh-type">Loyalty Statement</div><div class="dh-ref" id="stmtRef">LYST-LOADING</div><div class="dh-ref" id="stmtDate" style="margin-top:1px;">&#8212;</div></div>
+    </div>
+    <div class="doc-body">
+        <div class="pi-grid">
+            <div><div class="pil">Member</div><div class="piv" id="piName">&#8212;</div><div class="pis" id="piContact">&#8212;</div></div>
+            <div><div class="pil">Membership Since</div><div class="piv" id="piSince">&#8212;</div><div class="pis" id="piFleet">&#8212;</div></div>
+        </div>
+        <div class="sum-row">
+            <div class="sum-card grn"><div class="sum-val" id="sumRefs">0</div><div class="sum-lbl">Referrals YTD</div></div>
+            <div class="sum-card gld"><div class="sum-val" id="sumCredits">R 0</div><div class="sum-lbl">Credits Earned</div></div>
+            <div class="sum-card pur"><div class="sum-val" id="sumBanked">0</div><div class="sum-lbl">Free Months Banked</div></div>
+            <div class="sum-card blu"><div class="sum-val" id="sumUsed">0</div><div class="sum-lbl">Free Months Used</div></div>
+        </div>
+
+        <div class="sec-title">Annual Referral Counter Progress</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--slate);margin-bottom:4px;">
+            <span id="counterLabel">0 referrals this year</span>
+            <span id="nextLabel">10 more to earn next free month</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--slate);margin-top:4px;">Counter resets January 1st each year. Every 10 referrals = 1 free month added to your bank.</div>
+
+        <div id="bankBox" class="bank-box" style="display:none;">
+            <div class="bb-title">&#127942; Your Free Month Bank</div>
+            <div class="bb-body" id="bankBody">&#8212;</div>
+        </div>
+
+        <div class="sec-title">Referral History</div>
+        <table class="stmt">
+            <thead><tr><th>Month</th><th>Referrals</th><th>Credit Earned</th><th>50% Discount</th><th>Free Month Earned</th></tr></thead>
+            <tbody id="histBody"><tr><td colspan="5" style="color:#94a3b8;text-align:center;padding:16px;">No referral activity yet.</td></tr></tbody>
+        </table>
+
+        <div class="sec-title">Free Months Applied</div>
+        <table class="stmt" id="freeTable">
+            <thead><tr><th>Month Waived</th><th>Applied On</th><th>Status</th></tr></thead>
+            <tbody id="freeBody"><tr><td colspan="3" style="color:#94a3b8;text-align:center;padding:14px;">No free months used yet.</td></tr></tbody>
+        </table>
+    </div>
+    <div class="doc-footer">
+        <span>Dynamic Fleet Reporting &middot; 083 314 9592 &middot; dynamicfleetreports@gmail.com</span>
+        <span id="footRef">LYST-LOADING</span>
+    </div>
+</div>
+
+<script>
+var _client=null;
+function waitFor(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);});}
+waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async function(){
+    var id=new URLSearchParams(window.location.search).get('id');
+    if(!id) return;
+    var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    _client=clients.find(function(c){return c.id==id;});
+    if(_client) renderStatement();
+});
+function getTierRate(f){return f<=15?200:f<=30?175:150;}
+function getRetainer(c){var f=c.fleet?c.fleet.length:(c.fleetSize||0);return 1500+(f*getTierRate(f));}
+function renderStatement(){
+    var c=_client;
+    var now=new Date();
+    var ref='LYST-'+String(c.id).slice(-6).toUpperCase()+'-'+now.getFullYear();
+    document.getElementById('stmtRef').textContent=ref;
+    document.getElementById('footRef').textContent=ref;
+    document.getElementById('stmtDate').textContent='Generated: '+now.toLocaleDateString('en-ZA',{day:'2-digit',month:'long',year:'numeric'}).toUpperCase();
+    document.getElementById('tbInfo').textContent=c.company+' &#8212; Loyalty Statement';
+    document.getElementById('piName').textContent=c.company;
+    document.getElementById('piContact').textContent=(c.contactName||'&#8212;')+' &middot; '+(c.contactTel||'');
+    document.getElementById('piSince').textContent=c.activationDate?new Date(c.activationDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'long',year:'numeric'}):'&#8212;';
+    var f=c.fleet?c.fleet.length:(c.fleetSize||0);
+    document.getElementById('piFleet').textContent=f+' vehicles &middot; R'+getRetainer(c).toLocaleString('en-ZA')+'/month';
+    var counter=c.loyaltyAnnualCounter||0;
+    var banked=c.loyaltyFreeMonthsBank||0;
+    var freeUsed=(c.loyaltyFreeMonthsUsed||[]).length;
+    var history=c.loyaltyHistory||[];
+    var totalCredits=history.reduce(function(s,h){return s+(h.credit||0);},0);
+    document.getElementById('sumRefs').textContent=counter;
+    document.getElementById('sumCredits').textContent='R '+totalCredits.toLocaleString('en-ZA');
+    document.getElementById('sumBanked').textContent=banked;
+    document.getElementById('sumUsed').textContent=freeUsed;
+    // Progress bar
+    var pct=Math.round((counter%10)/10*100);
+    if(counter>0&&counter%10===0) pct=100;
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('counterLabel').textContent=counter+' referral'+(counter!==1?'s':'')+' this year';
+    var nextMilestone=10-(counter%10);
+    if(counter>0&&counter%10===0) nextMilestone=0;
+    document.getElementById('nextLabel').textContent=nextMilestone>0?nextMilestone+' more to earn next free month':'&#127942; Milestone reached!';
+    // Bank box
+    if(banked>0){
+        document.getElementById('bankBox').style.display='block';
+        document.getElementById('bankBody').innerHTML='You have <strong>'+banked+' free month'+(banked>1?'s':'')+' banked</strong>. These never expire. Use them any time &#8212; save for December or apply whenever suits you best. Contact DFR to apply a banked month to any upcoming invoice.';
+    }
+    // History table
+    if(history.length){
+        document.getElementById('histBody').innerHTML=history.map(function(h){
+            return '<tr><td>'+h.month+'</td><td>'+h.refs+'</td><td style="color:#059669;font-weight:800;">'+(h.credit>0?'R '+h.credit.toLocaleString('en-ZA'):'&#8212;')+'</td><td>'+(h.disc50?'<span class="badge-gld">Yes &#8212; 50% off</span>':'&#8212;')+'</td><td>'+(h.freeMon?'<span class="badge-pur">&#127942; Yes</span>':'&#8212;')+'</td></tr>';
+        }).join('');
+    }
+    // Free months used
+    var used=c.loyaltyFreeMonthsUsed||[];
+    if(used.length){
+        document.getElementById('freeBody').innerHTML=used.map(function(u){
+            return '<tr><td>'+u.month+'</td><td>'+new Date(u.date).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'})+'</td><td><span class="badge-grn">Applied</span></td></tr>';
+        }).join('');
+    }
+}
+function emailStatement(){
+    if(!_client) return;
+    var sub=encodeURIComponent('Your DFR Loyalty Club Statement');
+    var bod=encodeURIComponent('Hi '+(_client.contactName||'')+',
+
+Please find your DFR Loyalty Club statement attached. It shows your referral history, credits earned, and free months banked.
+
+Thank you for being a valued DFR Loyalty Club member!
+
+Dynamic Fleet Reporting
+083 314 9592');
+    window.location.href='mailto:'+(_client.email||'')+'?subject='+sub+'&body='+bod;
+}
+</script>
+</body>
+</html>

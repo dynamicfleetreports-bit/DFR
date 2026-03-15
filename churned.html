@@ -28,6 +28,8 @@
             <a href="database.html" class="nav-item">Active Database</a>
             <a href="audit.html" class="nav-item">Forensic Audit</a>
             <a href="churned.html" class="nav-item active">Churned Clients</a>
+        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
         </nav>
     </aside>
 
@@ -119,7 +121,6 @@
             // Update sheet col J back to Prospect
             try {
                 await sheetRequest('update', companyName, 'Prospect');
-                console.log('Sheet marked Prospect:', companyName);
             } catch (err) {
                 console.warn('Could not update sheet:', err);
             }

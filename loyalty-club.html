@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loyalty Club | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;}
+        #sidebar{width:260px;background:var(--panel);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+        .logo-area{padding:0 1rem 2.5rem;}
+        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;}
+        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
+        .nav-item.active{background:rgba(245,158,11,0.1);color:var(--gld);}
+        .main{flex:1;padding:3rem;overflow-y:auto;}
+        .eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.4em;color:var(--gld);margin-bottom:0.75rem;}
+        .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
+        .page-title span{color:var(--gld);}
+        .page-sub{font-size:13px;color:var(--mut);margin-top:0.5rem;font-weight:600;}
+        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin:2rem 0;}
+        .sc{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:1.25rem;}
+        .sc-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.4rem;}
+        .sc-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
+        .sc-val.grn{color:var(--grn);}.sc-val.gld{color:var(--gld);}.sc-val.blu{color:var(--blu);}.sc-val.pur{color:var(--pur);}
+        .sc-sub{font-size:11px;color:var(--mut);margin-top:2px;}
+        .toolbar{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+        .btn{padding:9px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .btn-gld{background:rgba(245,158,11,0.15);color:var(--gld);border:1px solid rgba(245,158,11,0.3);}.btn-gld:hover{background:rgba(245,158,11,0.25);}
+        .btn-grn{background:var(--grn);color:#020617;}.btn-grn:hover{background:var(--gd);}
+        .btn-out{background:transparent;border:1px solid var(--brd);color:#94a3b8;}.btn-out:hover{border-color:rgba(255,255,255,0.2);color:white;}
+        .clients-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(460px,1fr));gap:1.5rem;}
+        .lc-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:16px;overflow:hidden;transition:border-color 0.2s;}
+        .lc-card:hover{border-color:rgba(245,158,11,0.25);}
+        .lc-card.has-banked{border-color:rgba(245,158,11,0.4);}
+        .lc-header{padding:1.1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);}
+        .lc-company{font-size:1rem;font-weight:900;color:white;}
+        .lc-sub{font-size:11px;color:var(--mut);margin-top:1px;}
+        .lc-body{padding:1.25rem 1.5rem;}
+        .counter-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+        .counter-num{font-size:2.5rem;font-weight:900;color:var(--gld);line-height:1;}
+        .counter-info{flex:1;}
+        .counter-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:3px;}
+        .counter-next{font-size:12px;color:#94a3b8;}
+        .bar-track{background:rgba(255,255,255,0.06);border-radius:20px;height:8px;overflow:hidden;margin-bottom:1rem;}
+        .bar-fill{height:100%;background:var(--gld);border-radius:20px;transition:width 0.4s;}
+        .lc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+        .lc-metric{background:rgba(255,255,255,0.03);border-radius:8px;padding:0.75rem;text-align:center;}
+        .lc-metric-val{font-size:1.2rem;font-weight:900;color:white;}
+        .lc-metric-val.grn{color:var(--grn);}.lc-metric-val.gld{color:var(--gld);}.lc-metric-val.pur{color:var(--pur);}
+        .lc-metric-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--mut);margin-top:2px;}
+        .rh-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.5rem;}
+        .rh-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd);font-size:12px;}
+        .rh-item:last-child{border-bottom:none;}
+        .rh-month{color:var(--mut);}.rh-refs{color:#94a3b8;}.rh-credit{color:var(--grn);font-weight:800;}
+        .lc-footer{padding:0.85rem 1.5rem;border-top:1px solid var(--brd);display:flex;gap:0.5rem;flex-wrap:wrap;}
+        .btn-sm{padding:6px 13px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .bspur{background:rgba(139,92,246,0.15);color:#c4b5fd;}.bspur:hover{background:rgba(139,92,246,0.25);}
+        .bsgld{background:rgba(245,158,11,0.15);color:var(--gld);}.bsgld:hover{background:rgba(245,158,11,0.25);}
+        .bsgrn{background:rgba(16,185,129,0.15);color:var(--grn);}.bsgrn:hover{background:rgba(16,185,129,0.25);}
+        .bsblu{background:rgba(59,130,246,0.15);color:#60a5fa;}.bsblu:hover{background:rgba(59,130,246,0.25);}
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;}
+        .badge-gld{background:rgba(245,158,11,0.15);color:var(--gld);}
+        .badge-pur{background:rgba(139,92,246,0.15);color:#c4b5fd;}
+        .badge-grn{background:rgba(16,185,129,0.15);color:var(--grn);}
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+        .modal-overlay.open{display:flex;}
+        .modal{background:#0f172a;border:1px solid var(--brd);border-radius:20px;padding:2rem;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+        .modal-title{font-size:1.2rem;font-weight:900;color:white;margin-bottom:1rem;}
+        .modal-body{font-size:13px;color:#94a3b8;line-height:1.7;}
+        .modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;}
+        .form-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.85rem;}
+        .form-group label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);}
+        .form-group select,.form-group input{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:0.6rem 0.85rem;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;outline:none;}
+        .form-group select:focus,.form-group input:focus{border-color:var(--gld);}
+        .alert-banner{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:none;}
+        .alert-banner.show{display:block;}
+        .ab-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--gld);margin-bottom:0.75rem;}
+        .ab-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border-radius:8px;padding:0.7rem 1rem;margin-bottom:0.5rem;}
+        .ab-info{font-size:12.5px;color:#fde68a;}.ab-info strong{color:white;}
+        .tiers-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;}
+        .tier-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:1.1rem;}
+        .tc-refs{font-size:1.4rem;font-weight:900;color:var(--gld);}
+        .tc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:4px;}
+        .tc-reward{font-size:12.5px;color:#cbd5e1;margin-top:4px;}
+        .tc-eg{font-size:11px;color:var(--mut);margin-top:3px;}
+        .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
+        .toast.show{transform:translateY(0);opacity:1;}
+    </style>
+</head>
+<body>
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
+    <nav>
+        <a href="index.html"        class="nav-item">Dashboard</a>
+        <a href="pipeline.html"     class="nav-item">Prospect Pipeline</a>
+        <a href="database.html"     class="nav-item">Active Database</a>
+        <a href="audit.html"        class="nav-item">Forensic Audit</a>
+        <a href="churned.html"      class="nav-item">Churned Clients</a>
+        <a href="invoice.html"      class="nav-item">Invoices</a>
+        <a href="partners.html"     class="nav-item">&#129309; Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item active">&#127942; Loyalty Club</a>
+        <a href="settings.html"     class="nav-item">&#9881; Settings</a>
+        <a href="marketing.html"    class="nav-item">&#128227; Marketing</a>
+    </nav>
+</aside>
+<main class="main">
+    <div class="eyebrow">Client Retention Programme</div>
+    <h1 class="page-title">DFR Loyalty <span>Club</span></h1>
+    <p class="page-sub">Reward clients who refer new business. Every referral earns credits, discounts, and free months &#8212; automatically.</p>
+    <div class="stats-row">
+        <div class="sc"><div class="sc-label">Active Members</div><div class="sc-val grn" id="sMembers">0</div><div class="sc-sub">Enrolled clients</div></div>
+        <div class="sc"><div class="sc-label">Total Referrals YTD</div><div class="sc-val gld" id="sRefs">0</div><div class="sc-sub">Activated this year</div></div>
+        <div class="sc"><div class="sc-label">Credits Pending</div><div class="sc-val grn" id="sCredits">R 0</div><div class="sc-sub">On next invoices</div></div>
+        <div class="sc"><div class="sc-label">Free Months Banked</div><div class="sc-val pur" id="sBanked">0</div><div class="sc-sub">Across all clients</div></div>
+        <div class="sc"><div class="sc-label">Revenue via Referrals</div><div class="sc-val blu" id="sRevenue">R 0</div><div class="sc-sub">MRR from referred clients</div></div>
+    </div>
+    <div class="alert-banner" id="alertBanner">
+        <div class="ab-title">&#9201; Pending Loyalty Actions &#8212; Apply on Next Invoice</div>
+        <div id="alertList"></div>
+    </div>
+    <div class="toolbar">
+        <button class="btn btn-gld" onclick="openRecordModal()">&#10133; Record Monthly Referrals</button>
+        <button class="btn btn-out" onclick="openTiersModal()">&#128203; View Reward Tiers</button>
+        <button class="btn btn-out" onclick="window.open('loyalty-tiers.html','_blank')">&#128424; Print Programme Card</button>
+    </div>
+    <div class="clients-grid" id="clientsGrid"><div style="text-align:center;padding:3rem;color:var(--mut);">Loading...</div></div>
+</main>
+
+<!-- Record Modal -->
+<div class="modal-overlay" id="recordModal">
+  <div class="modal">
+    <div class="modal-title">&#10133; Record Monthly Referrals</div>
+    <div class="modal-body">
+        <p style="margin-bottom:1rem;">Select the referring client and how many new clients were <strong style="color:white;">activated</strong> from their referrals this month. Only activated clients count.</p>
+        <div class="form-group"><label>Referring Client *</label><select id="refClient"><option value="">&#8212; Select client &#8212;</option></select></div>
+        <div class="form-group"><label>Referral Month</label><select id="refMonth"></select></div>
+        <div class="form-group"><label>Activated Referrals This Month *</label><input type="number" id="refCount" min="1" max="20" value="1" oninput="clearPreview()"></div>
+        <div class="form-group"><label>Referred Client Names (comma separated)</label><input type="text" id="refNames" placeholder="e.g. ACME Transport, Speedy Logistics"></div>
+        <div id="creditPreview" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:0.85rem;margin-top:0.75rem;display:none;">
+            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--grn);margin-bottom:6px;">Reward Preview</div>
+            <div id="creditPreviewText" style="font-size:13px;color:#a7f3d0;line-height:1.7;"></div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-out" onclick="closeModal('recordModal')">Cancel</button>
+        <button class="btn btn-gld" onclick="previewCredit()">&#128065; Preview Reward</button>
+        <button class="btn btn-grn" id="confirmRecordBtn" onclick="confirmRecord()" style="display:none;">&#10003; Confirm &amp; Notify Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- Free Month Modal -->
+<div class="modal-overlay" id="freeMonthModal">
+  <div class="modal">
+    <div class="modal-title">&#127881; Apply Free Month</div>
+    <div class="modal-body">
+        <p style="margin-bottom:1rem;" id="freeMonthInfo">Select which month to waive for this client.</p>
+        <div class="form-group"><label>Apply free month to</label><select id="freeMonthTarget"></select></div>
+        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:8px;padding:0.85rem;margin-top:0.75rem;">
+            <div style="font-size:12px;color:#c4b5fd;line-height:1.7;">That month's retainer will be waived on the invoice. The client will receive a WhatsApp notification. One free month per invoice cycle maximum. Free months never expire.</div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-out" onclick="closeModal('freeMonthModal')">Cancel</button>
+        <button class="btn" style="background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);" onclick="confirmFreeMonth()">&#10003; Apply Free Month</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tiers Modal -->
+<div class="modal-overlay" id="tiersModal">
+  <div class="modal">
+    <div class="modal-title">&#128203; DFR Loyalty Club &#8212; Reward Tiers</div>
+    <div class="modal-body">
+        <p style="margin-bottom:1.25rem;">Clients earn rewards every month they refer new clients who <strong style="color:white;">activate</strong>. Credit is based on the referred client's fleet size.</p>
+        <div class="tiers-grid">
+            <div class="tier-card"><div class="tc-label">Referrals that month</div><div class="tc-refs">1</div><div class="tc-reward">10% of new client's first month retainer as credit</div><div class="tc-eg">e.g. 20-vehicle client = R500 credit</div></div>
+            <div class="tier-card"><div class="tc-label">Referrals that month</div><div class="tc-refs">2</div><div class="tc-reward">15% of each (1.5&#215; multiplier) as credit</div><div class="tc-eg">e.g. 2 &#215; 20-vehicle = R1,500 credit</div></div>
+            <div class="tier-card" style="border-color:rgba(245,158,11,0.35)"><div class="tc-label">Referrals that month</div><div class="tc-refs" style="color:var(--gld)">3&#8211;4</div><div class="tc-reward">20% credit (2&#215;) <strong style="color:var(--gld)">+ 50% off next invoice</strong></div><div class="tc-eg">e.g. 3 &#215; 20-vehicle = R3,000 + 50% off</div></div>
+            <div class="tier-card" style="border-color:rgba(139,92,246,0.35)"><div class="tc-label">Referrals that month</div><div class="tc-refs" style="color:#c4b5fd">5+</div><div class="tc-reward">30% credit (3&#215;) <strong style="color:#c4b5fd">+ 50% off next invoice</strong></div><div class="tc-eg">e.g. 5 &#215; 20-vehicle = R7,500 + 50% off</div></div>
+        </div>
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:1rem 1.25rem;">
+            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--gld);margin-bottom:6px;">Annual Milestone &#8212; Every 10 Activated Referrals</div>
+            <div style="font-size:13px;color:#fde68a;line-height:1.7;">Every time a client's annual counter reaches a multiple of 10, they earn <strong style="color:white;">1 free month</strong> added to their bank. Free months never expire. Maximum 1 per invoice cycle. Clients choose when to use them &#8212; including saving for December.</div>
+        </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-grn" onclick="closeModal('tiersModal')">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const APPS_URL='https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+var LOYALTY_TIERS=[{min:1,max:1,mult:1.0,disc50:false},{min:2,max:2,mult:1.5,disc50:false},{min:3,max:4,mult:2.0,disc50:true},{min:5,max:99,mult:3.0,disc50:true}];
+var ANNUAL_MILESTONE=10;
+function getLoyaltyTier(r){return LOYALTY_TIERS.find(function(t){return r>=t.min&&r<=t.max;})||null;}
+function getTierRate(f){return f<=15?200:f<=30?175:150;}
+function getRetainer(c){var f=c.fleet?c.fleet.length:(c.fleetSize||0);return 1500+(f*getTierRate(f));}
+function calcCredit(refs,refClients){
+    if(!refs||!refClients||!refClients.length) return {credit:0,disc50:false,breakdown:[],tier:null};
+    var t=getLoyaltyTier(refs);
+    if(!t) return {credit:0,disc50:false,breakdown:[],tier:null};
+    var bd=refClients.map(function(c){var r=getRetainer(c),base=Math.round(r*0.10),credit=Math.round(base*t.mult);return{company:c.company,retainer:r,credit:credit};});
+    return{credit:bd.reduce(function(s,b){return s+b.credit;},0),disc50:t.disc50,breakdown:bd,tier:t};
+}
+function getLoyaltyState(c){
+    var counter=c.loyaltyAnnualCounter||0,banked=c.loyaltyFreeMonthsBank||0;
+    var credits=c.loyaltyPendingCredit||0,disc50=c.loyaltyDisc50Pending||false;
+    var nextMilestone=ANNUAL_MILESTONE-(counter%ANNUAL_MILESTONE);
+    if(nextMilestone===ANNUAL_MILESTONE&&counter>0) nextMilestone=0;
+    return{counter:counter,banked:banked,credits:credits,disc50:disc50,nextMilestone:nextMilestone,history:c.loyaltyHistory||[],freeUsed:c.loyaltyFreeMonthsUsed||[]};
+}
+function waitFor(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);});}
+var _clients=[], _freeMonthClientId=null;
+waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async function(){
+    _clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    renderAll();
+    initPickers();
+});
+function getActive(){return _clients.filter(function(c){return c.status==='active';});}
+function renderAll(){
+    var active=getActive();
+    var totalRefs=active.reduce(function(s,c){return s+(c.loyaltyAnnualCounter||0);},0);
+    var totalCredits=active.reduce(function(s,c){return s+(c.loyaltyPendingCredit||0);},0);
+    var totalBanked=active.reduce(function(s,c){return s+(c.loyaltyFreeMonthsBank||0);},0);
+    var refRevenue=active.filter(function(c){return c.referredByClient;}).reduce(function(s,c){return s+getRetainer(c);},0);
+    document.getElementById('sMembers').textContent=active.length;
+    document.getElementById('sRefs').textContent=totalRefs;
+    document.getElementById('sCredits').textContent='R '+totalCredits.toLocaleString('en-ZA');
+    document.getElementById('sBanked').textContent=totalBanked;
+    document.getElementById('sRevenue').textContent='R '+refRevenue.toLocaleString('en-ZA');
+    renderAlerts(active);
+    renderCards(active);
+}
+function renderAlerts(active){
+    var alerts=[];
+    active.forEach(function(c){
+        if(c.loyaltyPendingCredit>0) alerts.push({company:c.company,msg:'R '+c.loyaltyPendingCredit.toLocaleString('en-ZA')+' credit pending',id:c.id});
+        if(c.loyaltyDisc50Pending) alerts.push({company:c.company,msg:'50% discount pending on next invoice',id:c.id});
+    });
+    var banner=document.getElementById('alertBanner');
+    if(!alerts.length){banner.classList.remove('show');return;}
+    banner.classList.add('show');
+    document.getElementById('alertList').innerHTML=alerts.map(function(a){
+        return '<div class="ab-item"><div class="ab-info"><strong>'+a.company+':</strong> '+a.msg+'</div><button class="btn-sm bsgld" onclick="window.location.href=\'invoice.html?clientId='+a.id+'\'">Apply on Invoice &#8594;</button></div>';
+    }).join('');
+}
+function renderCards(active){
+    var grid=document.getElementById('clientsGrid');
+    if(!active.length){grid.innerHTML='<div style="text-align:center;padding:3rem;color:var(--mut);">No active clients yet.</div>';return;}
+    grid.innerHTML=active.map(function(c){return buildCard(c);}).join('');
+}
+function buildCard(c){
+    var s=getLoyaltyState(c);
+    var pct=s.nextMilestone===0?100:Math.round(((ANNUAL_MILESTONE-s.nextMilestone)/ANNUAL_MILESTONE)*100);
+    var retainer=getRetainer(c);
+    var history=(c.loyaltyHistory||[]).slice(-4).reverse();
+    var hasBanked=s.banked>0;
+    var badges='';
+    if(s.credits>0) badges+='<span class="badge badge-grn">R '+s.credits.toLocaleString('en-ZA')+' credit</span> ';
+    if(s.disc50) badges+='<span class="badge badge-gld">50% off next</span> ';
+    if(hasBanked) badges+='<span class="badge badge-pur">'+s.banked+' free month'+(s.banked>1?'s':'')+'</span>';
+    var f=c.fleet?c.fleet.length:(c.fleetSize||0);
+    var tier=f<=15?'T1':f<=30?'T2':'T3';
+    var histRows=history.length?history.map(function(h){
+        return '<div class="rh-item"><span class="rh-month">'+h.month+'</span><span class="rh-refs">'+h.refs+' ref'+(h.refs!==1?'s':'')+'</span><span class="rh-credit">'+(h.credit>0?'R '+h.credit.toLocaleString('en-ZA'):'&#8212;')+'</span>'+(h.disc50?'<span style="font-size:10px;color:var(--gld);">50% off</span>':'')+(h.freeMon?'<span style="font-size:10px;color:#c4b5fd;">+free mo</span>':'')+'</div>';
+    }).join(''):'<div style="font-size:12px;color:#475569;padding:8px 0;">No referral activity yet</div>';
+    var footer='<button class="btn-sm bsgld" onclick="quickRecord(''+c.id+'')">&#10133; Record Referral</button>';
+    if(s.banked>0) footer+='<button class="btn-sm bspur" onclick="openFreeMonth(''+c.id+'')">&#127881; Apply Free Month</button>';
+    footer+='<button class="btn-sm bsblu" onclick="window.open('client-loyalty-statement.html?id='+c.id+'','_blank')">&#128196; Statement</button>';
+    if(s.credits>0||s.disc50) footer+='<button class="btn-sm bsgrn" onclick="window.location.href='invoice.html?clientId='+c.id+''">&#129534; Invoice Now</button>';
+    return '<div class="lc-card '+(hasBanked?'has-banked':'')+'">'+
+        '<div class="lc-header"><div><div class="lc-company">'+c.company+'</div><div class="lc-sub">'+f+' vehicles · '+tier+' · R'+retainer.toLocaleString('en-ZA')+'/mo</div></div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">'+badges+'</div></div>'+
+        '<div class="lc-body">'+
+            '<div class="counter-row"><div class="counter-num">'+s.counter+'</div><div class="counter-info"><div class="counter-label">Annual referral counter</div><div class="counter-next">'+(s.nextMilestone>0?s.nextMilestone+' more to earn a free month':(s.counter>0?'&#127942; Milestone reached!':'No referrals yet'))+'</div></div></div>'+
+            '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%"></div></div>'+
+            '<div class="lc-metrics">'+
+                '<div class="lc-metric"><div class="lc-metric-val gld">'+s.counter+'</div><div class="lc-metric-label">Referrals YTD</div></div>'+
+                '<div class="lc-metric"><div class="lc-metric-val pur">'+s.banked+'</div><div class="lc-metric-label">Free months banked</div></div>'+
+                '<div class="lc-metric"><div class="lc-metric-val grn">R '+s.credits.toLocaleString('en-ZA')+'</div><div class="lc-metric-label">Credit pending</div></div>'+
+            '</div>'+
+            '<div class="rh-title">Recent Referral History</div>'+histRows+
+        '</div>'+
+        '<div class="lc-footer">'+footer+'</div>'+
+    '</div>';
+}
+function initPickers(){
+    var now=new Date();
+    var mSel=document.getElementById('refMonth');
+    var ftSel=document.getElementById('freeMonthTarget');
+    var rSel=document.getElementById('refClient');
+    MONTHS.forEach(function(m,i){
+        var o=document.createElement('option');o.value=i;o.textContent=m+' '+now.getFullYear();if(i===now.getMonth())o.selected=true;mSel.appendChild(o);
+        var o2=document.createElement('option');o2.value=i;o2.textContent=m+' '+now.getFullYear();if(i===now.getMonth()+1)o2.selected=true;ftSel.appendChild(o2);
+    });
+    getActive().forEach(function(c){var o=document.createElement('option');o.value=c.id;o.textContent=c.company;rSel.appendChild(o);});
+}
+function openRecordModal(){document.getElementById('creditPreview').style.display='none';document.getElementById('confirmRecordBtn').style.display='none';document.getElementById('refCount').value='1';document.getElementById('refNames').value='';document.getElementById('recordModal').classList.add('open');}
+function quickRecord(id){document.getElementById('refClient').value=id;openRecordModal();}
+function clearPreview(){document.getElementById('creditPreview').style.display='none';document.getElementById('confirmRecordBtn').style.display='none';}
+function previewCredit(){
+    var cid=document.getElementById('refClient').value;
+    var refs=parseInt(document.getElementById('refCount').value)||0;
+    var names=document.getElementById('refNames').value.split(',').map(function(n){return n.trim();}).filter(Boolean);
+    if(!cid||refs<1){toast('Select a client and enter count','red');return;}
+    var client=_clients.find(function(c){return c.id===cid;}); if(!client) return;
+    var mockRefs=[];
+    for(var i=0;i<refs;i++) mockRefs.push({company:names[i]||('Client '+(i+1)),fleet:new Array(20),fleetSize:20});
+    var result=calcCredit(refs,mockRefs);
+    var prevCounter=client.loyaltyAnnualCounter||0;
+    var newCounter=prevCounter+refs;
+    var newMilestones=Math.floor(newCounter/10)-Math.floor(prevCounter/10);
+    var txt='<strong>'+refs+' referral'+(refs!==1?'s':'')+'</strong> this month<br>';
+    txt+='Multiplier: '+(result.tier?result.tier.mult+'&#215;':'&#8212;')+' &nbsp;&middot;&nbsp; Credit: <strong>R '+result.credit.toLocaleString('en-ZA')+'</strong>';
+    if(result.disc50) txt+='<br><span style="color:var(--gld);">+ 50% discount on next invoice</span>';
+    if(newMilestones>0) txt+='<br><span style="color:#c4b5fd;">+ '+newMilestones+' FREE MONTH'+(newMilestones>1?'S':'')+' banked! (Annual milestone hit: '+(prevCounter+refs)+' referrals)</span>';
+    txt+='<br><span style="font-size:11px;color:#64748b;">Annual counter: '+prevCounter+' &rarr; '+(prevCounter+refs)+'</span>';
+    document.getElementById('creditPreviewText').innerHTML=txt;
+    document.getElementById('creditPreview').style.display='block';
+    document.getElementById('confirmRecordBtn').style.display='inline-block';
+}
+async function confirmRecord(){
+    var cid=document.getElementById('refClient').value;
+    var refs=parseInt(document.getElementById('refCount').value)||0;
+    var monthIdx=parseInt(document.getElementById('refMonth').value);
+    var names=document.getElementById('refNames').value.split(',').map(function(n){return n.trim();}).filter(Boolean);
+    if(!cid||refs<1) return;
+    var mockRefs=[];
+    for(var i=0;i<refs;i++) mockRefs.push({company:names[i]||('Client '+(i+1)),fleet:new Array(20),fleetSize:20});
+    var result=calcCredit(refs,mockRefs);
+    var allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    var idx=allClients.findIndex(function(c){return c.id===cid;}); if(idx===-1) return;
+    var c=allClients[idx];
+    var now=new Date();
+    var prevCounter=c.loyaltyAnnualCounter||0;
+    var newCounter=prevCounter+refs;
+    var newMilestones=Math.floor(newCounter/10)-Math.floor(prevCounter/10);
+    allClients[idx].loyaltyAnnualCounter=newCounter;
+    allClients[idx].loyaltyPendingCredit=(c.loyaltyPendingCredit||0)+result.credit;
+    if(result.disc50) allClients[idx].loyaltyDisc50Pending=true;
+    if(newMilestones>0) allClients[idx].loyaltyFreeMonthsBank=(c.loyaltyFreeMonthsBank||0)+newMilestones;
+    if(!allClients[idx].loyaltyHistory) allClients[idx].loyaltyHistory=[];
+    allClients[idx].loyaltyHistory.push({month:MS[monthIdx]+' '+now.getFullYear(),refs:refs,credit:result.credit,disc50:result.disc50,freeMon:newMilestones>0,date:now.toISOString()});
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(allClients));
+    _clients=allClients;
+    var client=allClients[idx];
+    var msg='\uD83C\uDFC6 DFR Loyalty Club Reward!\n\nHi '+client.contactName+',\n\nThank you for your referrals this month!\n';
+    if(result.credit>0) msg+='\n\u2705 R '+result.credit.toLocaleString('en-ZA')+' credit applied to your next invoice';
+    if(result.disc50) msg+='\n\u2705 50% discount on your next invoice';
+    if(newMilestones>0) msg+='\n\uD83C\uDF89 '+newMilestones+' FREE MONTH'+(newMilestones>1?'S':'')+' added to your bank!\nYou now have '+(allClients[idx].loyaltyFreeMonthsBank||0)+' banked.\nUse them any time \u2014 even save for December!';
+    msg+='\n\nThank you for growing DFR with us!\nDynamic Fleet Reporting \u00b7 083 314 9592';
+    await notifyWA(msg);
+    closeModal('recordModal');
+    renderAll();
+    toast('Referral recorded and client notified \u2713','green');
+}
+function openFreeMonth(id){
+    _freeMonthClientId=id;
+    var c=_clients.find(function(x){return x.id===id;});
+    document.getElementById('freeMonthInfo').textContent=c.company+' has '+(c.loyaltyFreeMonthsBank||0)+' banked free month(s). Select which month to waive on their invoice.';
+    document.getElementById('freeMonthModal').classList.add('open');
+}
+async function confirmFreeMonth(){
+    if(!_freeMonthClientId) return;
+    var monthIdx=parseInt(document.getElementById('freeMonthTarget').value);
+    var now=new Date();
+    var allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    var idx=allClients.findIndex(function(c){return c.id===_freeMonthClientId;});
+    if(idx===-1) return;
+    var c=allClients[idx];
+    if(!c.loyaltyFreeMonthsBank||c.loyaltyFreeMonthsBank<1){toast('No free months banked','red');return;}
+    allClients[idx].loyaltyFreeMonthsBank=(c.loyaltyFreeMonthsBank||1)-1;
+    if(!allClients[idx].loyaltyFreeMonthsUsed) allClients[idx].loyaltyFreeMonthsUsed=[];
+    allClients[idx].loyaltyFreeMonthsUsed.push({month:MONTHS[monthIdx]+' '+now.getFullYear(),date:now.toISOString()});
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(allClients));
+    _clients=allClients;
+    var msg='\uD83C\uDF89 FREE MONTH APPLIED!\n\nHi '+c.contactName+',\n\nYour DFR Loyalty Club free month has been applied to '+MONTHS[monthIdx]+' '+now.getFullYear()+'.\n\nYou will NOT be billed for '+MONTHS[monthIdx]+'.\nRemaining banked months: '+(allClients[idx].loyaltyFreeMonthsBank||0)+'\n\nThank you for being a valued DFR client!\nDynamic Fleet Reporting \u00b7 083 314 9592';
+    await notifyWA(msg);
+    closeModal('freeMonthModal');
+    renderAll();
+    toast('Free month applied and client notified \u2713','green');
+}
+function openTiersModal(){document.getElementById('tiersModal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function notifyWA(msg){
+    return new Promise(function(res){
+        var cb='_cb'+Date.now();
+        window[cb]=function(){delete window[cb];res();};
+        var s=document.createElement('script');
+        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
+        s.onerror=function(){res();};
+        document.body.appendChild(s);
+        setTimeout(res,5000);
+    });
+}
+function toast(msg,color){
+    var t=document.getElementById('toast');
+    t.textContent=msg;
+    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.4)';
+    t.classList.add('show');
+    setTimeout(function(){t.classList.remove('show');},3000);
+}
+</script>
+</body>
+</html>

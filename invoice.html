@@ -47,6 +47,8 @@
         <button onclick="window.location.href='database.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🗄️ Clients</button>
         <button onclick="window.location.href='audit.html'"    class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">📊 Audit</button>
         <button onclick="window.location.href='churned.html'"  class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🔴 Churned</button>
+        <button onclick="window.location.href='partners.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🤝 Partners</button>
+        <button onclick="window.location.href='loyalty-club.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🏆 Loyalty</button>
     </div>
     <div class="flex gap-3 flex-wrap items-center">
         <select id="clientPicker" onchange="loadClient(this.value)"
@@ -346,6 +348,7 @@
         setStatusBadge(lastInv && lastInv.paid ? 'paid' : 'unpaid');
 
         refreshLines();
+        applyLoyaltyToInvoice(_currentClient);
     }
 
     function setStatusBadge(status) {
@@ -420,11 +423,65 @@
 
         // Totals
         var subtotal = lines.reduce(function(s, l) { return s + l.amt; }, 0);
+        var finalTotal = subtotal;
+        var loyaltyNote = '';
+
+        if (_currentClient) {
+            var loyaltyCredit = _currentClient.loyaltyPendingCredit || 0;
+            var loyaltyDisc50 = _currentClient.loyaltyDisc50Pending || false;
+
+            if (_applyFreeMonth && (_currentClient.loyaltyFreeMonthsBank || 0) > 0) {
+                // Free month — waive entire retainer
+                finalTotal = 0;
+                loyaltyNote = '<div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:6px;padding:8px 12px;margin-top:8px;font-size:12px;color:#4c1d95;font-weight:700;">&#127942; FREE MONTH APPLIED &#8212; Retainer waived (R0)</div>';
+            } else {
+                if (loyaltyDisc50) {
+                    var discAmt = Math.round(subtotal * 0.5);
+                    lines.push({ desc: 'DFR Loyalty Club &#8212; 50% Discount Reward', detail: '3+ referrals last month', rate: -discAmt, qty: 1, amt: -discAmt, loyalty: true });
+                    finalTotal = subtotal - discAmt;
+                    loyaltyNote = '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;margin-top:8px;font-size:12px;color:#92400e;">&#127942; Loyalty Club 50% discount applied</div>';
+                }
+                if (loyaltyCredit > 0) {
+                    lines.push({ desc: 'DFR Loyalty Club &#8212; Referral Credit', detail: 'Credit earned from client referrals', rate: -loyaltyCredit, qty: 1, amt: -loyaltyCredit, loyalty: true });
+                    finalTotal = finalTotal - loyaltyCredit;
+                    loyaltyNote += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px 12px;margin-top:6px;font-size:12px;color:#166534;">&#127942; Loyalty Club credit of R'+loyaltyCredit.toLocaleString('en-ZA')+' applied</div>';
+                }
+            }
+            finalTotal = Math.max(0, finalTotal);
+        }
+
+        // Re-render table with loyalty lines
+        var tbody = document.getElementById('lineItems');
+        tbody.innerHTML = lines.map(function(l) {
+            var rowStyle = l.highlight ? 'background:#eff6ff;' : l.overage ? 'background:#fff7ed;' : l.loyalty ? 'background:#f0fdf4;' : '';
+            return '<tr style="' + rowStyle + '">'
+                + '<td><span style="font-weight:700;">' + l.desc + '</span>'
+                + (l.highlight ? '<span style="margin-left:8px;background:#2563eb;color:white;font-size:8px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase;">Once-off</span>' : '')
+                + (l.overage   ? '<span style="margin-left:8px;background:#f97316;color:white;font-size:8px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase;">Overage</span>' : '')
+                + (l.loyalty   ? '<span style="margin-left:8px;background:#10b981;color:white;font-size:8px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase;">Loyalty</span>' : '')
+                + '</td>'
+                + '<td style="color:#64748b;font-size:11px;">' + l.detail + '</td>'
+                + '<td style="text-align:right;">' + (l.amt < 0 ? '-R ' + Math.abs(l.rate).toLocaleString('en-ZA', {minimumFractionDigits:2}) : 'R ' + l.rate.toLocaleString('en-ZA', {minimumFractionDigits:2})) + '</td>'
+                + '<td style="text-align:right;">' + l.qty + '</td>'
+                + '<td style="' + (l.amt < 0 ? 'color:#059669;font-weight:800;' : '') + '">' + (l.amt < 0 ? '-R ' + Math.abs(l.amt).toLocaleString('en-ZA', {minimumFractionDigits:2}) : 'R ' + l.amt.toLocaleString('en-ZA', {minimumFractionDigits:2})) + '</td>'
+                + '</tr>';
+        }).join('');
+
         document.getElementById('subtotalAmt').innerText = 'R ' + subtotal.toLocaleString('en-ZA', {minimumFractionDigits:2});
-        document.getElementById('totalAmt').innerText    = 'R ' + subtotal.toLocaleString('en-ZA', {minimumFractionDigits:2});
+        document.getElementById('totalAmt').innerText    = 'R ' + finalTotal.toLocaleString('en-ZA', {minimumFractionDigits:2});
+        if (loyaltyNote) {
+            var tn = document.getElementById('totalNote');
+            if (tn) tn.innerHTML = loyaltyNote;
+        }
 
         // Print period
         document.getElementById('printPeriod').innerText = period.label;
+        // Ensure totalNote element exists
+        if (!document.getElementById('totalNote')) {
+            var tn = document.createElement('div'); tn.id='totalNote';
+            var ta = document.getElementById('totalAmt');
+            if (ta && ta.parentNode) ta.parentNode.insertAdjacentElement('afterend', tn);
+        }
         document.querySelector('.print-only').style.display = 'block';
 
         return { lines: lines, subtotal: subtotal };
@@ -487,6 +544,17 @@
         allClients[idx].invoiceHistory.push(record);
         allClients[idx].lastInvoiceDate   = new Date().toISOString();
         allClients[idx].lastInvoiceNumber = _invNumber;
+        // Clear used loyalty rewards
+        if (_currentClient) {
+            if (_currentClient.loyaltyPendingCredit > 0) allClients[idx].loyaltyPendingCredit = 0;
+            if (_currentClient.loyaltyDisc50Pending)     allClients[idx].loyaltyDisc50Pending = false;
+            if (_applyFreeMonth && (allClients[idx].loyaltyFreeMonthsBank||0) > 0) {
+                allClients[idx].loyaltyFreeMonthsBank = (allClients[idx].loyaltyFreeMonthsBank||1) - 1;
+                if (!allClients[idx].loyaltyFreeMonthsUsed) allClients[idx].loyaltyFreeMonthsUsed=[];
+                allClients[idx].loyaltyFreeMonthsUsed.push({month:data.period||'',date:new Date().toISOString()});
+                _applyFreeMonth = false;
+            }
+        }
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         _currentClient = allClients[idx];
     }

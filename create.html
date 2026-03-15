@@ -7,21 +7,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; flex-shrink: 0; }
-        .logo-area { padding: 0 1rem 3rem 1rem; }
-        .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
-        .nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.03); }
-        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
-        .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
-        .form-section { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2rem 2.5rem; margin-bottom: 1.5rem; }
-        .section-label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: #10b981; margin-bottom: 1.5rem; display: block; font-style: italic; }
-        label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; display: block; margin-bottom: 0.35rem; }
-        input, select, textarea { width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.75rem; color: white; font-size: 13px; font-family: 'Outfit', sans-serif; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
-        input:focus, select:focus, textarea:focus { border-color: #10b981; }
-        input::placeholder { color: rgba(255,255,255,0.2); }
-        select option { background: #0f172a; color: white; }
-        textarea { min-height: 80px; resize: vertical; }
+        body{font-family:'Outfit',sans-serif;background-color:#020617;color:#e2e8f0;margin:0;display:flex;height:100vh;overflow:hidden;}
+        #sidebar{width:260px;background:#0f172a;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;}
+        .logo-area{padding:0 1rem 3rem 1rem;}
+        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;transition:all 0.2s ease;text-decoration:none;cursor:pointer;}
+        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
+        .nav-item.active{background:rgba(16,185,129,0.1);color:#10b981;}
+        .main-wrapper{flex:1;overflow-y:auto;padding:3rem;background:radial-gradient(circle at top right,#0f172a,#020617);}
+        .form-section{background:rgba(30,41,59,0.4);border:1px solid rgba(255,255,255,0.05);border-radius:1.5rem;padding:2rem 2.5rem;margin-bottom:1.5rem;}
+        .section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#10b981;margin-bottom:1.5rem;display:block;font-style:italic;}
+        label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;display:block;margin-bottom:0.35rem;}
+        input,select,textarea{width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.75rem;color:white;font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
+        input:focus,select:focus,textarea:focus{border-color:#10b981;}
+        input::placeholder{color:rgba(255,255,255,0.2);}
+        select option{background:#0f172a;color:white;}
+        textarea{min-height:80px;resize:vertical;}
+        /* Referral highlight */
+        .ref-detected{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#a7f3d0;display:none;}
+        .ref-detected.show{display:block;}
     </style>
 </head>
 <body>
@@ -35,6 +38,10 @@
         <a href="audit.html"    class="nav-item">Forensic Audit</a>
         <a href="churned.html"  class="nav-item">Churned Clients</a>
         <a href="invoice.html"  class="nav-item">Invoices</a>
+        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+        <a href="settings.html" class="nav-item">⚙ Settings</a>
+        <a href="marketing.html" class="nav-item">📣 Marketing</a>
     </nav>
 </aside>
 
@@ -47,9 +54,11 @@
         <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-white/30 hover:text-white tracking-widest transition">← Cancel</button>
     </header>
 
+    <!-- Referral auto-detected banner -->
+    <div class="ref-detected" id="refDetected">🤝 <span id="refDetectedText">This prospect was referred.</span></div>
+
     <form id="intakeForm">
 
-        <!-- 01. Company & Location -->
         <div class="form-section">
             <span class="section-label">01 — Company &amp; Location</span>
             <div class="grid grid-cols-2 gap-5 mb-5">
@@ -58,7 +67,6 @@
             </div>
         </div>
 
-        <!-- 02. Contact Information -->
         <div class="form-section">
             <span class="section-label">02 — Contact Information</span>
             <div class="grid grid-cols-2 gap-5 mb-5">
@@ -68,7 +76,6 @@
             <div><label>Email Address</label><input type="email" id="email" placeholder="name@company.co.za"></div>
         </div>
 
-        <!-- 03. Billing Address -->
         <div class="form-section">
             <span class="section-label">03 — Billing Address</span>
             <div class="grid grid-cols-2 gap-5 mb-5">
@@ -80,22 +87,15 @@
                 <div><label>Province</label>
                     <select id="billingProvince">
                         <option value="">— Select —</option>
-                        <option>Western Cape</option>
-                        <option>Eastern Cape</option>
-                        <option>Northern Cape</option>
-                        <option>North West</option>
-                        <option>Free State</option>
-                        <option>Gauteng</option>
-                        <option>Limpopo</option>
-                        <option>Mpumalanga</option>
-                        <option>KwaZulu-Natal</option>
+                        <option>Western Cape</option><option>Eastern Cape</option><option>Northern Cape</option>
+                        <option>North West</option><option>Free State</option><option>Gauteng</option>
+                        <option>Limpopo</option><option>Mpumalanga</option><option>KwaZulu-Natal</option>
                     </select>
                 </div>
                 <div><label>Postal Code</label><input type="text" id="billingPostal" placeholder="0000"></div>
             </div>
         </div>
 
-        <!-- 04. Fleet & Performance -->
         <div class="form-section">
             <span class="section-label">04 — Fleet &amp; Performance</span>
             <div class="grid grid-cols-3 gap-5 mb-5">
@@ -109,25 +109,32 @@
             </div>
         </div>
 
-        <!-- 05. Service Setup -->
         <div class="form-section">
             <span class="section-label">05 — Service Setup</span>
             <div class="grid grid-cols-2 gap-5">
+                <div><label>Report Schedule</label>
+                    <select id="reportSchedule"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+                </div>
+                <div><label>VAT Number (if applicable)</label><input type="text" id="vatNumber" placeholder="Leave blank if not VAT registered"></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <span class="section-label">06 — Referral Partner</span>
+            <div class="grid grid-cols-2 gap-5">
                 <div>
-                    <label>Report Schedule</label>
-                    <select id="reportSchedule">
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
+                    <label>Referred By</label>
+                    <select id="referralPartnerId" onchange="onPartnerChange()">
+                        <option value="">— Direct / No Partner —</option>
                     </select>
                 </div>
                 <div>
-                    <label>VAT Number (if applicable)</label>
-                    <input type="text" id="vatNumber" placeholder="Leave blank if not VAT registered">
+                    <label>Referral Code</label>
+                    <input type="text" id="referralCode" placeholder="Auto-filled from partner selection" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
                 </div>
             </div>
         </div>
 
-        <!-- Submit -->
         <div class="flex gap-4 mt-6">
             <button type="button" onclick="window.location.href='pipeline.html'"
                 style="flex:1;padding:1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1rem;color:rgba(255,255,255,0.5);font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
@@ -144,114 +151,152 @@
 </main>
 
 <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
-    var _cbCounter = 0;
-    const urlParams = new URLSearchParams(window.location.search);
-    const editId    = urlParams.get('editId');
+const APPS_SCRIPT_URL= + APPS_URL + ;
+var _cbCounter=0;
+var _partners=[];
+const urlParams=new URLSearchParams(window.location.search);
+const editId=urlParams.get('editId');
 
-    // ── Load existing client for edit mode ────────────────────
-    window.onload = async function() {
-        if (!editId) return;
-        var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-        var p = clients.find(function(c) { return c.id == editId; });
-        if (!p) return;
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
 
-        document.getElementById('pageTitle').innerHTML = "Edit <span class='text-emerald-400'>Prospect</span>";
-        document.getElementById('submitBtn').innerText = "Save Changes";
-
-        document.getElementById('company').value         = p.company         || '';
-        document.getElementById('city').value            = p.city            || '';
-        document.getElementById('contactName').value     = p.contactName     || '';
-        document.getElementById('contactTel').value      = p.contactTel      || '';
-        document.getElementById('email').value           = p.email           || '';
-        document.getElementById('billingStreet').value   = p.billingStreet   || '';
-        document.getElementById('billingSuburb').value   = p.billingSuburb   || '';
-        document.getElementById('billingCity').value     = p.billingCity     || '';
-        document.getElementById('billingProvince').value = p.billingProvince || '';
-        document.getElementById('billingPostal').value   = p.billingPostal   || '';
-        document.getElementById('fleetSize').value       = p.fleetSize       || 1;
-        document.getElementById('fuelPrice').value       = p.fuelPrice       || 22.50;
-        document.getElementById('speedLimit').value      = p.speedLimit      || 80;
-        document.getElementById('currentCons').value     = p.currentCons     || '';
-        document.getElementById('targetCons').value      = p.targetCons      || 2.3;
-        document.getElementById('reportSchedule').value  = p.reportSchedule  || 'weekly';
-        document.getElementById('vatNumber').value       = p.vatNumber       || '';
-    };
-
-    // ── Submit ────────────────────────────────────────────────
-    document.getElementById('intakeForm').onsubmit = async function(e) {
-        e.preventDefault();
-
-        var btn = document.getElementById('submitBtn');
-        btn.innerText = 'Saving...'; btn.disabled = true;
-
-        var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-
-        // Build only the fields we're updating — preserve all existing data in edit mode
-        var updates = {
-            company:         document.getElementById('company').value.trim().toUpperCase(),
-            city:            document.getElementById('city').value.trim().toUpperCase(),
-            contactName:     document.getElementById('contactName').value.trim(),
-            contactTel:      document.getElementById('contactTel').value.trim(),
-            email:           document.getElementById('email').value.trim(),
-            billingStreet:   document.getElementById('billingStreet').value.trim(),
-            billingSuburb:   document.getElementById('billingSuburb').value.trim(),
-            billingCity:     document.getElementById('billingCity').value.trim(),
-            billingProvince: document.getElementById('billingProvince').value,
-            billingPostal:   document.getElementById('billingPostal').value.trim(),
-            fleetSize:       parseInt(document.getElementById('fleetSize').value) || 1,
-            fuelPrice:       parseFloat(document.getElementById('fuelPrice').value) || 22.50,
-            speedLimit:      parseInt(document.getElementById('speedLimit').value) || 80,
-            currentCons:     document.getElementById('currentCons').value,
-            targetCons:      parseFloat(document.getElementById('targetCons').value) || 2.3,
-            reportSchedule:  document.getElementById('reportSchedule').value,
-            vatNumber:       document.getElementById('vatNumber').value.trim(),
-        };
-
-        if (editId) {
-            // SAFE edit — merge updates into existing object, never replace
-            var idx = clients.findIndex(function(c) { return c.id == editId; });
-            if (idx !== -1) {
-                clients[idx] = Object.assign({}, clients[idx], updates);
-            }
-        } else {
-            // New prospect
-            var newClient = Object.assign({
-                id:          Date.now(),
-                status:      'prospect',
-                auditStatus: 'not-started',
-                reportHistory:   [],
-                invoiceHistory:  [],
-            }, updates);
-            clients.push(newClient);
-
-            // Sync new prospect to sheet
-            syncToSheet(updates.company, 'Prospect').catch(function(err) {
-                console.warn('Sheet sync failed (non-fatal):', err);
-            });
-        }
-
-        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
-        window.location.href = 'pipeline.html';
-    };
-
-    // ── Sheet sync ────────────────────────────────────────────
-    function syncToSheet(companyName, status) {
-        return new Promise(function(resolve, reject) {
-            var cbName = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
-            var tid = setTimeout(function() { delete window[cbName]; reject('Timeout'); }, 10000);
-            window[cbName] = function(data) {
-                clearTimeout(tid); delete window[cbName];
-                var s = document.getElementById(cbName); if (s) s.remove();
-                resolve(data);
-            };
-            var script = document.createElement('script');
-            script.id = cbName;
-            script.onerror = function() { clearTimeout(tid); delete window[cbName]; reject('Error'); };
-            script.src = APPS_SCRIPT_URL + '?action=update&company=' + encodeURIComponent(companyName) + '&status=' + encodeURIComponent(status) + '&callback=' + cbName;
-            document.body.appendChild(script);
+ready().then(async function(){
+    // Load partners into dropdown
+    try{
+        _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+        var sel=document.getElementById('referralPartnerId');
+        _partners.filter(p=>p.status==='active').forEach(function(p){
+            var o=document.createElement('option');
+            o.value=p.id;
+            o.textContent=p.name+' ('+( p.commRate||15)+'%)';
+            sel.appendChild(o);
         });
+    }catch(e){}
+
+    // Load existing active clients into referred-by dropdown (Loyalty Club)
+    try {
+        var activeClients = (_clients||[]).filter(function(c){return c.status==='active';});
+        // Also load from firebase if not already loaded
+        if(!activeClients.length){
+            var allC = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+            activeClients = allC.filter(function(c){return c.status==='active';});
+        }
+        var rSel2 = document.getElementById('referredByClient');
+        activeClients.forEach(function(c){
+            var o=document.createElement('option'); o.value=c.id; o.textContent=c.company; rSel2.appendChild(o);
+        });
+    } catch(e) {}
+
+    // Check URL for ?ref= auto-assign from referral link click
+    var refParam=urlParams.get('ref');
+    if(refParam){
+        // Find matching partner
+        var match=_partners.find(function(p){
+            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            return code===refParam||p.id===refParam;
+        });
+        if(match){
+            document.getElementById('referralPartnerId').value=match.id;
+            onPartnerChange();
+            document.getElementById('refDetectedText').textContent='🤝 Automatically linked to '+match.name+' (Referral Partner)';
+            document.getElementById('refDetected').classList.add('show');
+        }
     }
+
+    // Edit mode
+    if(editId){
+        var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+        var p=clients.find(function(c){return c.id==editId;});
+        if(!p) return;
+        document.getElementById('pageTitle').innerHTML="Edit <span class='text-emerald-400'>Prospect</span>";
+        document.getElementById('submitBtn').innerText="Save Changes";
+        document.getElementById('company').value=p.company||'';
+        document.getElementById('city').value=p.city||'';
+        document.getElementById('contactName').value=p.contactName||'';
+        document.getElementById('contactTel').value=p.contactTel||'';
+        document.getElementById('email').value=p.email||'';
+        document.getElementById('billingStreet').value=p.billingStreet||'';
+        document.getElementById('billingSuburb').value=p.billingSuburb||'';
+        document.getElementById('billingCity').value=p.billingCity||'';
+        document.getElementById('billingProvince').value=p.billingProvince||'';
+        document.getElementById('billingPostal').value=p.billingPostal||'';
+        document.getElementById('fleetSize').value=p.fleetSize||1;
+        document.getElementById('fuelPrice').value=p.fuelPrice||22.50;
+        document.getElementById('speedLimit').value=p.speedLimit||80;
+        document.getElementById('currentCons').value=p.currentCons||'';
+        document.getElementById('targetCons').value=p.targetCons||2.3;
+        document.getElementById('reportSchedule').value=p.reportSchedule||'weekly';
+        document.getElementById('vatNumber').value=p.vatNumber||'';
+        if(p.referralPartnerId){
+            document.getElementById('referralPartnerId').value=p.referralPartnerId;
+            onPartnerChange();
+        }
+    }
+});
+
+function onPartnerChange(){
+    var sel=document.getElementById('referralPartnerId');
+    if(sel.value){
+        var p=_partners.find(function(x){return x.id===sel.value;});
+        if(p){
+            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            document.getElementById('referralCode').value=code;
+        }
+    }else{
+        document.getElementById('referralCode').value='';
+    }
+}
+
+document.getElementById('intakeForm').onsubmit=async function(e){
+    e.preventDefault();
+    var btn=document.getElementById('submitBtn');
+    btn.innerText='Saving...'; btn.disabled=true;
+    var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    var updates={
+        company:        document.getElementById('company').value.trim().toUpperCase(),
+        city:           document.getElementById('city').value.trim().toUpperCase(),
+        contactName:    document.getElementById('contactName').value.trim(),
+        contactTel:     document.getElementById('contactTel').value.trim(),
+        email:          document.getElementById('email').value.trim(),
+        billingStreet:  document.getElementById('billingStreet').value.trim(),
+        billingSuburb:  document.getElementById('billingSuburb').value.trim(),
+        billingCity:    document.getElementById('billingCity').value.trim(),
+        billingProvince:document.getElementById('billingProvince').value,
+        billingPostal:  document.getElementById('billingPostal').value.trim(),
+        fleetSize:      parseInt(document.getElementById('fleetSize').value)||1,
+        fuelPrice:      parseFloat(document.getElementById('fuelPrice').value)||22.50,
+        speedLimit:     parseInt(document.getElementById('speedLimit').value)||80,
+        currentCons:    document.getElementById('currentCons').value,
+        targetCons:     parseFloat(document.getElementById('targetCons').value)||2.3,
+        reportSchedule: document.getElementById('reportSchedule').value,
+        vatNumber:      document.getElementById('vatNumber').value.trim(),
+        referralPartnerId: document.getElementById('referralPartnerId').value||null,
+        referralCode:   document.getElementById('referralCode').value.trim()||null,
+    };
+    if(editId){
+        var idx=clients.findIndex(function(c){return c.id==editId;});
+        if(idx!==-1) clients[idx]=Object.assign({},clients[idx],updates);
+    }else{
+        var newClient=Object.assign({id:Date.now(),status:'prospect',auditStatus:'not-started',reportHistory:[],invoiceHistory:[]},updates);
+        clients.push(newClient);
+        syncToSheet(updates.company,'Prospect').catch(function(err){console.warn('Sheet sync failed:',err);});
+    }
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(clients));
+    window.location.href='pipeline.html';
+};
+
+function syncToSheet(companyName,status){
+    return new Promise(function(resolve,reject){
+        var cbName='sheetCB_'+Date.now()+'_'+(++_cbCounter);
+        var tid=setTimeout(function(){delete window[cbName];reject('Timeout');},10000);
+        window[cbName]=function(data){clearTimeout(tid);delete window[cbName];var s=document.getElementById(cbName);if(s)s.remove();resolve(data);};
+        var script=document.createElement('script');
+        script.id=cbName;
+        script.onerror=function(){clearTimeout(tid);delete window[cbName];reject('Error');};
+        script.src=APPS_SCRIPT_URL+'?action=update&company='+encodeURIComponent(companyName)+'&status='+encodeURIComponent(status)+'&callback='+cbName;
+        document.body.appendChild(script);
+    });
+}
 </script>
 </body>
 </html>

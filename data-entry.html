@@ -37,6 +37,11 @@
         .db-alert { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-left: 4px solid #fbbf24; border-radius: 0.75rem; padding: 11px 14px; margin-bottom: 1.25rem; display: none; font-size: 12px; color: #fbbf24; font-weight: 600; }
         .tbl-wrap { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.25rem; overflow-x: auto; margin-bottom: 1.25rem; }
         table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+        .ac-drop { position:absolute; top:100%; left:0; min-width:140px; max-height:180px; overflow-y:auto;
+            background:#1e293b; border:1px solid #334155; border-radius:6px; z-index:999;
+            box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+        .ac-item { padding:7px 10px; font-size:11px; font-weight:600; color:#e2e8f0; cursor:pointer; white-space:nowrap; }
+        .ac-item:hover { background:#334155; color:#38bdf8; }
         thead tr { border-bottom: 2px solid rgba(16,185,129,0.25); }
         thead th { padding: 9px 8px; font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981; text-align: left; white-space: nowrap; }
         thead th.th-blue { color: #60a5fa; } thead th.th-amber { color: #fbbf24; }
@@ -88,6 +93,10 @@
     <a href="sla.html"        class="nav-item">📄 SLA</a>
     <a href="invoice.html"    class="nav-item">🧾 Invoice</a>
     <a href="churned.html"    class="nav-item">🔴 Churned</a>
+    <a href="partners.html"  class="nav-item">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+        <a href="settings.html"  class="nav-item">⚙ Settings</a>
+    <a href="marketing.html" class="nav-item">📣 Marketing</a>
 </div>
 
 <div id="main">
@@ -131,11 +140,11 @@
                 <thead><tr>
                     <th>#</th>
                     <th style="min-width:110px;">Registration</th>
+                    <th style="min-width:100px;">Make</th>
+                    <th style="min-width:110px;">Model</th>
                     <th>Yr</th>
                     <th>Type</th>
                     <th style="min-width:120px;">Usage</th>
-                    <th>Make</th>
-                    <th>Model</th>
                     <th style="min-width:140px;">Load Profile</th>
                     <th style="min-width:150px;">Trailer Type</th>
                     <th style="min-width:70px;">Interlink</th>
@@ -341,11 +350,23 @@ function renderTable(){
             <td>
                 <input class="di reg-cell" style="min-width:110px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
             </td>
+            <td style="position:relative;">
+                <input class="di" style="width:96px;" id="mk${i}" placeholder="Make" value="${x(v.make)}"
+                    oninput="uf(${i},'make',this.value);acMake(${i})"
+                    onblur="setTimeout(()=>hideDrop('mkd${i}'),200)"
+                    autocomplete="off">
+                <div id="mkd${i}" class="ac-drop" style="display:none;"></div>
+            </td>
+            <td style="position:relative;">
+                <input class="di" style="width:106px;" id="mo${i}" placeholder="Model" value="${x(v.model)}"
+                    oninput="uf(${i},'model',this.value);acModel(${i})"
+                    onblur="setTimeout(()=>hideDrop('mod${i}'),200)"
+                    autocomplete="off">
+                <div id="mod${i}" class="ac-drop" style="display:none;"></div>
+            </td>
             <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
             <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
             <td><select class="di" style="min-width:120px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsageC()}</select></td>
-            <td><input class="di" style="width:90px;" id="mk${i}" placeholder="Make" value="${x(v.make)}" oninput="uf(${i},'make',this.value);lkRow(${i})"></td>
-            <td><input class="di" style="width:108px;" id="mo${i}" placeholder="Model" value="${x(v.model)}" oninput="uf(${i},'model',this.value);lkRow(${i})"></td>
             <td><select class="di" style="min-width:140px;font-size:10px;" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad()}</select></td>
             <td><select class="di" style="min-width:150px;font-size:10px;" id="tt${i}" onchange="uf(${i},'trailerType',this.value);updSuggested(${i})">${selTrailer()}</select></td>
             <td style="text-align:center;">
@@ -375,6 +396,65 @@ function renderTable(){
     }).join('');
     updProg();
 }
+
+// ── Autocomplete helpers ─────────────────────────────────────
+function hideDrop(id){ const d=document.getElementById(id); if(d) d.style.display='none'; }
+
+function acMake(i){
+    const val=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
+    const drop=document.getElementById('mkd'+i);
+    if(!val){ drop.style.display='none'; return; }
+    // Get unique makes from VDB
+    const makes=[...new Set(Object.values(_vdb).map(e=>e.make).filter(m=>m&&m.toLowerCase().startsWith(val)))].sort();
+    if(!makes.length){ drop.style.display='none'; return; }
+    drop.innerHTML=makes.map(m=>`<div class="ac-item" onmousedown="pickMake(${i},'${m.replace(/'/g,"\'")})">${m}</div>`).join('');
+    drop.style.display='block';
+}
+
+function pickMake(i, make){
+    uf(i,'make',make);
+    const inp=document.getElementById('mk'+i);
+    if(inp) inp.value=make;
+    hideDrop('mkd'+i);
+    // Auto-populate model dropdown
+    const models=[...new Set(Object.values(_vdb).filter(e=>e.make&&e.make.toLowerCase()===make.toLowerCase()).map(e=>e.model))].sort();
+    const modDrop=document.getElementById('mod'+i);
+    if(modDrop && models.length){
+        modDrop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${make.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
+        modDrop.style.display='block';
+    }
+    // Focus model input
+    const modInp=document.getElementById('mo'+i);
+    if(modInp){ modInp.value=''; modInp.focus(); }
+}
+
+function acModel(i){
+    const make=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
+    const val=(document.getElementById('mo'+i)?.value||'').trim().toLowerCase();
+    const drop=document.getElementById('mod'+i);
+    if(!val){ drop.style.display='none'; return; }
+    const models=[...new Set(Object.values(_vdb)
+        .filter(e=>(!make||( e.make&&e.make.toLowerCase()===make))&&e.model&&e.model.toLowerCase().startsWith(val))
+        .map(e=>e.model))].sort();
+    if(!models.length){ drop.style.display='none'; return; }
+    const makeName=document.getElementById('mk'+i)?.value||'';
+    drop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${makeName.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
+    drop.style.display='block';
+}
+
+function pickModel(i, model, make){
+    uf(i,'model',model);
+    const inp=document.getElementById('mo'+i);
+    if(inp) inp.value=model;
+    hideDrop('mod'+i);
+    // Auto-fill mfr data
+    if(make) { uf(i,'make',make); const mk=document.getElementById('mk'+i); if(mk) mk.value=make; }
+    lkRow(i);
+    // Focus year
+    const yr=document.getElementById('yr'+i);
+    if(yr){ yr.focus(); yr.select(); }
+}
+// ─────────────────────────────────────────────────────────────
 
 function nav(e,r,f){if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();const t=document.getElementById(f+r);if(t){t.focus();t.select();}}}
 function uf(i,f,v){if(!_fleet[i])return;const numFs=['odo','liters','mfr_min','mfr_avg','clientTarget','year'];_fleet[i][f]=numFs.includes(f)?(v===''?null:parseFloat(v)||v):v;}
