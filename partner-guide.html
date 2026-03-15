@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DFR Partner Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.07);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;font-size:14px;}
+#sb{width:268px;min-width:268px;background:var(--panel);border-right:1px solid var(--brd);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;padding-bottom:2rem;}
+#sb::-webkit-scrollbar{width:4px;}#sb::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.sbh{padding:1.2rem 1.25rem 0.7rem;border-bottom:1px solid var(--brd);}
+.sbl{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);}
+.sbt{font-size:9px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:0.2em;margin-top:2px;}
+.sbs{padding:0.9rem 0.75rem 0.2rem;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--mut);}
+.si{display:block;padding:0.48rem 1.25rem;font-size:11px;font-weight:700;color:#94a3b8;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+.si:hover{color:var(--txt);background:rgba(255,255,255,0.03);}
+.si.on{color:var(--grn);border-left-color:var(--grn);background:rgba(16,185,129,0.07);}
+.pb{height:3px;background:rgba(255,255,255,0.05);margin:0.7rem 1.25rem 0;border-radius:2px;}
+#pf{height:100%;background:var(--grn);border-radius:2px;transition:width 0.3s;width:0%;}
+#mn{margin-left:268px;flex:1;min-height:100vh;display:flex;flex-direction:column;}
+#tn{position:sticky;top:0;background:rgba(2,6,23,0.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--brd);padding:0.65rem 2rem;display:flex;align-items:center;justify-content:space-between;z-index:50;}
+#ts{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--grn);}
+#tp{font-size:10px;color:var(--mut);font-weight:700;}
+.tnv{display:flex;gap:0.5rem;}
+.tb{background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:var(--txt);padding:6px 15px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.tb:hover{background:rgba(255,255,255,0.1);}
+.tb.pr{background:var(--grn);color:#020617;border-color:var(--grn);}
+.tb.pr:hover{background:var(--gd);}
+.tb:disabled{opacity:0.25;cursor:not-allowed;}
+#ct{flex:1;padding:2.5rem;max-width:900px;}
+.page{display:none;animation:fi 0.2s ease;}
+.page.on{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+h1.s{font-size:1.9rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;letter-spacing:-0.01em;margin-bottom:0.4rem;}
+h1.s span{color:var(--grn);}
+h2.sub{font-size:0.95rem;font-weight:900;color:var(--grn);text-transform:uppercase;letter-spacing:0.1em;margin:1.6rem 0 0.55rem;padding-bottom:0.35rem;border-bottom:2px solid rgba(16,185,129,0.2);}
+p.b{font-size:13.5px;line-height:1.75;color:#cbd5e1;margin-bottom:0.6rem;}
+p.ld{font-size:14px;line-height:1.8;color:#94a3b8;margin-bottom:1.1rem;}
+.tip{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-left:4px solid var(--grn);border-radius:8px;padding:0.85rem 1.1rem;margin:0.8rem 0;}
+.tip .lb{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:3px;}
+.tip p{font-size:12.5px;color:#a7f3d0;line-height:1.6;margin:0;}
+.warn{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-left:4px solid var(--red);border-radius:8px;padding:0.85rem 1.1rem;margin:0.8rem 0;}
+.warn .lb{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--red);margin-bottom:3px;}
+.warn p{font-size:12.5px;color:#fca5a5;line-height:1.6;margin:0;}
+.info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-left:4px solid var(--blu);border-radius:8px;padding:0.85rem 1.1rem;margin:0.8rem 0;}
+.info .lb{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--blu);margin-bottom:3px;}
+.info p{font-size:12.5px;color:#93c5fd;line-height:1.6;margin:0;}
+.gold{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-left:4px solid var(--gld);border-radius:8px;padding:0.85rem 1.1rem;margin:0.8rem 0;}
+.gold .lb{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:3px;}
+.gold p{font-size:12.5px;color:#fde68a;line-height:1.6;margin:0;}
+table.kv{width:100%;border-collapse:collapse;margin:0.5rem 0 1rem;}
+table.kv td{padding:7px 11px;font-size:12.5px;border-bottom:1px solid var(--brd);vertical-align:top;}
+table.kv td:first-child{font-weight:800;color:#cbd5e1;width:35%;white-space:nowrap;}
+table.kv td:last-child{color:#94a3b8;}
+table.kv tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+table.dt{width:100%;border-collapse:collapse;margin:0.5rem 0 1rem;font-size:12.5px;}
+table.dt th{background:var(--panel);color:#94a3b8;font-weight:800;text-transform:uppercase;font-size:9px;letter-spacing:0.1em;padding:8px 11px;border-bottom:2px solid var(--grn);text-align:left;}
+table.dt td{padding:7px 11px;border-bottom:1px solid var(--brd);color:#cbd5e1;vertical-align:top;line-height:1.5;}
+table.dt tr:nth-child(even) td{background:rgba(255,255,255,0.02);}
+ul.ul{margin:0.3rem 0 0.8rem 1.3rem;}
+ul.ul li{font-size:13.5px;line-height:1.75;color:#94a3b8;margin-bottom:0.2rem;}
+ul.ul li strong{color:#cbd5e1;}
+.steps{display:flex;flex-direction:column;margin:0.8rem 0;}
+.step{display:flex;gap:0.85rem;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid var(--brd);}
+.step:last-child{border-bottom:none;}
+.sn{width:25px;min-width:25px;height:25px;background:var(--grn);color:#020617;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;margin-top:2px;}
+.sb2{flex:1;}
+.st{font-size:13px;font-weight:800;color:white;margin-bottom:2px;}
+.sd{font-size:12.5px;color:#94a3b8;line-height:1.6;}
+.lc{display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.8rem 0;}
+.lci{background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:7px;padding:0.45rem 0.8rem;font-size:11px;font-weight:700;color:#94a3b8;display:flex;align-items:center;gap:0.4rem;}
+.bge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;}
+.bg{background:rgba(16,185,129,0.15);color:var(--grn);}
+.bb{background:rgba(59,130,246,0.15);color:#60a5fa;}
+.fml{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:0.8rem 1.2rem;margin:0.8rem 0;font-family:'Courier New',monospace;font-size:12px;color:#6ee7b7;word-break:break-all;}
+code{background:rgba(255,255,255,0.08);padding:2px 5px;border-radius:4px;font-size:12px;color:#a5f3fc;font-family:'Courier New',monospace;}
+@media(max-width:768px){
+  #sb{transform:translateX(-100%);transition:transform 0.3s;}
+  #sb.open{transform:translateX(0);}
+  #mn{margin-left:0;}
+  .mob-menu{display:flex!important;}
+  #ct{padding:1.5rem;}
+}
+.mob-menu{display:none;background:none;border:1px solid var(--brd);color:var(--txt);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+</style>
+</head>
+<body>
+<div id="sb">
+<div class="sbh"><div class="sbl">DFR Partner Guide</div><div class="sbt">Referral Partner Programme</div><div class="pb"><div id="pf"></div></div></div>
+<div class="sbs">GETTING STARTED</div>
+<span class="si" onclick="go(0)" id="si-welcome">Welcome</span>
+<span class="si" onclick="go(1)" id="si-yourlink">Your Referral Link</span>
+<span class="si" onclick="go(2)" id="si-portal">Your Portal</span>
+<div class="sbs">MARKETING</div>
+<span class="si" onclick="go(3)" id="si-marketing">Marketing Hub</span>
+<span class="si" onclick="go(4)" id="si-referring">How to Refer</span>
+<div class="sbs">TRACKING</div>
+<span class="si" onclick="go(5)" id="si-pipeline">Tracking Your Referrals</span>
+<div class="sbs">EARNINGS</div>
+<span class="si" onclick="go(6)" id="si-commission">Your Commission</span>
+<span class="si" onclick="go(7)" id="si-statements">Commission Statements</span>
+<span class="si" onclick="go(8)" id="si-bonus">Annual Bonus</span>
+<div class="sbs">LEGAL</div>
+<span class="si" onclick="go(9)" id="si-agreement">Your Agreement</span>
+<div class="sbs">SUPPORT</div>
+<span class="si" onclick="go(10)" id="si-faq">FAQ</span>
+<span class="si" onclick="go(11)" id="si-quickref">Quick Reference</span>
+</div>
+<div id="mn">
+<div id="tn"><div><div id="ts">Partner Guide</div><div id="tp">Page 1 of 12</div></div><div class="tnv"><button class="mob-menu" onclick="toggleSidebar()">&#9776;</button><button class="tb" id="prevBtn" onclick="nav(-1)" disabled>&#8592; Prev</button><button class="tb pr" id="nextBtn" onclick="nav(1)">Next &#8594;</button></div></div>
+<div id="ct">
+<div class="page on" id="page-welcome">
+<h1 class="s">Welcome to DFR</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Referral Partner Programme</p>
+
+<p class="ld">Welcome to the Dynamic Fleet Reporting Referral Partner Programme. This guide covers everything you need to know — from accessing your portal and sharing your link, to understanding your commissions and earning free months for your own business.</p>
+<p class="b">Read through this once and you'll have a clear picture of how everything works. There are no complicated processes — your side of things is simple by design.</p>
+<div class="tip"><div class="lb">Your role in one sentence</div><p>You refer fleet operators and transport companies to DFR. We handle everything from there. You earn 15% of their monthly fee — every month, for as long as they stay.</p></div>
+<div class="gold"><div class="lb">Contact DFR</div><p>WhatsApp or call: <strong>083 314 9592</strong> &nbsp;·&nbsp; Email: dynamicfleetreports&#64;gmail&#46;com</p></div>
+</div>
+<div class="page" id="page-yourlink">
+<h1 class="s">Your Referral Link</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">The most important thing you have</p>
+
+<p class="ld">Your referral link is your unique identifier. Every lead that comes through it is automatically tagged to you — you never need to tell DFR who you referred.</p>
+<h2 class="sub">What it looks like</h2>
+<div class="fml">https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref=ref_your_name</div>
+<p class="b">The part after <code>?ref=</code> is your unique code. It's based on your name and never changes.</p>
+<h2 class="sub">Where to find it</h2>
+<div class="steps">
+    <div class="step"><div class="sn">1</div><div class="sb"><div class="st">Open your Partner Portal</div><div class="sd">Go to your portal link (sent to you via WhatsApp when you were activated). Bookmark it on your phone — you'll use it often.</div></div></div>
+    <div class="step"><div class="sn">2</div><div class="sb"><div class="st">Your link is at the top</div><div class="sd">The green box at the top of your portal shows your full referral link. Tap <strong>📋 Copy Link</strong> to copy it to your clipboard instantly.</div></div></div>
+    <div class="step"><div class="sn">3</div><div class="sb"><div class="st">Paste it anywhere</div><div class="sd">WhatsApp, Facebook, LinkedIn, email, SMS — anywhere. When someone opens it and fills in the contact form, you're credited automatically.</div></div></div>
+</div>
+<div class="tip"><div class="lb">Tip — set it as your bio link</div><p>On Instagram and TikTok you can only have one link in your bio. Put your referral link there. Every follower who taps it lands on the DFR discovery page with your code already attached.</p></div>
+</div>
+<div class="page" id="page-portal">
+<h1 class="s">Your Partner Portal</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Your dashboard — track everything</p>
+
+<p class="ld">Your portal is a live dashboard showing everything related to your partnership — your referrals, their progress, your earnings, and your bonus tracker. You access it from the link DFR sent you when you were activated.</p>
+<h2 class="sub">How to log in</h2>
+<p class="b">Your portal link already has your code in it, so it logs you in automatically:</p>
+<div class="fml">partner-portal.html?ref=ref_your_name</div>
+<p class="b">If you're ever asked to enter a code manually, type your referral code (the part after <code>?ref=</code> in your link).</p>
+<div class="warn"><div class="lb">Bookmark it</div><p>Save your portal link to your phone's home screen or browser bookmarks. You don't have a password — your unique link IS your access.</p></div>
+<h2 class="sub">What you can see in your portal</h2>
+<table class="kv">
+    <tr><td>Stats row</td><td>Total referrals, active clients, monthly commission estimate, and outstanding amount</td></tr>
+    <tr><td>Your referral link</td><td>One-click copy, always visible at the top</td></tr>
+    <tr><td>⚠ Outstanding alerts</td><td>Any prospect where something is still pending (e.g. SLA not yet signed)</td></tr>
+    <tr><td>🏆 Bonus Tracker</td><td>Your portfolio growth percentage, which bonus tier you've reached, and estimated bonus amount</td></tr>
+    <tr><td>Earnings Summary</td><td>Your commission rate, this month's estimate, YTD earned, YTD paid, outstanding</td></tr>
+    <tr><td>Portfolio by Tier</td><td>Your referred clients split by fleet size tier and what each tier earns you</td></tr>
+    <tr><td>Prospect Pipeline</td><td>Every prospect you've referred — their SLA progress and any outstanding items</td></tr>
+    <tr><td>Active Clients</td><td>Your confirmed active clients — fleet size, their monthly retainer, your commission per client</td></tr>
+</table>
+<div class="tip"><div class="lb">Check it monthly</div><p>Your portal updates live from Firebase — whenever DFR activates a client or records a commission, your portal reflects it immediately.</p></div>
+</div>
+<div class="page" id="page-marketing">
+<h1 class="s">Your Marketing Hub</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Ready-to-use posts for every platform</p>
+
+<p class="ld">Your Marketing Hub is a library of professionally written posts, scripts, and messages — all ready to use. Every post automatically includes your referral link when you copy it. You never need to add it manually.</p>
+<h2 class="sub">How to access it</h2>
+<div class="steps">
+    <div class="step"><div class="sn">1</div><div class="sb"><div class="st">Open your portal</div><div class="sd">Go to your partner portal link.</div></div></div>
+    <div class="step"><div class="sn">2</div><div class="sb"><div class="st">Click 📣 Marketing Hub</div><div class="sd">The button is next to your referral link at the top of the portal.</div></div></div>
+    <div class="step"><div class="sn">3</div><div class="sb"><div class="st">Select a platform tab</div><div class="sd">Choose Facebook, LinkedIn, Instagram, WhatsApp, or TikTok/Reels.</div></div></div>
+    <div class="step"><div class="sn">4</div><div class="sb"><div class="st">Pick a post and click Copy</div><div class="sd">The full post text — including your referral link at the bottom — is copied to your clipboard. Paste it directly into the platform.</div></div></div>
+</div>
+<h2 class="sub">What's available</h2>
+<table class="dt">
+    <thead><tr><th>Platform</th><th>Content</th><th>Best used for</th></tr></thead>
+    <tbody>
+        <tr><td>📘 Facebook</td><td>6 posts — fuel crisis hooks, case studies, question posts</td><td>Fleet owner groups, business pages</td></tr>
+        <tr><td>💼 LinkedIn</td><td>4 posts — professional tone, industry insights</td><td>Logistics managers, transport directors</td></tr>
+        <tr><td>📸 Instagram</td><td>4 captions — visual hooks, stat posts</td><td>Pair with a truck or dashboard photo</td></tr>
+        <tr><td>💬 WhatsApp</td><td>6 messages — conversational, direct</td><td>Status updates, direct messages, groups</td></tr>
+        <tr><td>🎵 TikTok/Reels</td><td>3 video scripts — read naturally to camera</td><td>Short video content, under 60 seconds</td></tr>
+    </tbody>
+</table>
+<h2 class="sub">Community Scripts</h2>
+<p class="b">The 🌟 Community Scripts tab shows posts submitted by fellow DFR partners. If a script worked well for someone, they share it — and it appears in your hub with <strong>your</strong> link attached when you copy it. You can also submit your own scripts there.</p>
+<div class="tip"><div class="lb">Your link is always in the copy</div><p>You never need to manually add your link. Every time you click Copy Post, your referral link is already part of the copied text. Paste and post.</p></div>
+</div>
+<div class="page" id="page-referring">
+<h1 class="s">How to Refer Someone</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Three ways a referral gets to DFR</p>
+
+<p class="ld">There are three ways to refer someone. Any of them work — use whichever fits the situation.</p>
+<h2 class="sub">Method 1 — Share your link (recommended)</h2>
+<p class="b">Send your referral link to anyone you think could benefit from DFR. When they open it, they land on the DFR discovery page with a banner saying they were referred by you. When they fill in the contact form, your code is submitted automatically.</p>
+<div class="fml">https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref=ref_your_name</div>
+<div class="tip"><div class="lb">Best for</div><p>Social media posts, WhatsApp messages, email, bio links. The person doesn't need to do anything special — just open the link and fill in their details.</p></div>
+<h2 class="sub">Method 2 — Tell them to mention your name</h2>
+<p class="b">If someone contacts DFR directly (WhatsApp, phone call, email), they just need to say "I was referred by [your name]" and DFR will link them to you manually.</p>
+<div class="tip"><div class="lb">Best for</div><p>In-person conversations, phone referrals, situations where sharing a link isn't practical.</p></div>
+<h2 class="sub">Method 3 — Give them DFR's contact details</h2>
+<p class="b">You can also simply pass on DFR's number and let the prospect make contact themselves. Just brief DFR via WhatsApp first so they know to expect the call and who sent them.</p>
+<table class="kv">
+    <tr><td>DFR WhatsApp / Phone</td><td>083 314 9592</td></tr>
+    <tr><td>Discovery Page</td><td>dynamicfleetreports-bit.github.io/DFR/discover.html</td></tr>
+</table>
+<div class="warn"><div class="lb">Important</div><p>Only <strong>activated clients</strong> count toward your commission and your annual bonus counter. A prospect who enquires but never signs up does not earn you anything. Follow up with DFR if someone you referred has gone quiet.</p></div>
+</div>
+<div class="page" id="page-pipeline">
+<h1 class="s">Tracking Your Referrals</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Know exactly where each prospect stands</p>
+
+<p class="ld">Your portal's Prospect Pipeline shows every person you've referred, what stage they're at, and what's still outstanding. You can see at a glance who's stuck and who's progressing.</p>
+<h2 class="sub">The pipeline stages</h2>
+<table class="dt">
+    <thead><tr><th>Stage</th><th>What it means</th><th>What happens next</th></tr></thead>
+    <tbody>
+        <tr><td><span class="bge bb">Prospect</span></td><td>DFR has received the enquiry and created a profile</td><td>DFR contacts them, does a discovery call, generates SLA</td></tr>
+        <tr><td>SLA Generated</td><td>The Service Level Agreement has been prepared for signing</td><td>Prospect reviews and signs the SLA</td></tr>
+        <tr><td>SLA Signed</td><td>Agreement is signed — prospect is committed</td><td>Onboarding begins, first invoice raised</td></tr>
+        <tr><td><span class="bge bg">Active</span></td><td>Client is fully onboarded and paying</td><td>Monthly reports delivered, you start earning commission</td></tr>
+    </tbody>
+</table>
+<h2 class="sub">Progress dots in your portal</h2>
+<div class="lc">
+    <div class="lci"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block;"></span>&nbsp;Green dot = completed</div>
+    <div class="lci"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>&nbsp;Amber dot = pending</div>
+    <div class="lci"><span style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);display:inline-block;"></span>&nbsp;Grey dot = not started</div>
+</div>
+<p class="b">Each prospect row shows three dots: SLA Generated · SLA Signed · Onboarding Done. When all three are green, activation is imminent.</p>
+<div class="tip"><div class="lb">What to do if a prospect stalls</div><p>If someone you referred has been a prospect for more than 2 weeks with no progress, WhatsApp DFR on 083 314 9592 with their name and company. DFR will follow up and update you.</p></div>
+</div>
+<div class="page" id="page-commission">
+<h1 class="s">How Your Commission Works</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">15% of every invoice — for life</p>
+
+<p class="ld">You earn 15% of the monthly retainer for every client you refer — every month, for as long as they remain a DFR client. There is no time limit and no cap.</p>
+<h2 class="sub">How the retainer is calculated</h2>
+<table class="dt">
+    <thead><tr><th>Tier</th><th>Fleet Size</th><th>Rate per Vehicle</th><th>Example (20 vehicles)</th></tr></thead>
+    <tbody>
+        <tr><td>Tier 1</td><td>1 – 15 vehicles</td><td>R200 / vehicle / month</td><td>R1,500 + R3,000 = R4,500/month</td></tr>
+        <tr><td>Tier 2</td><td>16 – 30 vehicles</td><td>R175 / vehicle / month</td><td>R1,500 + R3,500 = R5,000/month</td></tr>
+        <tr><td>Tier 3</td><td>31+ vehicles</td><td>R150 / vehicle / month</td><td>R1,500 + R5,250 = R6,750/month</td></tr>
+    </tbody>
+</table>
+<h2 class="sub">What you earn</h2>
+<table class="kv">
+    <tr><td>Your rate</td><td>15% of monthly retainer (excl. setup fees)</td></tr>
+    <tr><td>When it's due</td><td>After the client's invoice is confirmed paid by DFR</td></tr>
+    <tr><td>How it's paid</td><td>EFT to your nominated bank account</td></tr>
+    <tr><td>When it's paid</td><td>Within 7 business days of the monthly commission calculation</td></tr>
+    <tr><td>How long it runs</td><td>Every month the client remains active — indefinitely</td></tr>
+</table>
+<h2 class="sub">Example — what one client earns you</h2>
+<div class="info"><div class="lb">Real example</div><p>You refer a 20-vehicle transport company. Their monthly retainer is R5,000. Your commission: <strong>R750/month · R9,000/year</strong>. Refer 5 similar clients: <strong>R3,750/month · R45,000/year</strong>.</p></div>
+<h2 class="sub">What commission is NOT paid on</h2>
+<ul class="ul">
+    <li>The once-off R2,500 setup fee — excluded from commission calculation</li>
+    <li>Any month where the client's invoice was not paid</li>
+    <li>Clients who are still in prospect or pending status</li>
+</ul>
+<div class="tip"><div class="lb">Seeing your commission in the portal</div><p>Your portal's Earnings Summary shows this month's estimate, YTD earned, YTD paid, and outstanding amount. You always know exactly where you stand.</p></div>
+</div>
+<div class="page" id="page-statements">
+<h1 class="s">Commission Statements</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Monthly notifications and payment records</p>
+
+<p class="ld">Every month when DFR runs commissions, you receive a WhatsApp notification with your statement for that month. You don't need to chase — it comes to you.</p>
+<h2 class="sub">Your monthly WhatsApp notification includes</h2>
+<ul class="ul">
+    <li>Which month the commission covers</li>
+    <li>How many of your clients paid their invoice that month</li>
+    <li>The total MRR (monthly recurring revenue) your referred clients generated</li>
+    <li>Your commission amount for the month</li>
+    <li>Confirmation that payment is coming within 7 business days</li>
+</ul>
+<h2 class="sub">Viewing your full history in the portal</h2>
+<p class="b">Your portal's Earnings Summary tab shows every month's commission — paid and outstanding. You can also see your annual bonus history there.</p>
+<div class="tip"><div class="lb">Outstanding balance</div><p>If a month shows as Outstanding it means the EFT hasn't been processed yet. If it's been more than 7 business days since the notification, WhatsApp DFR on 083 314 9592.</p></div>
+<div class="info"><div class="lb">Your bank details</div><p>Your commission is paid to the bank account you provided on your application. If your banking details ever change, WhatsApp DFR immediately so the records are updated before the next payment run.</p></div>
+</div>
+<div class="page" id="page-bonus">
+<h1 class="s">Annual Performance Bonus</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Reward for growing your portfolio</p>
+
+<p class="ld">On top of your monthly commissions, DFR rewards partners who grow their referred client portfolio over the year. The bonus is assessed every November.</p>
+<h2 class="sub">Bonus tiers</h2>
+<table class="dt">
+    <thead><tr><th>Portfolio Growth (Jan – Nov)</th><th>Bonus</th></tr></thead>
+    <tbody>
+        <tr><td>0% or decline</td><td>No bonus</td></tr>
+        <tr><td>1% – 10% growth</td><td>1 additional month's commission</td></tr>
+        <tr><td>11% – 20% growth</td><td>2 additional months' commission</td></tr>
+        <tr><td>21%+</td><td>3 additional months' commission</td></tr>
+    </tbody>
+</table>
+<h2 class="sub">How it's calculated</h2>
+<p class="b">Growth is measured as the percentage increase in your active referred clients from January 1st to November 30th. If you had 5 clients at the start of the year and end the year with 7, that's 40% growth — 3 months bonus.</p>
+<div class="gold"><div class="lb">Bonus example</div><p>5 clients at start of year → 7 at year end = 40% growth = 3 months bonus.<br>Monthly commission from 7 clients = R5,250. Bonus = R5,250 × 3 = <strong>R15,750</strong>.</p></div>
+<h2 class="sub">Tracking your bonus in the portal</h2>
+<p class="b">Your portal has a live Annual Bonus Tracker showing:</p>
+<ul class="ul">
+    <li>How many clients you had at the start of the year</li>
+    <li>How many active clients you have now</li>
+    <li>Your current growth percentage</li>
+    <li>Which bonus tier you've reached (shown in gold)</li>
+    <li>An estimated rand value of your bonus</li>
+</ul>
+<div class="tip"><div class="lb">The tracker updates live</div><p>Every time a client you referred is activated, your growth percentage updates. Keep referring throughout the year — every activation pushes your percentage higher.</p></div>
+</div>
+<div class="page" id="page-agreement">
+<h1 class="s">Your Partnership Agreement</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Key terms in plain language</p>
+
+<p class="ld">You signed a Referral Partner Agreement when you activated. Here are the key points in plain language.</p>
+<h2 class="sub">What you agree to do</h2>
+<ul class="ul">
+    <li>Promote DFR's fleet reporting services to transport companies and fleet operators</li>
+    <li>Direct potential clients to DFR using your unique referral link or by giving them DFR's contact details</li>
+    <li>Represent DFR's services accurately — only what DFR has told you it does</li>
+</ul>
+<h2 class="sub">What you agree NOT to do</h2>
+<ul class="ul">
+    <li><strong>No pricing commitments</strong> — don't promise a specific price. Send them to DFR for pricing.</li>
+    <li><strong>No managing clients</strong> — once they've signed up with DFR, it's DFR's relationship to manage</li>
+    <li><strong>No competing</strong> — don't refer clients to similar competing services during the agreement or for 12 months after it ends</li>
+    <li><strong>No impersonation</strong> — you're a partner, not an employee or director of DFR</li>
+</ul>
+<h2 class="sub">Confidentiality</h2>
+<p class="b">All client information, DFR's pricing, systems, and processes are confidential. Don't share client names, contact details, or any internal DFR information with anyone outside of DFR.</p>
+<h2 class="sub">If you want to end the agreement</h2>
+<p class="b">30 days' written notice to DFR is all that's needed. Commission on existing clients continues for 3 months after termination.</p>
+<h2 class="sub">You are an independent contractor</h2>
+<div class="info"><div class="lb">Tax note</div><p>You are not an employee of DFR. You are responsible for your own tax on commission income. No UIF or PAYE is deducted from your payments.</p></div>
+</div>
+<div class="page" id="page-faq">
+<h1 class="s">Frequently Asked Questions</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Quick answers to common questions</p>
+
+<h2 class="sub">I shared my link but don't see the prospect in my portal</h2>
+<p class="b">Prospects appear in your portal once DFR has imported and created their record from the contact form submission. This typically happens within 24–48 hours of the form being submitted. If it's been longer, WhatsApp DFR.</p>
+<h2 class="sub">Someone I referred contacted DFR directly without using my link</h2>
+<p class="b">No problem — WhatsApp DFR on 083 314 9592 and give them the person's name and company. If DFR can confirm it was your referral, they'll link it to you manually.</p>
+<h2 class="sub">Can I refer a client I already know personally?</h2>
+<p class="b">Yes, absolutely. Whether it's someone you know, a business contact, or a stranger who saw your post — all referrals are treated the same.</p>
+<h2 class="sub">What if a client I referred churns (cancels)?</h2>
+<p class="b">Commission stops when the client cancels. Your annual bonus counter is not reduced — only current active clients at November 30th count for the bonus calculation.</p>
+<h2 class="sub">Can I refer multiple people?</h2>
+<p class="b">Yes — there is no limit on the number of clients you can refer. More referrals = more monthly commission = higher chance of hitting the growth bonus tiers.</p>
+<h2 class="sub">When does my commission get paid?</h2>
+<p class="b">DFR runs commissions monthly. You receive a WhatsApp notification with your statement, and payment follows within 7 business days.</p>
+<h2 class="sub">My bank details changed — what do I do?</h2>
+<p class="b">WhatsApp DFR on 083 314 9592 immediately with your updated banking details. This must be done before the next commission run to avoid payment delays.</p>
+<h2 class="sub">Can I access the marketing hub on my phone?</h2>
+<p class="b">Yes — the Marketing Hub and Partner Portal are fully mobile-friendly. Open your portal link on your phone's browser and tap Marketing Hub.</p>
+<h2 class="sub">I can't access my portal link anymore</h2>
+<p class="b">WhatsApp DFR and they'll resend your referral link and portal link via WhatsApp.</p>
+<div class="gold"><div class="lb">Still have a question?</div><p>WhatsApp DFR on <strong>083 314 9592</strong> — we'll get back to you as soon as possible.</p></div>
+</div>
+<div class="page" id="page-quickref">
+<h1 class="s">Quick Reference</h1>
+<p style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:1.25rem;text-transform:uppercase;letter-spacing:0.1em;">Everything in one place</p>
+
+<h2 class="sub">Your key links</h2>
+<table class="kv">
+    <tr><td>Your Portal</td><td><code>partner-portal.html?ref=ref_your_name</code><br><span style="font-size:11px;color:#475569;">Sent to you via WhatsApp — bookmark it</span></td></tr>
+    <tr><td>Your Referral Link</td><td><code>discover.html?ref=ref_your_name</code><br><span style="font-size:11px;color:#475569;">Share this everywhere</span></td></tr>
+    <tr><td>Marketing Hub</td><td>Available from your portal — tap 📣 Marketing Hub</td></tr>
+    <tr><td>Partner Signup (to invite others)</td><td><code>partner-signup.html</code></td></tr>
+</table>
+<h2 class="sub">DFR contact details</h2>
+<table class="kv">
+    <tr><td>WhatsApp / Phone</td><td>083 314 9592</td></tr>
+    <tr><td>Email</td><td>dynamicfleetreports&#64;gmail&#46;com</td></tr>
+    <tr><td>Address</td><td>Spitskop Farm, Moorreesburg</td></tr>
+</table>
+<h2 class="sub">Commission at a glance</h2>
+<table class="kv">
+    <tr><td>Your rate</td><td>15% of monthly retainer</td></tr>
+    <tr><td>Paid when</td><td>After client invoice confirmed paid</td></tr>
+    <tr><td>Paid how</td><td>EFT within 7 business days</td></tr>
+    <tr><td>Duration</td><td>Every month the client stays</td></tr>
+    <tr><td>Setup fee excluded</td><td>R2,500 once-off is not commissionable</td></tr>
+</table>
+<h2 class="sub">Annual bonus at a glance</h2>
+<table class="kv">
+    <tr><td>1–10% portfolio growth</td><td>1 extra month commission</td></tr>
+    <tr><td>11–20% growth</td><td>2 extra months commission</td></tr>
+    <tr><td>21%+ growth</td><td>3 extra months commission</td></tr>
+    <tr><td>Assessed</td><td>Every November</td></tr>
+</table>
+<h2 class="sub">Useful reminders</h2>
+<ul class="ul">
+    <li>Only <strong>activated clients</strong> earn commission — not prospects</li>
+    <li>Your portal updates <strong>live</strong> — check it any time</li>
+    <li>Your link <strong>never changes</strong> — share it freely</li>
+    <li>Update your bank details <strong>before</strong> each commission run if they change</li>
+    <li>Community scripts in your Marketing Hub use <strong>your link</strong> automatically</li>
+</ul>
+</div>
+</div>
+</div>
+<script>
+var cur=0;
+var PAGES=12;
+var IDS=["welcome","yourlink","portal","marketing","referring","pipeline","commission","statements","bonus","agreement","faq","quickref"];
+function go(n){
+  if(n<0||n>=PAGES) return;
+  document.querySelector('.page.on').classList.remove('on');
+  document.querySelector('.si.on').classList.remove('on');
+  cur=n;
+  document.getElementById('page-'+IDS[cur]).classList.add('on');
+  document.getElementById('si-'+IDS[cur]).classList.add('on');
+  document.getElementById('tp').textContent='Page '+(cur+1)+' of '+PAGES;
+  document.getElementById('prevBtn').disabled=cur===0;
+  document.getElementById('nextBtn').disabled=cur===PAGES-1;
+  document.getElementById('nextBtn').textContent=cur===PAGES-1?'\u2713 Complete':'Next \u2192';
+  document.getElementById('pf').style.width=((cur+1)/PAGES*100)+'%';
+  window.scrollTo(0,0);
+  document.getElementById('sb').classList.remove('open');
+}
+function nav(dir){go(cur+dir);}
+function toggleSidebar(){document.getElementById('sb').classList.toggle('open');}
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') nav(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') nav(-1);
+});
+go(0);
+</script>
+</body>
+</html>
