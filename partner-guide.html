@@ -407,17 +407,29 @@ var cur=0;
 var PAGES=12;
 var IDS=["welcome","yourlink","portal","marketing","referring","pipeline","commission","statements","bonus","agreement","faq","quickref"];
 function go(n){
-  if(n<0||n>=PAGES) return;
-  document.querySelector('.page.on').classList.remove('on');
-  document.querySelector('.si.on').classList.remove('on');
-  cur=n;
+  if(n < 0 || n >= PAGES) return;
+
+  const currentPage = document.querySelector('.page.on');
+  const currentMenu = document.querySelector('.si.on');
+
+  if(currentPage) currentPage.classList.remove('on');
+  if(currentMenu) currentMenu.classList.remove('on');
+
+  cur = n;
+
   document.getElementById('page-'+IDS[cur]).classList.add('on');
   document.getElementById('si-'+IDS[cur]).classList.add('on');
-  document.getElementById('tp').textContent='Page '+(cur+1)+' of '+PAGES;
-  document.getElementById('prevBtn').disabled=cur===0;
-  document.getElementById('nextBtn').disabled=cur===PAGES-1;
-  document.getElementById('nextBtn').textContent=cur===PAGES-1?'\u2713 Complete':'Next \u2192';
-  document.getElementById('pf').style.width=((cur+1)/PAGES*100)+'%';
+
+  document.getElementById('tp').textContent = 'Page '+(cur+1)+' of '+PAGES;
+
+  document.getElementById('prevBtn').disabled = cur === 0;
+  document.getElementById('nextBtn').disabled = cur === PAGES-1;
+
+  document.getElementById('nextBtn').textContent =
+      cur === PAGES-1 ? '\u2713 Complete' : 'Next \u2192';
+
+  document.getElementById('pf').style.width = ((cur+1)/PAGES*100)+'%';
+
   window.scrollTo(0,0);
   document.getElementById('sb').classList.remove('open');
 }
