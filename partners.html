@@ -193,14 +193,15 @@
 
     <div class="toolbar">
         <button class="btn btn-green" onclick="openAddModal()">➕ Add Partner Manually</button>
-        <button class="btn btn-outline" onclick="window.open('partner-signup.html','_blank')">🔗 Partner Signup Page</button>
+        <button class="btn btn-green" onclick="window.open('partner-signup.html','_blank')">🔗 Partner Signup Page</button>
+        <button class="btn btn-outline" onclick="copySignupLink()" id="copySignupBtn">📋 Copy Signup Link for WhatsApp</button>
         <button class="btn btn-outline" onclick="openCommModal()">💰 Run Monthly Commissions</button>
         <button class="btn btn-gold"    onclick="openBonusModal()">🏆 Run Annual Bonus</button>
         <button class="btn" style="background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);" onclick="openScriptModeration()">&#9997; Review Scripts</button>
     </div>
 
     <div class="partners-grid" id="partnersGrid">
-        <div class="empty-state"><div class="icon">🤝</div><p>No referral partners yet.</p><button class="btn btn-green" onclick="openAddModal()">➕ Add First Partner</button></div>
+        <div class="empty-state"><div class="icon">🤝</div><p>No referral partners yet.<br><span style="font-size:12px;color:#475569;">Share the signup link to get your first partner on board.</span></p><button class="btn btn-green" onclick="window.open('partner-signup.html','_blank')">🔗 Partner Signup Page</button><button class="btn btn-outline" style="margin-top:0.5rem;" onclick="openAddModal()">➕ Add Manually</button></div>
     </div>
     </div><!-- end tab-partners -->
 
@@ -1136,7 +1137,7 @@ async function declinePartner(id){
 function renderPartners(){
     const active=_partners.filter(p=>p.status!=='pending');
     const grid=document.getElementById('partnersGrid');
-    if(!active.length){ grid.innerHTML='<div class="empty-state"><div class="icon">🤝</div><p>No active or inactive partners yet.</p></div>'; return; }
+    if(!active.length){ grid.innerHTML='<div class="empty-state"><div class="icon">🤝</div><p>No active or inactive partners yet.<br><span style=\'font-size:12px;color:#475569;\'>Share the signup link to get your first partner on board.</span></p><button class=\'btn btn-green\' onclick=\'window.open(\"partner-signup.html\",\"_blank\")\'>🔗 Partner Signup Page</button></div>'; return; }
     grid.innerHTML=active.map(p=>{
         const code=getRefCode(p);
         const link=getRefLink(p);
@@ -1602,6 +1603,24 @@ async function deleteScript(idx) {
 
     function escHtml(str) {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+
+    function copySignupLink() {
+        var link = 'https://dynamicfleetreports-bit.github.io/DFR/partner-signup.html';
+        var waText = 'Hi! I wanted to share this with you \u2014 join the DFR Referral Partner Programme and earn 15% commission on every fleet client you refer.\n\nSign up here (takes 2 minutes):\n' + link + '\n\nFeel free to call me if you have questions.';
+        navigator.clipboard.writeText(waText).then(function() {
+            var btn = document.getElementById('copySignupBtn');
+            var orig = btn.textContent;
+            btn.textContent = '\u2705 Copied! Paste into WhatsApp';
+            btn.style.borderColor = 'rgba(16,185,129,0.4)';
+            btn.style.color = 'var(--grn)';
+            setTimeout(function() {
+                btn.textContent = orig;
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }, 3000);
+        });
     }
 
 </script>
