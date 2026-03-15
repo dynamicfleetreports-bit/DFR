@@ -1119,7 +1119,23 @@ async function approvePartner(id){
     // Send WA to partner
     const link=getRefLink(p);
     const portalLink='https://dynamicfleetreports-bit.github.io/DFR/partner-portal.html?ref='+getRefCode(p);
-    const msg='🎉 Welcome to the DFR Referral Partner Programme, '+p.name+'!\n\nYour application has been approved. Here are your details:\n\n🔗 Your Referral Link:\n'+link+'\n\n📊 Your Partner Portal (bookmark this):\n'+portalLink+'\n\nShare your referral link in your marketing. Every lead that comes through it is automatically linked to you.\n\nCommission: '+( p.commRate||15)+'% of monthly retainer, paid after client's invoice is confirmed paid.\n\nWelcome aboard! 🚛\nDynamic Fleet Reporting\n083 314 9592';
+ const msg = `🎉 Welcome to the DFR Referral Partner Programme, ${p.name}!
+
+Your application has been approved. Here are your details:
+
+🔗 Your Referral Link:
+${link}
+
+📊 Your Partner Portal (bookmark this):
+${portalLink}
+
+Share your referral link in your marketing. Every lead that comes through it is automatically linked to you.
+
+Commission: ${(p.commRate || 15)}% of monthly retainer, paid after client's invoice is confirmed paid.
+
+Welcome aboard! 🚛
+Dynamic Fleet Reporting
+083 314 9592`;
     await notifyWA(msg,p.phone);
     toast('Partner approved and WhatsApp sent ✓','green');
     renderAll();
