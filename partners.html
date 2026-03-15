@@ -1546,8 +1546,7 @@ async function deleteScript(idx) {
     }
 
     // ── Community scripts management ──────────────────────────────────────────
-    const PARTNER_SCRIPTS_KEY = 'PARTNER_MARKETING_SCRIPTS';
-
+   
     async function loadCommunityScripts() {
         try {
             var all = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
