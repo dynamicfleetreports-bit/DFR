@@ -1382,7 +1382,11 @@ async function notifyWA(msg,toPhone){
         const cb='_cb'+Date.now();
         window[cb]=()=>{ delete window[cb]; res(); };
         const s=document.createElement('script');
-        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
+        s.src=APPS_URL+'?action=whatsapp&message='+encos.src=APPS_URL
+  + '?action=whatsapp'
+  + '&phone=' + encodeURIComponent(toPhone)
+  + '&message=' + encodeURIComponent(msg)
+  + '&callback=' + cb;deURIComponent(msg)+'&callback='+cb;
         s.onerror=()=>res();
         document.body.appendChild(s);
         setTimeout(res,5000);
