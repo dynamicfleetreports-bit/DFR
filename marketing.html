@@ -7,103 +7,154 @@
     <title>Marketing Hub | Dynamic Fleet Reporting</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --ink:#0f172a; --bg:#020617; --panel:#0f172a; --border:rgba(255,255,255,0.06);
-            --green:#10b981; --blue:#3b82f6; --gold:#f59e0b; --red:#ef4444; --purple:#8b5cf6;
-            --pink:#ec4899; --teal:#06b6d4;
-        }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:'Outfit',sans-serif; background:var(--bg); color:#e2e8f0; display:flex; min-height:100vh; }
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--pink:#ec4899;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;}
+        #sidebar{width:260px;background:var(--panel);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+        .logo-area{padding:0 1rem 2.5rem;}
+        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;}
+        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
+        .nav-item.active{background:rgba(16,185,129,0.1);color:var(--grn);}
+        .main{flex:1;padding:3rem;overflow-y:auto;}
+        .eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.4em;color:var(--grn);margin-bottom:0.75rem;}
+        .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
+        .page-title span{color:var(--grn);}
+        .page-sub{font-size:13px;color:#64748b;margin-top:0.5rem;font-weight:600;}
 
-        /* Sidebar */
-        #sidebar { width:260px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:2rem 1rem; flex-shrink:0; position:sticky; top:0; height:100vh; overflow-y:auto; }
-        .logo-area { padding:0 1rem 2.5rem; }
-        .nav-item { display:flex; align-items:center; padding:0.85rem 1rem; margin-bottom:0.25rem; border-radius:0.75rem; color:#64748b; text-transform:uppercase; font-size:11px; font-weight:900; letter-spacing:0.1em; text-decoration:none; transition:all 0.2s; }
-        .nav-item:hover { color:#e2e8f0; background:rgba(255,255,255,0.03); }
-        .nav-item.active { background:rgba(16,185,129,0.1); color:var(--green); }
-
-        /* Main */
-        .main { flex:1; overflow-y:auto; padding:3rem; }
-
-        /* Header */
-        .page-header { margin-bottom:2.5rem; }
-        .page-eyebrow { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.4em; color:var(--green); margin-bottom:0.75rem; }
-        .page-title { font-size:3.5rem; font-weight:900; font-style:italic; text-transform:uppercase; letter-spacing:-0.02em; line-height:1; color:white; }
-        .page-title span { color:var(--green); }
-        .page-sub { font-size:13px; color:#64748b; margin-top:0.75rem; font-weight:600; }
+        /* Section tabs */
+        .section-tabs{display:flex;gap:6px;margin:1.5rem 0;border-bottom:1px solid var(--brd);padding-bottom:1rem;flex-wrap:wrap;}
+        .stab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .stab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
+        .stab.active{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.35);color:var(--grn);}
+        .stab.manage.active{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.35);color:#c4b5fd;}
+        .tab-section{display:none;}.tab-section.active{display:block;}
 
         /* Platform tabs */
-        .platform-tabs { display:flex; gap:0.5rem; margin-bottom:2rem; flex-wrap:wrap; }
-        .tab { padding:8px 18px; border-radius:20px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer; border:1.5px solid rgba(255,255,255,0.1); color:#64748b; background:none; transition:all 0.2s; font-family:'Outfit',sans-serif; }
-        .tab:hover { color:white; border-color:rgba(255,255,255,0.3); }
-        .tab.active { color:white; }
-        .tab-fb.active    { background:rgba(24,119,242,0.15); border-color:#1877f2; color:#60a5fa; }
-        .tab-li.active    { background:rgba(0,119,181,0.15); border-color:#0077b5; color:#38bdf8; }
-        .tab-ig.active    { background:rgba(236,72,153,0.15); border-color:#ec4899; color:#f472b6; }
-        .tab-wa.active    { background:rgba(37,211,102,0.15); border-color:#25d366; color:#4ade80; }
-        .tab-tt.active    { background:rgba(255,255,255,0.08); border-color:white; color:white; }
-        .tab-email.active { background:rgba(245,158,11,0.15); border-color:#f59e0b; color:#fbbf24; }
-
-        /* Platform section */
-        .platform-section { display:none; }
-        .platform-section.active { display:block; }
+        .plat-bar{display:flex;gap:5px;margin-bottom:1.25rem;flex-wrap:wrap;}
+        .ptab{padding:7px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1.5px solid rgba(255,255,255,0.1);color:#64748b;background:none;transition:all 0.2s;}
+        .ptab:hover{color:white;border-color:rgba(255,255,255,0.3);}
+        .ptab-fb.active{background:rgba(24,119,242,0.15);border-color:#1877f2;color:#60a5fa;}
+        .ptab-li.active{background:rgba(0,119,181,0.15);border-color:#0077b5;color:#38bdf8;}
+        .ptab-ig.active{background:rgba(236,72,153,0.15);border-color:#ec4899;color:#f472b6;}
+        .ptab-wa.active{background:rgba(37,211,102,0.15);border-color:#25d366;color:#4ade80;}
+        .ptab-tt.active{background:rgba(255,255,255,0.08);border-color:white;color:white;}
+        .ptab-email.active{background:rgba(245,158,11,0.15);border-color:#f59e0b;color:#fbbf24;}
+        .plat-section{display:none;}.plat-section.active{display:block;}
 
         /* Platform banner */
-        .platform-banner { border-radius:1rem; padding:1.5rem 2rem; margin-bottom:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
-        .pb-fb    { background:linear-gradient(135deg,rgba(24,119,242,0.15),rgba(24,119,242,0.05)); border:1px solid rgba(24,119,242,0.3); }
-        .pb-li    { background:linear-gradient(135deg,rgba(0,119,181,0.15),rgba(0,119,181,0.05)); border:1px solid rgba(0,119,181,0.3); }
-        .pb-ig    { background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(236,72,153,0.05)); border:1px solid rgba(236,72,153,0.3); }
-        .pb-wa    { background:linear-gradient(135deg,rgba(37,211,102,0.15),rgba(37,211,102,0.05)); border:1px solid rgba(37,211,102,0.3); }
-        .pb-tt    { background:linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.15); }
-        .pb-email { background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05)); border:1px solid rgba(245,158,11,0.3); }
-        .pb-title { font-size:1.5rem; font-weight:900; font-style:italic; text-transform:uppercase; color:white; }
-        .pb-meta  { font-size:11px; color:rgba(255,255,255,0.4); font-weight:700; margin-top:2px; }
-        .pb-tip   { background:rgba(0,0,0,0.3); border-radius:8px; padding:10px 14px; font-size:11px; color:rgba(255,255,255,0.6); font-weight:600; max-width:340px; line-height:1.5; }
-        .pb-tip strong { color:var(--green); }
+        .platform-banner{border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+        .pb-fb{background:linear-gradient(135deg,rgba(24,119,242,0.12),rgba(24,119,242,0.04));border:1px solid rgba(24,119,242,0.25);}
+        .pb-li{background:linear-gradient(135deg,rgba(0,119,181,0.12),rgba(0,119,181,0.04));border:1px solid rgba(0,119,181,0.25);}
+        .pb-ig{background:linear-gradient(135deg,rgba(236,72,153,0.12),rgba(236,72,153,0.04));border:1px solid rgba(236,72,153,0.25);}
+        .pb-wa{background:linear-gradient(135deg,rgba(37,211,102,0.12),rgba(37,211,102,0.04));border:1px solid rgba(37,211,102,0.25);}
+        .pb-tt{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.12);}
+        .pb-email{background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.04));border:1px solid rgba(245,158,11,0.25);}
+        .pb-title{font-size:1.3rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;}
+        .pb-meta{font-size:11px;color:rgba(255,255,255,0.4);font-weight:700;margin-top:2px;}
+        .pb-tip{background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 14px;font-size:11px;color:rgba(255,255,255,0.55);max-width:320px;line-height:1.5;font-weight:600;}
+        .pb-tip strong{color:var(--grn);}
 
-        /* Post cards grid */
-        .posts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(520px,1fr)); gap:1.5rem; }
+        /* Bio link banner */
+        .bio-banner{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
 
-        /* Post card */
-        .post-card { background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:1rem; overflow:hidden; }
-        .post-card-head { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
-        .post-tag { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; padding:3px 8px; border-radius:4px; }
-        .post-card-body { padding:16px; }
-        .post-preview { background:#000d1a; border-radius:8px; padding:14px; font-size:13px; line-height:1.7; color:#cbd5e1; white-space:pre-wrap; font-family:'Outfit',sans-serif; max-height:280px; overflow-y:auto; border:1px solid rgba(255,255,255,0.04); }
-        .post-preview::-webkit-scrollbar { width:4px; }
-        .post-preview::-webkit-scrollbar-track { background:transparent; }
-        .post-preview::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
-        .post-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; }
-        .btn-copy { background:var(--green); color:#020617; border:none; padding:8px 18px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; letter-spacing:0.05em; }
-        .btn-copy:hover { background:#059669; transform:translateY(-1px); }
-        .btn-copy.copied { background:#6366f1; }
-        .hashtag-wrap { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:6px 10px; font-size:10px; color:#64748b; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+        /* Post grid */
+        .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:1.25rem;}
+        .post-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;transition:border-color 0.2s;}
+        .post-card:hover{border-color:rgba(255,255,255,0.14);}
+        .post-card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);}
+        .post-tag{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;padding:3px 8px;border-radius:4px;}
+        .post-card-body{padding:16px;}
+        .post-preview{background:#000d1a;border-radius:8px;padding:14px;font-size:13px;line-height:1.7;color:#cbd5e1;white-space:pre-wrap;max-height:280px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);}
+        .post-footer{padding:12px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        .btn-copy{background:var(--grn);color:#020617;border:none;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;letter-spacing:0.05em;}
+        .btn-copy:hover{background:var(--gd);}
+        .btn-copy.copied{background:#6366f1;}
+        .hashtag-wrap{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 10px;font-size:10px;color:#64748b;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 
-        /* Email cards are wider */
-        .email-card { background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:1rem; overflow:hidden; margin-bottom:1.5rem; }
-        .email-card-head { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-        .email-subject { font-size:11px; color:#64748b; font-weight:700; margin-top:3px; }
-        .email-when { font-size:10px; font-weight:900; padding:4px 10px; border-radius:4px; background:rgba(245,158,11,0.1); color:#f59e0b; text-transform:uppercase; }
-        .email-body-wrap { padding:16px 20px; }
-        .email-preview { background:#000d1a; border-radius:8px; padding:16px; font-size:13px; line-height:1.8; color:#cbd5e1; white-space:pre-wrap; font-family:'Outfit',sans-serif; max-height:360px; overflow-y:auto; border:1px solid rgba(255,255,255,0.04); }
-        .email-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; }
+        /* Email cards */
+        .email-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;margin-bottom:1.25rem;}
+        .email-card-head{padding:14px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+        .email-subject{font-size:11px;color:#64748b;font-weight:700;margin-top:3px;}
+        .email-when{font-size:10px;font-weight:900;padding:4px 10px;border-radius:4px;background:rgba(245,158,11,0.1);color:#f59e0b;text-transform:uppercase;}
+        .email-body-wrap{padding:16px 20px;}
+        .email-preview{background:#000d1a;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap;max-height:360px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);}
+        .email-footer{padding:12px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 
         /* Tips box */
-        .tips-box { background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); border-radius:1rem; padding:1.25rem 1.5rem; margin-bottom:1.5rem; }
-        .tips-title { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:#818cf8; margin-bottom:0.75rem; }
-        .tips-list { display:flex; flex-direction:column; gap:6px; }
-        .tips-list li { font-size:12px; color:rgba(255,255,255,0.5); font-weight:600; list-style:none; padding-left:1.25rem; position:relative; }
-        .tips-list li::before { content:'→'; position:absolute; left:0; color:#818cf8; }
+        .tips-box{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;}
+        .tips-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#818cf8;margin-bottom:0.75rem;}
+        .tips-list{display:flex;flex-direction:column;gap:6px;}
+        .tips-list li{font-size:12px;color:rgba(255,255,255,0.5);font-weight:600;list-style:none;padding-left:1.25rem;position:relative;}
+        .tips-list li::before{content:'→';position:absolute;left:0;color:#818cf8;}
 
-        /* WhatsApp special */
-        .wa-note { background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.15); border-radius:8px; padding:12px 14px; font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:1rem; font-weight:600; }
-        .wa-note strong { color:#4ade80; }
+        /* ══ MANAGE POSTS TAB ══════════════════════════════════════════════ */
+        .manage-toolbar{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+        .btn{padding:9px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .btn-pur{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);}
+        .btn-pur:hover{background:rgba(139,92,246,0.25);}
+        .btn-green{background:var(--grn);color:#020617;}
+        .btn-green:hover{background:var(--gd);}
+        .btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;}
+        .btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
+        .filter-bar{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
+        .fbtn{padding:5px 14px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .fbtn.active{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.1);color:#c4b5fd;}
+        .fbtn:hover{color:#e2e8f0;}
 
-        @media(max-width:900px) {
-            .posts-grid { grid-template-columns:1fr; }
-            .main { padding:1.5rem; }
-            #sidebar { display:none; }
-        }
+        /* Manage post card */
+        .mpost-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:0.75rem;transition:border-color 0.2s;}
+        .mpost-card:hover{border-color:rgba(255,255,255,0.1);}
+        .mpost-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:0.5rem;}
+        .mpost-meta{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
+        .plat-badge{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;padding:3px 10px;border-radius:20px;}
+        .pb-live{background:rgba(16,185,129,0.15);color:var(--grn);}
+        .pb-draft{background:rgba(245,158,11,0.15);color:var(--gld);}
+        .mpost-actions{display:flex;gap:6px;}
+        .btn-sm{padding:5px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .bsb{background:rgba(59,130,246,0.15);color:#60a5fa;}
+        .bsb:hover{background:rgba(59,130,246,0.25);}
+        .bsr{background:rgba(239,68,68,0.1);color:#f87171;}
+        .bsr:hover{background:rgba(239,68,68,0.2);}
+        .bsg{background:rgba(16,185,129,0.15);color:var(--grn);}
+        .bsg:hover{background:rgba(16,185,129,0.25);}
+        .bsgd{background:rgba(245,158,11,0.15);color:var(--gld);}
+        .bsgd:hover{background:rgba(245,158,11,0.25);}
+        .mpost-body{padding:12px 16px;font-size:12.5px;color:#94a3b8;white-space:pre-wrap;max-height:120px;overflow:hidden;line-height:1.6;position:relative;}
+        .mpost-body.expanded{max-height:none;}
+        .mpost-fade{position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,rgba(15,23,42,0.95));pointer-events:none;}
+        .mpost-foot{padding:8px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#475569;flex-wrap:wrap;gap:0.5rem;}
+
+        /* Empty state */
+        .empty-state{text-align:center;padding:3rem 2rem;color:#64748b;}
+        .empty-state .icon{font-size:2.5rem;margin-bottom:0.75rem;}
+
+        /* Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
+        .modal-overlay.open{display:flex;}
+        .modal{background:#0f172a;border:1px solid var(--brd);border-radius:20px;padding:2rem;width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+        .modal-title{font-size:1.15rem;font-weight:900;color:white;margin-bottom:1.25rem;}
+        .form-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;}
+        .form-group label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;}
+        .form-group input,.form-group select,.form-group textarea{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:0.65rem 0.9rem;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--grn);}
+        .form-group textarea{resize:vertical;min-height:160px;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+        .modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap;}
+
+        /* Toast */
+        .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
+        .toast.show{transform:translateY(0);opacity:1;}
+
+        /* WA note */
+        .wa-note{background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);border-radius:8px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:1rem;font-weight:600;}
+        .wa-note strong{color:#4ade80;}
+
+        /* Stats row in manage */
+        .mstats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem;}
+        .mstat{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;text-align:center;}
+        .mstat-val{font-size:1.6rem;font-weight:900;font-style:italic;color:white;}
+        .mstat-val.grn{color:var(--grn);} .mstat-val.gld{color:var(--gld);} .mstat-val.pur{color:#c4b5fd;}
+        .mstat-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-top:3px;}
     </style>
 </head>
 <body>
@@ -111,94 +162,175 @@
 <aside id="sidebar">
     <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
     <nav>
-        <a href="index.html"     class="nav-item">Dashboard</a>
-        <a href="pipeline.html"  class="nav-item">Prospect Pipeline</a>
-        <a href="database.html"  class="nav-item">Active Database</a>
-        <a href="audit.html"     class="nav-item">Forensic Audit</a>
-        <a href="churned.html"   class="nav-item">Churned Clients</a>
-        <a href="invoice.html"   class="nav-item">Invoices</a>
-        <a href="partners.html"  class="nav-item">🤝 Referral Partners</a>
+        <a href="index.html"        class="nav-item">Dashboard</a>
+        <a href="pipeline.html"     class="nav-item">Prospect Pipeline</a>
+        <a href="database.html"     class="nav-item">Active Database</a>
+        <a href="audit.html"        class="nav-item">Forensic Audit</a>
+        <a href="churned.html"      class="nav-item">Churned Clients</a>
+        <a href="invoice.html"      class="nav-item">Invoices</a>
+        <a href="partners.html"     class="nav-item">🤝 Referral Partners</a>
         <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html"  class="nav-item">⚙ Settings</a>
-        <a href="marketing.html" class="nav-item active">📣 Marketing</a>
+        <a href="settings.html"     class="nav-item">⚙ Settings</a>
+        <a href="marketing.html"    class="nav-item active">📣 Marketing</a>
     </nav>
 </aside>
 
 <main class="main">
-    <div class="page-header">
-        <div class="page-eyebrow">Client Acquisition</div>
-        <h1 class="page-title">Marketing <span>Hub</span></h1>
-        <p class="page-sub">Ready-to-post content for every platform — just copy, paste and post. No marketing experience needed.</p>
+    <div class="eyebrow">Client Acquisition</div>
+    <h1 class="page-title">Marketing <span>Hub</span></h1>
+    <p class="page-sub">Ready-to-post content for every platform. Manage all posts from ✏️ Manage Posts — changes sync to partners instantly on publish.</p>
+
+    <!-- Section Tabs -->
+    <div class="section-tabs">
+        <button class="stab active"  onclick="switchSection('view',this)">📣 View Posts</button>
+        <button class="stab manage"  onclick="switchSection('manage',this)">✏️ Manage Posts</button>
     </div>
 
-    <!-- Bio Link Banner -->
-    <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.04));border:1.5px solid rgba(16,185,129,0.35);border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-        <div style="font-size:2rem;">🔗</div>
-        <div style="flex:1;min-width:200px;">
-            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--green);margin-bottom:4px;">Your "Link in Bio" URL</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:10px;">Put this link in your Instagram bio, TikTok bio, and anywhere posts say "link in bio"</div>
-            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <div style="background:#000d1a;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 16px;font-family:'Courier New',monospace;font-size:13px;color:#10b981;font-weight:700;letter-spacing:0.02em;flex:1;min-width:280px;word-break:break-all;">
-                    https://dynamicfleetreports-bit.github.io/DFR/discover.html
+    <!-- ═══════════════════════════════════════════════════════
+         VIEW POSTS SECTION
+    ════════════════════════════════════════════════════════ -->
+    <div class="tab-section active" id="tab-view">
+
+        <!-- Bio Link Banner -->
+        <div class="bio-banner">
+            <div style="font-size:2rem;">🔗</div>
+            <div style="flex:1;min-width:200px;">
+                <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:4px;">Your "Link in Bio" URL</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:10px;">Put this link in your Instagram bio, TikTok bio, and anywhere posts say "link in bio"</div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <div style="background:#000d1a;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 16px;font-family:'Courier New',monospace;font-size:13px;color:#10b981;font-weight:700;flex:1;min-width:260px;word-break:break-all;">https://dynamicfleetreports-bit.github.io/DFR/discover.html</div>
+                    <button onclick="copyBioLink(this)" style="background:var(--grn);color:#020617;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">📋 Copy Link</button>
                 </div>
-                <button onclick="copyBioLink(this)" style="background:var(--green);color:#020617;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:0.05em;white-space:nowrap;transition:all 0.2s;">📋 Copy Link</button>
             </div>
         </div>
-        <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:12px 16px;max-width:280px;">
-            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:6px;">Where to use it</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.55);font-weight:600;line-height:1.7;">
-                📸 Instagram → Edit Profile → Website<br>
-                🎵 TikTok → Edit Profile → Website<br>
-                💼 LinkedIn → Edit Profile → Website<br>
-                📘 Facebook → About → Website
+
+        <!-- Platform Tabs -->
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+            <div class="plat-bar" style="margin-bottom:0;flex:1;">
+                <button class="ptab ptab-fb active" onclick="switchPlat('fb',this)">📘 Facebook</button>
+                <button class="ptab ptab-li"        onclick="switchPlat('li',this)">💼 LinkedIn</button>
+                <button class="ptab ptab-ig"        onclick="switchPlat('ig',this)">📸 Instagram</button>
+                <button class="ptab ptab-wa"        onclick="switchPlat('wa',this)">💬 WhatsApp</button>
+                <button class="ptab ptab-tt"        onclick="switchPlat('tt',this)">🎵 TikTok</button>
+                <button class="ptab ptab-email"     onclick="switchPlat('email',this)">📧 Email</button>
             </div>
+            <button id="openPlatBtn" onclick="openPlat('fb')" style="background:rgba(16,185,129,0.15);color:var(--grn);border:1.5px solid rgba(16,185,129,0.4);padding:8px 18px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🚀 Open Facebook</button>
+        </div>
+
+        <!-- Platform sections — rendered dynamically -->
+        <div id="plat-fb"    class="plat-section active"></div>
+        <div id="plat-li"    class="plat-section"></div>
+        <div id="plat-ig"    class="plat-section"></div>
+        <div id="plat-wa"    class="plat-section"></div>
+        <div id="plat-tt"    class="plat-section"></div>
+        <div id="plat-email" class="plat-section"></div>
+
+    </div><!-- /tab-view -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         MANAGE POSTS SECTION
+    ════════════════════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-manage">
+
+        <div class="mstats" id="manageStats"></div>
+
+        <div class="manage-toolbar">
+            <button class="btn btn-pur" onclick="openNewPostModal()">➕ New Post</button>
+            <button class="btn btn-outline" onclick="loadPosts()">🔄 Refresh</button>
+        </div>
+
+        <div class="filter-bar" id="filterBar">
+            <button class="fbtn active" onclick="filterPosts('all',this)">All</button>
+            <button class="fbtn" onclick="filterPosts('live',this)">✅ Live</button>
+            <button class="fbtn" onclick="filterPosts('draft',this)">📝 Draft</button>
+            <button class="fbtn" onclick="filterPosts('fb',this)">📘 Facebook</button>
+            <button class="fbtn" onclick="filterPosts('li',this)">💼 LinkedIn</button>
+            <button class="fbtn" onclick="filterPosts('ig',this)">📸 Instagram</button>
+            <button class="fbtn" onclick="filterPosts('wa',this)">💬 WhatsApp</button>
+            <button class="fbtn" onclick="filterPosts('tt',this)">🎵 TikTok</button>
+            <button class="fbtn" onclick="filterPosts('email',this)">📧 Email</button>
+        </div>
+
+        <div id="managePostsList"></div>
+
+    </div><!-- /tab-manage -->
+
+</main>
+
+<!-- New/Edit Post Modal -->
+<div class="modal-overlay" id="postModal">
+    <div class="modal">
+        <div class="modal-title" id="postModalTitle">➕ New Post</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Platform *</label>
+                <select id="pm_platform">
+                    <option value="fb">📘 Facebook</option>
+                    <option value="li">💼 LinkedIn</option>
+                    <option value="ig">📸 Instagram</option>
+                    <option value="wa">💬 WhatsApp</option>
+                    <option value="tt">🎵 TikTok / Reels</option>
+                    <option value="email">📧 Email</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tag / Label *</label>
+                <input type="text" id="pm_tag" placeholder="e.g. 💸 Money Shock">
+            </div>
+        </div>
+        <div class="form-group" id="pm_subject_group" style="display:none;">
+            <label>Email Subject Line</label>
+            <input type="text" id="pm_subject" placeholder="e.g. Your free fleet audit — here's how it works">
+        </div>
+        <div class="form-group" id="pm_when_group" style="display:none;">
+            <label>When to Send</label>
+            <input type="text" id="pm_when" placeholder="e.g. Send within 1 hour">
+        </div>
+        <div class="form-group">
+            <label>Post Content *</label>
+            <textarea id="pm_content" placeholder="Write your post here..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Hashtags</label>
+            <input type="text" id="pm_hashtags" placeholder="#FleetManagement #SouthAfrica #Transport">
+        </div>
+        <div class="form-group">
+            <label>Post Number / Order Label</label>
+            <input type="text" id="pm_order" placeholder="e.g. Post #1 — Use this first">
+        </div>
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#fbbf24;font-weight:600;line-height:1.6;">
+            💡 <strong>Save as Draft</strong> stores the post but keeps it hidden from partners.<br>
+            <strong>Save &amp; Publish</strong> makes it live in the partner hub immediately.
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('postModal')">Cancel</button>
+            <button class="btn" style="background:rgba(245,158,11,0.15);color:var(--gld);border:1px solid rgba(245,158,11,0.3);" onclick="savePost(false)">💾 Save as Draft</button>
+            <button class="btn btn-green" onclick="savePost(true)">🚀 Save &amp; Publish</button>
         </div>
     </div>
+</div>
 
-    <!-- Platform Tabs -->
-    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap;">
-        <div class="platform-tabs" style="margin-bottom:0;flex:1;">
-            <button class="tab tab-fb active"    onclick="switchTab('fb',this)">📘 Facebook</button>
-            <button class="tab tab-li"           onclick="switchTab('li',this)">💼 LinkedIn</button>
-            <button class="tab tab-ig"           onclick="switchTab('ig',this)">📸 Instagram</button>
-            <button class="tab tab-wa"           onclick="switchTab('wa',this)">💬 WhatsApp</button>
-            <button class="tab tab-tt"           onclick="switchTab('tt',this)">🎵 TikTok</button>
-            <button class="tab tab-email"        onclick="switchTab('email',this)">📧 Email</button>
-        </div>
-        <button id="openPlatformBtn" onclick="openPlatform('fb')" style="background:rgba(16,185,129,0.15);color:var(--green);border:1.5px solid rgba(16,185,129,0.4);padding:8px 18px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:0.06em;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.25)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">🚀 Open Facebook</button>
-    </div>
+<div class="toast" id="toast"></div>
 
-    <!-- ═══════════════════════════════════════════════
-         FACEBOOK
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section active" id="section-fb">
-        <div class="platform-banner pb-fb">
-            <div>
-                <div class="pb-title">📘 Facebook</div>
-                <div class="pb-meta">Best times: Tue–Thu · 12pm–2pm &amp; 6pm–8pm · Post 3x per week</div>
-            </div>
-            <div class="pb-tip"><strong>Your best platform.</strong> SA fleet owners are 35–55, very active on Facebook. Groups like "SA Trucking" and "Transport SA" are gold — join them and post there too.</div>
-        </div>
+<script>
+// ── Constants ─────────────────────────────────────────────────────────────────
+const POSTS_KEY = 'DFR_MARKETING_POSTS';
+const PLAT_NAMES = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels',email:'Email'};
+const PLAT_ICONS = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵',email:'📧'};
+const PLAT_URLS  = {fb:'https://www.facebook.com',li:'https://www.linkedin.com/feed/',ig:'https://www.instagram.com',wa:'https://web.whatsapp.com',tt:'https://www.tiktok.com',email:'https://mail.google.com'};
+const PLAT_TIPS  = {
+    fb:{times:'Best times: Tue–Thu · 12pm–2pm & 6pm–8pm · Post 3x per week',tip:'<strong>Your best platform.</strong> SA fleet owners are 35–55, very active on Facebook. Groups like "SA Trucking" and "Transport SA" are gold — join them and post there too.'},
+    li:{times:'Best times: Tue–Thu · 8am–10am · Post 2x per week',tip:'<strong>Target audience here:</strong> Transport managers, logistics directors, ops managers. Be professional but personal. Stories outperform statistics.'},
+    ig:{times:'Best times: Mon, Wed, Fri · 7pm–9pm · Post 4x per week',tip:'<strong>Keep it punchy.</strong> Instagram is visual first — pair these captions with a photo of a truck or a report screenshot. Short hooks in the first line are everything.'},
+    wa:{times:'Status: Daily · Direct message: As needed · Groups: 2–3x per week',tip:'<strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts. Fleet owner groups are pure gold.'},
+    tt:{times:'Best times: Mon–Fri · 6pm–10pm · Post 3–5x per week',tip:'<strong>Fastest growing reach in SA.</strong> Point-to-text videos of fleet stats go viral. Post the same video to Instagram Reels — double the reach for zero extra work.'},
+    email:{times:'Respond within 1 hour of any enquiry · Follow up at Day 1, 3, 7, 14',tip:'<strong>Speed is everything.</strong> Responding within 1 hour increases conversion by 7x vs 24 hours. Have these saved and ready.'}
+};
 
-        <div class="tips-box">
-            <div class="tips-title">💡 Quick Tips</div>
-            <ul class="tips-list">
-                <li>Always end with a question or call to action — "Comment YES if you want in"</li>
-                <li>Post in SA trucking Facebook groups — massive free reach</li>
-                <li>Reply to every comment within 1 hour — the algorithm rewards it</li>
-                <li>A bad photo of a real truck beats a perfect stock image every time</li>
-            </ul>
-        </div>
-
-        <div class="posts-grid">
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">💸 Money Shock</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Use this first</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb1">😱 Diesel is about to go up by R5 - R7 a litre. Maybe more.
+// ── Seed posts (loaded once if Firebase is empty) ─────────────────────────────
+const SEED_POSTS = [
+    // ── FACEBOOK ──
+    {platform:'fb',tag:'💸 Money Shock',order:'Post #1 — Use this first',hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA',live:true,content:`😱 Diesel is about to go up by R5 a litre. Maybe more.
 
 April 1st. That's the date every fleet owner in SA needs to circle in red right now.
 
@@ -216,21 +348,8 @@ That's what we do at Dynamic Fleet Reporting.
 We give you a forensic breakdown of every litre, every vehicle, every month — so you can plug the leaks before April destroys your margins.
 
 📞 083 314 9592
-WhatsApp us today. April is 19 days away.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb1',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">❓ Curiosity Hook</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb2">Quick question for fleet owners 👇
+WhatsApp us today. April is a few days away.`},
+    {platform:'fb',tag:'❓ Curiosity Hook',order:'Post #2',hashtags:'#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA',live:true,content:`Quick question for fleet owners 👇
 
 Diesel goes up R5+ on April 1st.
 
@@ -248,21 +367,8 @@ With fuel at R25+ per litre from April, the ROI is going to be even more obvious
 
 Comment "AUDIT" below and I'll reach out directly. Or WhatsApp me on 083 314 9592.
 
-Time is short. April 1st is coming fast. 🔥</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb2',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">📈 Before & After</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb3">Real numbers. Real client. Real urgency. 👇
+Time is short. April 1st is a few days away. 🔥`},
+    {platform:'fb',tag:'📈 Before & After',order:'Post #3',hashtags:'#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica',live:true,content:`Real numbers. Real client. Real urgency. 👇
 
 A transport company with 18 trucks came to us 3 months ago.
 
@@ -283,21 +389,8 @@ With our reporting: they've already fixed the leaks. They're protected.
 
 📞 083 314 9592
 
-With April's fuel shock coming in under 3 weeks, there's no better time to get your fleet under control. Let's talk.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb3',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(139,92,246,0.15);color:#c4b5fd;">😤 Pain Point</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb4">To every transport business owner in SA who's watching the fuel news this week 👇
+With April's fuel shock coming in a few days, there's no better time to get your fleet under control. Let's talk.`},
+    {platform:'fb',tag:'😤 Pain Point',order:'Post #4',hashtags:'#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement',live:true,content:`To every transport business owner in SA who's watching the fuel news this week 👇
 
 R5. R6. R7. R8 per litre diesel increase. April 1st.
 
@@ -318,21 +411,8 @@ Dynamic Fleet Reporting gives you forensic fuel and speed analysis on every vehi
 WhatsApp: 083 314 9592
 Or reply "FUEL CRISIS" in the comments and I'll contact you directly.
 
-April is coming. Don't get caught unprepared. 🚛</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb4',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(59,130,246,0.15);color:#93c5fd;">🏆 Social Proof</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb5">A client called me on Monday.
+April is coming. Don't get caught unprepared. 🚛`},
+    {platform:'fb',tag:'🏆 Social Proof',order:'Post #5',hashtags:'#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency',live:true,content:`A client called me on Monday.
 
 Not to complain. Not to ask for a discount.
 
@@ -350,21 +430,8 @@ The difference between these two fleet owners isn't luck. It's data.
 
 📞 083 314 9592
 
-It's not too late to get ahead of April. But almost. WhatsApp us today.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb5',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">⏰ Urgency</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #6 — End of month</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="fb6">April 1st is 19 days away. 📅
+It's not too late to get ahead of April. But almost. WhatsApp us today.`},
+    {platform:'fb',tag:'⏰ Urgency',order:'Post #6 — End of month',hashtags:'#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica #EndOfMonth',live:true,content:`April 1st is a few days away. 📅
 
 That's when diesel is predicted to jump by R5–R8 per litre.
 That's when the new fuel levy kicks in.
@@ -381,51 +448,11 @@ We do full monthly fleet reporting — fuel efficiency, driver behaviour, speed 
 First report includes a complete audit of your current fleet efficiency. Most clients find enough waste in month one to cover our annual fee.
 
 📞 083 314 9592
-dynamicfleetreports&#64;gmail&#46;com
+dynamicfleetreports@gmail.com
 
-Don't head into the worst fuel shock in SA history flying blind. 🚛💨</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('fb6',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica #EndOfMonth</div>
-                </div>
-            </div>
-
-        </div><!-- /posts-grid fb -->
-    </div><!-- /section-fb -->
-
-
-    <!-- ═══════════════════════════════════════════════
-         LINKEDIN
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section" id="section-li">
-        <div class="platform-banner pb-li">
-            <div>
-                <div class="pb-title">💼 LinkedIn</div>
-                <div class="pb-meta">Best times: Tue–Thu · 8am–10am · Post 2x per week</div>
-            </div>
-            <div class="pb-tip"><strong>Target audience here:</strong> Transport managers, logistics directors, ops managers at medium-to-large companies. Be professional but still personal. Stories outperform statistics.</div>
-        </div>
-
-        <div class="tips-box">
-            <div class="tips-title">💡 LinkedIn Strategy</div>
-            <ul class="tips-list">
-                <li>Connect with transport managers, fleet managers and logistics directors — 20 per day</li>
-                <li>Comment on posts in the transport/logistics space before posting your own — builds visibility</li>
-                <li>LinkedIn rewards long-form content — don't be afraid of a long post</li>
-                <li>End every post with a direct question to drive comments</li>
-            </ul>
-        </div>
-
-        <div class="posts-grid">
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📖 Story Post</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Strong opener</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="li1">Diesel is predicted to increase by R5–R8 per litre on April 1st.
+Don't head into the worst fuel shock in SA history flying blind. 🚛💨`},
+    // ── LINKEDIN ──
+    {platform:'li',tag:'📖 Story Post',order:'Post #1 — Strong opener',hashtags:'#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations',live:true,content:`Diesel is predicted to increase by R5–R8 per litre on April 1st.
 
 For South African fleet operators, this isn't just a fuel cost story. It's an efficiency story.
 
@@ -441,21 +468,8 @@ If you run a fleet in South Africa and you're not getting monthly performance re
 
 📞 083 314 9592
 
-I'm offering free fleet efficiency assessments to transport businesses this week. DM me directly or WhatsApp the number above.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('li1',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📊 Data & Insight</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="li2">The average SA heavy fleet is leaking 30% of its fuel efficiency. Here's why April changes everything.
+I'm offering free fleet efficiency assessments to transport businesses this week. DM me directly or WhatsApp the number above.`},
+    {platform:'li',tag:'📊 Data & Insight',order:'Post #2',hashtags:'#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations #FleetManagement',live:true,content:`The average SA heavy fleet is leaking 30% of its fuel efficiency. Here's why April changes everything.
 
 With diesel predicted to increase by R5–R8/litre on April 1st — driven by the Iran conflict, a weak rand, and new government levies — a 30% efficiency gap is no longer just a margin issue. It's a survival issue.
 
@@ -471,23 +485,10 @@ The solution isn't to hope for cheaper fuel. It's to eliminate the waste you can
 
 Dynamic Fleet Reporting provides forensic monthly fleet analysis — fuel efficiency, driver behaviour, speed compliance, and cost-per-km benchmarking — for transport companies across South Africa.
 
-With April's fuel shock three weeks away, there's never been a better time to understand exactly where your fleet's money is going.
+With April's fuel shock a few days away, there's never been a better time to understand exactly where your fleet's money is going.
 
-📩 dynamicfleetreports&#64;gmail&#46;com | 📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('li2',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations #FleetManagement</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🤝 Value Offer</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="li3">I'm going to share something uncomfortable.
+📩 dynamicfleetreports@gmail.com | 📞 083 314 9592`},
+    {platform:'li',tag:'🤝 Value Offer',order:'Post #3',hashtags:'#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment #FleetManagement',live:true,content:`I'm going to share something uncomfortable.
 
 Most transport companies in SA are about to get hit with a fuel bill in April that they have no framework to respond to.
 
@@ -505,25 +506,10 @@ If you're in transport in SA and you want to be in that second group, I'd like t
 
 Dynamic Fleet Reporting. Forensic fleet analysis, every month.
 
-📞 083 314 9592 | dynamicfleetreports&#64;gmail&#46;com
+📞 083 314 9592 | dynamicfleetreports@gmail.com
 
-DM me or call. Three weeks left before April 1st.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('li3',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment #FleetManagement</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🎯 Direct Pitch</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="li4">If you manage a fleet in South Africa, this is for you.
-
-I'm [Your Name], founder of Dynamic Fleet Reporting.
+DM me or call. A few days left before April 1st.`},
+    {platform:'li',tag:'🎯 Direct Pitch',order:'Post #4',hashtags:'#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting',live:true,content:`If you manage a fleet in South Africa, this is for you.
 
 We specialise in one thing: turning fleet data into money back in your pocket.
 
@@ -543,51 +529,11 @@ If you want to know what your fleet is really costing you, let's talk.
 
 Free audit. 48-hour turnaround. Zero obligation.
 
-DM me or email <a href="#" onclick="openMail();return false;" style="color:inherit;text-decoration:underline;cursor:pointer;">dynamicfleetreports&#64;gmail&#46;com</a>
+DM me or email dynamicfleetreports@gmail.com
 
-Repost if you know someone in SA transport who'd benefit. 🙏</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('li4',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting</div>
-                </div>
-            </div>
-
-        </div>
-    </div><!-- /section-li -->
-
-
-    <!-- ═══════════════════════════════════════════════
-         INSTAGRAM
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section" id="section-ig">
-        <div class="platform-banner pb-ig">
-            <div>
-                <div class="pb-title">📸 Instagram</div>
-                <div class="pb-meta">Best times: Mon, Wed, Fri · 7pm–9pm · Post 4x per week</div>
-            </div>
-            <div class="pb-tip"><strong>Keep it punchy.</strong> Instagram is visual first — pair these captions with a photo of a truck, a road, your logo, or even a screenshot of a report. Short hooks in the first line are everything.</div>
-        </div>
-
-        <div class="tips-box">
-            <div class="tips-title">💡 Instagram Tips</div>
-            <ul class="tips-list">
-                <li>First line is everything — Instagram cuts off after 2 lines. Make it impossible not to tap "more"</li>
-                <li>Use 20–25 hashtags — mix big ones (#trucking) with niche ones (#SATrucking)</li>
-                <li>Stories every day — even just a quote or a stat. Keeps you visible</li>
-                <li>Reels get 3x the reach of normal posts right now — TikTok content reposts perfectly</li>
-            </ul>
-        </div>
-
-        <div class="posts-grid">
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🪝 Hard Hook</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="ig1">⛽ APRIL 1ST WARNING ⛽
+Repost if you know someone in SA transport who'd benefit. 🙏`},
+    // ── INSTAGRAM ──
+    {platform:'ig',tag:'🪝 Hard Hook',order:'Post #1',hashtags:'#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence',live:true,content:`⛽ APRIL 1ST WARNING ⛽
 
 Diesel predicted up R5–R8/litre.
 Petrol up R3+.
@@ -602,21 +548,8 @@ The only defence? Knowing exactly where every litre goes.
 💸 Find the waste before it finds you.
 
 Link in bio → Free fleet efficiency assessment
-📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('ig1',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">📊 Stats</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="ig2">Numbers every SA fleet owner needs to see right now 👇
+📞 083 314 9592`},
+    {platform:'ig',tag:'📊 Stats',order:'Post #2',hashtags:'#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics',live:true,content:`Numbers every SA fleet owner needs to see right now 👇
 
 Current diesel price: ~R18.50/L
 Predicted April price: R24–R26/L
@@ -633,21 +566,8 @@ Now ask yourself: do you know who those drivers are?
 We do fleet forensics every month. We tell you exactly who, what, and how much. 📊
 
 Link in bio for a free assessment.
-📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('ig2',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🔄 Before/After</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="ig3">Same fleet. Before and after our reporting. 📈
+📞 083 314 9592`},
+    {platform:'ig',tag:'🔄 Before/After',order:'Post #3',hashtags:'#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness',live:true,content:`Same fleet. Before and after our reporting. 📈
 
 Month 1 (before):
 ❌ Fleet avg: 2.8 km/L
@@ -666,21 +586,8 @@ Imagine their competitors right now — still running blind, about to walk into 
 Don't be the competitor. 🚛
 
 Link in bio → Get your free fleet audit
-📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('ig3',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">💬 Relatable</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="ig4">Every fleet owner I talk to this week is saying the same thing 😬
+📞 083 314 9592`},
+    {platform:'ig',tag:'💬 Relatable',order:'Post #4',hashtags:'#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics',live:true,content:`Every fleet owner I talk to this week is saying the same thing 😬
 
 "R5 diesel increase?"
 "R8 worst case?!"
@@ -702,43 +609,9 @@ That's where we come in. 📊
 
 Link in bio for a free fleet assessment.
 📞 083 314 9592
-⚡ April 1st is 19 days away.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('ig4',this)">📋 Copy Post</button>
-                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics</div>
-                </div>
-            </div>
-
-        </div>
-    </div><!-- /section-ig -->
-
-
-    <!-- ═══════════════════════════════════════════════
-         WHATSAPP
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section" id="section-wa">
-        <div class="platform-banner pb-wa">
-            <div>
-                <div class="pb-title">💬 WhatsApp</div>
-                <div class="pb-meta">Status: Daily · Direct message: As needed · Groups: 2–3x per week</div>
-            </div>
-            <div class="pb-tip"><strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts. Fleet owner groups are pure gold. Be conversational — never copy/paste salesy text here.</div>
-        </div>
-
-        <div class="wa-note">
-            <strong>💡 How to use WhatsApp for marketing:</strong> Post to your Status daily (simple stats or quotes work perfectly). Join SA trucking/transport WhatsApp groups and add value before promoting. For direct messages, only message people who've shown interest — never cold spam.
-        </div>
-
-        <div class="posts-grid">
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #1</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa1">🚨 Fleet Alert — April 1st Fuel Shock
+⚡ April 1st is a few days away.`},
+    // ── WHATSAPP ──
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #1',hashtags:'Post as WhatsApp Status — no hashtags needed',live:true,content:`🚨 Fleet Alert — April 1st Fuel Shock
 
 Diesel predicted: UP R5–R8/litre
 Petrol predicted: UP R3+/litre
@@ -750,21 +623,8 @@ Do you know where your fuel is going right now?
 
 📊 Dynamic Fleet Reporting gives you a forensic breakdown of every vehicle, every driver, every month — so you can cut the waste before the price hits.
 
-📞 083 314 9592 — WhatsApp us for a free fleet efficiency assessment. April is a few daysaway.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa1',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">Post as WhatsApp Status — no hashtags needed</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #2</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa2">Quick question for fleet owners 👇
+📞 083 314 9592 — WhatsApp us for a free fleet efficiency assessment. April is a few days away.`},
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #2',hashtags:'Post as WhatsApp Status',live:true,content:`Quick question for fleet owners 👇
 
 With diesel going up R5+ on April 1st — do you know which of your drivers are burning 15–20% above target right now?
 
@@ -776,21 +636,8 @@ Most clients save R30,000–R100,000+ per month. Our fee is a fraction of that.
 
 With April's fuel shock coming, the ROI has never been more obvious.
 
-📞 083 314 9592 — WhatsApp us today for a free assessment.</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa2',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">Post as WhatsApp Status</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Group Message</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Transport Group Post</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa3">Hi all 👋
+📞 083 314 9592 — WhatsApp us today for a free assessment.`},
+    {platform:'wa',tag:'💬 Group Message',order:'Transport Group Post',hashtags:'For SA trucking/transport WhatsApp groups',live:true,content:`Hi all 👋
 
 Sharing this with the group because I think it's genuinely important right now.
 
@@ -801,23 +648,10 @@ We specialise in monthly fleet reporting for SA transport companies — full fue
 If anyone in the group wants a free fleet efficiency assessment before April, please reach out directly.
 
 📞 083 314 9592
-dynamicfleetreports&#64;gmail&#46;com
+dynamicfleetreports@gmail.com
 
-The fleet owners who know their numbers going into this are going to be in a very different position to those who don't. 🚛</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa3',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">For SA trucking/transport WhatsApp groups</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Follow-Up DM</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">After someone shows interest</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa4">Hi [Name] 👋
+The fleet owners who know their numbers going into this are going to be in a very different position to those who don't. 🚛`},
+    {platform:'wa',tag:'📩 Follow-Up DM',order:'After someone shows interest',hashtags:'Send as direct WhatsApp after first contact',live:true,content:`Hi [Name] 👋
 
 Hope you're well. I'll get straight to the point given what's happening in the news this week.
 
@@ -829,21 +663,8 @@ With the fuel shock coming, there's genuinely never been a better time to know e
 
 Would you be open to a 10-minute call this week? I'd love to run a quick efficiency estimate on your fleet — no obligation at all.
 
-📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa4',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">Send as direct WhatsApp after first contact</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #3</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa5">April 1st is 19 days away 📅
+📞 083 314 9592`},
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #3',hashtags:'Post last day of each month as Status',live:true,content:`April 1st is a few days away 📅
 
 That's when diesel jumps R5–R8/litre.
 That's when the new fuel levies kick in.
@@ -855,21 +676,8 @@ We turn around full fleet reports in 48 hours. You send us your telematics data,
 
 📞 083 314 9592
 
-Don't walk into the worst fuel shock in SA history without knowing your numbers. 🚛</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa5',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">Post last day of each month as Status</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Cold Intro DM</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">When messaging someone new</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="wa6">Hi [Name], hope things are good 👋
+Don't walk into the worst fuel shock in SA history without knowing your numbers. 🚛`},
+    {platform:'wa',tag:'📩 Cold Intro DM',order:'When messaging someone new',hashtags:'Use carefully — only for warm connections, not strangers',live:true,content:`Hi [Name], hope things are good 👋
 
 I know everyone in transport is watching the fuel price news right now — diesel up potentially R5–R8 on April 1st is a serious situation.
 
@@ -878,50 +686,9 @@ I wanted to check in and see if there's anything we can do to help before the pr
 Knowing exactly which vehicles and drivers are burning above target is the one thing you can actually control going into this.
 
 Happy to chat whenever suits you.
-📞 083 314 9592</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('wa6',this)">📋 Copy</button>
-                    <div class="hashtag-wrap">Use carefully — only for warm connections, not strangers</div>
-                </div>
-            </div>
-
-        </div>
-    </div><!-- /section-wa -->
-
-
-    <!-- ═══════════════════════════════════════════════
-         TIKTOK
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section" id="section-tt">
-        <div class="platform-banner pb-tt">
-            <div>
-                <div class="pb-title">🎵 TikTok / Reels</div>
-                <div class="pb-meta">Best times: Mon–Fri · 6pm–10pm · Post 3–5x per week</div>
-            </div>
-            <div class="pb-tip"><strong>Fastest growing reach in SA.</strong> You don't need to dance. Point-to-text videos of fleet stats go viral. Film yourself in front of a truck for instant credibility. Post the same video to Instagram Reels — double the reach for zero extra work.</div>
-        </div>
-
-        <div class="tips-box">
-            <div class="tips-title">💡 How to Film These Without Being Cringe</div>
-            <ul class="tips-list">
-                <li>Stand in front of a truck or in a yard — instant credibility. Your phone camera is fine</li>
-                <li>Speak naturally — stumbling over words actually builds trust on TikTok</li>
-                <li>Use text overlays for every key stat — many people watch without sound</li>
-                <li>Keep it under 60 seconds — hook in first 3 seconds or people scroll</li>
-                <li>Post the exact same video to Instagram Reels and YouTube Shorts</li>
-            </ul>
-        </div>
-
-        <div class="posts-grid">
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #1 — 30 sec</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="tt1">🎬 SCRIPT #1 — "The April Bomb"
+📞 083 314 9592`},
+    // ── TIKTOK ──
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #1 — 30 sec',hashtags:'#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica',live:true,content:`🎬 SCRIPT #1 — "The April Bomb"
 [Hook — 0–3s, text on screen: "DIESEL UP R8 IN APRIL?"]
 
 [On camera, direct to lens:]
@@ -940,23 +707,10 @@ Happy to chat whenever suits you.
 "That's what we show you. Every month. With hard data."
 
 [CTA:]
-"Link in bio for a free fleet audit. April 1st is jus a few days away. Don't sleep on this."
+"Link in bio for a free fleet audit. April 1st is a few days away. Don't sleep on this."
 
-#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #april2026</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('tt1',this)">📋 Copy Script + Caption</button>
-                    <div class="hashtag-wrap">#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #2 — 45 sec</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="tt2">🎬 SCRIPT #2 — "The Driver Nobody Talks About"
+#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking`},
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #2 — 45 sec',hashtags:'#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica',live:true,content:`🎬 SCRIPT #2 — "The Driver Nobody Talks About"
 [Hook — text on screen: "One driver is costing you R8,000/month extra"]
 
 [On camera:]
@@ -977,21 +731,8 @@ Happy to chat whenever suits you.
 [CTA:]
 "Link in bio. Free fleet assessment. Sort it before April 1st."
 
-#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('tt2',this)">📋 Copy Script + Caption</button>
-                    <div class="hashtag-wrap">#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica</div>
-                </div>
-            </div>
-
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #3 — 20 sec (Reel format)</span>
-                </div>
-                <div class="post-card-body">
-                    <div class="post-preview" id="tt3">🎬 SCRIPT #3 — "The Maths"
+#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport`},
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #3 — 20 sec (Reel format)',hashtags:'#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency',live:true,content:`🎬 SCRIPT #3 — "The Maths"
 [Hook — text on screen: "R5 diesel increase × your fleet = ?"]
 
 [On camera, simple and direct:]
@@ -1019,50 +760,9 @@ Difference: R5.50/litre"
 [CTA:]
 "That's what we show you. Link in bio for a free fleet efficiency assessment. Clock is ticking — April 1st."
 
-#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #april2026</div>
-                </div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('tt3',this)">📋 Copy Script + Caption</button>
-                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency</div>
-                </div>
-            </div>
-
-        </div>
-    </div><!-- /section-tt -->
-
-
-    <!-- ═══════════════════════════════════════════════
-         EMAIL TEMPLATES
-    ════════════════════════════════════════════════ -->
-    <div class="platform-section" id="section-email">
-        <div class="platform-banner pb-email">
-            <div>
-                <div class="pb-title">📧 Email Templates</div>
-                <div class="pb-meta">Respond within 1 hour of any enquiry · Follow up at Day 1, 3, 7, 14</div>
-            </div>
-            <div class="pb-tip"><strong>Speed is everything.</strong> Responding within 1 hour increases conversion by 7x vs 24 hours. Have these saved and ready to go the moment someone contacts you.</div>
-        </div>
-
-        <div class="tips-box">
-            <div class="tips-title">💡 Email Strategy</div>
-            <ul class="tips-list">
-                <li>Always personalise — use their name and company every time</li>
-                <li>Subject lines with numbers or R amounts get opened more</li>
-                <li>Keep it short and scannable — fleet owners are busy people</li>
-                <li>One clear call to action per email — don't give them 3 things to do</li>
-            </ul>
-        </div>
-
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 1 — Initial Response</div>
-                    <div class="email-subject">Subject: Your free fleet audit — here's how it works</div>
-                </div>
-                <span class="email-when">Send within 1 hour</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em1">Hi [First Name],
+#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport`},
+    // ── EMAIL ──
+    {platform:'email',tag:'📧 Initial Response',order:'Email #1',subject:'Your free fleet audit — here\'s how it works',when:'Send within 1 hour',hashtags:'',live:true,content:`Hi [First Name],
 
 I'll get straight to the point — I know you're watching the fuel price news this week.
 
@@ -1087,27 +787,12 @@ Is this something you'd find useful? I can turn it around quickly.
 
 [Your Name]
 083 314 9592
-dynamicfleetreports&#64;gmail&#46;com</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em1',this)">📋 Copy Email</button>
-            </div>
-        </div>
-
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 2 — Day 3 Follow-Up</div>
-                    <div class="email-subject">Subject: Still keen on the audit? [Company Name]</div>
-                </div>
-                <span class="email-when">Day 3 — no response</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em2">Hi [First Name],
+dynamicfleetreports@gmail.com`},
+    {platform:'email',tag:'📧 Day 3 Follow-Up',order:'Email #2',subject:'Still keen on the audit? [Company Name]',when:'Day 3 — no response',hashtags:'',live:true,content:`Hi [First Name],
 
 Following up on my note from last week — with the fuel price news getting worse by the day, I wanted to reach out again.
 
-The latest CEF data is showing diesel under-recovery of R7/litre as of last Friday. Analysts are now saying R5 is the best case for April, with R8 a real possibility if the Iran situation continues.
+The latest CEF data is showing diesel under-recovery of R7/litre. Analysts are now saying R5 is the best case for April, with R8 a real possibility if the Iran situation continues.
 
 I know that number is alarming. But here's the thing — for every fleet operator I've worked with, the question isn't just "how do we afford the fuel increase." It's "how do we make sure we're not paying for MORE fuel than we need to."
 
@@ -1121,27 +806,12 @@ I'd love to show you what those numbers look like for your specific fleet.
 Could we find 15 minutes this week for a quick call?
 
 [Your Name]
-083 314 9592</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em2',this)">📋 Copy Email</button>
-            </div>
-        </div>
-
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 3 — Day 7 Final Nudge</div>
-                    <div class="email-subject">Subject: Last one from me — free audit expires [Date]</div>
-                </div>
-                <span class="email-when">Day 7 — still no response</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em3">Hi [First Name],
+083 314 9592`},
+    {platform:'email',tag:'📧 Day 7 Final Nudge',order:'Email #3',subject:'Last one from me — free audit expires [Date]',when:'Day 7 — still no response',hashtags:'',live:true,content:`Hi [First Name],
 
 I want to share a quick case study that feels very relevant right now.
 
-A client in [region] came to us with a 22-truck fleet in January. First month audit findings:
+A client in [region] came to us with a 22-truck fleet. First month audit findings:
 
 → 5 drivers averaging 19% above fleet consumption target
 → 3 vehicles with consumption anomalies suggesting mechanical issues
@@ -1161,93 +831,27 @@ If you'd like to understand what similar inefficiencies might be costing your fl
 Reply to this email or WhatsApp me on 083 314 9592.
 
 [Your Name]
-Dynamic Fleet Reporting</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em3',this)">📋 Copy Email</button>
-            </div>
-        </div>
+Dynamic Fleet Reporting`},
+    {platform:'email',tag:'📧 Data Received',order:'Email #4',subject:'Got it — your audit is running now',when:'Send immediately when data arrives',hashtags:'',live:true,content:`Hi [First Name],
 
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 4 — Data Received Confirmation</div>
-                    <div class="email-subject">Subject: Got it — your audit is running now</div>
-                </div>
-                <span class="email-when">Send immediately when data arrives</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em4">Hi [First Name],
+Got your data — thank you. Your fleet efficiency audit is running now.
 
-April 1st is 19 days away.
+You'll have your full report within 48 hours. It will include:
 
-I know that might sound like a sales line, but given what the fuel price data is showing right now, I think it's genuinely the most important date on the calendar for SA fleet operators this year.
+• Vehicle-by-vehicle efficiency vs manufacturer targets
+• Driver ranking by fuel consumption
+• Estimated monthly rand value of recoverable waste
+• Same figures projected at April's predicted diesel prices
 
-Diesel up R5–R8/litre. Petrol up R3+. New levies of 21c/litre. All on the same day.
+If you have any questions in the meantime, WhatsApp me directly on 083 314 9592.
 
-I've been doing fleet reporting for SA transport companies for several years, and I've never seen a convergence of factors like this. The fleet businesses that are going to come through April in good shape are the ones that know their efficiency numbers going in.
-
-I'd like to help you be one of them.
-
-If you can share your telematics or GPS data, I can have a full efficiency analysis back to you within 48 hours — showing exactly where your fleet stands relative to manufacturer targets, which vehicles and drivers are outliers, and what the rand value of your efficiency gap is at both current and April's predicted prices.
-
-It's not too late to act. But it's close.
-
-Reply here or WhatsApp: 083 314 9592
-
-[Your Name]</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em4',this)">📋 Copy Email</button>
-            </div>
-        </div>
-
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 5 — Audit Results Delivery</div>
-                    <div class="email-subject">Subject: Your fleet audit results — R [amount]/month found</div>
-                </div>
-                <span class="email-when">Send with completed report attached</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em5">Hi [First Name],
-
-I hope this finds you well.
-
-I'll be brief — with everything happening in the fuel market right now, I know your time is better spent running your business than reading emails.
-
-We haven't spoken in a while and I wanted to check in. The April fuel situation is genuinely unprecedented for SA transport, and I wanted to make sure you have access to current fleet efficiency data before the price hit.
-
-If you've changed telematics providers, added vehicles, or just want a fresh look at your fleet's current efficiency profile, I'd be glad to run an updated analysis.
-
-Most clients find it particularly useful right now to see their efficiency gap costed at April's predicted diesel prices — it makes the ROI case for any operational changes very concrete.
-
-Happy to chat whenever suits you.
-
-083 314 9592
-
-[Your Name]</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em5',this)">📋 Copy Email</button>
-            </div>
-        </div>
-
-        <div class="email-card">
-            <div class="email-card-head">
-                <div>
-                    <div style="font-size:13px;font-weight:900;color:white;">📧 Email 6 — Re-engagement (Day 14)</div>
-                    <div class="email-subject">Subject: Thought you'd want to see this [Company Name]</div>
-                </div>
-                <span class="email-when">Day 14 — if still cold</span>
-            </div>
-            <div class="email-body-wrap">
-                <div class="email-preview" id="em6">Hi [First Name],
+[Your Name]
+Dynamic Fleet Reporting`},
+    {platform:'email',tag:'📧 Re-engagement',order:'Email #5',subject:'Thought you\'d want to see this [Company Name]',when:'Day 14 — if still cold',hashtags:'',live:true,content:`Hi [First Name],
 
 I'm going to be honest — this is a follow-up email, and I promise it's the last one if you're not interested.
 
-But given that diesel is predicted to go up R5–R8/litre in 19 days, I felt like I'd be doing you a disservice if I didn't try one more time.
+But given that diesel is predicted to go up R5–R8/litre in a few days, I felt like I'd be doing you a disservice if I didn't try one more time.
 
 Fleet efficiency reporting isn't a nice-to-have at R24–R26/litre diesel. It's the difference between knowing exactly where your fuel is going — and being able to act on it — versus absorbing a massive, uncontrolled cost increase with no visibility.
 
@@ -1257,80 +861,295 @@ But if there's any chance you'd want to understand your fleet's efficiency posit
 
 [Your Name]
 083 314 9592
-dynamicfleetreports&#64;gmail&#46;com
+dynamicfleetreports@gmail.com
 
-(And if the timing really isn't right — just say the word and I'll stop. No hard feelings at all.) 😊</div>
-            </div>
-            <div class="email-footer">
-                <button class="btn-copy" onclick="copyPost('em6',this)">📋 Copy Email</button>
-            </div>
-        </div>
+(And if the timing really isn't right — just say the word and I'll stop. No hard feelings at all.) 😊`}
+];
 
-    </div><!-- /section-email -->
+// ── State ─────────────────────────────────────────────────────────────────────
+let _posts = [];
+let _editId = null;
+let _filterMode = 'all';
+let _currentPlat = 'fb';
 
-</main>
+// ── Boot ──────────────────────────────────────────────────────────────────────
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+async function boot(){
+    await waitFor(()=>typeof cloudStorage!=='undefined');
+    await loadPosts();
+}
+boot();
 
-<script>
-
-function openMail() {
-    var u = 'dynamicfleetreports';
-    var d = 'gmail.com';
-    window.location.href = 'mailto:' + u + '@' + d;
+// ── Load posts from Firebase, seed if empty ───────────────────────────────────
+async function loadPosts(){
+    try{
+        const stored = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
+        if(stored && stored.length){
+            _posts = stored;
+        } else {
+            // First run — seed with default posts
+            _posts = SEED_POSTS.map((p,i)=>Object.assign({id:'post_seed_'+i,createdAt:new Date().toISOString()},p));
+            await cloudStorage.setItem(POSTS_KEY, JSON.stringify(_posts));
+        }
+    } catch(e){ _posts = []; }
+    renderViewPosts();
+    renderManagePosts();
 }
 
-function copyBioLink(btn) {
-    navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✅ Copied!';
-        btn.style.background = '#6366f1';
-        setTimeout(() => { btn.textContent = orig; btn.style.background = 'var(--green)'; }, 2000);
+// ── Save posts to Firebase ────────────────────────────────────────────────────
+async function savePosts(){
+    await cloudStorage.setItem(POSTS_KEY, JSON.stringify(_posts));
+}
+
+// ── Render view tab (per platform) ───────────────────────────────────────────
+const PLAT_CSS = {
+    fb:{banner:'pb-fb',color:'#60a5fa',tips:['Always end with a question or call to action — "Comment YES if you want in"','Post in SA trucking Facebook groups — massive free reach','Reply to every comment within 1 hour — the algorithm rewards it','A bad photo of a real truck beats a perfect stock image every time']},
+    li:{banner:'pb-li',color:'#38bdf8',tips:['Connect with transport managers and logistics directors — 20 per day','Comment on posts in the transport/logistics space before posting your own','LinkedIn rewards long-form content — don\'t be afraid of a long post','End every post with a direct question to drive comments']},
+    ig:{banner:'pb-ig',color:'#f472b6',tips:['First line is everything — Instagram cuts off after 2 lines. Make it impossible not to tap "more"','Use 20–25 hashtags — mix big ones (#trucking) with niche ones (#SATrucking)','Stories every day — even just a quote or a stat. Keeps you visible','Reels get 3x the reach of normal posts right now — TikTok content reposts perfectly']},
+    wa:{banner:'pb-wa',color:'#4ade80',tips:['Post to your Status daily — simple stats or quotes work perfectly','Join SA trucking/transport WhatsApp groups and add value before promoting','For direct messages, only message people who\'ve shown interest — never cold spam','WhatsApp Status reaches people who never see your Facebook posts']},
+    tt:{banner:'pb-tt',color:'white',tips:['Stand in front of a truck or in a yard — instant credibility','Speak naturally — stumbling over words actually builds trust on TikTok','Use text overlays for every key stat — many people watch without sound','Post the exact same video to Instagram Reels and YouTube Shorts']},
+    email:{banner:'pb-email',color:'#fbbf24',tips:['Always personalise — use their name and company every time','Subject lines with numbers or R amounts get opened more','Keep it short and scannable — fleet owners are busy people','One clear call to action per email — don\'t give them 3 things to do']}
+};
+
+function renderViewPosts(){
+    ['fb','li','ig','wa','tt','email'].forEach(plat=>{
+        const el = document.getElementById('plat-'+plat);
+        if(!el) return;
+        const posts = _posts.filter(p=>p.platform===plat && p.live);
+        const cfg   = PLAT_CSS[plat];
+        const tip   = PLAT_TIPS[plat];
+        let html = `<div class="platform-banner ${cfg.banner}">
+            <div><div class="pb-title">${PLAT_ICONS[plat]} ${PLAT_NAMES[plat]}</div><div class="pb-meta">${tip.times}</div></div>
+            <div class="pb-tip">${tip.tip}</div>
+        </div>`;
+        if(plat==='wa') html+=`<div class="wa-note"><strong>💡 How to use WhatsApp for marketing:</strong> Post to your Status daily. Join SA trucking/transport WhatsApp groups and add value before promoting. For direct messages, only message people who've shown interest.</div>`;
+        const tipItems = cfg.tips.map(t=>`<li>${t}</li>`).join('');
+        html+=`<div class="tips-box"><div class="tips-title">💡 Quick Tips</div><ul class="tips-list">${tipItems}</ul></div>`;
+        if(!posts.length){
+            html+=`<div class="empty-state"><div class="icon">${PLAT_ICONS[plat]}</div><p>No live posts for ${PLAT_NAMES[plat]} yet.<br><span style="font-size:12px;color:#475569;">Add posts in the ✏️ Manage Posts tab.</span></p></div>`;
+            el.innerHTML=html; return;
+        }
+        if(plat==='email'){
+            html += posts.map(p=>`
+            <div class="email-card">
+                <div class="email-card-head">
+                    <div><div style="font-size:13px;font-weight:900;color:white;">${escHtml(p.tag)} <span style="font-size:10px;color:#64748b;font-weight:700;">${escHtml(p.order||'')}</span></div>${p.subject?`<div class="email-subject">Subject: ${escHtml(p.subject)}</div>`:''}</div>
+                    ${p.when?`<span class="email-when">${escHtml(p.when)}</span>`:''}
+                </div>
+                <div class="email-body-wrap"><div class="email-preview" id="vp_${p.id}">${escHtml(p.content)}</div></div>
+                <div class="email-footer"><button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Email</button></div>
+            </div>`).join('');
+        } else {
+            html+=`<div class="posts-grid">${posts.map(p=>`
+            <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.07);color:${cfg.color};">${escHtml(p.tag)}</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">${escHtml(p.order||'')}</span>
+                </div>
+                <div class="post-card-body"><div class="post-preview" id="vp_${p.id}">${escHtml(p.content)}</div></div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Post</button>
+                    ${p.hashtags?`<div class="hashtag-wrap">${escHtml(p.hashtags)}</div>`:''}
+                </div>
+            </div>`).join('')}</div>`;
+        }
+        el.innerHTML = html;
     });
 }
 
-const PLATFORM_URLS = {
-    fb:    'https://www.facebook.com',
-    li:    'https://www.linkedin.com/feed/',
-    ig:    'https://www.instagram.com',
-    wa:    'https://web.whatsapp.com',
-    tt:    'https://www.tiktok.com',
-    email: 'https://mail.google.com'
-};
-
-const PLATFORM_NAMES = {
-    fb: 'Facebook', li: 'LinkedIn', ig: 'Instagram',
-    wa: 'WhatsApp Web', tt: 'TikTok', email: 'Gmail'
-};
-
-function openPlatform(id) {
-    window.open(PLATFORM_URLS[id], '_blank');
-}
-
-function switchTab(id, el) {
-    // Hide all sections
-    document.querySelectorAll('.platform-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('section-' + id).classList.add('active');
-    el.classList.add('active');
-
-    // Update the open-platform button
-    const openBtn = document.getElementById('openPlatformBtn');
-    if (openBtn) {
-        openBtn.textContent = '🚀 Open ' + PLATFORM_NAMES[id];
-        openBtn.onclick = () => openPlatform(id);
-        openBtn.dataset.platform = id;
+// ── Render manage tab ─────────────────────────────────────────────────────────
+function renderManagePosts(){
+    const total  = _posts.length;
+    const live   = _posts.filter(p=>p.live).length;
+    const drafts = _posts.filter(p=>!p.live).length;
+    const plats  = [...new Set(_posts.map(p=>p.platform))].length;
+    document.getElementById('manageStats').innerHTML=`
+        <div class="mstat"><div class="mstat-val">${total}</div><div class="mstat-label">Total Posts</div></div>
+        <div class="mstat"><div class="mstat-val grn">${live}</div><div class="mstat-label">Live / Published</div></div>
+        <div class="mstat"><div class="mstat-val gld">${drafts}</div><div class="mstat-label">Drafts</div></div>
+        <div class="mstat"><div class="mstat-val pur">${plats}</div><div class="mstat-label">Platforms</div></div>`;
+    let filtered = _posts;
+    if(_filterMode==='live')   filtered=_posts.filter(p=>p.live);
+    else if(_filterMode==='draft') filtered=_posts.filter(p=>!p.live);
+    else if(_filterMode!=='all')   filtered=_posts.filter(p=>p.platform===_filterMode);
+    const el = document.getElementById('managePostsList');
+    if(!filtered.length){
+        el.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>No posts match this filter.<br><span style="font-size:12px;color:#475569;">Add a new post using the button above.</span></p></div>`;
+        return;
     }
+    el.innerHTML = filtered.map(p=>{
+        const liveLabel = p.live
+            ? '<span class="plat-badge pb-live">✅ Live</span>'
+            : '<span class="plat-badge pb-draft">📝 Draft</span>';
+        const publishBtn = p.live
+            ? `<button class="btn-sm bsgd" onclick="toggleLive('${p.id}',false)">↩ Unpublish</button>`
+            : `<button class="btn-sm bsg"  onclick="toggleLive('${p.id}',true)">🚀 Publish</button>`;
+        return `<div class="mpost-card">
+            <div class="mpost-head">
+                <div class="mpost-meta">
+                    <span style="font-size:13px;color:white;font-weight:800;">${escHtml(p.tag)}</span>
+                    <span class="plat-badge" style="background:rgba(255,255,255,0.07);color:#94a3b8;">${PLAT_ICONS[p.platform]||''} ${PLAT_NAMES[p.platform]||p.platform}</span>
+                    ${liveLabel}
+                    ${p.order?`<span style="font-size:10px;color:#475569;font-weight:700;">${escHtml(p.order)}</span>`:''}
+                </div>
+                <div class="mpost-actions">
+                    <button class="btn-sm bsb" onclick="editPost('${p.id}')">✏️ Edit</button>
+                    ${publishBtn}
+                    <button class="btn-sm bsr" onclick="deletePost('${p.id}')">🗑 Delete</button>
+                </div>
+            </div>
+            <div class="mpost-body" id="mb_${p.id}">${escHtml(p.content.substring(0,220))}${p.content.length>220?'...':''}
+                ${p.content.length>220?`<div class="mpost-fade"></div>`:''}
+            </div>
+            <div class="mpost-foot">
+                <span>${p.platform==='email'&&p.subject?'Subject: '+escHtml(p.subject):(p.hashtags?escHtml(p.hashtags.substring(0,80))+'...':'No hashtags')}</span>
+                <span style="color:#334155;">Added ${p.createdAt?new Date(p.createdAt).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—'}</span>
+            </div>
+        </div>`;
+    }).join('');
 }
 
-function copyPost(id, btn) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    navigator.clipboard.writeText(el.innerText).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = '✅ Copied!';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+// ── Filter ────────────────────────────────────────────────────────────────────
+function filterPosts(mode, el){
+    _filterMode = mode;
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    renderManagePosts();
+}
+
+// ── Toggle publish ────────────────────────────────────────────────────────────
+async function toggleLive(id, live){
+    const p = _posts.find(x=>x.id===id); if(!p) return;
+    p.live = live;
+    p.updatedAt = new Date().toISOString();
+    await savePosts();
+    renderViewPosts();
+    renderManagePosts();
+    toast(live ? '🚀 Post published — live for partners ✓' : '↩ Post unpublished — moved to drafts', live?'green':'gold');
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function deletePost(id){
+    const p = _posts.find(x=>x.id===id);
+    if(!p || !confirm(`Delete "${p.tag}" permanently? This cannot be undone.`)) return;
+    _posts = _posts.filter(x=>x.id!==id);
+    await savePosts();
+    renderViewPosts();
+    renderManagePosts();
+    toast('Post deleted','red');
+}
+
+// ── Open modal for new post ───────────────────────────────────────────────────
+function openNewPostModal(){
+    _editId = null;
+    document.getElementById('postModalTitle').textContent = '➕ New Post';
+    document.getElementById('pm_platform').value  = 'fb';
+    document.getElementById('pm_tag').value       = '';
+    document.getElementById('pm_content').value   = '';
+    document.getElementById('pm_hashtags').value  = '';
+    document.getElementById('pm_order').value     = '';
+    document.getElementById('pm_subject').value   = '';
+    document.getElementById('pm_when').value      = '';
+    toggleEmailFields('fb');
+    document.getElementById('postModal').classList.add('open');
+}
+
+// ── Open modal for edit ───────────────────────────────────────────────────────
+function editPost(id){
+    const p = _posts.find(x=>x.id===id); if(!p) return;
+    _editId = id;
+    document.getElementById('postModalTitle').textContent = '✏️ Edit Post';
+    document.getElementById('pm_platform').value  = p.platform;
+    document.getElementById('pm_tag').value       = p.tag||'';
+    document.getElementById('pm_content').value   = p.content||'';
+    document.getElementById('pm_hashtags').value  = p.hashtags||'';
+    document.getElementById('pm_order').value     = p.order||'';
+    document.getElementById('pm_subject').value   = p.subject||'';
+    document.getElementById('pm_when').value      = p.when||'';
+    toggleEmailFields(p.platform);
+    document.getElementById('postModal').classList.add('open');
+}
+
+// ── Show/hide email-only fields ───────────────────────────────────────────────
+document.getElementById('pm_platform').addEventListener('change', function(){ toggleEmailFields(this.value); });
+function toggleEmailFields(plat){
+    const isEmail = plat==='email';
+    document.getElementById('pm_subject_group').style.display = isEmail?'flex':'none';
+    document.getElementById('pm_when_group').style.display    = isEmail?'flex':'none';
+}
+
+// ── Save post ─────────────────────────────────────────────────────────────────
+async function savePost(publish){
+    const platform = document.getElementById('pm_platform').value;
+    const tag      = document.getElementById('pm_tag').value.trim();
+    const content  = document.getElementById('pm_content').value.trim();
+    const hashtags = document.getElementById('pm_hashtags').value.trim();
+    const order    = document.getElementById('pm_order').value.trim();
+    const subject  = document.getElementById('pm_subject').value.trim();
+    const when     = document.getElementById('pm_when').value.trim();
+    if(!tag||!content){ toast('Tag and content are required','red'); return; }
+    if(_editId){
+        const idx = _posts.findIndex(p=>p.id===_editId);
+        if(idx>-1){
+            _posts[idx] = Object.assign(_posts[idx],{platform,tag,content,hashtags,order,subject,when,live:publish,updatedAt:new Date().toISOString()});
+        }
+    } else {
+        _posts.push({id:'post_'+Date.now(),platform,tag,content,hashtags,order,subject,when,live:publish,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+    }
+    await savePosts();
+    closeModal('postModal');
+    renderViewPosts();
+    renderManagePosts();
+    toast(publish ? '🚀 Post published — live for partners ✓' : '💾 Saved as draft ✓', 'green');
+}
+
+// ── Platform switcher (view tab) ──────────────────────────────────────────────
+const PLAT_OPEN_URLS = {fb:'https://www.facebook.com',li:'https://www.linkedin.com/feed/',ig:'https://www.instagram.com',wa:'https://web.whatsapp.com',tt:'https://www.tiktok.com',email:'https://mail.google.com'};
+function switchPlat(id, el){
+    _currentPlat = id;
+    document.querySelectorAll('.plat-section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+    const sec = document.getElementById('plat-'+id);
+    if(sec) sec.classList.add('active');
+    if(el)  el.classList.add('active');
+    const btn = document.getElementById('openPlatBtn');
+    if(btn){ btn.textContent='🚀 Open '+PLAT_NAMES[id]; btn.onclick=()=>openPlat(id); }
+}
+function openPlat(id){ window.open(PLAT_OPEN_URLS[id],'_blank'); }
+
+// ── Section switcher ──────────────────────────────────────────────────────────
+function switchSection(id, el){
+    document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
+    const sec = document.getElementById('tab-'+id);
+    if(sec) sec.classList.add('active');
+    if(el)  el.classList.add('active');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function copyPost(id, btn){
+    const el = document.getElementById(id); if(!el) return;
+    navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{
+        const o=btn.textContent; btn.textContent='✅ Copied!'; btn.classList.add('copied');
+        setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); },2000);
     });
 }
+function copyBioLink(btn){
+    navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(()=>{
+        const o=btn.textContent; btn.textContent='✅ Copied!'; btn.style.background='#6366f1';
+        setTimeout(()=>{ btn.textContent=o; btn.style.background='var(--grn)'; },2000);
+    });
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function toast(msg,color){
+    color=color||'green';
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':color==='gold'?'rgba(245,158,11,0.4)':'rgba(16,185,129,0.4)';
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
