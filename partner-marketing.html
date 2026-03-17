@@ -164,7 +164,10 @@
                 <div class="mlb-label">Your Referral Link</div>
                 <div class="mlb-name" id="partnerDisplayName">—</div>
             </div>
-            <button class="btn-copy-link" id="copyLinkBtn" onclick="copyMyLink()">📋 Copy My Link</button>
+            <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+                <button class="btn-copy-link" id="copyLinkBtn" onclick="copyMyLink()">📋 Copy My Link</button>
+                <button onclick="window.open('marketing.html#reel','_blank')" style="background:rgba(236,72,153,0.15);color:#f472b6;border:1px solid rgba(236,72,153,0.35);padding:10px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🎬 Reel Builder</button>
+            </div>
         </div>
         <div class="mlb-link-row">
             <div class="mlb-link" id="myLinkDisplay">—</div>
