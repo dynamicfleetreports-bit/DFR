@@ -27,7 +27,85 @@
         .stab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
         .stab.active{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.35);color:var(--grn);}
         .stab.manage.active{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.35);color:#c4b5fd;}
+        .stab.reel.active, #stab-reel.active{background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.35);color:#f472b6;}
         .tab-section{display:none;}.tab-section.active{display:block;}
+
+        /* ══ REEL BUILDER ═══════════════════════════════════════════════════ */
+        .rb-layout{display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start;}
+        @media(max-width:1100px){.rb-layout{grid-template-columns:1fr;}}
+
+        /* Left panel — editor */
+        .rb-editor{min-width:0;}
+        .rb-toolbar{display:flex;gap:0.6rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
+        .rb-script-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:200px;}
+        .rb-script-select option{background:#0f172a;}
+
+        /* Style picker */
+        .style-row{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
+        .style-btn{padding:7px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+        .style-btn.active{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+        .sb-dark{background:#000;color:#10b981;border-color:#10b981;}
+        .sb-dark.active{box-shadow:0 4px 16px rgba(16,185,129,0.4);}
+        .sb-aggro{background:#111;color:#ef4444;border-color:#ef4444;}
+        .sb-aggro.active{box-shadow:0 4px 16px rgba(239,68,68,0.4);}
+        .sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}
+        .sb-navy.active{box-shadow:0 4px 16px rgba(59,130,246,0.4);}
+        .sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}
+        .sb-light.active{box-shadow:0 4px 16px rgba(255,255,255,0.2);}
+        .sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}
+        .sb-custom.active{box-shadow:0 4px 16px rgba(139,92,246,0.4);}
+
+        /* Custom colour pickers */
+        .custom-colours{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;align-items:center;}
+        .custom-colours.show{display:flex;}
+        .cc-item{display:flex;flex-direction:column;gap:4px;align-items:center;}
+        .cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
+        .cc-swatch{width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
+
+        /* Slides list */
+        .slides-list{display:flex;flex-direction:column;gap:0.6rem;}
+        .slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1rem;transition:border-color 0.2s;}
+        .slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.06);}
+        .slide-item-head{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
+        .slide-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.08);font-size:10px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .slide-type-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
+        .slide-type-select option{background:#0f172a;}
+        .slide-del{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;margin-left:auto;padding:2px 6px;border-radius:4px;transition:color 0.2s;}
+        .slide-del:hover{color:#f87171;}
+        .slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;transition:color 0.2s;}
+        .slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
+        .slide-headline-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 9px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;outline:none;margin-bottom:4px;transition:border-color 0.2s;}
+        .slide-headline-input:focus{border-color:rgba(236,72,153,0.5);}
+        .slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:6px;padding:5px 9px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:12px;outline:none;resize:none;min-height:52px;transition:border-color 0.2s;}
+        .slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
+        .add-slide-btn{background:rgba(236,72,153,0.1);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:9px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;transition:all 0.2s;margin-top:0.5rem;}
+        .add-slide-btn:hover{background:rgba(236,72,153,0.18);}
+
+        /* Caption box */
+        .caption-box{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-top:1.25rem;}
+        .caption-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.5rem;}
+        .caption-textarea{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:8px;padding:10px 12px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:80px;outline:none;}
+        .caption-textarea:focus{border-color:rgba(236,72,153,0.4);}
+        .hashtag-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;margin-top:6px;}
+        .hashtag-input:focus{border-color:rgba(236,72,153,0.4);}
+
+        /* Right panel — preview */
+        .rb-preview-panel{position:sticky;top:2rem;}
+        .rb-preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.08);}
+        .rb-canvas-container{position:absolute;inset:0;}
+        #reelCanvas{width:100%;height:100%;display:block;}
+        .slide-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1rem;}
+        .slide-nav-btn{background:rgba(255,255,255,0.08);border:1px solid var(--brd);color:#e2e8f0;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+        .slide-nav-btn:hover{background:rgba(255,255,255,0.15);}
+        .slide-nav-btn:disabled{opacity:0.3;cursor:default;}
+        .slide-counter{font-size:12px;font-weight:700;color:#64748b;}
+        .rb-dl-btn{width:100%;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.35);color:#f472b6;padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.75rem;}
+        .rb-dl-btn:hover{background:rgba(236,72,153,0.25);}
+        .rb-dl-all-btn{width:100%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:var(--grn);padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.5rem;}
+        .rb-dl-all-btn:hover{background:rgba(16,185,129,0.25);}
+        .rb-copy-caption-btn{width:100%;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:var(--gld);padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.5rem;}
+        .rb-copy-caption-btn:hover{background:rgba(245,158,11,0.25);}
+        .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.6rem;line-height:1.5;font-weight:600;}
 
         /* Platform tabs */
         .plat-bar{display:flex;gap:5px;margin-bottom:1.25rem;flex-wrap:wrap;}
@@ -184,6 +262,7 @@
     <div class="section-tabs">
         <button class="stab active"  onclick="switchSection('view',this)">📣 View Posts</button>
         <button class="stab manage"  onclick="switchSection('manage',this)">✏️ Manage Posts</button>
+        <button class="stab" style="border-color:rgba(236,72,153,0.3);color:#64748b;" id="stab-reel" onclick="switchSection('reel',this)">🎬 Reel Builder</button>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════
@@ -255,7 +334,85 @@
 
     </div><!-- /tab-manage -->
 
-</main>
+    <!-- ═══════════════════════════════════════════════════════
+         REEL BUILDER SECTION
+    ════════════════════════════════════════════════════════ -->
+    <div class="tab-section" id="tab-reel">
+
+        <div style="margin-bottom:1.5rem;">
+            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#f472b6;margin-bottom:0.4rem;">🎬 Reel Builder</div>
+            <div style="font-size:13px;color:#64748b;font-weight:600;">Build a vertical reel for TikTok, Instagram Reels or Facebook Reels. Load a script, customise each slide, pick your style, then download the slides and copy your caption.</div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="rb-toolbar">
+            <select class="rb-script-select" id="rb_scriptSelect" onchange="loadScript(this.value)">
+                <option value="">— Start blank —</option>
+                <option value="script1">Script #1: "The April Bomb" (30 sec)</option>
+                <option value="script2">Script #2: "The Driver Nobody Talks About" (45 sec)</option>
+                <option value="script3">Script #3: "The Maths" (20 sec)</option>
+            </select>
+            <button class="btn btn-outline" onclick="resetBuilder()" style="white-space:nowrap;">🔄 Reset</button>
+        </div>
+
+        <!-- Style Picker -->
+        <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;">Choose Style</div>
+        <div class="style-row">
+            <button class="style-btn sb-dark active" onclick="setStyle('dark',this)">⚫ Dark &amp; Bold</button>
+            <button class="style-btn sb-aggro"       onclick="setStyle('aggro',this)">🔴 Aggressive</button>
+            <button class="style-btn sb-navy"        onclick="setStyle('navy',this)">🔵 Clean Navy</button>
+            <button class="style-btn sb-light"       onclick="setStyle('light',this)">⚪ Light &amp; Clean</button>
+            <button class="style-btn sb-custom"      onclick="setStyle('custom',this)">🎨 Custom</button>
+        </div>
+
+        <!-- Custom colour pickers -->
+        <div class="custom-colours" id="customColours">
+            <div class="cc-item"><div class="cc-label">Background</div><input type="color" class="cc-swatch" id="cc_bg"      value="#1a0a2e" oninput="updateCustomStyle()"></div>
+            <div class="cc-item"><div class="cc-label">Headline</div>  <input type="color" class="cc-swatch" id="cc_head"    value="#ffffff" oninput="updateCustomStyle()"></div>
+            <div class="cc-item"><div class="cc-label">Subtext</div>   <input type="color" class="cc-swatch" id="cc_sub"     value="#cccccc" oninput="updateCustomStyle()"></div>
+            <div class="cc-item"><div class="cc-label">Accent</div>    <input type="color" class="cc-swatch" id="cc_accent"  value="#f59e0b" oninput="updateCustomStyle()"></div>
+            <div class="cc-item"><div class="cc-label">Brand text</div><input type="color" class="cc-swatch" id="cc_brand"   value="#f59e0b" oninput="updateCustomStyle()"></div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="rb-layout">
+
+            <!-- LEFT: Slide editor -->
+            <div class="rb-editor">
+                <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.75rem;">Slides <span style="color:#475569;font-weight:600;">(click a slide to preview it →)</span></div>
+                <div class="slides-list" id="slidesList"></div>
+                <button class="add-slide-btn" onclick="addSlide()">➕ Add Slide</button>
+
+                <!-- Caption & Hashtags -->
+                <div class="caption-box">
+                    <div class="caption-label">Caption (paste into TikTok / Reels when uploading)</div>
+                    <textarea class="caption-textarea" id="rb_caption" placeholder="Write your caption here..."></textarea>
+                    <div class="caption-label" style="margin-top:0.75rem;">Hashtags</div>
+                    <input type="text" class="hashtag-input" id="rb_hashtags" placeholder="#FleetManagement #SouthAfrica #TruckingLife #Diesel #TransportSA">
+                </div>
+            </div>
+
+            <!-- RIGHT: Preview -->
+            <div class="rb-preview-panel">
+                <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.75rem;text-align:center;">Live Preview (9:16)</div>
+                <div class="rb-preview-wrap">
+                    <div class="rb-canvas-container">
+                        <canvas id="reelCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="slide-nav">
+                    <button class="slide-nav-btn" id="rb_prev" onclick="navSlide(-1)">‹</button>
+                    <span class="slide-counter" id="rb_counter">Slide 1 of 1</span>
+                    <button class="slide-nav-btn" id="rb_next" onclick="navSlide(1)">›</button>
+                </div>
+                <button class="rb-dl-btn"        onclick="downloadSlide()">⬇️ Download This Slide</button>
+                <button class="rb-dl-all-btn"    onclick="downloadAllSlides()">⬇️ Download All Slides</button>
+                <button class="rb-copy-caption-btn" onclick="copyCaption()">📋 Copy Caption + Hashtags</button>
+                <div class="rb-hint">Upload slides 1 by 1 to TikTok as photos, or use a video editor (CapCut is free) to combine them into a reel. Paste caption when uploading.</div>
+            </div>
+
+        </div><!-- /rb-layout -->
+    </div><!-- /tab-reel -->
 
 <!-- New/Edit Post Modal -->
 <div class="modal-overlay" id="postModal">
@@ -1150,6 +1307,420 @@ function toast(msg,color){
     setTimeout(()=>t.classList.remove('show'),3000);
 }
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-</script>
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REEL BUILDER
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Preset scripts ────────────────────────────────────────────────────────────
+const RB_SCRIPTS = {
+    script1:{
+        caption:'If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5–R8/litre on April 1st. Here\'s what that means for your business — and what you can actually do about it.',
+        hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner #satransport #businessowner #fuelefficiency #tiktokbusiness',
+        slides:[
+            {type:'hook',    headline:'DIESEL UP R8\nIN APRIL?',          sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
+            {type:'stat',    headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',  sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
+            {type:'numbers', headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH',sub:'10,000km each per month · R5 more per litre\nEvery. Single. Month.'},
+            {type:'point',   headline:'THE FLEET OWNERS\nWHO SURVIVE THIS\nKNOW THEIR NUMBERS',sub:'Which drivers are over-consuming.\nWhich vehicles are bleeding diesel.'},
+            {type:'proof',   headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA',sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
+            {type:'cta',     headline:'FREE FLEET\nAUDIT',                 sub:'Link in bio → dynamicfleetreports.co.za\n📞 083 314 9592'}
+        ]
+    },
+    script2:{
+        caption:'Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else\'s. After April\'s R5–R8 diesel increase, that silence is going to cost you R7,000–R8,000 extra per month. Per driver.',
+        hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner #driverefficiency #satransport #businesstips',
+        slides:[
+            {type:'hook',    headline:'ONE DRIVER\nIS COSTING YOU\nR8,000/MONTH EXTRA',sub:'Every fleet has one.\nThe driver nobody talks about.'},
+            {type:'point',   headline:'20% ABOVE\nEVERYONE ELSE',          sub:'You know something\'s off.\nBut you can\'t prove it without the data.'},
+            {type:'numbers', headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH',     sub:'Per outlier driver · Per month\nThat was already expensive.'},
+            {type:'stat',    headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH',      sub:'Same driver · Same bad habits\nNow costs almost double.'},
+            {type:'proof',   headline:'OUR REPORT:\nEVERY DRIVER\nRANKED BY EFFICIENCY',sub:'Outliers highlighted in red.\nEvery month. Actionable data.'},
+            {type:'cta',     headline:'FREE FLEET\nASSESSMENT',            sub:'Link in bio\n📞 083 314 9592'}
+        ]
+    },
+    script3:{
+        caption:'Let me do the maths for you. R5.50 more per litre × your fleet × every month. The number is bigger than you think — and 20–30% of it is preventable waste you can fix right now.',
+        hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #fuelefficiency #fleetowner #businessmath #satransport',
+        slides:[
+            {type:'hook',    headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?',  sub:'Let me do the maths\nfor you quickly.'},
+            {type:'numbers', headline:'R18.50 → R24+\nPER LITRE\n= R5.50 MORE',  sub:'Current diesel → April diesel\nDifference: R5.50/litre'},
+            {type:'stat',    headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH',       sub:'10,000km/month at 3km/L\n= 3,333 litres × R5.50'},
+            {type:'numbers', headline:'10 TRUCKS\n= R183,000\nMORE/MONTH',        sub:'20 trucks = R366,000 more per month\nEvery. Single. Month.'},
+            {type:'point',   headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE',    sub:'Over-consuming drivers.\nInefficient vehicles.\nYou can fix this.'},
+            {type:'cta',     headline:'WE SHOW YOU\nWHERE IT\'S GOING',           sub:'Free fleet efficiency assessment\nLink in bio · 📞 083 314 9592'}
+        ]
+    }
+};
+
+// ── Style definitions ─────────────────────────────────────────────────────────
+const RB_STYLES = {
+    dark:{
+        bg:'#000000', bgGrad:['#000000','#0a0a0a'],
+        headline:'#ffffff', sub:'#a0a0a0', accent:'#10b981',
+        brand:'#10b981', brandBg:'rgba(16,185,129,0.15)',
+        hookBg:['#000000','#031a0f'], numBg:['#000000','#031a0f'],
+        statBg:['#000000','#0a1a00'], ctaBg:['#031a0f','#000000'],
+        accentLine:true
+    },
+    aggro:{
+        bg:'#0a0000', bgGrad:['#0a0000','#1a0000'],
+        headline:'#ffffff', sub:'#ffaaaa', accent:'#ef4444',
+        brand:'#ef4444', brandBg:'rgba(239,68,68,0.15)',
+        hookBg:['#1a0000','#0a0000'], numBg:['#1a0000','#0a0000'],
+        statBg:['#0f0000','#050000'], ctaBg:['#1a0000','#050000'],
+        accentLine:true
+    },
+    navy:{
+        bg:'#0f172a', bgGrad:['#0f172a','#1e293b'],
+        headline:'#e2e8f0', sub:'#94a3b8', accent:'#3b82f6',
+        brand:'#60a5fa', brandBg:'rgba(59,130,246,0.15)',
+        hookBg:['#0f172a','#1e3a5f'], numBg:['#0f172a','#1a2f4a'],
+        statBg:['#0f172a','#1e2d40'], ctaBg:['#1e3a5f','#0f172a'],
+        accentLine:true
+    },
+    light:{
+        bg:'#f8fafc', bgGrad:['#f8fafc','#f1f5f9'],
+        headline:'#0f172a', sub:'#475569', accent:'#059669',
+        brand:'#059669', brandBg:'rgba(5,150,105,0.1)',
+        hookBg:['#f8fafc','#ecfdf5'], numBg:['#f1f5f9','#ecfdf5'],
+        statBg:['#f8fafc','#f0fdf4'], ctaBg:['#ecfdf5','#f8fafc'],
+        accentLine:true
+    },
+    custom:{
+        bg:'#1a0a2e', bgGrad:['#1a0a2e','#0d0618'],
+        headline:'#ffffff', sub:'#cccccc', accent:'#f59e0b',
+        brand:'#f59e0b', brandBg:'rgba(245,158,11,0.15)',
+        hookBg:['#1a0a2e','#2a0a3e'], numBg:['#1a0a2e','#2a0a3e'],
+        statBg:['#1a0a2e','#200a36'], ctaBg:['#2a0a3e','#1a0a2e'],
+        accentLine:true
+    }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let rb_slides       = [];
+let rb_activeSlide  = 0;
+let rb_style        = 'dark';
+let rb_canvas       = null;
+let rb_ctx          = null;
+let rb_W            = 1080;
+let rb_H            = 1920;
+
+// ── Init reel builder when tab opens ─────────────────────────────────────────
+function initReelBuilder(){
+    rb_canvas = document.getElementById('reelCanvas');
+    rb_ctx    = rb_canvas.getContext('2d');
+    rb_canvas.width  = rb_W;
+    rb_canvas.height = rb_H;
+    if(!rb_slides.length) resetBuilder();
+    else { renderSlidesList(); drawSlide(rb_activeSlide); }
+}
+
+function resetBuilder(){
+    rb_slides = [
+        {type:'hook',    headline:'YOUR HOOK\nGOES HERE',    sub:'Supporting text — what\'s the big problem?'},
+        {type:'stat',    headline:'THE KEY STAT\nOR FACT',    sub:'Numbers create urgency. Use them.'},
+        {type:'point',   headline:'YOUR MAIN\nPOINT',         sub:'Keep it short. One idea per slide.'},
+        {type:'cta',     headline:'CALL TO\nACTION',          sub:'Link in bio · 📞 083 314 9592'}
+    ];
+    rb_activeSlide = 0;
+    document.getElementById('rb_caption').value  = '';
+    document.getElementById('rb_hashtags').value = '#fleetmanagement #southafrica #transport #trucking #diesel #fuelefficiency';
+    renderSlidesList();
+    if(rb_canvas) drawSlide(0);
+    updateNavButtons();
+}
+
+// ── Load a preset script ──────────────────────────────────────────────────────
+function loadScript(key){
+    if(!key){ resetBuilder(); return; }
+    const s = RB_SCRIPTS[key]; if(!s) return;
+    rb_slides      = s.slides.map(sl=>Object.assign({},sl));
+    rb_activeSlide = 0;
+    document.getElementById('rb_caption').value  = s.caption;
+    document.getElementById('rb_hashtags').value = s.hashtags;
+    renderSlidesList();
+    if(rb_canvas) drawSlide(0);
+    updateNavButtons();
+}
+
+// ── Render the slides list in the editor ─────────────────────────────────────
+function renderSlidesList(){
+    const list = document.getElementById('slidesList');
+    if(!list) return;
+    list.innerHTML = rb_slides.map((sl,i)=>`
+        <div class="slide-item ${i===rb_activeSlide?'active-slide':''}" id="sli_${i}" onclick="selectSlide(${i})">
+            <div class="slide-item-head">
+                <div class="slide-num">${i+1}</div>
+                <select class="slide-type-select" onchange="changeSlideType(${i},this.value)" onclick="event.stopPropagation()">
+                    <option value="hook"    ${sl.type==='hook'   ?'selected':''}>🪝 Hook</option>
+                    <option value="stat"    ${sl.type==='stat'   ?'selected':''}>📊 Stat</option>
+                    <option value="numbers" ${sl.type==='numbers'?'selected':''}>🔢 Numbers</option>
+                    <option value="point"   ${sl.type==='point'  ?'selected':''}>💡 Point</option>
+                    <option value="proof"   ${sl.type==='proof'  ?'selected':''}>✅ Proof</option>
+                    <option value="cta"     ${sl.type==='cta'    ?'selected':''}>📣 CTA</option>
+                </select>
+                <button class="slide-up" onclick="moveSlide(${i},-1,event)" title="Move up">↑</button>
+                <button class="slide-dn" onclick="moveSlide(${i},1,event)"  title="Move down">↓</button>
+                <button class="slide-del" onclick="deleteSlide(${i},event)" title="Delete">✕</button>
+            </div>
+            <input class="slide-headline-input" type="text" value="${escAttr(sl.headline.replace(/\n/g,' | '))}"
+                placeholder="HEADLINE TEXT (use | for new line)"
+                oninput="updateSlideHeadline(${i},this.value)"
+                onclick="selectSlide(${i})">
+            <textarea class="slide-sub-input" placeholder="Supporting text (optional)"
+                oninput="updateSlideSub(${i},this.value)"
+                onclick="selectSlide(${i})">${escAttr(sl.sub||'')}</textarea>
+        </div>`).join('');
+    updateNavButtons();
+}
+
+function escAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function selectSlide(i){
+    rb_activeSlide = i;
+    document.querySelectorAll('.slide-item').forEach((el,idx)=>{
+        el.classList.toggle('active-slide', idx===i);
+    });
+    drawSlide(i);
+    updateNavButtons();
+}
+
+function changeSlideType(i, type){ rb_slides[i].type=type; drawSlide(rb_activeSlide); }
+
+function updateSlideHeadline(i, val){
+    rb_slides[i].headline = val.replace(/\|/g,'\n');
+    drawSlide(rb_activeSlide);
+}
+function updateSlideSub(i, val){
+    rb_slides[i].sub = val;
+    drawSlide(rb_activeSlide);
+}
+
+function addSlide(){
+    rb_slides.push({type:'point', headline:'NEW SLIDE\nHEADLINE', sub:'Supporting text here'});
+    rb_activeSlide = rb_slides.length-1;
+    renderSlidesList();
+    drawSlide(rb_activeSlide);
+}
+
+function deleteSlide(i, e){
+    e.stopPropagation();
+    if(rb_slides.length<=1){ toast('You need at least 1 slide','red'); return; }
+    rb_slides.splice(i,1);
+    if(rb_activeSlide>=rb_slides.length) rb_activeSlide=rb_slides.length-1;
+    renderSlidesList();
+    drawSlide(rb_activeSlide);
+}
+
+function moveSlide(i, dir, e){
+    e.stopPropagation();
+    const ni = i+dir;
+    if(ni<0||ni>=rb_slides.length) return;
+    [rb_slides[i],rb_slides[ni]] = [rb_slides[ni],rb_slides[i]];
+    rb_activeSlide = ni;
+    renderSlidesList();
+    drawSlide(rb_activeSlide);
+}
+
+function navSlide(dir){
+    const ni = rb_activeSlide+dir;
+    if(ni<0||ni>=rb_slides.length) return;
+    selectSlide(ni);
+}
+
+function updateNavButtons(){
+    const prev = document.getElementById('rb_prev');
+    const next = document.getElementById('rb_next');
+    const ctr  = document.getElementById('rb_counter');
+    if(prev) prev.disabled = rb_activeSlide===0;
+    if(next) next.disabled = rb_activeSlide===rb_slides.length-1;
+    if(ctr)  ctr.textContent = `Slide ${rb_activeSlide+1} of ${rb_slides.length}`;
+}
+
+// ── Style switching ───────────────────────────────────────────────────────────
+function setStyle(name, el){
+    rb_style = name;
+    document.querySelectorAll('.style-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+    const cc = document.getElementById('customColours');
+    if(name==='custom') cc.classList.add('show');
+    else cc.classList.remove('show');
+    if(rb_canvas) drawSlide(rb_activeSlide);
+}
+
+function updateCustomStyle(){
+    RB_STYLES.custom.bg       = document.getElementById('cc_bg').value;
+    RB_STYLES.custom.bgGrad   = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
+    RB_STYLES.custom.headline = document.getElementById('cc_head').value;
+    RB_STYLES.custom.sub      = document.getElementById('cc_sub').value;
+    RB_STYLES.custom.accent   = document.getElementById('cc_accent').value;
+    RB_STYLES.custom.brand    = document.getElementById('cc_brand').value;
+    RB_STYLES.custom.brandBg  = document.getElementById('cc_accent').value+'26';
+    RB_STYLES.custom.hookBg   = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
+    RB_STYLES.custom.numBg    = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
+    RB_STYLES.custom.ctaBg    = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
+    if(rb_canvas) drawSlide(rb_activeSlide);
+}
+
+// ── Canvas drawing ────────────────────────────────────────────────────────────
+function drawSlide(idx){
+    if(!rb_canvas||!rb_ctx) return;
+    const sl  = rb_slides[idx];
+    if(!sl) return;
+    const st  = RB_STYLES[rb_style];
+    const ctx = rb_ctx;
+    const W   = rb_W;
+    const H   = rb_H;
+    ctx.clearRect(0,0,W,H);
+
+    // Background gradient
+    let bgColors = st.bg ? [st.bg, st.bg] : st.bgGrad;
+    if(sl.type==='hook'||sl.type==='cta') bgColors = st.hookBg||st.bgGrad;
+    else if(sl.type==='numbers')          bgColors = st.numBg||st.bgGrad;
+    else if(sl.type==='stat')             bgColors = st.statBg||st.bgGrad;
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0, bgColors[0]);
+    grad.addColorStop(1, bgColors[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    // Subtle grid pattern overlay
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+    ctx.lineWidth   = 1;
+    for(let gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
+    for(let gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
+
+    // Accent bar (left side)
+    if(st.accentLine){
+        ctx.fillStyle = st.accent;
+        ctx.fillRect(0, 0, 14, H);
+    }
+
+    // Top brand bar
+    ctx.fillStyle = st.brandBg || 'rgba(16,185,129,0.12)';
+    ctx.fillRect(14,0, W-14, 110);
+    ctx.fillStyle = st.brand;
+    ctx.font      = `900 38px 'Outfit', Arial, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText('DYNAMIC FLEET REPORTING', 60, 72);
+
+    // Slide type badge
+    const badges = {hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
+    const badgeText = badges[sl.type]||sl.type.toUpperCase();
+    ctx.font      = `900 30px 'Outfit', Arial, sans-serif`;
+    ctx.fillStyle = st.accent;
+    ctx.fillText(badgeText, 60, 170);
+
+    // Slide number (top right)
+    ctx.font      = `700 28px 'Outfit', Arial, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${idx+1} / ${rb_slides.length}`, W-50, 170);
+    ctx.textAlign = 'left';
+
+    // Accent divider line
+    ctx.strokeStyle = st.accent;
+    ctx.lineWidth   = 4;
+    ctx.beginPath();
+    ctx.moveTo(60, 200);
+    ctx.lineTo(W-60, 200);
+    ctx.stroke();
+
+    // Headline text — large, bold, multiline
+    const headLines = sl.headline ? sl.headline.split('\n') : [''];
+    const headSize  = headLines.length>3 ? 120 : headLines.length>2 ? 140 : 160;
+    ctx.font        = `900 ${headSize}px 'Outfit', Arial, sans-serif`;
+    ctx.fillStyle   = st.headline;
+    ctx.textAlign   = 'left';
+
+    // Dynamic vertical centring
+    const totalHeadH = headLines.length * (headSize * 1.15);
+    let headY = sl.sub ? H*0.36 : H*0.44;
+    headLines.forEach(line=>{
+        // Shrink font if line too wide
+        let fs = headSize;
+        ctx.font = `900 ${fs}px 'Outfit', Arial, sans-serif`;
+        while(ctx.measureText(line).width > W-120 && fs>60){ fs-=4; ctx.font=`900 ${fs}px 'Outfit', Arial, sans-serif`; }
+        ctx.fillText(line, 60, headY);
+        headY += fs*1.2;
+    });
+
+    // Subtext
+    if(sl.sub){
+        const subLines = sl.sub.split('\n');
+        let subY = headY + 60;
+        ctx.font      = `600 52px 'Outfit', Arial, sans-serif`;
+        ctx.fillStyle = st.sub;
+        subLines.forEach(line=>{
+            let fs = 52;
+            ctx.font = `600 ${fs}px 'Outfit', Arial, sans-serif`;
+            while(ctx.measureText(line).width > W-120 && fs>32){ fs-=2; ctx.font=`600 ${fs}px 'Outfit', Arial, sans-serif`; }
+            ctx.fillText(line, 60, subY);
+            subY += fs*1.4;
+        });
+    }
+
+    // CTA slide extras — phone number prominent
+    if(sl.type==='cta'){
+        ctx.fillStyle = st.accent;
+        ctx.font      = `900 56px 'Outfit', Arial, sans-serif`;
+        ctx.fillText('083 314 9592', 60, H-220);
+        ctx.fillStyle = st.sub;
+        ctx.font      = `600 40px 'Outfit', Arial, sans-serif`;
+        ctx.fillText('dynamicfleetreports@gmail.com', 60, H-155);
+    }
+
+    // Bottom bar
+    ctx.fillStyle = st.brandBg || 'rgba(16,185,129,0.12)';
+    ctx.fillRect(14, H-100, W-14, 100);
+    ctx.fillStyle = st.brand;
+    ctx.font      = `700 34px 'Outfit', Arial, sans-serif`;
+    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit', 60, H-38);
+}
+
+// ── Download helpers ──────────────────────────────────────────────────────────
+function downloadSlide(){
+    if(!rb_canvas) return;
+    drawSlide(rb_activeSlide);
+    const link = document.createElement('a');
+    link.download = `dfr-reel-slide-${rb_activeSlide+1}.png`;
+    link.href = rb_canvas.toDataURL('image/png');
+    link.click();
+    toast(`Slide ${rb_activeSlide+1} downloaded ✓`,'green');
+}
+
+async function downloadAllSlides(){
+    if(!rb_canvas){ toast('Canvas not ready','red'); return; }
+    toast('Downloading all slides...','green');
+    for(let i=0;i<rb_slides.length;i++){
+        drawSlide(i);
+        await new Promise(r=>setTimeout(r,120));
+        const link = document.createElement('a');
+        link.download = `dfr-reel-slide-${i+1}-of-${rb_slides.length}.png`;
+        link.href = rb_canvas.toDataURL('image/png');
+        link.click();
+        await new Promise(r=>setTimeout(r,300));
+    }
+    drawSlide(rb_activeSlide);
+    toast(`All ${rb_slides.length} slides downloaded ✓`,'green');
+}
+
+function copyCaption(){
+    const caption  = document.getElementById('rb_caption').value.trim();
+    const hashtags = document.getElementById('rb_hashtags').value.trim();
+    const full     = caption + (hashtags ? '\n\n' + hashtags : '');
+    navigator.clipboard.writeText(full).then(()=>toast('Caption + hashtags copied ✓','green'));
+}
+
+// ── Hook reel builder init into switchSection ─────────────────────────────────
+const _origSwitchSection = switchSection;
+function switchSection(id, el){
+    _origSwitchSection(id, el);
+    if(id==='reel'){
+        document.getElementById('stab-reel').classList.add('active');
+        setTimeout(initReelBuilder, 50);
+    }
+}
+
 </body>
 </html>
