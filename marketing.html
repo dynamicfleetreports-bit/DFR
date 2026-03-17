@@ -107,6 +107,23 @@
         .rb-copy-caption-btn:hover{background:rgba(245,158,11,0.25);}
         .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.6rem;line-height:1.5;font-weight:600;}
 
+        /* Illustration picker */
+        .illus-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
+        .illus-picker-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;}
+        .illus-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+        .illus-thumb{width:100%;aspect-ratio:9/16;border-radius:6px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
+        .illus-thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-2px);}
+        .illus-thumb.active-illus{border-color:#f472b6;box-shadow:0 0 12px rgba(236,72,153,0.4);}
+        .illus-thumb svg{width:100%;height:100%;display:block;}
+        .illus-none{display:flex;align-items:center;justify-content:center;font-size:20px;color:#475569;background:rgba(255,255,255,0.03);}
+        .illus-label{font-size:8px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:3px;letter-spacing:0.04em;}
+        .illus-scope-row{display:flex;gap:6px;margin-bottom:0.6rem;}
+        .illus-scope-btn{padding:4px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .illus-scope-btn.active{background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.35);color:#f472b6;}
+        .illus-opacity-row{display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;}
+        .illus-opacity-label{font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;}
+        .illus-opacity-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
+
         /* Platform tabs */
         .plat-bar{display:flex;gap:5px;margin-bottom:1.25rem;flex-wrap:wrap;}
         .ptab{padding:7px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1.5px solid rgba(255,255,255,0.1);color:#64748b;background:none;transition:all 0.2s;}
@@ -383,7 +400,20 @@
                 <div class="slides-list" id="slidesList"></div>
                 <button class="add-slide-btn" onclick="addSlide()">➕ Add Slide</button>
 
-                <!-- Caption & Hashtags -->
+                <!-- Illustration Picker -->
+                <div class="illus-picker">
+                    <div class="illus-picker-title">🚛 Background Illustration</div>
+                    <div class="illus-scope-row">
+                        <button class="illus-scope-btn active" id="scopeThisBtn" onclick="setIllusScope('slide',this)">This slide only</button>
+                        <button class="illus-scope-btn"        id="scopeAllBtn"  onclick="setIllusScope('all',this)">Apply to all slides</button>
+                    </div>
+                    <div class="illus-grid" id="illusGrid"></div>
+                    <div class="illus-opacity-row">
+                        <span class="illus-opacity-label">Opacity</span>
+                        <input type="range" class="illus-opacity-slider" id="illusOpacity" min="5" max="60" value="22" oninput="updateIllusOpacity(this.value)">
+                        <span style="font-size:10px;font-weight:700;color:#64748b;width:28px;" id="illusOpacityVal">22%</span>
+                    </div>
+                </div>
                 <div class="caption-box">
                     <div class="caption-label">Caption (paste into TikTok / Reels when uploading)</div>
                     <textarea class="caption-textarea" id="rb_caption" placeholder="Write your caption here..."></textarea>
@@ -1721,6 +1751,510 @@ function switchSection(id, el){
         setTimeout(initReelBuilder, 50);
     }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BACKGROUND IMAGES — Unsplash + SVG Illustrations
+// ══════════════════════════════════════════════════════════════════════════════
+
+const UNSPLASH_KEY = 'g7EGqA04ya3C46uRc1wbfulu6vQx0x5qctxwU9_SFBQ';
+
+// State for backgrounds
+let rb_bgImage      = null;   // current HTMLImageElement or null
+let rb_bgOpacity    = 0.22;
+let rb_bgScope      = 'slide'; // 'slide' or 'all'
+let rb_slideImages  = {};      // {slideIndex: HTMLImageElement}
+let rb_allImage     = null;    // image applied to all slides
+let rb_activeIllusId = 'none';
+
+// SVG Illustration definitions — drawn directly onto canvas
+const SVG_ILLUS = [
+    { id:'none', label:'No BG' },
+    { id:'semi_side',   label:'Semi Side' },
+    { id:'truck_front', label:'Truck Front' },
+    { id:'fleet_row',   label:'Fleet Row' },
+    { id:'dashboard',   label:'Dashboard' },
+    { id:'highway',     label:'Highway' },
+    { id:'wheels',      label:'Close-Up Wheels' },
+    { id:'cargo',       label:'Cargo View' },
+    { id:'sunset_road', label:'Sunset Road' },
+    { id:'speedometer', label:'Speedometer' },
+    { id:'sa_map',      label:'SA Silhouette' }
+];
+
+// ── Render the illustration / image picker ────────────────────────────────────
+function renderIllusGrid(){
+    const grid = document.getElementById('illusGrid');
+    if(!grid) return;
+
+    // Search row
+    let html = `<div style="grid-column:1/-1;display:flex;gap:6px;margin-bottom:8px;">
+        <input type="text" id="unsplashQuery" placeholder="Search photos (truck, fleet, road...)"
+            style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;outline:none;"
+            onkeydown="if(event.key==='Enter')searchUnsplash()"
+            value="semi truck south africa">
+        <button onclick="searchUnsplash()" style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f472b6;padding:6px 14px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🔍 Search</button>
+    </div>
+    <div id="unsplashResults" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px;"></div>
+    <div style="grid-column:1/-1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:4px;">SVG Illustrations</div>`;
+
+    // SVG thumbs
+    SVG_ILLUS.forEach(il=>{
+        const active = rb_activeIllusId===il.id && !rb_bgImage ? 'active-illus' : '';
+        if(il.id==='none'){
+            html += `<div class="illus-thumb illus-none ${active}" onclick="applyIllus('none')" title="No background">🚫<div class="illus-label">None</div></div>`;
+        } else {
+            html += `<div class="illus-thumb ${active}" onclick="applyIllus('${il.id}')" title="${il.label}">
+                <svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">${getSvgThumb(il.id)}</svg>
+                <div class="illus-label">${il.label}</div>
+            </div>`;
+        }
+    });
+
+    html += '</div>';
+    grid.innerHTML = html;
+
+    // Auto-search on init
+    searchUnsplash();
+}
+
+// ── Unsplash search ───────────────────────────────────────────────────────────
+async function searchUnsplash(){
+    const q   = (document.getElementById('unsplashQuery')||{}).value || 'semi truck';
+    const res = document.getElementById('unsplashResults');
+    if(!res) return;
+    res.innerHTML = `<div style="grid-column:1/-1;color:#64748b;font-size:11px;padding:4px 0;">Searching...</div>`;
+    try{
+        const r    = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=12&orientation=portrait&client_id=${UNSPLASH_KEY}`);
+        const data = await r.json();
+        if(!data.results||!data.results.length){
+            res.innerHTML=`<div style="grid-column:1/-1;color:#64748b;font-size:11px;">No results found. Try "truck" or "highway".</div>`;
+            return;
+        }
+        res.innerHTML = data.results.map(photo=>`
+            <div class="illus-thumb" onclick="applyUnsplashPhoto('${photo.urls.regular}','${photo.id}')"
+                title="${photo.alt_description||photo.user.name}"
+                style="background-image:url(${photo.urls.thumb});background-size:cover;background-position:center;">
+                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:3px 4px;font-size:7px;color:rgba(255,255,255,0.6);">${photo.user.name}</div>
+            </div>`).join('');
+        // Attribution note
+        res.innerHTML += `<div style="grid-column:1/-1;font-size:8px;color:#334155;margin-top:2px;">Photos by <a href="https://unsplash.com" target="_blank" style="color:#475569;">Unsplash</a></div>`;
+    } catch(e){
+        res.innerHTML=`<div style="grid-column:1/-1;color:#f87171;font-size:11px;">Search failed. Check your connection.</div>`;
+    }
+}
+
+// ── Apply Unsplash photo ──────────────────────────────────────────────────────
+function applyUnsplashPhoto(url, id){
+    rb_activeIllusId = 'unsplash_'+id;
+    // Clear SVG illus active states
+    document.querySelectorAll('.illus-thumb').forEach(t=>t.classList.remove('active-illus'));
+    // Find and mark active
+    event.currentTarget.classList.add('active-illus');
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+        if(rb_bgScope==='all'){
+            rb_allImage = img;
+            rb_slideImages = {};
+        } else {
+            rb_slideImages[rb_activeSlide] = img;
+            rb_allImage = null;
+        }
+        rb_bgImage = img;
+        drawSlide(rb_activeSlide);
+    };
+    img.onerror = ()=>toast('Could not load photo — try another','red');
+    img.src = url;
+}
+
+// ── Apply SVG illustration ────────────────────────────────────────────────────
+function applyIllus(id){
+    rb_activeIllusId = id;
+    rb_bgImage = null;
+    if(rb_bgScope==='all'){
+        rb_allImage   = null;
+        rb_slideImages = {};
+    } else {
+        rb_slideImages[rb_activeSlide] = null;
+    }
+    document.querySelectorAll('.illus-thumb').forEach(t=>t.classList.remove('active-illus'));
+    // Mark the clicked one active
+    const thumbs = document.querySelectorAll('.illus-thumb');
+    thumbs.forEach(t=>{ if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes(id)) t.classList.add('active-illus'); });
+    drawSlide(rb_activeSlide);
+}
+
+function setIllusScope(scope, el){
+    rb_bgScope = scope;
+    document.querySelectorAll('.illus-scope-btn').forEach(b=>b.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function updateIllusOpacity(val){
+    rb_bgOpacity = parseInt(val)/100;
+    document.getElementById('illusOpacityVal').textContent = val+'%';
+    drawSlide(rb_activeSlide);
+}
+
+// ── SVG thumb mini previews ───────────────────────────────────────────────────
+function getSvgThumb(id){
+    const c = '#10b981';
+    const thumbs = {
+        semi_side: `<rect fill="#0a0a14" width="108" height="192"/>
+            <rect fill="${c}" opacity=".15" x="5" y="95" width="98" height="2"/>
+            <rect fill="${c}" x="8" y="68" width="60" height="25" rx="3"/>
+            <rect fill="${c}" opacity=".8" x="68" y="72" width="32" height="21" rx="3"/>
+            <rect fill="rgba(255,255,255,.1)" x="78" y="74" width="16" height="14" rx="2"/>
+            <circle fill="#222" cx="22" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="22" cy="96" r="4"/>
+            <circle fill="#222" cx="38" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="38" cy="96" r="4"/>
+            <circle fill="#222" cx="80" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="80" cy="96" r="4"/>`,
+        truck_front: `<rect fill="#0a0a14" width="108" height="192"/>
+            <rect fill="${c}" x="24" y="60" width="60" height="80" rx="8"/>
+            <rect fill="rgba(255,255,255,.12)" x="34" y="68" width="40" height="28" rx="4"/>
+            <rect fill="${c}" opacity=".7" x="18" y="136" width="72" height="12" rx="4"/>
+            <circle fill="rgba(255,255,255,.15)" cx="30" cy="74" r="8"/>
+            <circle fill="rgba(255,255,255,.15)" cx="78" cy="74" r="8"/>
+            <circle fill="#222" cx="16" cy="148" r="10"/><circle fill="${c}" opacity=".4" cx="16" cy="148" r="5"/>
+            <circle fill="#222" cx="92" cy="148" r="10"/><circle fill="${c}" opacity=".4" cx="92" cy="148" r="5"/>`,
+        fleet_row: `<rect fill="#0a0a14" width="108" height="192"/>
+            <rect fill="${c}" x="4" y="90" width="80" height="20" rx="3"/>
+            <rect fill="${c}" opacity=".8" x="84" y="92" width="20" height="18" rx="3"/>
+            <rect fill="${c}" opacity=".6" x="14" y="72" width="62" height="16" rx="2"/>
+            <rect fill="${c}" opacity=".8" x="76" y="74" width="18" height="14" rx="2"/>
+            <rect fill="${c}" opacity=".4" x="22" y="57" width="46" height="13" rx="2"/>
+            <rect fill="${c}" opacity=".6" x="68" y="59" width="16" height="11" rx="2"/>`,
+        dashboard: `<rect fill="#0a0a14" width="108" height="192"/>
+            <circle fill="none" stroke="${c}" stroke-width="6" cx="54" cy="96" r="32"/>
+            <line x1="54" y1="96" x2="54" y2="68" stroke="${c}" stroke-width="4"/>
+            <line x1="54" y1="96" x2="78" y2="82" stroke="${c}" stroke-width="3" opacity=".5"/>
+            <circle fill="${c}" cx="54" cy="96" r="5"/>
+            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".5" cx="22" cy="80" r="14"/>
+            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".5" cx="86" cy="80" r="14"/>`,
+        highway: `<rect fill="#0a0a14" width="108" height="192"/>
+            <polygon fill="${c}" opacity=".15" points="0,192 108,192 80,80 28,80"/>
+            <rect fill="${c}" opacity=".4" x="50" y="80" width="8" height="20" rx="2"/>
+            <rect fill="${c}" opacity=".4" x="50" y="110" width="8" height="20" rx="2"/>
+            <rect fill="${c}" opacity=".4" x="50" y="140" width="8" height="20" rx="2"/>
+            <rect fill="${c}" opacity=".4" x="50" y="170" width="8" height="18" rx="2"/>
+            <line x1="0" y1="192" x2="108" y2="192" stroke="${c}" stroke-width="3" opacity=".3"/>`,
+        wheels: `<rect fill="#0a0a14" width="108" height="192"/>
+            <circle fill="none" stroke="${c}" stroke-width="8" cx="54" cy="96" r="36"/>
+            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".4" cx="54" cy="96" r="24"/>
+            <circle fill="${c}" cx="54" cy="96" r="10"/>
+            ${[0,60,120,180,240,300].map(a=>`<line x1="54" y1="96" x2="${54+Math.cos(a*Math.PI/180)*36}" y2="${96+Math.sin(a*Math.PI/180)*36}" stroke="${c}" stroke-width="4" opacity=".6"/>`).join('')}`,
+        cargo: `<rect fill="#0a0a14" width="108" height="192"/>
+            <rect fill="${c}" opacity=".2" x="10" y="50" width="88" height="100" rx="4"/>
+            <rect fill="${c}" opacity=".5" x="10" y="50" width="88" height="6" rx="2"/>
+            ${[0,1,2,3].map(i=>`<rect fill="${c}" opacity=".3" x="${18+i*22}" y="60" width="18" height="82" rx="2"/>`).join('')}
+            <rect fill="${c}" opacity=".6" x="10" y="144" width="88" height="6" rx="2"/>`,
+        sunset_road: `<rect fill="#0a0a14" width="108" height="192"/>
+            <circle fill="${c}" opacity=".2" cx="54" cy="72" r="28"/>
+            <circle fill="${c}" opacity=".1" cx="54" cy="72" r="42"/>
+            <polygon fill="${c}" opacity=".08" points="0,192 108,192 108,90 0,90"/>
+            <line x1="0" y1="90" x2="108" y2="90" stroke="${c}" stroke-width="2" opacity=".3"/>
+            <rect fill="${c}" opacity=".5" x="46" y="90" width="16" height="28" rx="2"/>
+            <rect fill="${c}" opacity=".3" x="46" y="124" width="16" height="16" rx="2"/>
+            <rect fill="${c}" opacity=".3" x="46" y="146" width="16" height="16" rx="2"/>`,
+        speedometer: `<rect fill="#0a0a14" width="108" height="192"/>
+            <path fill="none" stroke="${c}" stroke-width="7" opacity=".3" d="M 16 110 A 38 38 0 0 1 92 110"/>
+            <path fill="none" stroke="${c}" stroke-width="7" d="M 16 110 A 38 38 0 0 1 62 75"/>
+            <line x1="54" y1="110" x2="72" y2="76" stroke="#f59e0b" stroke-width="4"/>
+            <circle fill="${c}" cx="54" cy="110" r="6"/>
+            <text x="54" y="134" text-anchor="middle" fill="${c}" font-size="10" font-weight="900" opacity=".7">km/h</text>
+            ${[0,1,2,3,4,5,6].map(i=>{const a=-180+i*25.7; return `<line x1="${54+Math.cos(a*Math.PI/180)*30}" y1="${110+Math.sin(a*Math.PI/180)*30}" x2="${54+Math.cos(a*Math.PI/180)*38}" y2="${110+Math.sin(a*Math.PI/180)*38}" stroke="${c}" stroke-width="2" opacity=".5"/>`;}).join('')}`,
+        sa_map: `<rect fill="#0a0a14" width="108" height="192"/>
+            <path fill="${c}" opacity=".25" d="M30,55 L78,52 L88,65 L92,85 L85,105 L75,118 L65,128 L54,135 L42,128 L30,115 L22,95 L20,75 Z"/>
+            <circle fill="${c}" cx="54" cy="95" r="5"/>
+            <circle fill="none" stroke="${c}" stroke-width="2" cx="54" cy="95" r="10" opacity=".4"/>
+            <circle fill="none" stroke="${c}" stroke-width="1" cx="54" cy="95" r="16" opacity=".2"/>`
+    };
+    return thumbs[id] || `<rect fill="#0a0a14" width="108" height="192"/><text x="54" y="100" text-anchor="middle" fill="#10b981" font-size="12">?</text>`;
+}
+
+// ── Draw SVG illustration onto canvas ─────────────────────────────────────────
+function drawSvgIllus(ctx, id, W, H, color, opacity){
+    if(!id || id==='none') return;
+    ctx.save();
+    ctx.globalAlpha = opacity;
+
+    const s = W/1080;
+    ctx.strokeStyle = color;
+    ctx.fillStyle   = color;
+
+    if(id==='semi_side'){
+        // Road
+        ctx.globalAlpha=opacity*0.3; ctx.fillRect(0,H*0.72,W,H*0.014);
+        ctx.globalAlpha=opacity;
+        // Trailer
+        rr(ctx,W*0.06,H*0.56,W*0.47,H*0.155,12*s);
+        // Cab
+        ctx.fillStyle=blend(color,0.15); rr(ctx,W*0.54,H*0.555,W*0.38,H*0.16,16*s);
+        // Windscreen
+        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,W*0.81,H*0.568,W*0.09,H*0.1,8*s);
+        // Trailer lines
+        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s;
+        for(let i=1;i<4;i++){ ctx.beginPath(); ctx.moveTo(W*0.06+i*(W*0.47/4),H*0.56); ctx.lineTo(W*0.06+i*(W*0.47/4),H*0.715); ctx.stroke(); }
+        // DFR text
+        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.2; ctx.font=`900 ${48*s}px Arial,sans-serif`; ctx.textAlign='center';
+        ctx.fillText('DYNAMIC FLEET REPORTING',W*0.3,H*0.655);
+        ctx.globalAlpha=opacity;
+        // Wheels
+        dWheel(ctx,W*0.17,H*0.718,H*0.042,s,color);
+        dWheel(ctx,W*0.29,H*0.718,H*0.042,s,color);
+        dWheel(ctx,W*0.69,H*0.718,H*0.042,s,color);
+        dWheel(ctx,W*0.82,H*0.718,H*0.042,s,color);
+
+    } else if(id==='truck_front'){
+        const cx=W*0.5, ty=H*0.35;
+        ctx.fillStyle=color; rr(ctx,cx-W*0.22,ty,W*0.44,H*0.33,22*s);
+        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,cx-W*0.14,ty+H*0.02,W*0.28,H*0.14,12*s);
+        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=4*s;
+        for(let i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(cx-W*0.19,ty+H*0.19+i*H*0.024); ctx.lineTo(cx+W*0.19,ty+H*0.19+i*H*0.024); ctx.stroke(); }
+        ctx.fillStyle=blend(color,0.2); rr(ctx,cx-W*0.25,ty+H*0.3,W*0.5,H*0.058,10*s);
+        ctx.fillStyle='rgba(255,255,255,0.18)'; rr(ctx,cx-W*0.2,ty+H*0.015,W*0.075,H*0.042,6*s); rr(ctx,cx+W*0.125,ty+H*0.015,W*0.075,H*0.042,6*s);
+        dWheel(ctx,cx-W*0.27,ty+H*0.27,H*0.075,s,color);
+        dWheel(ctx,cx+W*0.27,ty+H*0.27,H*0.075,s,color);
+
+    } else if(id==='fleet_row'){
+        const trucks=[{x:W*0.04,y:H*0.54,w:W*0.56,h:H*0.14,sc:1},{x:W*0.18,y:H*0.41,w:W*0.43,h:H*0.11,sc:0.78},{x:W*0.3,y:H*0.31,w:W*0.33,h:H*0.085,sc:0.6}];
+        trucks.forEach(t=>{
+            ctx.fillStyle=color; rr(ctx,t.x,t.y,t.w*0.72,t.h,8*s*t.sc);
+            ctx.fillStyle=blend(color,0.12); rr(ctx,t.x+t.w*0.73,t.y,t.w*0.27,t.h,8*s*t.sc);
+            ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,t.x+t.w*0.82,t.y+t.h*0.08,t.w*0.14,t.h*0.55,5*s*t.sc);
+            const wr=t.h*0.32; dWheel(ctx,t.x+t.w*0.12,t.y+t.h+wr*0.1,wr,s*t.sc,color); dWheel(ctx,t.x+t.w*0.28,t.y+t.h+wr*0.1,wr,s*t.sc,color); dWheel(ctx,t.x+t.w*0.78,t.y+t.h+wr*0.1,wr,s*t.sc,color);
+        });
+        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.25; ctx.fillRect(0,H*0.72,W,H*0.012);
+
+    } else if(id==='dashboard'){
+        const cx=W*0.5, cy=H*0.5;
+        ctx.strokeStyle=color; ctx.lineWidth=18*s;
+        ctx.beginPath(); ctx.arc(cx,cy,W*0.24,0,Math.PI*2); ctx.stroke();
+        ctx.lineWidth=8*s;
+        for(let i=0;i<3;i++){ const a=i*(Math.PI*2/3)-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*W*0.24,cy+Math.sin(a)*W*0.24); ctx.stroke(); }
+        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.05,0,Math.PI*2); ctx.fill();
+        [{x:cx-W*0.3,y:cy-H*0.06},{x:cx+W*0.3,y:cy-H*0.06}].forEach(g=>{
+            ctx.strokeStyle=color; ctx.lineWidth=6*s; ctx.beginPath(); ctx.arc(g.x,g.y,W*0.1,0,Math.PI*2); ctx.stroke();
+            ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=5*s; ctx.beginPath(); ctx.moveTo(g.x,g.y); ctx.lineTo(g.x+Math.cos(-0.8)*W*0.08,g.y+Math.sin(-0.8)*W*0.08); ctx.stroke();
+        });
+
+    } else if(id==='highway'){
+        // Sky gradient
+        ctx.globalAlpha=opacity*0.15;
+        const sg=ctx.createLinearGradient(0,0,0,H*0.6); sg.addColorStop(0,color); sg.addColorStop(1,'transparent');
+        ctx.fillStyle=sg; ctx.fillRect(0,0,W,H*0.6);
+        // Road
+        ctx.globalAlpha=opacity*0.12;
+        ctx.fillStyle=color;
+        ctx.beginPath(); ctx.moveTo(0,H*0.65); ctx.lineTo(W,H*0.65); ctx.lineTo(W*0.75,H*0.4); ctx.lineTo(W*0.25,H*0.4); ctx.fill();
+        // Dashes
+        ctx.globalAlpha=opacity*0.5; ctx.fillStyle=color;
+        for(let d=0;d<5;d++) rr(ctx,W*0.47,H*0.42+d*H*0.05,W*0.06,H*0.03,4*s);
+
+    } else if(id==='wheels'){
+        const cx=W*0.5, cy=H*0.5;
+        ctx.strokeStyle=color; ctx.lineWidth=10*s;
+        ctx.beginPath(); ctx.arc(cx,cy,W*0.38,0,Math.PI*2); ctx.stroke();
+        ctx.lineWidth=4*s; ctx.strokeStyle=color; ctx.globalAlpha=opacity*0.4;
+        ctx.beginPath(); ctx.arc(cx,cy,W*0.25,0,Math.PI*2); ctx.stroke();
+        ctx.globalAlpha=opacity; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.065,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle=color; ctx.lineWidth=6*s;
+        [0,60,120,180,240,300].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*W*0.38,cy+Math.sin(a*Math.PI/180)*W*0.38); ctx.stroke(); });
+
+    } else if(id==='cargo'){
+        rr(ctx,W*0.08,H*0.35,W*0.84,H*0.36,12*s);
+        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s;
+        for(let i=1;i<4;i++){ ctx.beginPath(); ctx.moveTo(W*0.08+i*(W*0.84/4),H*0.35); ctx.lineTo(W*0.08+i*(W*0.84/4),H*0.71); ctx.stroke(); }
+        ctx.fillStyle=blend(color,0.3); ctx.fillRect(W*0.08,H*0.35,W*0.84,H*0.02);
+        ctx.fillRect(W*0.08,H*0.69,W*0.84,H*0.02);
+
+    } else if(id==='sunset_road'){
+        // Sun
+        ctx.globalAlpha=opacity*0.2;
+        const rg=ctx.createRadialGradient(W*0.5,H*0.38,0,W*0.5,H*0.38,W*0.45);
+        rg.addColorStop(0,color); rg.addColorStop(1,'transparent');
+        ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
+        ctx.globalAlpha=opacity*0.35; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.arc(W*0.5,H*0.38,W*0.14,0,Math.PI*2); ctx.fill();
+        // Horizon
+        ctx.globalAlpha=opacity*0.3; ctx.fillRect(0,H*0.52,W,H*0.012);
+        // Road
+        ctx.globalAlpha=opacity*0.1; ctx.fillStyle=color;
+        ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(W,H); ctx.lineTo(W*0.72,H*0.52); ctx.lineTo(W*0.28,H*0.52); ctx.fill();
+        ctx.globalAlpha=opacity*0.5; ctx.fillStyle=color;
+        for(let d=0;d<5;d++) rr(ctx,W*0.47,H*0.55+d*H*0.09,W*0.06,H*0.04,4*s);
+
+    } else if(id==='speedometer'){
+        const cx=W*0.5, cy=H*0.52;
+        // Outer arc
+        ctx.globalAlpha=opacity*0.3; ctx.strokeStyle=color; ctx.lineWidth=14*s;
+        ctx.beginPath(); ctx.arc(cx,cy,W*0.34,Math.PI*0.85,Math.PI*0.15); ctx.stroke();
+        // Active arc
+        ctx.globalAlpha=opacity; ctx.strokeStyle=color; ctx.lineWidth=14*s;
+        ctx.beginPath(); ctx.arc(cx,cy,W*0.34,Math.PI*0.85,Math.PI*1.6); ctx.stroke();
+        // Needle
+        const na=Math.PI*0.85+Math.PI*0.75*0.68;
+        ctx.strokeStyle='#f59e0b'; ctx.lineWidth=7*s;
+        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(na)*W*0.3,cy+Math.sin(na)*W*0.3); ctx.stroke();
+        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.04,0,Math.PI*2); ctx.fill();
+        // Ticks
+        ctx.strokeStyle=color; ctx.lineWidth=3*s;
+        for(let i=0;i<=10;i++){ const a=Math.PI*0.85+i*(Math.PI*1.3/10); ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*W*0.27,cy+Math.sin(a)*W*0.27); ctx.lineTo(cx+Math.cos(a)*W*0.34,cy+Math.sin(a)*W*0.34); ctx.stroke(); }
+        ctx.font=`900 ${52*s}px Arial,sans-serif`; ctx.fillStyle=color; ctx.textAlign='center';
+        ctx.fillText('km/h',cx,cy+W*0.12);
+
+    } else if(id==='sa_map'){
+        // SA silhouette (simplified)
+        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.3;
+        ctx.beginPath();
+        ctx.moveTo(W*0.28,H*0.28); ctx.lineTo(W*0.72,H*0.26); ctx.lineTo(W*0.85,H*0.36);
+        ctx.lineTo(W*0.88,H*0.46); ctx.lineTo(W*0.82,H*0.58); ctx.lineTo(W*0.72,H*0.68);
+        ctx.lineTo(W*0.6,H*0.76);  ctx.lineTo(W*0.5,H*0.8);   ctx.lineTo(W*0.4,H*0.76);
+        ctx.lineTo(W*0.28,H*0.66); ctx.lineTo(W*0.18,H*0.54); ctx.lineTo(W*0.15,H*0.42);
+        ctx.closePath(); ctx.fill();
+        // Pin
+        ctx.globalAlpha=opacity;
+        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.04,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.08,0,Math.PI*2); ctx.strokeStyle=color; ctx.lineWidth=4*s; ctx.stroke();
+        ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.13,0,Math.PI*2); ctx.lineWidth=2*s; ctx.globalAlpha=opacity*0.4; ctx.stroke();
+    }
+
+    ctx.restore();
+}
+
+// ── Canvas helper functions ───────────────────────────────────────────────────
+function rr(ctx,x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath(); ctx.fill();
+}
+function dWheel(ctx,cx,cy,r,s,color){
+    ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=color; ctx.lineWidth=3*s; ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,r*0.3,0,Math.PI*2); ctx.fill();
+    [0,72,144,216,288].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*r*0.75,cy+Math.sin(a*Math.PI/180)*r*0.75); ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=3*s; ctx.stroke(); });
+}
+function blend(hex,amt){
+    // Lighten a hex/color slightly
+    return hex;  // pass-through — canvas uses globalAlpha for tinting
+}
+
+// ── Override drawSlide to inject background before drawing ────────────────────
+const _origDrawSlide = drawSlide;
+function drawSlide(idx){
+    if(!rb_canvas||!rb_ctx) return;
+    const sl  = rb_slides[idx]; if(!sl) return;
+    const st  = RB_STYLES[rb_style];
+    const ctx = rb_ctx;
+    const W   = rb_W, H = rb_H;
+    ctx.clearRect(0,0,W,H);
+
+    // 1. Draw gradient background (same as original)
+    let bgColors = st.bgGrad||[st.bg,st.bg];
+    if(sl.type==='hook'||sl.type==='cta')  bgColors = st.hookBg||bgColors;
+    else if(sl.type==='numbers')            bgColors = st.numBg||bgColors;
+    else if(sl.type==='stat')               bgColors = st.statBg||bgColors;
+    const grad = ctx.createLinearGradient(0,0,W,H);
+    grad.addColorStop(0,bgColors[0]); grad.addColorStop(1,bgColors[1]);
+    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+    // 2. Draw photo background (Unsplash) if set
+    const photoImg = rb_allImage || rb_slideImages[idx];
+    if(photoImg){
+        ctx.save();
+        ctx.globalAlpha = rb_bgOpacity;
+        // Cover-fit the image
+        const ir=photoImg.width/photoImg.height, cr=W/H;
+        let sw,sh,sx=0,sy=0;
+        if(ir>cr){ sh=photoImg.height; sw=sh*cr; sx=(photoImg.width-sw)/2; }
+        else      { sw=photoImg.width;  sh=sw/cr; sy=(photoImg.height-sh)/2; }
+        ctx.drawImage(photoImg,sx,sy,sw,sh,0,0,W,H);
+        // Dark overlay so text stays readable
+        ctx.globalAlpha=Math.min(rb_bgOpacity*2,0.65);
+        ctx.fillStyle=bgColors[0]; ctx.fillRect(0,0,W,H);
+        ctx.restore();
+    }
+
+    // 3. Draw SVG illustration if no photo and illus selected
+    if(!photoImg && rb_activeIllusId && rb_activeIllusId!=='none' && !rb_activeIllusId.startsWith('unsplash_')){
+        drawSvgIllus(ctx, rb_activeIllusId, W, H, st.accent, rb_bgOpacity);
+    }
+
+    // 4. Grid pattern overlay
+    ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.lineWidth=1;
+    for(let gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
+    for(let gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
+
+    // 5. Accent bar
+    if(st.accentLine){ ctx.fillStyle=st.accent; ctx.fillRect(0,0,14,H); }
+
+    // 6. Top brand bar
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,0,W-14,110);
+    ctx.fillStyle=st.brand; ctx.font=`900 38px 'Outfit',Arial,sans-serif`; ctx.textAlign='left';
+    ctx.fillText('DYNAMIC FLEET REPORTING',60,72);
+
+    // 7. Badge
+    const badges={hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
+    ctx.font=`900 30px 'Outfit',Arial,sans-serif`; ctx.fillStyle=st.accent;
+    ctx.fillText(badges[sl.type]||sl.type.toUpperCase(),60,170);
+
+    // 8. Slide number
+    ctx.font=`700 28px 'Outfit',Arial,sans-serif`; ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.textAlign='right'; ctx.fillText(`${idx+1} / ${rb_slides.length}`,W-50,170); ctx.textAlign='left';
+
+    // 9. Accent divider
+    ctx.strokeStyle=st.accent; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(60,200); ctx.lineTo(W-60,200); ctx.stroke();
+
+    // 10. Headline
+    const headLines=sl.headline?sl.headline.split('\n'):[''];
+    const headSize=headLines.length>3?120:headLines.length>2?140:160;
+    ctx.fillStyle=st.headline; ctx.textAlign='left';
+    let headY=sl.sub?H*0.36:H*0.44;
+    headLines.forEach(line=>{
+        let fs=headSize; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`;
+        while(ctx.measureText(line).width>W-120&&fs>60){ fs-=4; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`; }
+        ctx.fillText(line,60,headY); headY+=fs*1.2;
+    });
+
+    // 11. Subtext
+    if(sl.sub){
+        const subLines=sl.sub.split('\n'); let subY=headY+60;
+        ctx.fillStyle=st.sub;
+        subLines.forEach(line=>{
+            let fs=52; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`;
+            while(ctx.measureText(line).width>W-120&&fs>32){ fs-=2; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`; }
+            ctx.fillText(line,60,subY); subY+=fs*1.4;
+        });
+    }
+
+    // 12. CTA extras
+    if(sl.type==='cta'){
+        ctx.fillStyle=st.accent; ctx.font=`900 56px 'Outfit',Arial,sans-serif`;
+        ctx.fillText('083 314 9592',60,H-220);
+        ctx.fillStyle=st.sub; ctx.font=`600 40px 'Outfit',Arial,sans-serif`;
+        ctx.fillText('dynamicfleetreports@gmail.com',60,H-155);
+    }
+
+    // 13. Bottom bar
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,H-100,W-14,100);
+    ctx.fillStyle=st.brand; ctx.font=`700 34px 'Outfit',Arial,sans-serif`;
+    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit',60,H-38);
+}
+
+// ── Extend initReelBuilder to also build illus grid ───────────────────────────
+const _origInitReelBuilder = initReelBuilder;
+function initReelBuilder(){
+    rb_canvas = document.getElementById('reelCanvas');
+    rb_ctx    = rb_canvas.getContext('2d');
+    rb_canvas.width  = rb_W;
+    rb_canvas.height = rb_H;
+    if(!rb_slides.length) resetBuilder();
+    else { renderSlidesList(); drawSlide(rb_activeSlide); }
+    renderIllusGrid();
+}
+
 
 </body>
 </html>
