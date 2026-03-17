@@ -60,6 +60,73 @@
         .tab-wa.active{background:rgba(37,211,102,0.15);border-color:rgba(37,211,102,0.4);color:#4ade80;}
         .tab-tt.active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:white;}
         .tab-scripts.active{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);color:#c4b5fd;}
+        .tab-reel.active{background:rgba(236,72,153,0.15);border-color:rgba(236,72,153,0.4);color:#f472b6;}
+
+        /* ── REEL BUILDER ─────────────────────────────────────── */
+        .rb-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start;}
+        @media(max-width:900px){.rb-layout{grid-template-columns:1fr;}}
+        .rb-toolbar{display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
+        .rb-script-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:180px;}
+        .rb-script-select option{background:#0f172a;}
+        .style-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+        .style-btn{padding:6px 12px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+        .style-btn.active{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.4);}
+        .sb-dark{background:#000;color:#10b981;border-color:#10b981;}
+        .sb-aggro{background:#111;color:#ef4444;border-color:#ef4444;}
+        .sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}
+        .sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}
+        .sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}
+        .custom-colours{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:0.85rem;margin-bottom:0.85rem;gap:0.75rem;flex-wrap:wrap;align-items:center;}
+        .custom-colours.show{display:flex;}
+        .cc-item{display:flex;flex-direction:column;gap:3px;align-items:center;}
+        .cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
+        .cc-swatch{width:32px;height:32px;border-radius:6px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
+        .slides-list{display:flex;flex-direction:column;gap:0.5rem;}
+        .slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:8px;padding:0.75rem;transition:border-color 0.2s;cursor:pointer;}
+        .slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.05);}
+        .slide-item-head{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
+        .slide-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.07);font-size:9px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+        .slide-type-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:3px 7px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
+        .slide-type-select option{background:#0f172a;}
+        .slide-del{background:none;border:none;color:#475569;cursor:pointer;font-size:13px;margin-left:auto;padding:2px 5px;border-radius:3px;}
+        .slide-del:hover{color:#f87171;}
+        .slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:11px;padding:2px 4px;}
+        .slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
+        .slide-headline-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;margin-bottom:3px;}
+        .slide-headline-input:focus{border-color:rgba(236,72,153,0.5);}
+        .slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:5px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:11px;outline:none;resize:none;min-height:44px;}
+        .slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
+        .add-slide-btn{background:rgba(236,72,153,0.08);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:8px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;margin-top:0.4rem;}
+        .illus-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:9px;padding:0.85rem;margin-bottom:0.85rem;}
+        .illus-picker-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.5rem;}
+        .illus-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
+        .illus-thumb{width:100%;aspect-ratio:9/16;border-radius:5px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
+        .illus-thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-1px);}
+        .illus-thumb.active-illus{border-color:#f472b6;box-shadow:0 0 10px rgba(236,72,153,0.35);}
+        .illus-thumb svg{width:100%;height:100%;display:block;}
+        .illus-none{display:flex;align-items:center;justify-content:center;font-size:16px;color:#475569;background:rgba(255,255,255,0.03);}
+        .illus-label{font-size:7px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:2px;}
+        .illus-scope-row{display:flex;gap:5px;margin-bottom:0.5rem;}
+        .illus-scope-btn{padding:3px 10px;border-radius:5px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .illus-scope-btn.active{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
+        .illus-opacity-row{display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;}
+        .illus-opacity-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
+        .caption-box{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:9px;padding:0.85rem;margin-top:0.85rem;}
+        .caption-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.4rem;}
+        .caption-textarea{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:9px 11px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:70px;outline:none;}
+        .hashtag-input-rb{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:7px 11px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;margin-top:5px;}
+        .rb-preview-panel{position:sticky;top:5rem;}
+        .rb-preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.07);}
+        .rb-canvas-container{position:absolute;inset:0;}
+        #reelCanvas{width:100%;height:100%;display:block;}
+        .slide-nav{display:flex;align-items:center;justify-content:center;gap:0.85rem;margin-top:0.85rem;}
+        .slide-nav-btn{background:rgba(255,255,255,0.07);border:1px solid var(--brd);color:#e2e8f0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+        .slide-nav-btn:disabled{opacity:0.3;cursor:default;}
+        .slide-counter{font-size:11px;font-weight:700;color:#64748b;}
+        .rb-dl-btn{width:100%;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f472b6;padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.6rem;}
+        .rb-dl-all-btn{width:100%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--grn);padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.4rem;}
+        .rb-copy-caption-btn{width:100%;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--gld);padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.4rem;}
+        .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.5rem;line-height:1.5;font-weight:600;}
 
         /* Platform sections */
         .platform-section{display:none;}.platform-section.active{display:block;}
@@ -183,6 +250,7 @@
         <button class="tab tab-wa"        onclick="switchTab('wa',this)">💬 WhatsApp</button>
         <button class="tab tab-tt"        onclick="switchTab('tt',this)">🎵 TikTok</button>
         <button class="tab tab-scripts"   onclick="switchTab('community',this)">🌟 Community Scripts</button>
+        <button class="tab tab-reel"      onclick="switchTab('reel',this)">🎬 Reel Builder</button>
     </div>
 
     <!-- Platform content sections -->
@@ -192,6 +260,7 @@
     <div id="section-wa"        class="platform-section"><div class="loading">Loading posts...</div></div>
     <div id="section-tt"        class="platform-section"><div class="loading">Loading posts...</div></div>
     <div id="section-community" class="platform-section"><div class="loading">Loading scripts...</div></div>
+    <div id="section-reel"      class="platform-section"></div>
 
     <!-- Submit Script (moved to bottom) -->
     <div class="script-box" id="submitScriptBox" style="display:none;">
@@ -380,15 +449,6 @@ function copyMyLink(){
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
-function switchTab(id, el){
-    document.querySelectorAll('.platform-section').forEach(function(s){ s.classList.remove('active'); });
-    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-    var sec = document.getElementById('section-'+id);
-    if(sec) sec.classList.add('active');
-    if(el)  el.classList.add('active');
-    if(id==='community') loadCommunityScripts();
-}
-
 // ── Community Scripts ─────────────────────────────────────────────────────────
 async function loadCommunityScripts(){
     var el = document.getElementById('section-community');
@@ -494,6 +554,434 @@ function toast(msg,color){
     setTimeout(function(){ t.classList.remove('show'); },3000);
 }
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-</script>
+
+// ── Tab switching — extended to handle reel ───────────────────────────────────
+function switchTab(id,el){
+    document.querySelectorAll('.platform-section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    var sec=document.getElementById('section-'+id);
+    if(sec) sec.classList.add('active');
+    if(el)  el.classList.add('active');
+    if(id==='community') loadCommunityScripts();
+    if(id==='reel')      initReelBuilder();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REEL BUILDER — full copy, partner-aware (auto-appends partner link to caption)
+// ══════════════════════════════════════════════════════════════════════════════
+
+const UNSPLASH_KEY = 'g7EGqA04ya3C46uRc1wbfulu6vQx0x5qctxwU9_SFBQ';
+
+const RB_SCRIPTS = {
+    script1:{
+        caption:'If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5–R8/litre on April 1st. Here\'s what that means for your business — and what you can actually do about it.',
+        hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner #satransport #businessowner #fuelefficiency',
+        slides:[
+            {type:'hook',    headline:'DIESEL UP R8\nIN APRIL?',           sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
+            {type:'stat',    headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',  sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
+            {type:'numbers', headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH', sub:'10,000km each per month · R5 more per litre\nEvery. Single. Month.'},
+            {type:'point',   headline:'THE FLEET OWNERS\nWHO SURVIVE\nKNOW THEIR NUMBERS', sub:'Which drivers are over-consuming.\nWhich vehicles are bleeding diesel.'},
+            {type:'proof',   headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA', sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
+            {type:'cta',     headline:'FREE FLEET\nAUDIT',                  sub:'Link in bio → Free assessment\n📞 083 314 9592'}
+        ]
+    },
+    script2:{
+        caption:'Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else\'s. After April\'s R5–R8 diesel increase, that silence costs R7,000–R8,000 extra per month.',
+        hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner #driverefficiency',
+        slides:[
+            {type:'hook',    headline:'ONE DRIVER\nIS COSTING YOU\nR8,000/MONTH', sub:'Every fleet has one.\nThe driver nobody talks about.'},
+            {type:'point',   headline:'20% ABOVE\nEVERYONE ELSE',           sub:'You know something\'s off.\nBut you can\'t prove it without data.'},
+            {type:'numbers', headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH', sub:'Per outlier driver · Per month'},
+            {type:'stat',    headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH', sub:'Same driver · Same bad habits\nNow costs almost double.'},
+            {type:'proof',   headline:'OUR REPORT:\nEVERY DRIVER\nRANKED',   sub:'Outliers highlighted in red.\nEvery month. Actionable.'},
+            {type:'cta',     headline:'FREE FLEET\nASSESSMENT',              sub:'📞 083 314 9592'}
+        ]
+    },
+    script3:{
+        caption:'Let me do the maths for you. R5.50 more per litre × your fleet × every month. The number is bigger than you think — and 20–30% of it is preventable waste.',
+        hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #fuelefficiency #fleetowner',
+        slides:[
+            {type:'hook',    headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?', sub:'Let me do the maths quickly.'},
+            {type:'numbers', headline:'R18.50 → R24+\n= R5.50 MORE\nPER LITRE', sub:'Current diesel → April diesel'},
+            {type:'stat',    headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH', sub:'10,000km/month at 3km/L = 3,333 litres × R5.50'},
+            {type:'numbers', headline:'10 TRUCKS\n= R183,000\nMORE/MONTH', sub:'20 trucks = R366,000 more per month'},
+            {type:'point',   headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE', sub:'Over-consuming drivers.\nInefficient vehicles. Fix it now.'},
+            {type:'cta',     headline:'WE SHOW YOU\nWHERE IT\'S GOING', sub:'Free fleet efficiency assessment\n📞 083 314 9592'}
+        ]
+    }
+};
+
+const RB_STYLES = {
+    dark: {bg:'#000000',bgGrad:['#000000','#0a0a0a'],headline:'#ffffff',sub:'#a0a0a0',accent:'#10b981',brand:'#10b981',brandBg:'rgba(16,185,129,0.15)',hookBg:['#000000','#031a0f'],numBg:['#000000','#031a0f'],statBg:['#000000','#0a1a00'],ctaBg:['#031a0f','#000000'],accentLine:true},
+    aggro:{bg:'#0a0000',bgGrad:['#0a0000','#1a0000'],headline:'#ffffff',sub:'#ffaaaa',accent:'#ef4444',brand:'#ef4444',brandBg:'rgba(239,68,68,0.15)',hookBg:['#1a0000','#0a0000'],numBg:['#1a0000','#0a0000'],statBg:['#0f0000','#050000'],ctaBg:['#1a0000','#050000'],accentLine:true},
+    navy: {bg:'#0f172a',bgGrad:['#0f172a','#1e293b'],headline:'#e2e8f0',sub:'#94a3b8',accent:'#3b82f6',brand:'#60a5fa',brandBg:'rgba(59,130,246,0.15)',hookBg:['#0f172a','#1e3a5f'],numBg:['#0f172a','#1a2f4a'],statBg:['#0f172a','#1e2d40'],ctaBg:['#1e3a5f','#0f172a'],accentLine:true},
+    light:{bg:'#f8fafc',bgGrad:['#f8fafc','#f1f5f9'],headline:'#0f172a',sub:'#475569',accent:'#059669',brand:'#059669',brandBg:'rgba(5,150,105,0.1)',hookBg:['#f8fafc','#ecfdf5'],numBg:['#f1f5f9','#ecfdf5'],statBg:['#f8fafc','#f0fdf4'],ctaBg:['#ecfdf5','#f8fafc'],accentLine:true},
+    custom:{bg:'#1a0a2e',bgGrad:['#1a0a2e','#0d0618'],headline:'#ffffff',sub:'#cccccc',accent:'#f59e0b',brand:'#f59e0b',brandBg:'rgba(245,158,11,0.15)',hookBg:['#1a0a2e','#2a0a3e'],numBg:['#1a0a2e','#2a0a3e'],statBg:['#1a0a2e','#200a36'],ctaBg:['#2a0a3e','#1a0a2e'],accentLine:true}
+};
+
+const SVG_ILLUS=[
+    {id:'none',label:'No BG'},
+    {id:'semi_side',label:'Semi Side'},
+    {id:'truck_front',label:'Truck Front'},
+    {id:'fleet_row',label:'Fleet Row'},
+    {id:'dashboard',label:'Dashboard'},
+    {id:'highway',label:'Highway'},
+    {id:'wheels',label:'Wheels'},
+    {id:'cargo',label:'Cargo'},
+    {id:'sunset_road',label:'Sunset'},
+    {id:'speedometer',label:'Speedo'},
+    {id:'sa_map',label:'SA Map'}
+];
+
+var rb_slides=[],rb_activeSlide=0,rb_style='dark',rb_canvas=null,rb_ctx=null;
+var rb_W=1080,rb_H=1920,rb_bgOpacity=0.22,rb_bgScope='slide';
+var rb_slideImages={},rb_allImage=null,rb_activeIllusId='none';
+var rb_initialized=false;
+
+function initReelBuilder(){
+    var sec=document.getElementById('section-reel');
+    if(!sec) return;
+    if(!rb_initialized){
+        sec.innerHTML=buildReelHTML();
+        rb_initialized=true;
+    }
+    rb_canvas=document.getElementById('reelCanvas');
+    if(!rb_canvas) return;
+    rb_ctx=rb_canvas.getContext('2d');
+    rb_canvas.width=rb_W; rb_canvas.height=rb_H;
+    if(!rb_slides.length) rbReset();
+    else{ rbRenderList(); rbDraw(rb_activeSlide); }
+    rbRenderIllus();
+}
+
+function buildReelHTML(){
+    return '<div style="margin-bottom:1rem;"><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#f472b6;margin-bottom:4px;">🎬 Reel Builder</div><div style="font-size:12px;color:#64748b;font-weight:600;">Build a vertical reel for TikTok, Instagram Reels or Facebook Reels. Your referral link is automatically added to the caption.</div></div>'+
+    '<div class="rb-toolbar">'+
+        '<select class="rb-script-select" id="rb_scriptSelect" onchange="rbLoadScript(this.value)">'+
+            '<option value="">— Start blank —</option>'+
+            '<option value="script1">Script #1: "The April Bomb"</option>'+
+            '<option value="script2">Script #2: "The Driver Nobody Talks About"</option>'+
+            '<option value="script3">Script #3: "The Maths"</option>'+
+        '</select>'+
+        '<button onclick="rbReset()" style="background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:#94a3b8;padding:8px 14px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap;">🔄 Reset</button>'+
+    '</div>'+
+    '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.5rem;">Style</div>'+
+    '<div class="style-row">'+
+        '<button class="style-btn sb-dark active" onclick="rbSetStyle(\'dark\',this)">⚫ Dark</button>'+
+        '<button class="style-btn sb-aggro"       onclick="rbSetStyle(\'aggro\',this)">🔴 Aggressive</button>'+
+        '<button class="style-btn sb-navy"        onclick="rbSetStyle(\'navy\',this)">🔵 Navy</button>'+
+        '<button class="style-btn sb-light"       onclick="rbSetStyle(\'light\',this)">⚪ Light</button>'+
+        '<button class="style-btn sb-custom"      onclick="rbSetStyle(\'custom\',this)">🎨 Custom</button>'+
+    '</div>'+
+    '<div class="custom-colours" id="rb_customColours">'+
+        '<div class="cc-item"><div class="cc-label">Background</div><input type="color" class="cc-swatch" id="rb_cc_bg"     value="#1a0a2e" oninput="rbUpdateCustom()"></div>'+
+        '<div class="cc-item"><div class="cc-label">Headline</div>  <input type="color" class="cc-swatch" id="rb_cc_head"   value="#ffffff" oninput="rbUpdateCustom()"></div>'+
+        '<div class="cc-item"><div class="cc-label">Subtext</div>   <input type="color" class="cc-swatch" id="rb_cc_sub"    value="#cccccc" oninput="rbUpdateCustom()"></div>'+
+        '<div class="cc-item"><div class="cc-label">Accent</div>    <input type="color" class="cc-swatch" id="rb_cc_accent" value="#f59e0b" oninput="rbUpdateCustom()"></div>'+
+    '</div>'+
+    '<div class="rb-layout">'+
+        '<div>'+
+            '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.6rem;">Slides <span style="color:#475569;font-weight:600;">(click to preview →)</span></div>'+
+            '<div class="slides-list" id="rb_slidesList"></div>'+
+            '<button class="add-slide-btn" onclick="rbAddSlide()">➕ Add Slide</button>'+
+            '<div class="illus-picker">'+
+                '<div class="illus-picker-title">🚛 Background</div>'+
+                '<div class="illus-scope-row">'+
+                    '<button class="illus-scope-btn active" onclick="rbSetScope(\'slide\',this)">This slide</button>'+
+                    '<button class="illus-scope-btn"        onclick="rbSetScope(\'all\',this)">All slides</button>'+
+                '</div>'+
+                '<div class="illus-grid" id="rb_illusGrid"></div>'+
+                '<div class="illus-opacity-row">'+
+                    '<span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;">Opacity</span>'+
+                    '<input type="range" class="illus-opacity-slider" id="rb_illusOpacity" min="5" max="60" value="22" oninput="rbUpdateOpacity(this.value)">'+
+                    '<span style="font-size:10px;font-weight:700;color:#64748b;width:26px;" id="rb_illusOpacityVal">22%</span>'+
+                '</div>'+
+            '</div>'+
+            '<div class="caption-box">'+
+                '<div class="caption-label">Caption</div>'+
+                '<textarea class="caption-textarea" id="rb_caption" placeholder="Write your caption here..."></textarea>'+
+                '<div class="caption-label" style="margin-top:0.6rem;">Hashtags</div>'+
+                '<input type="text" class="hashtag-input-rb" id="rb_hashtags" placeholder="#FleetManagement #SouthAfrica #TruckingLife">'+
+            '</div>'+
+        '</div>'+
+        '<div class="rb-preview-panel">'+
+            '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.6rem;text-align:center;">Preview (9:16)</div>'+
+            '<div class="rb-preview-wrap"><div class="rb-canvas-container"><canvas id="reelCanvas"></canvas></div></div>'+
+            '<div class="slide-nav">'+
+                '<button class="slide-nav-btn" id="rb_prev" onclick="rbNav(-1)">‹</button>'+
+                '<span class="slide-counter" id="rb_counter">Slide 1 of 1</span>'+
+                '<button class="slide-nav-btn" id="rb_next" onclick="rbNav(1)">›</button>'+
+            '</div>'+
+            '<button class="rb-dl-btn"           onclick="rbDownload()">⬇️ Download This Slide</button>'+
+            '<button class="rb-dl-all-btn"       onclick="rbDownloadAll()">⬇️ Download All Slides</button>'+
+            '<button class="rb-copy-caption-btn" onclick="rbCopyCaption()">📋 Copy Caption + Hashtags</button>'+
+            '<div class="rb-hint">Upload slides to TikTok as photos, or combine in CapCut (free) for a reel. Paste caption when uploading.</div>'+
+        '</div>'+
+    '</div>';
+}
+
+function rbReset(){
+    rb_slides=[
+        {type:'hook',    headline:'YOUR HOOK\nGOES HERE',  sub:'What\'s the big problem? State it boldly.'},
+        {type:'stat',    headline:'THE KEY STAT\nOR FACT',  sub:'Numbers create urgency. Use them.'},
+        {type:'point',   headline:'YOUR MAIN\nPOINT',       sub:'Keep it short. One idea per slide.'},
+        {type:'cta',     headline:'CALL TO\nACTION',        sub:'Link in bio · 📞 083 314 9592'}
+    ];
+    rb_activeSlide=0;
+    var cap=document.getElementById('rb_caption');
+    var hash=document.getElementById('rb_hashtags');
+    if(cap)  cap.value='';
+    if(hash) hash.value='#fleetmanagement #southafrica #transport #trucking #diesel #fuelefficiency';
+    rbRenderList();
+    if(rb_canvas) rbDraw(0);
+    rbUpdateNav();
+}
+
+function rbLoadScript(key){
+    if(!key){ rbReset(); return; }
+    var s=RB_SCRIPTS[key]; if(!s) return;
+    rb_slides=s.slides.map(function(sl){ return Object.assign({},sl); });
+    rb_activeSlide=0;
+    var cap=document.getElementById('rb_caption');
+    var hash=document.getElementById('rb_hashtags');
+    if(cap)  cap.value=s.caption;
+    if(hash) hash.value=s.hashtags;
+    rbRenderList();
+    if(rb_canvas) rbDraw(0);
+    rbUpdateNav();
+}
+
+function rbRenderList(){
+    var list=document.getElementById('rb_slidesList'); if(!list) return;
+    list.innerHTML=rb_slides.map(function(sl,i){
+        return '<div class="slide-item '+(i===rb_activeSlide?'active-slide':'')+'" id="rbsli_'+i+'" onclick="rbSelect('+i+')">'+
+            '<div class="slide-item-head">'+
+                '<div class="slide-num">'+(i+1)+'</div>'+
+                '<select class="slide-type-select" onchange="rbChangeType('+i+',this.value)" onclick="event.stopPropagation()">'+
+                    ['hook','stat','numbers','point','proof','cta'].map(function(t){ return '<option value="'+t+'" '+(sl.type===t?'selected':'')+'>'+{hook:'🪝 Hook',stat:'📊 Stat',numbers:'🔢 Numbers',point:'💡 Point',proof:'✅ Proof',cta:'📣 CTA'}[t]+'</option>'; }).join('')+
+                '</select>'+
+                '<button class="slide-up" onclick="rbMove('+i+',-1,event)">↑</button>'+
+                '<button class="slide-dn" onclick="rbMove('+i+',1,event)">↓</button>'+
+                '<button class="slide-del" onclick="rbDel('+i+',event)">✕</button>'+
+            '</div>'+
+            '<input class="slide-headline-input" type="text" value="'+rbEscAttr(sl.headline.replace(/\n/g,' | '))+'" placeholder="HEADLINE (use | for line break)" oninput="rbUpdateHead('+i+',this.value)" onclick="rbSelect('+i+')">'+
+            '<textarea class="slide-sub-input" placeholder="Supporting text" oninput="rbUpdateSub('+i+',this.value)" onclick="rbSelect('+i+')">'+rbEscAttr(sl.sub||'')+'</textarea>'+
+        '</div>';
+    }).join('');
+    rbUpdateNav();
+}
+
+function rbEscAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function rbSelect(i){ rb_activeSlide=i; rbRenderList(); rbDraw(i); rbUpdateNav(); }
+function rbChangeType(i,t){ rb_slides[i].type=t; rbDraw(rb_activeSlide); }
+function rbUpdateHead(i,v){ rb_slides[i].headline=v.replace(/\|/g,'\n'); rbDraw(rb_activeSlide); }
+function rbUpdateSub(i,v){ rb_slides[i].sub=v; rbDraw(rb_activeSlide); }
+function rbAddSlide(){ rb_slides.push({type:'point',headline:'NEW SLIDE',sub:''}); rb_activeSlide=rb_slides.length-1; rbRenderList(); rbDraw(rb_activeSlide); }
+function rbDel(i,e){ e.stopPropagation(); if(rb_slides.length<=1){ toast('Need at least 1 slide','red'); return; } rb_slides.splice(i,1); if(rb_activeSlide>=rb_slides.length) rb_activeSlide=rb_slides.length-1; rbRenderList(); rbDraw(rb_activeSlide); }
+function rbMove(i,d,e){ e.stopPropagation(); var ni=i+d; if(ni<0||ni>=rb_slides.length) return; var tmp=rb_slides[i]; rb_slides[i]=rb_slides[ni]; rb_slides[ni]=tmp; rb_activeSlide=ni; rbRenderList(); rbDraw(rb_activeSlide); }
+function rbNav(d){ var ni=rb_activeSlide+d; if(ni<0||ni>=rb_slides.length) return; rbSelect(ni); }
+function rbUpdateNav(){ var p=document.getElementById('rb_prev'),n=document.getElementById('rb_next'),c=document.getElementById('rb_counter'); if(p) p.disabled=rb_activeSlide===0; if(n) n.disabled=rb_activeSlide===rb_slides.length-1; if(c) c.textContent='Slide '+(rb_activeSlide+1)+' of '+rb_slides.length; }
+function rbSetStyle(name,el){ rb_style=name; document.querySelectorAll('.style-btn').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); var cc=document.getElementById('rb_customColours'); if(cc){ if(name==='custom') cc.classList.add('show'); else cc.classList.remove('show'); } if(rb_canvas) rbDraw(rb_activeSlide); }
+function rbUpdateCustom(){ var st=RB_STYLES.custom; st.bg=document.getElementById('rb_cc_bg').value; st.bgGrad=[st.bg,st.bg]; st.hookBg=[st.bg,st.bg]; st.numBg=[st.bg,st.bg]; st.statBg=[st.bg,st.bg]; st.ctaBg=[st.bg,st.bg]; st.headline=document.getElementById('rb_cc_head').value; st.sub=document.getElementById('rb_cc_sub').value; st.accent=document.getElementById('rb_cc_accent').value; st.brand=st.accent; st.brandBg=st.accent+'26'; if(rb_canvas) rbDraw(rb_activeSlide); }
+function rbSetScope(scope,el){ rb_bgScope=scope; document.querySelectorAll('.illus-scope-btn').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); }
+function rbUpdateOpacity(val){ rb_bgOpacity=parseInt(val)/100; var lbl=document.getElementById('rb_illusOpacityVal'); if(lbl) lbl.textContent=val+'%'; rbDraw(rb_activeSlide); }
+
+function rbRenderIllus(){
+    var grid=document.getElementById('rb_illusGrid'); if(!grid) return;
+    var html='<div style="grid-column:1/-1;display:flex;gap:5px;margin-bottom:6px;">'+
+        '<input type="text" id="rb_unsplashQ" placeholder="Search photos..." value="semi truck south africa" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:Outfit,sans-serif;font-size:11px;outline:none;" onkeydown="if(event.key===\'Enter\')rbSearchUnsplash()">'+
+        '<button onclick="rbSearchUnsplash()" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.25);color:#f472b6;padding:5px 10px;border-radius:5px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;">🔍</button>'+
+    '</div>'+
+    '<div id="rb_unsplashResults" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:6px;"></div>'+
+    '<div style="grid-column:1/-1;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:3px;">SVG Illustrations</div>';
+    SVG_ILLUS.forEach(function(il){
+        var active=rb_activeIllusId===il.id&&!rb_allImage?'active-illus':'';
+        if(il.id==='none'){
+            html+='<div class="illus-thumb illus-none '+active+'" onclick="rbApplyIllus(\'none\')" title="None">🚫</div>';
+        } else {
+            html+='<div class="illus-thumb '+active+'" onclick="rbApplyIllus(\''+il.id+'\')" title="'+il.label+'"><svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">'+rbGetSvgThumb(il.id)+'</svg></div>';
+        }
+    });
+    grid.innerHTML=html;
+    rbSearchUnsplash();
+}
+
+async function rbSearchUnsplash(){
+    var q=(document.getElementById('rb_unsplashQ')||{}).value||'semi truck';
+    var res=document.getElementById('rb_unsplashResults'); if(!res) return;
+    res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:10px;padding:3px 0;">Searching...</div>';
+    try{
+        var r=await fetch('https://api.unsplash.com/search/photos?query='+encodeURIComponent(q)+'&per_page=12&orientation=portrait&client_id='+UNSPLASH_KEY);
+        var data=await r.json();
+        if(!data.results||!data.results.length){ res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:10px;">No results. Try "truck" or "highway".</div>'; return; }
+        res.innerHTML=data.results.map(function(p){
+            return '<div class="illus-thumb" onclick="rbApplyPhoto(\''+p.urls.regular+'\',\''+p.id+'\')" style="background-image:url('+p.urls.thumb+');background-size:cover;background-position:center;" title="'+( p.alt_description||p.user.name)+'"></div>';
+        }).join('')+'<div style="grid-column:1/-1;font-size:7px;color:#334155;">Photos: <a href="https://unsplash.com" target="_blank" style="color:#475569;">Unsplash</a></div>';
+    } catch(e){ res.innerHTML='<div style="grid-column:1/-1;color:#f87171;font-size:10px;">Search failed.</div>'; }
+}
+
+function rbApplyPhoto(url,id){
+    rb_activeIllusId='unsplash_'+id;
+    var img=new Image(); img.crossOrigin='anonymous';
+    img.onload=function(){
+        if(rb_bgScope==='all'){ rb_allImage=img; rb_slideImages={}; }
+        else { rb_slideImages[rb_activeSlide]=img; rb_allImage=null; }
+        rbDraw(rb_activeSlide);
+    };
+    img.onerror=function(){ toast('Could not load photo','red'); };
+    img.src=url;
+}
+
+function rbApplyIllus(id){
+    rb_activeIllusId=id; rb_allImage=null;
+    if(rb_bgScope==='all') rb_slideImages={};
+    else rb_slideImages[rb_activeSlide]=null;
+    document.querySelectorAll('#rb_illusGrid .illus-thumb').forEach(function(t){ t.classList.remove('active-illus'); if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes('\''+id+'\'')) t.classList.add('active-illus'); });
+    rbDraw(rb_activeSlide);
+}
+
+function rbDraw(idx){
+    if(!rb_canvas||!rb_ctx) return;
+    var sl=rb_slides[idx]; if(!sl) return;
+    var st=RB_STYLES[rb_style], ctx=rb_ctx, W=rb_W, H=rb_H;
+    ctx.clearRect(0,0,W,H);
+    // BG gradient
+    var bgC=st.bgGrad||[st.bg,st.bg];
+    if(sl.type==='hook'||sl.type==='cta') bgC=st.hookBg||bgC;
+    else if(sl.type==='numbers')          bgC=st.numBg||bgC;
+    else if(sl.type==='stat')             bgC=st.statBg||bgC;
+    var g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,bgC[0]); g.addColorStop(1,bgC[1]);
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // Photo BG
+    var photo=rb_allImage||rb_slideImages[idx];
+    if(photo){
+        ctx.save(); ctx.globalAlpha=rb_bgOpacity;
+        var ir=photo.width/photo.height,cr=W/H,sw,sh,sx=0,sy=0;
+        if(ir>cr){ sh=photo.height; sw=sh*cr; sx=(photo.width-sw)/2; }
+        else      { sw=photo.width;  sh=sw/cr; sy=(photo.height-sh)/2; }
+        ctx.drawImage(photo,sx,sy,sw,sh,0,0,W,H);
+        ctx.globalAlpha=Math.min(rb_bgOpacity*2,0.65); ctx.fillStyle=bgC[0]; ctx.fillRect(0,0,W,H);
+        ctx.restore();
+    }
+    // SVG illus
+    if(!photo&&rb_activeIllusId&&rb_activeIllusId!=='none'&&rb_activeIllusId.indexOf('unsplash_')<0){
+        rbDrawIllus(ctx,rb_activeIllusId,W,H,st.accent,rb_bgOpacity);
+    }
+    // Grid
+    ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.lineWidth=1;
+    for(var gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
+    for(var gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
+    // Accent bar
+    if(st.accentLine){ ctx.fillStyle=st.accent; ctx.fillRect(0,0,14,H); }
+    // Brand bar
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,0,W-14,110);
+    ctx.fillStyle=st.brand; ctx.font="900 38px 'Outfit',Arial,sans-serif"; ctx.textAlign='left';
+    ctx.fillText('DYNAMIC FLEET REPORTING',60,72);
+    // Badge
+    var badges={hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
+    ctx.font="900 30px 'Outfit',Arial,sans-serif"; ctx.fillStyle=st.accent;
+    ctx.fillText(badges[sl.type]||sl.type.toUpperCase(),60,170);
+    // Slide num
+    ctx.font="700 28px 'Outfit',Arial,sans-serif"; ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.textAlign='right'; ctx.fillText((idx+1)+' / '+rb_slides.length,W-50,170); ctx.textAlign='left';
+    // Divider
+    ctx.strokeStyle=st.accent; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(60,200); ctx.lineTo(W-60,200); ctx.stroke();
+    // Headline
+    var hLines=sl.headline?sl.headline.split('\n'):[''];
+    var hs=hLines.length>3?120:hLines.length>2?140:160;
+    ctx.fillStyle=st.headline; ctx.textAlign='left';
+    var hy=sl.sub?H*0.36:H*0.44;
+    hLines.forEach(function(line){ var fs=hs; ctx.font='900 '+fs+"px 'Outfit',Arial,sans-serif"; while(ctx.measureText(line).width>W-120&&fs>60){ fs-=4; ctx.font='900 '+fs+"px 'Outfit',Arial,sans-serif"; } ctx.fillText(line,60,hy); hy+=fs*1.2; });
+    // Subtext
+    if(sl.sub){ var sLines=sl.sub.split('\n'); var sy2=hy+60; ctx.fillStyle=st.sub; sLines.forEach(function(line){ var fs=52; ctx.font='600 '+fs+"px 'Outfit',Arial,sans-serif"; while(ctx.measureText(line).width>W-120&&fs>32){ fs-=2; ctx.font='600 '+fs+"px 'Outfit',Arial,sans-serif"; } ctx.fillText(line,60,sy2); sy2+=fs*1.4; }); }
+    // CTA
+    if(sl.type==='cta'){ ctx.fillStyle=st.accent; ctx.font="900 56px 'Outfit',Arial,sans-serif"; ctx.fillText('083 314 9592',60,H-220); ctx.fillStyle=st.sub; ctx.font="600 40px 'Outfit',Arial,sans-serif"; ctx.fillText('dynamicfleetreports@gmail.com',60,H-155); }
+    // Bottom bar
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,H-100,W-14,100);
+    ctx.fillStyle=st.brand; ctx.font="700 34px 'Outfit',Arial,sans-serif";
+    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit',60,H-38);
+}
+
+function rbDownload(){ if(!rb_canvas) return; rbDraw(rb_activeSlide); var a=document.createElement('a'); a.download='dfr-reel-slide-'+(rb_activeSlide+1)+'.png'; a.href=rb_canvas.toDataURL('image/png'); a.click(); toast('Slide '+(rb_activeSlide+1)+' downloaded ✓','green'); }
+async function rbDownloadAll(){
+    if(!rb_canvas){ toast('Canvas not ready','red'); return; }
+    toast('Downloading all slides...','green');
+    for(var i=0;i<rb_slides.length;i++){
+        rbDraw(i); await new Promise(function(r){ setTimeout(r,120); });
+        var a=document.createElement('a'); a.download='dfr-reel-slide-'+(i+1)+'-of-'+rb_slides.length+'.png'; a.href=rb_canvas.toDataURL('image/png'); a.click();
+        await new Promise(function(r){ setTimeout(r,300); });
+    }
+    rbDraw(rb_activeSlide); toast('All '+rb_slides.length+' slides downloaded ✓','green');
+}
+
+function rbCopyCaption(){
+    var cap=(document.getElementById('rb_caption')||{}).value||'';
+    var hash=(document.getElementById('rb_hashtags')||{}).value||'';
+    // Append partner link automatically
+    var link=_partnerLink?'\n\n🔗 '+_partnerLink:'';
+    var full=cap+(hash?'\n\n'+hash:'')+link;
+    navigator.clipboard.writeText(full).then(function(){ toast('Caption + hashtags + your link copied ✓','green'); });
+}
+
+function rbGetSvgThumb(id){
+    var c='#10b981';
+    var t={
+        semi_side:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="8" y="68" width="60" height="25" rx="3"/><rect fill="'+c+'" opacity=".8" x="68" y="72" width="32" height="21" rx="3"/><rect fill="rgba(255,255,255,.1)" x="78" y="74" width="16" height="14" rx="2"/><circle fill="#222" cx="22" cy="96" r="7"/><circle fill="'+c+'" opacity=".4" cx="22" cy="96" r="4"/><circle fill="#222" cx="80" cy="96" r="7"/><circle fill="'+c+'" opacity=".4" cx="80" cy="96" r="4"/>',
+        truck_front:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="24" y="60" width="60" height="80" rx="8"/><rect fill="rgba(255,255,255,.12)" x="34" y="68" width="40" height="28" rx="4"/><rect fill="'+c+'" opacity=".7" x="18" y="136" width="72" height="12" rx="4"/><circle fill="#222" cx="16" cy="150" r="10"/><circle fill="'+c+'" opacity=".4" cx="16" cy="150" r="5"/><circle fill="#222" cx="92" cy="150" r="10"/><circle fill="'+c+'" opacity=".4" cx="92" cy="150" r="5"/>',
+        fleet_row:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="4" y="90" width="80" height="20" rx="3"/><rect fill="'+c+'" opacity=".8" x="84" y="92" width="20" height="18" rx="3"/><rect fill="'+c+'" opacity=".6" x="14" y="72" width="62" height="16" rx="2"/><rect fill="'+c+'" opacity=".8" x="76" y="74" width="18" height="14" rx="2"/><rect fill="'+c+'" opacity=".4" x="22" y="57" width="46" height="13" rx="2"/>',
+        dashboard:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="none" stroke="'+c+'" stroke-width="6" cx="54" cy="96" r="32"/><line x1="54" y1="96" x2="54" y2="68" stroke="'+c+'" stroke-width="4"/><circle fill="'+c+'" cx="54" cy="96" r="5"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".5" cx="22" cy="80" r="14"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".5" cx="86" cy="80" r="14"/>',
+        highway:'<rect fill="#0a0a14" width="108" height="192"/><polygon fill="'+c+'" opacity=".15" points="0,192 108,192 80,80 28,80"/><rect fill="'+c+'" opacity=".4" x="50" y="80" width="8" height="20" rx="2"/><rect fill="'+c+'" opacity=".4" x="50" y="110" width="8" height="20" rx="2"/><rect fill="'+c+'" opacity=".4" x="50" y="140" width="8" height="20" rx="2"/>',
+        wheels:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="none" stroke="'+c+'" stroke-width="8" cx="54" cy="96" r="36"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".4" cx="54" cy="96" r="24"/><circle fill="'+c+'" cx="54" cy="96" r="10"/>',
+        cargo:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" opacity=".2" x="10" y="50" width="88" height="100" rx="4"/><rect fill="'+c+'" opacity=".5" x="10" y="50" width="88" height="6" rx="2"/><rect fill="'+c+'" opacity=".3" x="18" y="60" width="18" height="82" rx="2"/><rect fill="'+c+'" opacity=".3" x="40" y="60" width="18" height="82" rx="2"/><rect fill="'+c+'" opacity=".3" x="62" y="60" width="18" height="82" rx="2"/>',
+        sunset_road:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="'+c+'" opacity=".2" cx="54" cy="72" r="28"/><circle fill="'+c+'" opacity=".1" cx="54" cy="72" r="42"/><polygon fill="'+c+'" opacity=".08" points="0,192 108,192 108,90 0,90"/><rect fill="'+c+'" opacity=".5" x="46" y="90" width="16" height="28" rx="2"/><rect fill="'+c+'" opacity=".3" x="46" y="124" width="16" height="16" rx="2"/>',
+        speedometer:'<rect fill="#0a0a14" width="108" height="192"/><path fill="none" stroke="'+c+'" stroke-width="7" opacity=".3" d="M 16 110 A 38 38 0 0 1 92 110"/><path fill="none" stroke="'+c+'" stroke-width="7" d="M 16 110 A 38 38 0 0 1 62 75"/><circle fill="'+c+'" cx="54" cy="110" r="6"/>',
+        sa_map:'<rect fill="#0a0a14" width="108" height="192"/><path fill="'+c+'" opacity=".25" d="M30,55 L78,52 L88,65 L92,85 L85,105 L75,118 L65,128 L54,135 L42,128 L30,115 L22,95 L20,75 Z"/><circle fill="'+c+'" cx="54" cy="95" r="5"/><circle fill="none" stroke="'+c+'" stroke-width="2" cx="54" cy="95" r="10" opacity=".4"/>'
+    };
+    return t[id]||'<rect fill="#0a0a14" width="108" height="192"/>';
+}
+
+function rbDrawIllus(ctx,id,W,H,color,op){
+    ctx.save(); ctx.globalAlpha=op;
+    var s=W/1080;
+    function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); ctx.fill(); }
+    function wheel(cx,cy,r){ ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=3*s; ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,r*0.28,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle=color;
+    if(id==='semi_side'){
+        ctx.globalAlpha=op*0.25; ctx.fillRect(0,H*0.72,W,H*0.013); ctx.globalAlpha=op;
+        rr(W*0.06,H*0.56,W*0.47,H*0.155,12*s);
+        ctx.fillStyle='rgba(255,255,255,0.08)'; rr(W*0.54,H*0.555,W*0.38,H*0.16,16*s);
+        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(W*0.81,H*0.568,W*0.09,H*0.1,8*s);
+        ctx.fillStyle=color; wheel(W*0.17,H*0.718,H*0.042); wheel(W*0.29,H*0.718,H*0.042); wheel(W*0.69,H*0.718,H*0.042); wheel(W*0.82,H*0.718,H*0.042);
+    } else if(id==='truck_front'){
+        var cx=W*0.5,ty=H*0.35; rr(cx-W*0.22,ty,W*0.44,H*0.33,22*s);
+        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(cx-W*0.14,ty+H*0.02,W*0.28,H*0.14,12*s);
+        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=4*s;
+        for(var i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(cx-W*0.19,ty+H*0.19+i*H*0.024); ctx.lineTo(cx+W*0.19,ty+H*0.19+i*H*0.024); ctx.stroke(); }
+        ctx.fillStyle=color; wheel(cx-W*0.27,ty+H*0.27,H*0.075); wheel(cx+W*0.27,ty+H*0.27,H*0.075);
+    } else if(id==='fleet_row'){
+        [{x:W*0.04,y:H*0.54,w:W*0.56,h:H*0.14,sc:1},{x:W*0.18,y:H*0.41,w:W*0.43,h:H*0.11,sc:0.78},{x:W*0.3,y:H*0.31,w:W*0.33,h:H*0.085,sc:0.6}].forEach(function(t){
+            ctx.fillStyle=color; rr(t.x,t.y,t.w*0.72,t.h,8*s*t.sc);
+            ctx.fillStyle='rgba(255,255,255,0.08)'; rr(t.x+t.w*0.73,t.y,t.w*0.27,t.h,8*s*t.sc);
+            var wr=t.h*0.32; wheel(t.x+t.w*0.12,t.y+t.h+wr*0.1,wr); wheel(t.x+t.w*0.28,t.y+t.h+wr*0.1,wr); wheel(t.x+t.w*0.78,t.y+t.h+wr*0.1,wr);
+        });
+    } else if(id==='dashboard'){
+        var cx2=W*0.5,cy2=H*0.5; ctx.strokeStyle=color; ctx.lineWidth=18*s; ctx.beginPath(); ctx.arc(cx2,cy2,W*0.24,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=8*s; for(var j=0;j<3;j++){ var a=j*(Math.PI*2/3)-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx2,cy2); ctx.lineTo(cx2+Math.cos(a)*W*0.24,cy2+Math.sin(a)*W*0.24); ctx.stroke(); } ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx2,cy2,W*0.05,0,Math.PI*2); ctx.fill();
+    } else if(id==='highway'){
+        ctx.globalAlpha=op*0.1; ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(0,H*0.65); ctx.lineTo(W,H*0.65); ctx.lineTo(W*0.75,H*0.4); ctx.lineTo(W*0.25,H*0.4); ctx.fill(); ctx.globalAlpha=op*0.5; for(var d=0;d<5;d++) rr(W*0.47,H*0.42+d*H*0.05,W*0.06,H*0.03,4*s);
+    } else if(id==='wheels'){
+        var cx3=W*0.5,cy3=H*0.5; ctx.strokeStyle=color; ctx.lineWidth=10*s; ctx.beginPath(); ctx.arc(cx3,cy3,W*0.38,0,Math.PI*2); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx3,cy3,W*0.065,0,Math.PI*2); ctx.fill(); ctx.lineWidth=6*s; [0,60,120,180,240,300].forEach(function(ang){ ctx.beginPath(); ctx.moveTo(cx3,cy3); ctx.lineTo(cx3+Math.cos(ang*Math.PI/180)*W*0.38,cy3+Math.sin(ang*Math.PI/180)*W*0.38); ctx.stroke(); });
+    } else if(id==='cargo'){
+        rr(W*0.08,H*0.35,W*0.84,H*0.36,12*s); ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s; for(var k=1;k<4;k++){ ctx.beginPath(); ctx.moveTo(W*0.08+k*(W*0.84/4),H*0.35); ctx.lineTo(W*0.08+k*(W*0.84/4),H*0.71); ctx.stroke(); }
+    } else if(id==='sunset_road'){
+        ctx.globalAlpha=op*0.2; var rg=ctx.createRadialGradient(W*0.5,H*0.38,0,W*0.5,H*0.38,W*0.45); rg.addColorStop(0,color); rg.addColorStop(1,'transparent'); ctx.fillStyle=rg; ctx.fillRect(0,0,W,H); ctx.globalAlpha=op*0.35; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.38,W*0.14,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=op*0.5; for(var d2=0;d2<5;d2++) rr(W*0.47,H*0.55+d2*H*0.09,W*0.06,H*0.04,4*s);
+    } else if(id==='speedometer'){
+        var cx4=W*0.5,cy4=H*0.52; ctx.strokeStyle=color; ctx.globalAlpha=op*0.3; ctx.lineWidth=14*s; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.34,Math.PI*0.85,Math.PI*0.15); ctx.stroke(); ctx.globalAlpha=op; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.34,Math.PI*0.85,Math.PI*1.6); ctx.stroke(); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=7*s; var na=Math.PI*0.85+Math.PI*0.75*0.68; ctx.beginPath(); ctx.moveTo(cx4,cy4); ctx.lineTo(cx4+Math.cos(na)*W*0.3,cy4+Math.sin(na)*W*0.3); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.04,0,Math.PI*2); ctx.fill();
+    } else if(id==='sa_map'){
+        ctx.globalAlpha=op*0.3; ctx.beginPath(); ctx.moveTo(W*0.28,H*0.28); ctx.lineTo(W*0.72,H*0.26); ctx.lineTo(W*0.85,H*0.36); ctx.lineTo(W*0.88,H*0.46); ctx.lineTo(W*0.82,H*0.58); ctx.lineTo(W*0.72,H*0.68); ctx.lineTo(W*0.6,H*0.76); ctx.lineTo(W*0.5,H*0.8); ctx.lineTo(W*0.4,H*0.76); ctx.lineTo(W*0.28,H*0.66); ctx.lineTo(W*0.18,H*0.54); ctx.lineTo(W*0.15,H*0.42); ctx.closePath(); ctx.fill(); ctx.globalAlpha=op; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.04,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+}
+
 </body>
 </html>
