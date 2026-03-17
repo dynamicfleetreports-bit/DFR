@@ -387,6 +387,7 @@ const MONTHS=['January','February','March','April','May','June','July','August',
 const DISCOVER_URL='https://dynamicfleetreports-bit.github.io/DFR/discover.html';
 const APPS_URL='https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 const PARTNER_SCRIPTS_KEY='PARTNER_MARKETING_SCRIPTS';
+const DFR_OWNER_PHONE='0833149592'; // DFR owner number — receives all status-change alerts
 let _partners=[],_clients=[],_editId=null,_pendingComm=[],_pendingBonus=[];
 
 function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
@@ -616,10 +617,64 @@ async function savePartner(){
 
 async function setStatus(id,status){
     const p=_partners.find(x=>x.id===id); if(!p) return;
+    const prevStatus=p.status;
     p.status=status;
     await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
     renderAll();
     toast('Status updated ✓');
+
+    // ── Notify partner + DFR owner whenever status changes to active or inactive ──
+    if(status==='active' && prevStatus!=='active'){
+        const link=getRefLink(p);
+        const portalLink='https://dynamicfleetreports-bit.github.io/DFR/partner-portal.html?ref='+getRefCode(p);
+        const partnerMsg=`✅ Great news, ${p.name}!
+
+Your DFR Referral Partner account has been reactivated.
+
+🔗 Your Referral Link:
+${link}
+
+📊 Your Partner Portal:
+${portalLink}
+
+You're all set — start sharing your link and earning commissions again!
+
+Dynamic Fleet Reporting · 083 314 9592`;
+
+        const ownerMsg=`🔔 DFR Partner Re-activated
+
+Partner: ${p.name}
+Phone: ${p.phone}
+Email: ${p.email||'—'}
+Commission Rate: ${p.commRate||15}%
+
+Status changed: Inactive → Active`;
+
+        await notifyWA(partnerMsg, p.phone);
+        await notifyWA(ownerMsg, DFR_OWNER_PHONE);
+
+    } else if(status==='inactive' && prevStatus==='active'){
+        const partnerMsg=`⏸ ${p.name}, your DFR Referral Partner account has been deactivated.
+
+Your referral link is currently inactive and new leads will not be tracked until your account is reactivated.
+
+If you believe this is an error or would like to discuss reactivation, please contact us:
+
+📞 083 314 9592
+Dynamic Fleet Reporting`;
+
+        const ownerMsg=`🔕 DFR Partner Deactivated
+
+Partner: ${p.name}
+Phone: ${p.phone}
+Email: ${p.email||'—'}
+Active Referred Clients: ${getPartnerClients(p.id,'active').length}
+
+Status changed: Active → Inactive`;
+
+        await notifyWA(partnerMsg, p.phone);
+        await notifyWA(ownerMsg, DFR_OWNER_PHONE);
+    }
 }
 
 async function resendWelcome(id){
