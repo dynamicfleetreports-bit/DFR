@@ -7,198 +7,127 @@
     <title>Partner Marketing Hub | DFR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <style>
-        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.07);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--txt:#e2e8f0;--mut:#64748b;}
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+        :root {
+            --bg:#020617; --panel:#0f172a; --border:rgba(255,255,255,0.07);
+            --green:#10b981; --blue:#3b82f6; --gold:#f59e0b; --red:#ef4444;
+            --pink:#ec4899; --pur:#8b5cf6; --teal:#06b6d4;
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Outfit',sans-serif; background:var(--bg); color:#e2e8f0; min-height:100vh; }
 
-        /* Topbar */
-        .topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-        .tb-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--grn);}
-        .tb-brand span{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:#64748b;display:block;margin-top:1px;}
-        .tb-right{display:flex;align-items:center;gap:1rem;}
-        .tb-partner{font-size:12px;font-weight:700;color:#64748b;}
-        .tb-partner strong{color:#e2e8f0;}
-        .btn-back{background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:#e2e8f0;padding:7px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;}
-        .btn-back:hover{background:rgba(255,255,255,0.1);}
+        /* ── TOPBAR ── */
+        .topbar { background:var(--panel); border-bottom:1px solid var(--border); padding:0.85rem 2rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+        .tb-brand { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; color:var(--green); }
+        .tb-brand span { font-family:'Outfit',sans-serif; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:3px; color:#64748b; display:block; margin-top:1px; }
+        .tb-right { display:flex; align-items:center; gap:1rem; }
+        .tb-partner { font-size:12px; font-weight:700; color:#64748b; }
+        .tb-partner strong { color:#e2e8f0; }
+        .btn-back { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:#e2e8f0; padding:7px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
+        .btn-back:hover { background:rgba(255,255,255,0.1); }
 
-        /* Login */
-        .login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
-        .login-card{background:var(--panel);border:1px solid var(--brd);border-radius:20px;padding:2.5rem;width:400px;max-width:100%;text-align:center;}
-        .lc-icon{font-size:3rem;margin-bottom:1rem;}
-        .lc-title{font-size:1.4rem;font-weight:900;color:white;margin-bottom:0.4rem;}
-        .lc-sub{font-size:13px;color:#64748b;margin-bottom:1.75rem;}
-        .lc-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1rem;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:14px;outline:none;text-align:center;font-weight:700;transition:border-color 0.2s;margin-bottom:1rem;}
-        .lc-input:focus{border-color:var(--grn);}
-        .lc-btn{width:100%;background:var(--grn);border:none;color:#020617;padding:0.85rem;border-radius:10px;font-size:13px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;}
-        .lc-btn:hover{background:var(--gd);}
-        .lc-err{color:#f87171;font-size:12px;margin-top:0.5rem;display:none;}
+        /* ── LOGIN (if not already logged in) ── */
+        .login-wrap { display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 66px); padding:2rem; }
+        .login-card { background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:400px; max-width:100%; text-align:center; }
+        .lc-icon { font-size:3rem; margin-bottom:1rem; }
+        .lc-title { font-size:1.4rem; font-weight:900; color:white; margin-bottom:0.4rem; }
+        .lc-sub { font-size:13px; color:#64748b; margin-bottom:1.75rem; }
+        .lc-input { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:10px; padding:0.85rem 1rem; color:#e2e8f0; font-family:'Outfit',sans-serif; font-size:14px; outline:none; text-align:center; font-weight:700; transition:border-color 0.2s; margin-bottom:1rem; }
+        .lc-input:focus { border-color:var(--green); }
+        .lc-btn { width:100%; background:var(--green); border:none; color:#020617; padding:0.85rem; border-radius:10px; font-size:13px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
+        .lc-btn:hover { background:#059669; }
+        .lc-err { color:#f87171; font-size:12px; margin-top:0.5rem; display:none; }
 
-        /* Main */
-        .main{display:none;max-width:1060px;margin:0 auto;padding:2rem;}
-        .main.on{display:block;}
+        /* ── MAIN ── */
+        .main { display:none; max-width:1000px; margin:0 auto; padding:2rem; }
+        .main.on { display:block; }
 
-        /* My link box */
-        .my-link-box{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:16px;padding:1.5rem 2rem;margin-bottom:2rem;}
-        .mlb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;}
-        .mlb-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);}
-        .mlb-name{font-size:1.1rem;font-weight:900;color:white;margin-top:3px;}
-        .mlb-link-row{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
-        .mlb-link{background:#000d1a;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 16px;font-family:'Courier New',monospace;font-size:13px;color:var(--grn);flex:1;min-width:260px;word-break:break-all;font-weight:700;}
-        .btn-copy-link{background:var(--grn);color:#020617;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;}
-        .btn-copy-link:hover{background:var(--gd);}
-        .btn-copy-link.copied{background:#6366f1;}
-        .mlb-tip{font-size:12px;color:#64748b;margin-top:0.75rem;line-height:1.6;}
-        .btn-reel-link{background:linear-gradient(135deg,#ec4899,#8b5cf6);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;text-decoration:none;display:inline-block;}
-        .btn-reel-link:hover{opacity:0.88;transform:translateY(-1px);}
-        .mlb-tip strong{color:#94a3b8;}
+        /* ── MY LINK BOX ── */
+        .my-link-box { background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03)); border:1.5px solid rgba(16,185,129,0.3); border-radius:16px; padding:1.5rem 2rem; margin-bottom:2rem; }
+        .mlb-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:1rem; }
+        .mlb-label { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.3em; color:var(--green); }
+        .mlb-name { font-size:1.1rem; font-weight:900; color:white; margin-top:3px; }
+        .mlb-link-row { display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; }
+        .mlb-link { background:#000d1a; border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:10px 16px; font-family:'Courier New',monospace; font-size:13px; color:var(--green); flex:1; min-width:260px; word-break:break-all; font-weight:700; }
+        .btn-copy-link { background:var(--green); color:#020617; border:none; padding:10px 20px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; white-space:nowrap; transition:all 0.2s; }
+        .btn-copy-link:hover { background:#059669; }
+        .btn-copy-link.copied { background:#6366f1; }
+        .mlb-tip { font-size:12px; color:#64748b; margin-top:0.75rem; line-height:1.6; }
+        .mlb-tip strong { color:#94a3b8; }
 
-        /* Platform tabs */
-        .tab-bar{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
-        .tab{padding:8px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
-        .tab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
-        .tab-fb.active{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);color:#60a5fa;}
-        .tab-li.active{background:rgba(6,182,212,0.15);border-color:rgba(6,182,212,0.4);color:#22d3ee;}
-        .tab-ig.active{background:rgba(236,72,153,0.15);border-color:rgba(236,72,153,0.4);color:#f472b6;}
-        .tab-wa.active{background:rgba(37,211,102,0.15);border-color:rgba(37,211,102,0.4);color:#4ade80;}
-        .tab-tt.active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3);color:white;}
-        .tab-scripts.active{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.4);color:#c4b5fd;}
-        .tab-reel.active{background:rgba(236,72,153,0.15);border-color:rgba(236,72,153,0.4);color:#f472b6;}
+        /* ── SCRIPT SUBMISSION ── */
+        .script-box { background:rgba(245,158,11,0.06); border:1.5px solid rgba(245,158,11,0.25); border-radius:16px; padding:1.5rem 2rem; margin-bottom:2rem; }
+        .sb-title { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.3em; color:var(--gold); margin-bottom:0.5rem; }
+        .sb-sub { font-size:12px; color:#64748b; margin-bottom:1rem; line-height:1.6; }
+        .sb-form { display:grid; grid-template-columns:1fr; gap:0.75rem; }
+        .sb-row { display:flex; gap:0.75rem; flex-wrap:wrap; }
+        .form-label { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.2em; color:#64748b; margin-bottom:4px; display:block; }
+        .form-input { background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; padding:0.65rem 0.9rem; color:#e2e8f0; font-family:'Outfit',sans-serif; font-size:13px; outline:none; transition:border-color 0.2s; width:100%; }
+        .form-input:focus { border-color:var(--gold); }
+        select.form-input option { background:#0f172a; }
+        textarea.form-input { min-height:120px; resize:vertical; }
+        .btn-submit-script { background:rgba(245,158,11,0.15); color:var(--gold); border:1px solid rgba(245,158,11,0.3); padding:9px 22px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; }
+        .btn-submit-script:hover { background:rgba(245,158,11,0.25); }
 
-        /* ── REEL BUILDER ─────────────────────────────────────── */
-        .rb-layout{display:grid;grid-template-columns:1fr 300px;gap:1.5rem;align-items:start;}
-        @media(max-width:900px){.rb-layout{grid-template-columns:1fr;}}
-        .rb-toolbar{display:flex;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center;}
-        .rb-script-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:180px;}
-        .rb-script-select option{background:#0f172a;}
-        .style-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
-        .style-btn{padding:6px 12px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
-        .style-btn.active{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.4);}
-        .sb-dark{background:#000;color:#10b981;border-color:#10b981;}
-        .sb-aggro{background:#111;color:#ef4444;border-color:#ef4444;}
-        .sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}
-        .sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}
-        .sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}
-        .custom-colours{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:0.85rem;margin-bottom:0.85rem;gap:0.75rem;flex-wrap:wrap;align-items:center;}
-        .custom-colours.show{display:flex;}
-        .cc-item{display:flex;flex-direction:column;gap:3px;align-items:center;}
-        .cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
-        .cc-swatch{width:32px;height:32px;border-radius:6px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
-        .slides-list{display:flex;flex-direction:column;gap:0.5rem;}
-        .slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:8px;padding:0.75rem;transition:border-color 0.2s;cursor:pointer;}
-        .slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.05);}
-        .slide-item-head{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
-        .slide-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.07);font-size:9px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .slide-type-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:3px 7px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
-        .slide-type-select option{background:#0f172a;}
-        .slide-del{background:none;border:none;color:#475569;cursor:pointer;font-size:13px;margin-left:auto;padding:2px 5px;border-radius:3px;}
-        .slide-del:hover{color:#f87171;}
-        .slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:11px;padding:2px 4px;}
-        .slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
-        .slide-headline-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;margin-bottom:3px;}
-        .slide-headline-input:focus{border-color:rgba(236,72,153,0.5);}
-        .slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:5px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:11px;outline:none;resize:none;min-height:44px;}
-        .slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
-        .add-slide-btn{background:rgba(236,72,153,0.08);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:8px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;margin-top:0.4rem;}
-        .illus-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:9px;padding:0.85rem;margin-bottom:0.85rem;}
-        .illus-picker-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.5rem;}
-        .illus-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
-        .illus-thumb{width:100%;aspect-ratio:9/16;border-radius:5px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
-        .illus-thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-1px);}
-        .illus-thumb.active-illus{border-color:#f472b6;box-shadow:0 0 10px rgba(236,72,153,0.35);}
-        .illus-thumb svg{width:100%;height:100%;display:block;}
-        .illus-none{display:flex;align-items:center;justify-content:center;font-size:16px;color:#475569;background:rgba(255,255,255,0.03);}
-        .illus-label{font-size:7px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:2px;}
-        .illus-scope-row{display:flex;gap:5px;margin-bottom:0.5rem;}
-        .illus-scope-btn{padding:3px 10px;border-radius:5px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
-        .illus-scope-btn.active{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
-        .illus-opacity-row{display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;}
-        .illus-opacity-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
-        .caption-box{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:9px;padding:0.85rem;margin-top:0.85rem;}
-        .caption-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.4rem;}
-        .caption-textarea{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:9px 11px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:70px;outline:none;}
-        .hashtag-input-rb{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:7px 11px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;margin-top:5px;}
-        .rb-preview-panel{position:sticky;top:5rem;}
-        .rb-preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.07);}
-        .rb-canvas-container{position:absolute;inset:0;}
-        #reelCanvas{width:100%;height:100%;display:block;}
-        .slide-nav{display:flex;align-items:center;justify-content:center;gap:0.85rem;margin-top:0.85rem;}
-        .slide-nav-btn{background:rgba(255,255,255,0.07);border:1px solid var(--brd);color:#e2e8f0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-        .slide-nav-btn:disabled{opacity:0.3;cursor:default;}
-        .slide-counter{font-size:11px;font-weight:700;color:#64748b;}
-        .rb-dl-btn{width:100%;background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f472b6;padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.6rem;}
-        .rb-dl-all-btn{width:100%;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--grn);padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.4rem;}
-        .rb-copy-caption-btn{width:100%;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--gld);padding:9px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.4rem;}
-        .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.5rem;line-height:1.5;font-weight:600;}
+        /* ── COMMUNITY SCRIPTS ── */
+        .community-scripts { margin-bottom:2rem; }
+        .cs-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+        .cs-title { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.3em; color:var(--pur); }
+        .script-card { background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.2); border-radius:12px; overflow:hidden; margin-bottom:0.75rem; }
+        .sc-head { padding:10px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(139,92,246,0.15); }
+        .sc-author { font-size:12px; font-weight:800; color:#c4b5fd; }
+        .sc-platform { font-size:10px; font-weight:700; background:rgba(139,92,246,0.15); color:#a78bfa; padding:2px 8px; border-radius:20px; text-transform:uppercase; }
+        .sc-body { padding:12px 16px; }
+        .sc-preview { font-size:12.5px; color:#cbd5e1; line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+        .sc-footer { padding:8px 16px; display:flex; gap:0.5rem; justify-content:flex-end; border-top:1px solid rgba(139,92,246,0.1); }
+        .btn-copy-script { background:rgba(16,185,129,0.15); color:var(--green); border:none; padding:5px 14px; border-radius:6px; font-size:10px; font-weight:900; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; }
+        .btn-copy-script:hover { background:rgba(16,185,129,0.25); }
 
-        /* Platform sections */
-        .platform-section{display:none;}.platform-section.active{display:block;}
-        .platform-banner{border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:1.5rem;flex-wrap:wrap;}
-        .pb-fb{background:linear-gradient(135deg,rgba(59,130,246,0.1),rgba(59,130,246,0.03));border:1px solid rgba(59,130,246,0.2);}
-        .pb-li{background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(6,182,212,0.03));border:1px solid rgba(6,182,212,0.2);}
-        .pb-ig{background:linear-gradient(135deg,rgba(236,72,153,0.1),rgba(236,72,153,0.03));border:1px solid rgba(236,72,153,0.2);}
-        .pb-wa{background:linear-gradient(135deg,rgba(37,211,102,0.1),rgba(37,211,102,0.03));border:1px solid rgba(37,211,102,0.2);}
-        .pb-tt{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.12);}
-        .pb-title{font-size:1.1rem;font-weight:900;color:white;margin-bottom:3px;}
-        .pb-meta{font-size:11px;color:#64748b;font-weight:700;}
-        .pb-tip-text{font-size:12px;color:#94a3b8;line-height:1.6;flex:1;min-width:200px;}
+        /* ── TABS ── */
+        .tab-bar { display:flex; gap:6px; margin-bottom:1.25rem; flex-wrap:wrap; }
+        .tab { padding:8px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; cursor:pointer; font-family:'Outfit',sans-serif; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:#64748b; transition:all 0.2s; }
+        .tab:hover { color:#e2e8f0; border-color:rgba(255,255,255,0.15); }
+        .tab.active { color:white; }
+        .tab-fb.active { background:rgba(59,130,246,0.15); border-color:rgba(59,130,246,0.4); color:#60a5fa; }
+        .tab-li.active { background:rgba(6,182,212,0.15); border-color:rgba(6,182,212,0.4); color:#22d3ee; }
+        .tab-ig.active { background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.4); color:#f472b6; }
+        .tab-wa.active { background:rgba(37,211,102,0.15); border-color:rgba(37,211,102,0.4); color:#4ade80; }
+        .tab-tt.active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white; }
+        .tab-scripts.active { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
 
-        /* Post cards */
-        .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:1.25rem;}
-        .post-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;transition:border-color 0.2s;}
-        .post-card:hover{border-color:rgba(255,255,255,0.15);}
-        .post-card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);}
-        .post-tag{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;padding:3px 10px;border-radius:20px;}
-        .post-card-body{padding:16px;}
-        .post-preview{white-space:pre-wrap;font-size:13px;color:#cbd5e1;line-height:1.65;max-height:260px;overflow-y:auto;word-break:break-word;}
-        .post-link-line{color:var(--grn);font-weight:700;font-size:12px;margin-top:8px;display:block;}
-        .post-card-footer{padding:10px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-        .hashtag-wrap{font-size:10px;color:#475569;flex:1;}
-        .btn-copy{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);color:var(--grn);padding:6px 16px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;white-space:nowrap;}
-        .btn-copy:hover{background:rgba(16,185,129,0.25);}
-        .btn-copy.copied{background:rgba(99,102,241,0.2);border-color:rgba(99,102,241,0.4);color:#818cf8;}
+        /* ── PLATFORM SECTIONS ── */
+        .platform-section { display:none; }
+        .platform-section.active { display:block; }
+        .platform-banner { border-radius:12px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; display:flex; align-items:flex-start; gap:1.5rem; flex-wrap:wrap; }
+        .pb-fb   { background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.04)); border:1px solid rgba(59,130,246,0.2); }
+        .pb-li   { background:linear-gradient(135deg,rgba(6,182,212,0.1),rgba(6,182,212,0.03)); border:1px solid rgba(6,182,212,0.2); }
+        .pb-ig   { background:linear-gradient(135deg,rgba(236,72,153,0.1),rgba(236,72,153,0.03)); border:1px solid rgba(236,72,153,0.2); }
+        .pb-wa   { background:linear-gradient(135deg,rgba(37,211,102,0.1),rgba(37,211,102,0.03)); border:1px solid rgba(37,211,102,0.2); }
+        .pb-tt   { background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.12); }
+        .pb-title { font-size:1.1rem; font-weight:900; color:white; margin-bottom:3px; }
+        .pb-meta  { font-size:11px; color:#64748b; font-weight:700; }
+        .pb-tip   { font-size:12px; color:#94a3b8; line-height:1.6; flex:1; min-width:200px; }
 
-        /* Email cards */
-        .email-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;margin-bottom:1.25rem;}
-        .email-card-head{padding:14px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
-        .email-subject-line{font-size:11px;color:#64748b;font-weight:700;margin-top:3px;}
-        .email-when-badge{font-size:10px;font-weight:900;padding:4px 10px;border-radius:4px;background:rgba(245,158,11,0.1);color:var(--gld);text-transform:uppercase;}
-        .email-preview{background:#000d1a;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap;max-height:320px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);margin:16px 20px 0;}
-        .email-footer{padding:12px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;align-items:center;margin-top:12px;}
+        /* ── POST CARDS ── */
+        .posts-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(420px,1fr)); gap:1.25rem; }
+        .post-card { background:rgba(30,41,59,0.5); border:1px solid var(--border); border-radius:1rem; overflow:hidden; transition:border-color 0.2s; }
+        .post-card:hover { border-color:rgba(255,255,255,0.15); }
+        .post-card-head { padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border); }
+        .post-tag { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; padding:3px 10px; border-radius:20px; }
+        .post-card-body { padding:16px; }
+        .post-preview { white-space:pre-wrap; font-size:13px; color:#cbd5e1; line-height:1.65; max-height:260px; overflow-y:auto; word-break:break-word; }
+        .post-preview::-webkit-scrollbar { width:3px; }
+        .post-preview::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+        /* Partner link appended inside post */
+        .post-link-line { color:var(--green); font-weight:700; font-size:12px; margin-top:8px; display:block; }
+        .post-card-footer { padding:10px 16px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+        .hashtag-wrap { font-size:10px; color:#475569; flex:1; }
+        .btn-copy { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:var(--green); padding:6px 16px; border-radius:6px; font-size:10px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; white-space:nowrap; }
+        .btn-copy:hover { background:rgba(16,185,129,0.25); }
+        .btn-copy.copied { background:rgba(99,102,241,0.2); border-color:rgba(99,102,241,0.4); color:#818cf8; }
 
-        /* Community scripts */
-        .script-card{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:12px;overflow:hidden;margin-bottom:0.75rem;}
-        .sc-head{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(139,92,246,0.15);}
-        .sc-author{font-size:12px;font-weight:800;color:#c4b5fd;}
-        .sc-platform-badge{font-size:10px;font-weight:700;background:rgba(139,92,246,0.15);color:#a78bfa;padding:2px 8px;border-radius:20px;text-transform:uppercase;}
-        .sc-body{padding:12px 16px;}
-        .sc-preview{font-size:12.5px;color:#cbd5e1;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
-        .sc-footer{padding:8px 16px;display:flex;gap:0.5rem;justify-content:flex-end;border-top:1px solid rgba(139,92,246,0.1);}
-        .btn-copy-script{background:rgba(16,185,129,0.15);color:var(--grn);border:none;padding:5px 14px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
-        .btn-copy-script:hover{background:rgba(16,185,129,0.25);}
-
-        /* Submit script box */
-        .script-box{background:rgba(245,158,11,0.06);border:1.5px solid rgba(245,158,11,0.25);border-radius:16px;padding:1.5rem 2rem;margin-top:2rem;}
-        .sb-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:0.5rem;}
-        .sb-sub{font-size:12px;color:#64748b;margin-bottom:1rem;line-height:1.6;}
-        .form-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:4px;display:block;}
-        .form-input{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:0.65rem 0.9rem;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;width:100%;}
-        .form-input:focus{border-color:var(--gld);}
-        select.form-input option{background:#0f172a;}
-        textarea.form-input{min-height:120px;resize:vertical;}
-        .form-group-s{margin-bottom:0.75rem;}
-        .btn-submit-script{background:rgba(245,158,11,0.15);color:var(--gld);border:1px solid rgba(245,158,11,0.3);padding:9px 22px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.5rem;}
-        .btn-submit-script:hover{background:rgba(245,158,11,0.25);}
-
-        /* Empty */
-        .empty-state{text-align:center;padding:3rem 2rem;color:#64748b;}
-        .empty-state .icon{font-size:2.5rem;margin-bottom:0.75rem;}
-
-        /* Loading */
-        .loading{text-align:center;padding:3rem;color:#64748b;font-size:13px;}
-
-        /* Toast */
-        .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
-        .toast.show{transform:translateY(0);opacity:1;}
+        /* ── TOAST ── */
+        .toast { position:fixed; bottom:2rem; right:2rem; background:#1e293b; border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:13px; font-weight:700; color:white; z-index:9999; transform:translateY(100px); opacity:0; transition:all 0.3s; }
+        .toast.show { transform:translateY(0); opacity:1; }
     </style>
 </head>
 <body>
@@ -207,95 +136,862 @@
     <div class="tb-brand">Dynamic Fleet Reporting<span>Partner Marketing Hub</span></div>
     <div class="tb-right">
         <span class="tb-partner" id="tbPartnerName" style="display:none;">Partner: <strong id="tbName">—</strong></span>
-        <button class="btn-back" onclick="window.location.href='partner-portal.html?ref='+encodeURIComponent(window._partnerCode||'')">← My Portal</button>
+        <button class="btn-back" onclick="window.location.href='partner-portal.html?ref='+encodeURIComponent(window._partnerCode||'')">&#8592; My Portal</button>
     </div>
 </div>
 
-<!-- Login -->
+<!-- LOGIN (if not coming from portal) -->
 <div class="login-wrap" id="loginWrap">
     <div class="login-card">
-        <div class="lc-icon">📣</div>
+        <div class="lc-icon">&#128227;</div>
         <div class="lc-title">Marketing Hub</div>
         <div class="lc-sub">Enter your referral code to access your personalised marketing kit</div>
         <input class="lc-input" type="text" id="loginCode" placeholder="e.g. ref_your_name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')doLogin()">
-        <button class="lc-btn" onclick="doLogin()">View My Marketing Hub →</button>
+        <button class="lc-btn" onclick="doLogin()">View My Marketing Hub &#8594;</button>
         <div class="lc-err" id="loginErr">Code not recognised. Check your WhatsApp for your referral link.</div>
     </div>
 </div>
 
-<!-- Main Hub -->
+<!-- MAIN HUB -->
 <div class="main" id="mainHub">
 
-    <!-- My referral link -->
+    <!-- My referral link box -->
     <div class="my-link-box">
         <div class="mlb-top">
             <div>
                 <div class="mlb-label">Your Referral Link</div>
                 <div class="mlb-name" id="partnerDisplayName">—</div>
             </div>
-            <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
-                <button class="btn-copy-link" id="copyLinkBtn" onclick="copyMyLink()">📋 Copy My Link</button>
-                <button onclick="window.open('marketing.html#reel','_blank')" style="background:rgba(236,72,153,0.15);color:#f472b6;border:1px solid rgba(236,72,153,0.35);padding:10px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🎬 Reel Builder</button>
-            </div>
+            <button class="btn-copy-link" id="copyLinkBtn" onclick="copyMyLink()">&#128203; Copy My Link</button>
         </div>
         <div class="mlb-link-row">
             <div class="mlb-link" id="myLinkDisplay">—</div>
         </div>
-        <div class="mlb-tip">Every post below already includes <strong>your referral link</strong>. When you click Copy Post the link is part of the text — paste straight to Facebook, WhatsApp, LinkedIn, anywhere.</div>
-        <div style="margin-top:0.85rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
-            <a id="reelBuilderBtn" href="reel-builder.html" class="btn-reel-link" target="_blank">🎬 Open Reel Builder →</a>
-            <span style="font-size:11px;color:#64748b;font-weight:600;">Build TikTok / Reels slides — your link auto-appends to captions.</span>
+        <div class="mlb-tip">
+            Every post below already includes your link. When you click <strong>Copy Post</strong> the link is part of the text — ready to paste straight to Facebook, WhatsApp, LinkedIn, anywhere.
+            Change your link at any time by editing your referral code in the box above.
         </div>
     </div>
 
-    <!-- Platform tabs -->
-    <div class="tab-bar">
-        <button class="tab tab-fb active" onclick="switchTab('fb',this)">📘 Facebook</button>
-        <button class="tab tab-li"        onclick="switchTab('li',this)">💼 LinkedIn</button>
-        <button class="tab tab-ig"        onclick="switchTab('ig',this)">📸 Instagram</button>
-        <button class="tab tab-wa"        onclick="switchTab('wa',this)">💬 WhatsApp</button>
-        <button class="tab tab-tt"        onclick="switchTab('tt',this)">🎵 TikTok</button>
-        <button class="tab tab-scripts"   onclick="switchTab('community',this)">🌟 Community Scripts</button>
-        <button class="tab tab-reel"      onclick="switchTab('reel',this)">🎬 Reel Builder</button>
-    </div>
-
-    <!-- Platform content sections -->
-    <div id="section-fb"        class="platform-section active"><div class="loading">Loading posts...</div></div>
-    <div id="section-li"        class="platform-section"><div class="loading">Loading posts...</div></div>
-    <div id="section-ig"        class="platform-section"><div class="loading">Loading posts...</div></div>
-    <div id="section-wa"        class="platform-section"><div class="loading">Loading posts...</div></div>
-    <div id="section-tt"        class="platform-section"><div class="loading">Loading posts...</div></div>
-    <div id="section-community" class="platform-section"><div class="loading">Loading scripts...</div></div>
-    <div id="section-reel"      class="platform-section"></div>
-
-    <!-- Submit Script (moved to bottom) -->
-    <div class="script-box" id="submitScriptBox" style="display:none;">
-        <div class="sb-title">🚀 Submit a Marketing Script</div>
-        <div class="sb-sub">Written a post that worked well for you? Share it with the DFR partner community. Your script will go to DFR for review — once approved it appears in everyone's hub with <em>their own</em> referral link automatically attached.</div>
-        <div class="form-group-s">
-            <label class="form-label">Platform</label>
-            <select class="form-input" id="scriptPlatform">
-                <option value="fb">📘 Facebook</option>
-                <option value="li">💼 LinkedIn</option>
-                <option value="ig">📸 Instagram</option>
-                <option value="wa">💬 WhatsApp</option>
-                <option value="tt">🎵 TikTok / Reels Script</option>
-            </select>
+    <!-- Community Script Submission -->
+    <div class="script-box">
+        <div class="sb-title">&#128640; Submit a Marketing Script</div>
+        <div class="sb-sub">Written a post that worked well for you? Share it with the DFR partner community. 
+        Your script will appear in everyone's marketing hub — with <em>their own</em> referral link automatically attached. 
+        They see your idea, they use their own link. Everyone wins.</div>
+        <div class="sb-form">
+            <div>
+                <label class="form-label">Platform</label>
+                <select class="form-input" id="scriptPlatform">
+                    <option value="fb">&#128216; Facebook</option>
+                    <option value="li">&#128188; LinkedIn</option>
+                    <option value="ig">&#128247; Instagram</option>
+                    <option value="wa">&#128172; WhatsApp</option>
+                    <option value="tt">&#127925; TikTok / Reels Script</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Post Title / Tag</label>
+                <input type="text" class="form-input" id="scriptTitle" placeholder="e.g. Fuel shock hook · Real results story · Question post">
+            </div>
+            <div>
+                <label class="form-label">Your Script</label>
+                <textarea class="form-input" id="scriptContent" placeholder="Write your post here... Your referral link will be added automatically at the bottom when other partners copy it."></textarea>
+            </div>
+            <div>
+                <label class="form-label">Hashtags (optional)</label>
+                <input type="text" class="form-input" id="scriptHashtags" placeholder="#FleetManagement #SouthAfrica #Transport">
+            </div>
+            <div>
+                <button class="btn-submit-script" onclick="submitScript()">&#10133; Submit to Community Hub</button>
+            </div>
         </div>
-        <div class="form-group-s">
-            <label class="form-label">Post Title / Tag</label>
-            <input type="text" class="form-input" id="scriptTitle" placeholder="e.g. Fuel shock hook · Real results story · Question post">
-        </div>
-        <div class="form-group-s">
-            <label class="form-label">Your Script</label>
-            <textarea class="form-input" id="scriptContent" placeholder="Write your post here... Your referral link will be added automatically at the bottom when other partners copy it."></textarea>
-        </div>
-        <div class="form-group-s">
-            <label class="form-label">Hashtags (optional)</label>
-            <input type="text" class="form-input" id="scriptHashtags" placeholder="#FleetManagement #SouthAfrica #Transport">
-        </div>
-        <button class="btn-submit-script" onclick="submitScript()">➕ Submit to Community Hub</button>
         <div id="myPendingNotice" style="display:none;margin-top:0.85rem;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#93c5fd;line-height:1.6;"></div>
+    </div>
+
+    <!-- Community Scripts Section -->
+    <div class="community-scripts" id="communityScriptsWrap" style="display:none;">
+        <div class="cs-header">
+            <div class="cs-title">&#127775; Community Scripts — from your fellow partners</div>
+        </div>
+        <div id="communityScriptsList"></div>
+    </div>
+
+    <!-- Platform Tabs -->
+    <div class="tab-bar">
+        <button class="tab tab-fb active" onclick="switchTab('fb',this)">&#128216; Facebook</button>
+        <button class="tab tab-li"        onclick="switchTab('li',this)">&#128188; LinkedIn</button>
+        <button class="tab tab-ig"        onclick="switchTab('ig',this)">&#128247; Instagram</button>
+        <button class="tab tab-wa"        onclick="switchTab('wa',this)">&#128172; WhatsApp</button>
+        <button class="tab tab-tt"        onclick="switchTab('tt',this)">&#127925; TikTok / Reels</button>
+        <button class="tab tab-scripts"   onclick="switchTab('community',this)">&#127775; Community Scripts</button>
+    </div>
+
+
+        <div class="platform-section" id="section-fb">
+            <div class="platform-banner pb-fb">
+                <div>
+                    <div class="pb-title">📘 Facebook</div>
+                    <div class="pb-meta">Best times: Tue–Thu · 12pm–2pm &amp; 6pm–8pm · Aim for 3–4 posts/week</div>
+                </div>
+                <div class="pb-tip"><strong>These posts are written to perform on Facebook.</strong> Add your link at the bottom before posting — it's already included in the copy button.</div>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">💸 Money Shock</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Use this first</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb1">😱 Diesel is about to go up by R5 a litre. Maybe more.
+
+April 1st. That's the date every fleet owner in SA needs to circle in red right now.
+
+The US-Iran war has pushed Brent Crude to $115 a barrel. The rand is weak. And the government's adding 21c/litre in new fuel taxes on the same day.
+
+Best case: diesel up R5.66/litre.
+Worst case: analysts are saying R8/litre.
+
+For a 20-truck fleet doing 10,000km each per month, that's between R150,000 and R250,000 MORE in fuel costs. Every. Single. Month.
+
+The only way to fight back is to know exactly where your fuel is going — which drivers are burning excess, which vehicles are bleeding efficiency, and where the rand leakage is happening.
+
+That's what we do at Dynamic Fleet Reporting.
+
+We give you a forensic breakdown of every litre, every vehicle, every month — so you can plug the leaks before April destroys your margins.
+
+📞 083 314 9592
+WhatsApp us today. April is 19 days away.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">❓ Curiosity Hook</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb2">Quick question for fleet owners 👇
+
+Diesel goes up R5+ on April 1st.
+
+Do you know, right now, which of your drivers are burning 15–20% more than they should be?
+
+Most fleet owners don't. And that was expensive BEFORE this fuel crisis. After April, it could be the difference between a profitable month and a loss.
+
+We audit every vehicle in your fleet. We identify exactly where the excess consumption is. We give you a monthly report you can act on.
+
+For most clients, we find R30,000–R100,000+ in recoverable losses every single month.
+
+Our fee? A fraction of that.
+
+With fuel at R25+ per litre from April, the ROI is going to be even more obvious.
+
+Comment "AUDIT" below and I'll reach out directly. Or WhatsApp me on 083 314 9592.
+
+Time is short. April 1st is coming fast. 🔥</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">📈 Before & After</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb3">Real numbers. Real client. Real urgency. 👇
+
+A transport company with 18 trucks came to us 3 months ago.
+
+Month 1 audit findings:
+→ 4 drivers averaging 18% above fleet consumption target
+→ 2 vehicles with undetected mechanical fuel loss
+→ R74,000 in monthly fuel waste identified
+
+Month 3 after implementing our recommendations:
+→ Fleet efficiency up 22%
+→ Monthly savings: R68,000
+→ Our monthly fee: R5,100
+
+Now imagine that same fleet in April, when diesel goes up by R5+ per litre.
+
+Without our reporting: that R74,000 monthly waste balloons to over R110,000.
+With our reporting: they've already fixed the leaks. They're protected.
+
+📞 083 314 9592
+
+With April's fuel shock coming in under 3 weeks, there's no better time to get your fleet under control. Let's talk.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(139,92,246,0.15);color:#c4b5fd;">😤 Pain Point</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb4">To every transport business owner in SA who's watching the fuel news this week 👇
+
+R5. R6. R7. R8 per litre diesel increase. April 1st.
+
+The Iran war, the weak rand, the new fuel levies — all hitting at once.
+
+I'm not going to sugarcoat it: this is going to be brutal for fleets that aren't optimised.
+
+But here's the thing — the fleet owners who survive this are the ones who KNOW their numbers.
+
+→ Which routes are killing efficiency?
+→ Which drivers need retraining?
+→ Which vehicles are consuming 20% above target?
+
+We answer all of that. Every month. With hard data.
+
+Dynamic Fleet Reporting gives you forensic fuel and speed analysis on every vehicle in your fleet — so you can make decisions based on facts, not gut feel.
+
+WhatsApp: 083 314 9592
+Or reply "FUEL CRISIS" in the comments and I'll contact you directly.
+
+April is coming. Don't get caught unprepared. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(59,130,246,0.15);color:#93c5fd;">🏆 Social Proof</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb5">A client called me on Monday.
+
+Not to complain. Not to ask for a discount.
+
+He called to say: "I'm really glad we started this before the fuel crisis hit."
+
+His fleet of 23 trucks. After 4 months of our monthly reports, he'd already cut excess consumption by 19% and retrained his 6 worst-performing drivers.
+
+Then last week the news broke. Diesel going up R5–R8/litre in April.
+
+His response? "At least I know my fleet is running as lean as possible going in."
+
+His competitor down the road? Still running blind. About to get hit with a massive, unpredictable fuel bill and no idea why.
+
+The difference between these two fleet owners isn't luck. It's data.
+
+📞 083 314 9592
+
+It's not too late to get ahead of April. But almost. WhatsApp us today.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb5',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">⏰ Urgency</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #6 — End of month</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_fb6">April 1st is 19 days away. 📅
+
+That's when diesel is predicted to jump by R5–R8 per litre.
+That's when the new fuel levy kicks in.
+That's when fleet operating costs across SA are going to spike sharply.
+
+Most fleet owners right now are doing one of two things:
+1. Hoping their fuel bill "won't be that bad"
+2. Getting a forensic audit done so they know exactly where every litre goes
+
+The ones doing option 2 are going to come out the other side in far better shape.
+
+We do full monthly fleet reporting — fuel efficiency, driver behaviour, speed violations, cost-per-km analysis — for fleets of any size across South Africa.
+
+First report includes a complete audit of your current fleet efficiency. Most clients find enough waste in month one to cover our annual fee.
+
+📞 083 314 9592
+dynamicfleetreports&#64;gmail&#46;com
+
+Don't head into the worst fuel shock in SA history flying blind. 🚛💨</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_fb6',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica #EndOfMonth</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="platform-section" id="section-li">
+            <div class="platform-banner pb-li">
+                <div>
+                    <div class="pb-title">💼 LinkedIn</div>
+                    <div class="pb-meta">Best times: Tue–Thu · 8am–10am · 2–3 posts/week</div>
+                </div>
+                <div class="pb-tip"><strong>LinkedIn reaches fleet managers and logistics directors directly.</strong> Use your real name and company when posting for maximum credibility.</div>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📖 Story Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Strong opener</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_li1">Diesel is predicted to increase by R5–R8 per litre on April 1st.
+
+For South African fleet operators, this isn't just a fuel cost story. It's an efficiency story.
+
+I've spent years analysing fleet data across the SA transport sector, and here's what I know to be true: the average heavy fleet is running at 60–70% of its possible fuel efficiency. That gap — the 30–40% being lost to driver behaviour, mechanical issues, and inefficient routing — was always expensive. After April, it becomes existential.
+
+The fleet owners who are going to navigate this crisis successfully are the ones who have real data. Not estimates. Not averages. Actual vehicle-by-vehicle, driver-by-driver forensic analysis.
+
+That's the service we provide at Dynamic Fleet Reporting.
+
+Monthly reports. Full audit trail. Actionable findings. Measurable ROI.
+
+If you run a fleet in South Africa and you're not getting monthly performance reporting, April 1st is the most urgent wake-up call you're going to get.
+
+📞 083 314 9592
+
+I'm offering free fleet efficiency assessments to transport businesses this week. DM me directly or WhatsApp the number above.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_li1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📊 Data & Insight</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_li2">The average SA heavy fleet is leaking 30% of its fuel efficiency. Here's why April changes everything.
+
+With diesel predicted to increase by R5–R8/litre on April 1st — driven by the Iran conflict, a weak rand, and new government levies — a 30% efficiency gap is no longer just a margin issue. It's a survival issue.
+
+Let me put that in numbers:
+
+A 20-truck fleet, each doing 10,000km/month at 3.0km/L actual vs 3.8km/L possible:
+→ Monthly fuel waste before April: ±R110,000
+→ Monthly fuel waste after April (at R26/L diesel): ±R170,000
+
+That's R60,000 MORE in preventable waste per month — just from April's price increase, just from drivers and vehicles that aren't operating at target.
+
+The solution isn't to hope for cheaper fuel. It's to eliminate the waste you can control.
+
+Dynamic Fleet Reporting provides forensic monthly fleet analysis — fuel efficiency, driver behaviour, speed compliance, and cost-per-km benchmarking — for transport companies across South Africa.
+
+With April's fuel shock three weeks away, there's never been a better time to understand exactly where your fleet's money is going.
+
+📩 dynamicfleetreports&#64;gmail&#46;com | 📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_li2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations #FleetManagement</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🤝 Value Offer</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_li3">I'm going to share something uncomfortable.
+
+Most transport companies in SA are about to get hit with a fuel bill in April that they have no framework to respond to.
+
+Diesel up R5–R8/litre. Petrol up R3+. New levies on top. All hitting on April 1st.
+
+And most of them will respond the same way: they'll absorb the hit, squeeze margins, and hope that oil prices come down in May.
+
+The ones who won't be in that position are the ones who already know their numbers.
+
+They know which of their 30 trucks is consuming 22% above target. They know which driver needs retraining. They know which route is bleeding diesel. They've been fixing those things every month.
+
+For those fleet owners, April is still painful — but it's manageable. Because they're not carrying preventable waste into a fuel shock.
+
+If you're in transport in SA and you want to be in that second group, I'd like to help.
+
+Dynamic Fleet Reporting. Forensic fleet analysis, every month.
+
+📞 083 314 9592 | dynamicfleetreports&#64;gmail&#46;com
+
+DM me or call. Three weeks left before April 1st.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_li3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment #FleetManagement</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🎯 Direct Pitch</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_li4">If you manage a fleet in South Africa, this is for you.
+
+I'm [Your Name], founder of Dynamic Fleet Reporting.
+
+We specialise in one thing: turning fleet data into money back in your pocket.
+
+We work with SA transport companies to:
+✅ Benchmark every vehicle against manufacturer targets
+✅ Track driver efficiency weekly — not monthly when it's too late
+✅ Identify your worst-performing vehicles before they kill your margins
+✅ Deliver simple, clear reports your whole team can understand
+
+We're not a GPS company. We're not a fuel card company.
+
+We're the people who take all that data and tell you what it actually means — and what to do about it.
+
+Current availability: 3 new client slots this month.
+
+If you want to know what your fleet is really costing you, let's talk.
+
+Free audit. 48-hour turnaround. Zero obligation.
+
+DM me or email <a href="#" onclick="openMail();return false;" style="color:inherit;text-decoration:underline;cursor:pointer;">dynamicfleetreports&#64;gmail&#46;com</a>
+
+Repost if you know someone in SA transport who'd benefit. 🙏</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_li4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="platform-section" id="section-ig">
+            <div class="platform-banner pb-ig">
+                <div>
+                    <div class="pb-title">📸 Instagram</div>
+                    <div class="pb-meta">Best times: Mon/Wed/Fri · 11am–1pm · Daily stories</div>
+                </div>
+                <div class="pb-tip"><strong>Instagram is visual — pair these captions with photos of trucks, dashboards, or your workspace.</strong> Your bio link is the money shot.</div>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🪝 Hard Hook</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_ig1">⛽ APRIL 1ST WARNING ⛽
+
+Diesel predicted up R5–R8/litre.
+Petrol up R3+.
+New fuel levies on the same day.
+
+For a 20-truck fleet that's potentially R150,000–R250,000 MORE per month in fuel.
+
+The only defence? Knowing exactly where every litre goes.
+
+📊 Monthly forensic fleet reports
+🚛 Per vehicle. Per driver. Per route.
+💸 Find the waste before it finds you.
+
+Link in bio → Free fleet efficiency assessment
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_ig1',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">📊 Stats</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_ig2">Numbers every SA fleet owner needs to see right now 👇
+
+Current diesel price: ~R18.50/L
+Predicted April price: R24–R26/L
+
+A driver running 20% above your fleet target:
+→ TODAY costs you: ~R3,700 extra per month per truck
+→ AFTER APRIL costs you: ~R5,200 extra per month per truck
+
+Multiply that by how many trucks you have.
+Multiply that by how many over-consuming drivers you have.
+
+Now ask yourself: do you know who those drivers are?
+
+We do fleet forensics every month. We tell you exactly who, what, and how much. 📊
+
+Link in bio for a free assessment.
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_ig2',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🔄 Before/After</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_ig3">Same fleet. Before and after our reporting. 📈
+
+Month 1 (before):
+❌ Fleet avg: 2.8 km/L
+❌ Worst driver: 2.1 km/L
+❌ Monthly waste: R74,000
+
+Month 4 (after):
+✅ Fleet avg: 3.4 km/L
+✅ Worst driver now at: 3.1 km/L
+✅ Monthly savings: R68,000
+
+They fixed this BEFORE April's R5+ diesel hike.
+
+Imagine their competitors right now — still running blind, about to walk into the worst fuel shock in SA history.
+
+Don't be the competitor. 🚛
+
+Link in bio → Get your free fleet audit
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_ig3',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">💬 Relatable</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_ig4">Every fleet owner I talk to this week is saying the same thing 😬
+
+"R5 diesel increase?"
+"R8 worst case?!"
+"How are we supposed to survive this?"
+
+Here's the honest answer:
+The fleet owners who've been tracking their efficiency will survive.
+The ones running blind will bleed.
+
+You can't control oil prices.
+You can't control the rand.
+You can't control the Iran war.
+
+But you CAN control whether your drivers are burning fuel unnecessarily.
+You CAN control whether your vehicles are running at target.
+You CAN control how much preventable waste is leaving your fleet every month.
+
+That's where we come in. 📊
+
+Link in bio for a free fleet assessment.
+📞 083 314 9592
+⚡ April 1st is 19 days away.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_ig4',this)">📋 Copy Post</button>
+                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="platform-section" id="section-wa">
+            <div class="platform-banner pb-wa">
+                <div>
+                    <div class="pb-title">💬 WhatsApp</div>
+                    <div class="pb-meta">Status: Daily · Direct message: As needed · Groups: 2–3x per week</div>
+                </div>
+                <div class="pb-tip"><strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts. Fleet owner groups are pure gold.</div>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #1</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa1">🚨 Fleet Alert — April 1st Fuel Shock
+
+Diesel predicted: UP R5–R8/litre
+Petrol predicted: UP R3+/litre
+New fuel levies: +21c/litre (same day)
+
+For a 20-truck fleet that's potentially R150,000–R250,000 MORE per month.
+
+Do you know where your fuel is going right now?
+
+📊 Dynamic Fleet Reporting gives you a forensic breakdown of every vehicle, every driver, every month — so you can cut the waste before the price hits.
+
+📞 083 314 9592 — WhatsApp us for a free fleet efficiency assessment. April is 19 days away.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa1',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post as WhatsApp Status — no hashtags needed</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #2</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa2">Quick question for fleet owners 👇
+
+With diesel going up R5+ on April 1st — do you know which of your drivers are burning 15–20% above target right now?
+
+Most don't. And that's about to get very expensive.
+
+We identify exactly where your fleet's fuel is being wasted — per vehicle, per driver, per route — and give you a monthly report you can act on.
+
+Most clients save R30,000–R100,000+ per month. Our fee is a fraction of that.
+
+With April's fuel shock coming, the ROI has never been more obvious.
+
+📞 083 314 9592 — WhatsApp us today for a free assessment.</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa2',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post as WhatsApp Status</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Group Message</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Transport Group Post</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa3">Hi all 👋
+
+Sharing this with the group because I think it's genuinely important right now.
+
+With diesel predicted to jump R5–R8/litre on April 1st (due to the Iran war + new fuel levies), any fleet that isn't tracking consumption forensically is about to take a massive hit.
+
+We specialise in monthly fleet reporting for SA transport companies — full fuel efficiency, driver behaviour and speed analysis on every vehicle.
+
+If anyone in the group wants a free fleet efficiency assessment before April, please reach out directly.
+
+📞 083 314 9592
+dynamicfleetreports&#64;gmail&#46;com
+
+The fleet owners who know their numbers going into this are going to be in a very different position to those who don't. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa3',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">For SA trucking/transport WhatsApp groups</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Follow-Up DM</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">After someone shows interest</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa4">Hi [Name] 👋
+
+Hope you're well. I'll get straight to the point given what's happening in the news this week.
+
+With diesel predicted to increase by R5–R8/litre on April 1st, I wanted to reach out specifically to fleet operators in our network.
+
+We provide monthly forensic fleet reporting — fuel efficiency, driver behaviour, speed analysis — for transport companies across SA. Most clients identify R30,000–R100,000+ in monthly waste in the first audit alone.
+
+With the fuel shock coming, there's genuinely never been a better time to know exactly where your diesel is going.
+
+Would you be open to a 10-minute call this week? I'd love to run a quick efficiency estimate on your fleet — no obligation at all.
+
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa4',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Send as direct WhatsApp after first contact</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #3</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa5">April 1st is 19 days away 📅
+
+That's when diesel jumps R5–R8/litre.
+That's when the new fuel levies kick in.
+That's when fleet margins across SA are going to get squeezed hard.
+
+If you haven't already done a forensic audit of your fleet's fuel consumption, now is genuinely the last chance to get ahead of it.
+
+We turn around full fleet reports in 48 hours. You send us your telematics data, we give you a complete breakdown of where every litre is going.
+
+📞 083 314 9592
+
+Don't walk into the worst fuel shock in SA history without knowing your numbers. 🚛</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa5',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Post last day of each month as Status</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📩 Cold Intro DM</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">When messaging someone new</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_wa6">Hi [Name], hope things are good 👋
+
+I know everyone in transport is watching the fuel price news right now — diesel up potentially R5–R8 on April 1st is a serious situation.
+
+I wanted to check in and see if there's anything we can do to help before the price hits. If you haven't had a full fleet efficiency audit done recently, we can turn one around for you quickly.
+
+Knowing exactly which vehicles and drivers are burning above target is the one thing you can actually control going into this.
+
+Happy to chat whenever suits you.
+📞 083 314 9592</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_wa6',this)">📋 Copy</button>
+                    <div class="hashtag-wrap">Use carefully — only for warm connections, not strangers</div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="platform-section" id="section-tt">
+            <div class="platform-banner pb-tt">
+                <div>
+                    <div class="pb-title">🎵 TikTok / Reels</div>
+                    <div class="pb-meta">Best times: 7pm–9pm daily · 1–2 videos/week minimum</div>
+                </div>
+                <div class="pb-tip"><strong>These are scripts, not captions.</strong> Read them naturally to camera. Keep each under 60 seconds.</div>
+            </div>
+            <div class="posts-grid">
+                <div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #1 — 30 sec</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_tt1">🎬 SCRIPT #1 — "The April Bomb"
+[Hook — 0–3s, text on screen: "DIESEL UP R8 IN APRIL?"]
+
+[On camera, direct to lens:]
+"If you own a fleet of trucks in South Africa, you need to hear this right now."
+
+[Cut — text on screen: "April 1st. R5–R8 diesel increase."]
+
+"The Iran war. The weak rand. New fuel levies. All hitting at once on April 1st. Analysts are saying diesel could go up R5, R6, R7 — some are saying R8 per litre."
+
+[Cut — calculator visual or text animation:]
+"20 trucks. 10,000km each per month. R5 more per litre. That's R150,000 extra. Every month."
+
+[Back on camera:]
+"The fleet owners who are going to survive this are the ones who know exactly where their fuel is going. Which drivers are over-consuming. Which vehicles are bleeding diesel."
+
+"That's what we show you. Every month. With hard data."
+
+[CTA:]
+"Link in bio for a free fleet audit. April 1st is 19 days away. Don't sleep on this."
+
+#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #april2026</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_tt1',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #2 — 45 sec</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_tt2">🎬 SCRIPT #2 — "The Driver Nobody Talks About"
+[Hook — text on screen: "One driver is costing you R8,000/month extra"]
+
+[On camera:]
+"Every fleet has one. The driver nobody talks about. The one whose fuel consumption is 20% above everyone else's."
+
+"You know something's off. But you can't prove it. And you definitely can't afford to have that conversation without the data."
+
+[Cut — show mock report graphic:]
+"This is what our monthly report looks like. Every driver. Every vehicle. Ranked by efficiency. The outliers highlighted in red."
+
+[Back on camera:]
+"Before April's fuel increase, that outlier driver was costing you maybe R4,000–R5,000 extra per month."
+
+"After April? We're talking R7,000–R8,000. Per driver. Per month."
+
+"The data pays for itself. Many times over."
+
+[CTA:]
+"Link in bio. Free fleet assessment. Sort it before April 1st."
+
+#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_tt2',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica</div>
+                </div>
+            </div>
+<div class="post-card">
+                <div class="post-card-head">
+                    <span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span>
+                    <span style="font-size:10px;color:#64748b;font-weight:700;">Script #3 — 20 sec (Reel format)</span>
+                </div>
+                <div class="post-card-body">
+                    <div class="post-preview" id="p_tt3">🎬 SCRIPT #3 — "The Maths"
+[Hook — text on screen: "R5 diesel increase × your fleet = ?"]
+
+[On camera, simple and direct:]
+"Let me just do the maths for you really quickly."
+
+[Text animation / whiteboard style:]
+"Current diesel: R18.50/litre
+April diesel: R24+ /litre
+Difference: R5.50/litre"
+
+"Average truck doing 10,000km/month at 3km/L uses 3,333 litres."
+
+"That's R18,333 MORE in fuel. Per truck. Per month."
+
+"Times 10 trucks: R183,000 more per month."
+"Times 20 trucks: R366,000 more per month."
+
+[Back on camera:]
+"Now. How much of that is preventable waste from over-consuming drivers and inefficient vehicles?"
+
+"In most fleets we audit: 20–30%."
+
+"That's R55,000 to R110,000 per month that you don't have to spend — if you know where it's going."
+
+[CTA:]
+"That's what we show you. Link in bio for a free fleet efficiency assessment. Clock is ticking — April 1st."
+
+#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #april2026</div>
+                </div>
+                <div class="post-footer">
+                    <button class="btn-copy" onclick="copyPartnerPost('p_tt3',this)">📋 Copy Script + Caption</button>
+                    <div class="hashtag-wrap">#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency</div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+    <!-- Community tab -->
+    <div class="platform-section" id="section-community">
+        <div id="communityInTab"><p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet. Be the first to submit one above!</p></div>
     </div>
 
 </div>
@@ -303,717 +999,257 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const DISCOVER_URL        = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
-const APPS_URL            = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
-const POSTS_KEY           = 'DFR_MARKETING_POSTS';
+const DISCOVER_URL = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+const APPS_URL     = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 const PARTNER_SCRIPTS_KEY = 'PARTNER_MARKETING_SCRIPTS';
 
-const PLAT_ICONS = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵',email:'📧'};
-const PLAT_NAMES = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels',email:'Email'};
-const PLAT_TIPS  = {
-    fb:{css:'pb-fb',color:'#60a5fa',times:'Best times: Tue–Thu · 12pm–2pm & 6pm–8pm · Aim for 3–4 posts/week',tip:'These posts are written to perform on Facebook. Your referral link is automatically included when you copy.'},
-    li:{css:'pb-li',color:'#38bdf8',times:'Best times: Tue–Thu · 8am–10am · 2–3 posts/week',tip:'LinkedIn reaches fleet managers and logistics directors directly. Use your real name for maximum credibility.'},
-    ig:{css:'pb-ig',color:'#f472b6',times:'Best times: Mon/Wed/Fri · 11am–1pm · Daily stories',tip:'Instagram is visual — pair these captions with photos of trucks or dashboards. Your bio link is the money shot.'},
-    wa:{css:'pb-wa',color:'#4ade80',times:'Status: Daily · Direct message: As needed · Groups: 2–3x per week',tip:'Most underrated platform in SA. WhatsApp Status reaches people who never see your Facebook posts.'},
-    tt:{css:'pb-tt',color:'white',  times:'Best times: 7pm–9pm daily · 1–2 videos/week minimum',tip:'These are scripts, not captions. Read them naturally to camera. Keep each under 60 seconds.'}
-};
-
-var _partner     = null;
+var _partner = null;
 var _partnerCode = '';
 var _partnerLink = '';
-var _posts       = [];
 
 function waitFor(fn){ return new Promise(function(r){ var t=setInterval(function(){ if(fn()){ clearInterval(t); r(); } },60); }); }
 
 // ── Auto-login from URL ───────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function(){
-    var p   = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', function() {
+    var p = new URLSearchParams(window.location.search);
     var ref = p.get('ref') || p.get('pid');
-    if(ref){
-        // Partner auto-login via URL
+    if (ref) {
         document.getElementById('loginCode').value = ref;
-        waitFor(function(){ return typeof cloudStorage!=='undefined'; }).then(doLogin);
-    } else {
-        // No ref param = DFR owner — open hub directly
-        waitFor(function(){ return typeof cloudStorage!=='undefined'; }).then(showOwnerHub);
+        waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(doLogin);
     }
 });
 
-async function doLogin(){
+async function doLogin() {
     var input = document.getElementById('loginCode').value.trim().toLowerCase();
-    if(!input) return;
-    try{
-        await waitFor(function(){ return typeof cloudStorage!=='undefined'; });
-        var partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
-        var refCode  = input.startsWith('ref_') ? input : 'ref_'+input.replace(/\s+/g,'_');
-        _partner = partners.find(function(p){
-            var code = 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            return code===refCode || p.id===input || code===input;
+    if (!input) return;
+    try {
+        await waitFor(function(){ return typeof cloudStorage !== 'undefined'; });
+        var partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+        var refCode  = input.startsWith('ref_') ? input : 'ref_' + input.replace(/\s+/g,'_');
+        _partner = partners.find(function(p) {
+            var code = 'ref_' + p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            return code === refCode || p.id === input || code === input;
         });
-        if(!_partner){
-            showErr('Code not recognised. Check your WhatsApp for your referral link.'); return;
+        if (!_partner) {
+            document.getElementById('loginErr').style.display = 'block'; return;
         }
-        if(_partner.status==='inactive'){
-            showErr('Your account is currently inactive. Please contact DFR on 083 314 9592.'); return;
+        if (_partner.status === 'inactive') {
+            document.getElementById('loginErr').textContent = 'This partner account is currently inactive. Please contact DFR on 083 314 9592.';
+            document.getElementById('loginErr').style.display = 'block'; return;
         }
-        if(_partner.status==='pending'){
-            showErr('Your application is still pending approval. You will receive a WhatsApp once activated.'); return;
+        if (_partner.status === 'pending') {
+            document.getElementById('loginErr').textContent = 'Your application is still pending approval. You will receive a WhatsApp once activated.';
+            document.getElementById('loginErr').style.display = 'block'; return;
         }
-        _partnerCode = 'ref_'+_partner.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-        _partnerLink = DISCOVER_URL+'?ref='+_partnerCode;
+        _partnerCode = 'ref_' + _partner.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+        _partnerLink = DISCOVER_URL + '?ref=' + _partnerCode;
         window._partnerCode = _partnerCode;
-        await showHub();
-    } catch(e){
-        showErr('Something went wrong. Please try again.');
+        showHub();
+    } catch(e) {
+        document.getElementById('loginErr').style.display = 'block';
     }
 }
-function showErr(msg){ var e=document.getElementById('loginErr'); e.textContent=msg; e.style.display='block'; }
 
-// ── Owner mode — no login needed ──────────────────────────────────────────────
-async function showOwnerHub(){
-    _partner     = null;
-    _partnerCode = '';
-    _partnerLink = '';
-    document.getElementById('loginWrap').style.display       = 'none';
+function showHub() {
+    document.getElementById('loginWrap').style.display   = 'none';
     document.getElementById('mainHub').classList.add('on');
-    document.getElementById('submitScriptBox').style.display = 'none'; // owner doesn't submit scripts
-    document.getElementById('tbPartnerName').style.display   = 'block';
-    document.getElementById('tbName').textContent            = 'DFR Owner';
-    // Hide the My Link box — owner doesn't have a partner link
-    var linkBox = document.querySelector('.my-link-box');
-    if(linkBox) linkBox.style.display = 'none';
-    await loadAndRenderPosts();
-    await loadCommunityScripts();
-}
-
-async function showHub(){
-    document.getElementById('loginWrap').style.display    = 'none';
-    document.getElementById('mainHub').classList.add('on');
-    document.getElementById('submitScriptBox').style.display = 'block';
-    document.getElementById('tbPartnerName').style.display   = 'block';
-    document.getElementById('tbName').textContent             = _partner.name;
+    document.getElementById('tbPartnerName').style.display = 'block';
+    document.getElementById('tbName').textContent          = _partner.name;
     document.getElementById('partnerDisplayName').textContent = _partner.name;
-    document.getElementById('myLinkDisplay').textContent      = _partnerLink;
-    // Set reel builder link with partner code
-    var reelBtn = document.getElementById('reelBuilderBtn');
-    if(reelBtn) reelBtn.href = 'reel-builder.html?ref='+_partnerCode;
-    await loadAndRenderPosts();
-    await loadCommunityScripts();
+    document.getElementById('myLinkDisplay').textContent   = _partnerLink;
+    // Inject partner link into all post previews
+    injectLinks();
+    // Load community scripts
+    loadCommunityScripts();
 }
 
-// ── Load shared posts from Firebase ──────────────────────────────────────────
-async function loadAndRenderPosts(){
-    try{
-        var stored = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
-        _posts = (stored && stored.length) ? stored : [];
-    } catch(e){ _posts=[]; }
-    // Render each platform
-    ['fb','li','ig','wa','tt'].forEach(function(plat){
-        renderPlatformSection(plat);
-    });
-}
-
-// ── Render a single platform section ─────────────────────────────────────────
-function renderPlatformSection(plat){
-    var el = document.getElementById('section-'+plat);
-    if(!el) return;
-    var posts = _posts.filter(function(p){ return p.platform===plat && p.live; });
-    var cfg   = PLAT_TIPS[plat];
-    var html  = '';
-
-    // Banner
-    html += '<div class="platform-banner '+cfg.css+'">';
-    html += '<div><div class="pb-title">'+PLAT_ICONS[plat]+' '+PLAT_NAMES[plat]+'</div><div class="pb-meta">'+cfg.times+'</div></div>';
-    html += '<div class="pb-tip-text">'+cfg.tip+'</div></div>';
-
-    if(!posts.length){
-        html += '<div class="empty-state"><div class="icon">'+PLAT_ICONS[plat]+'</div><p>No posts available for '+PLAT_NAMES[plat]+' yet.<br><span style="font-size:12px;color:#475569;">DFR will add posts here soon — check back shortly.</span></p></div>';
-        el.innerHTML = html; return;
-    }
-
-    html += '<div class="posts-grid">';
-    posts.forEach(function(p){
-        var id = 'pp_'+p.id;
-        html += '<div class="post-card">';
-        html += '<div class="post-card-head">';
-        html += '<span class="post-tag" style="background:rgba(255,255,255,0.07);color:'+cfg.color+';">'+escHtml(p.tag)+'</span>';
-        html += '<span style="font-size:10px;color:#64748b;font-weight:700;">'+escHtml(p.order||'')+'</span>';
-        html += '</div>';
-        html += '<div class="post-card-body"><div class="post-preview" id="'+id+'">'+escHtml(p.content)+'</div></div>';
-        html += '<div class="post-card-footer">';
-        html += '<button class="btn-copy" onclick="copyPartnerPost(\''+id+'\',this)">📋 Copy Post</button>';
-        if(p.hashtags) html += '<div class="hashtag-wrap">'+escHtml(p.hashtags)+'</div>';
-        html += '</div></div>';
-    });
-    html += '</div>';
-    el.innerHTML = html;
-}
-
-// ── Copy post with partner link appended ─────────────────────────────────────
-function copyPartnerPost(id, btn){
-    var el = document.getElementById(id);
-    if(!el) return;
-    var text = el.innerText || el.textContent;
-    if(_partnerLink){
-        // Append or replace with partner's referral link
-        var baseUrl = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
-        if(text.indexOf(baseUrl) > -1){
-            text = text.replace(new RegExp(baseUrl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(\\?ref=[^\\s]*)?','g'), _partnerLink);
-        } else {
-            text += '\n\n🔗 '+_partnerLink;
+// ── Inject partner link into every post ──────────────────────────────────────
+function injectLinks() {
+    // Find all post-preview divs and inject the partner link
+    var previews = document.querySelectorAll('.post-preview');
+    previews.forEach(function(el) {
+        var content = el.innerHTML;
+        // Replace the DFR discover URL if present
+        content = content.replace(/https:\/\/dynamicfleetreports-bit\.github\.io\/DFR\/discover\.html([^\s<"']*)/g, _partnerLink);
+        el.innerHTML = content;
+        // If no link present yet, append it
+        if (!el.textContent.includes('?ref=')) {
+            var linkSpan = document.createElement('span');
+            linkSpan.className = 'post-link-line';
+            linkSpan.textContent = '\n\uD83D\uDD17 ' + _partnerLink;
+            el.appendChild(linkSpan);
         }
-    }
-    navigator.clipboard.writeText(text).then(function(){
-        var orig = btn.textContent;
-        btn.textContent = _partnerLink ? '✅ Copied with my link!' : '✅ Copied!';
-        btn.classList.add('copied');
-        setTimeout(function(){ btn.textContent=orig; btn.classList.remove('copied'); },2500);
-    });
-}
-
-function copyMyLink(){
-    navigator.clipboard.writeText(_partnerLink).then(function(){
-        var btn = document.getElementById('copyLinkBtn');
-        btn.textContent = '✅ Copied!';
-        btn.classList.add('copied');
-        setTimeout(function(){ btn.textContent='📋 Copy My Link'; btn.classList.remove('copied'); },2000);
     });
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
-// ── Community Scripts ─────────────────────────────────────────────────────────
-async function loadCommunityScripts(){
-    var el = document.getElementById('section-community');
-    if(!el) return;
-    try{
-        var all      = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY))||[];
-        var approved = all.filter(function(s){ return s.approved===true; });
-        var myPending= all.filter(function(s){ return s.submittedById===(_partner&&_partner.id)&&!s.approved&&!s.rejected; });
-
-        var html = '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#c4b5fd;margin-bottom:1rem;">🌟 Community Scripts — from your fellow partners</div>';
-
-        if(myPending.length){
-            html += '<div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#93c5fd;line-height:1.6;margin-bottom:1rem;">⏱ You have <strong>'+myPending.length+' script'+(myPending.length>1?'s':'')+' pending DFR review</strong>. Once approved they will appear here for all partners.</div>';
-        }
-
-        if(!approved.length){
-            html += '<div class="empty-state"><div class="icon">🌟</div><p>No community scripts yet.<br><span style="font-size:12px;color:#475569;">Be the first to submit one below!</span></p></div>';
-            el.innerHTML = html; return;
-        }
-
-        approved.forEach(function(s, idx){
-            var platLabel = (PLAT_ICONS[s.platform]||'')+(s.platform||'').toUpperCase();
-            html += '<div class="script-card">';
-            html += '<div class="sc-head"><span class="sc-author">📖 '+escHtml(s.title||'Community Script')+'</span><span class="sc-platform-badge">'+platLabel+'</span></div>';
-            html += '<div class="sc-body"><div class="sc-preview" id="cs_'+idx+'">'+escHtml(s.content||'')+'</div>';
-            if(s.hashtags) html += '<div style="font-size:10px;color:#475569;margin-top:8px;">'+escHtml(s.hashtags)+'</div>';
-            html += '</div><div class="sc-footer"><button class="btn-copy-script" onclick="copyCommunityScript('+idx+',this)">📋 Copy with My Link</button></div></div>';
-        });
-        el.innerHTML = html;
-    } catch(e){
-        document.getElementById('section-community').innerHTML='<p style="color:#64748b;font-size:13px;padding:2rem 0;">Unable to load community scripts.</p>';
-    }
+function switchTab(id, el) {
+    document.querySelectorAll('.platform-section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+    var sec = document.getElementById('section-' + id);
+    if (sec) sec.classList.add('active');
+    if (el)  el.classList.add('active');
+    if (id === 'community') renderCommunityTab();
 }
 
-function copyCommunityScript(idx, btn){
-    var el = document.getElementById('cs_'+idx);
-    if(!el) return;
-    var text = (el.textContent||'').trim()+'\n\n🔗 '+_partnerLink;
-    navigator.clipboard.writeText(text).then(function(){
-        var orig=btn.textContent;
-        btn.textContent='✅ Copied with my link!';
-        setTimeout(function(){ btn.textContent=orig; },2500);
+// ── Copy partner post ─────────────────────────────────────────────────────────
+function copyPartnerPost(id, btn) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var text = el.innerText || el.textContent;
+    // Ensure link is in the copy
+    if (!text.includes('?ref=')) text += '\n\n\uD83D\uDD17 ' + _partnerLink;
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = '\u2705 Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
     });
 }
 
-// ── Submit community script ───────────────────────────────────────────────────
-async function submitScript(){
+function copyMyLink() {
+    navigator.clipboard.writeText(_partnerLink).then(function() {
+        var btn = document.getElementById('copyLinkBtn');
+        btn.textContent = '\u2705 Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = '\uD83D\uDCCB Copy My Link'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
+// ── Community Scripts ─────────────────────────────────────────────────────────
+async function loadCommunityScripts() {
+    try {
+        var all     = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
+        // Only show scripts approved by DFR
+        var approved = all.filter(function(s){ return s.approved === true; });
+        renderCommunityScripts(approved);
+        // Show pending count to the submitter so they know their script is in review
+        var myPending = all.filter(function(s){
+            return s.submittedById === (_partner && _partner.id) && !s.approved;
+        });
+        if (myPending.length) {
+            var pendingEl = document.getElementById('myPendingNotice');
+            if (pendingEl) {
+                pendingEl.style.display = 'block';
+                pendingEl.innerHTML = '&#9201; You have <strong>' + myPending.length +
+                    ' script' + (myPending.length > 1 ? 's' : '') +
+                    ' pending DFR review</strong>. Once approved they will appear here for all partners.';
+            }
+        }
+    } catch(e) { renderCommunityScripts([]); }
+}
+
+function renderCommunityScripts(scripts) {
+    if (!scripts.length) {
+        document.getElementById('communityScriptsWrap').style.display = 'none';
+        document.getElementById('communityInTab').innerHTML = '<p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet. Be the first to submit one above!</p>';
+        return;
+    }
+    document.getElementById('communityScriptsWrap').style.display = 'block';
+    var platformIcons = {fb:'&#128216;',li:'&#128188;',ig:'&#128247;',wa:'&#128172;',tt:'&#127925;'};
+    var html = scripts.map(function(s, idx) {
+        var platformLabel = (platformIcons[s.platform] || '') + ' ' + (s.platform||'').toUpperCase();
+        // When copying, inject THIS partner's link
+        return '<div class="script-card">' +
+            '<div class="sc-head">' +
+                '<span class="sc-author">&#128218; ' + (s.title || 'Community Script') + '</span>' +
+                '<span class="sc-platform">' + platformLabel + '</span>' +
+            '</div>' +
+            '<div class="sc-body">' +
+                '<div class="sc-preview" id="cs_' + idx + '">' + escHtml(s.content) + '</div>' +
+                (s.hashtags ? '<div style="font-size:10px;color:#475569;margin-top:8px;">' + escHtml(s.hashtags) + '</div>' : '') +
+            '</div>' +
+            '<div class="sc-footer">' +
+                '<button class="btn-copy-script" onclick="copyCommunityScript(' + idx + ',this)">&#128203; Copy with My Link</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+    document.getElementById('communityScriptsList').innerHTML = html;
+}
+
+function renderCommunityTab() {
+    var container = document.getElementById('communityInTab');
+    var listEl    = document.getElementById('communityScriptsList');
+    if (listEl && listEl.innerHTML.trim()) {
+        container.innerHTML = listEl.outerHTML;
+        // Re-attach copy handlers by cloning
+    } else {
+        container.innerHTML = '<p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet.</p>';
+    }
+}
+
+function copyCommunityScript(idx, btn) {
+    var el = document.getElementById('cs_' + idx);
+    if (!el) return;
+    var text = el.textContent.trim();
+    text += '\n\n\uD83D\uDD17 ' + _partnerLink;
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = '\u2705 Copied with my link!';
+        setTimeout(function(){ btn.textContent = orig; }, 2500);
+    });
+}
+
+async function submitScript() {
     var platform = document.getElementById('scriptPlatform').value;
     var title    = document.getElementById('scriptTitle').value.trim();
     var content  = document.getElementById('scriptContent').value.trim();
     var hashtags = document.getElementById('scriptHashtags').value.trim();
-    if(!content){ toast('Please write your script before submitting','red'); return; }
-    if(!_partner){ toast('Please log in first','red'); return; }
-    try{
-        var scripts = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY))||[];
+    if (!content) { toast('Please write your script before submitting','red'); return; }
+    if (!_partner) { toast('Please log in first','red'); return; }
+    try {
+        var scripts = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
         scripts.push({
-            platform    : platform,
-            title       : title||'Community Script',
-            content     : content,
-            hashtags    : hashtags,
+            platform  : platform,
+            title     : title || 'Community Script',
+            content   : content,
+            hashtags  : hashtags,
             submittedBy : _partner.name,
             submittedById: _partner.id,
-            date        : new Date().toISOString(),
-            approved    : false,
-            rejected    : false
+            date      : new Date().toISOString()
         });
         await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(scripts));
-        // Notify DFR owner
-        notifyWA('🚀 New Partner Script Submitted\nPartner: '+_partner.name+'\nPlatform: '+platform.toUpperCase()+'\nTitle: '+(title||'Untitled')+'\nContent: '+content.substring(0,100)+'...');
-        // Clear form
-        document.getElementById('scriptContent').value  = '';
-        document.getElementById('scriptTitle').value    = '';
-        document.getElementById('scriptHashtags').value = '';
-        // Show pending notice
-        var n = document.getElementById('myPendingNotice');
-        n.style.display='block';
-        n.innerHTML='⏱ Script submitted! DFR will review it and publish it to all partners once approved.';
-        toast('Script submitted for review ✓','green');
-    } catch(e){
-        toast('Submission failed: '+e.message,'red');
+        // Notify DFR
+        await notifyWA('\uD83D\uDE80 New Partner Script Submitted\nPartner: ' + _partner.name + '\nPlatform: ' + platform.toUpperCase() + '\nTitle: ' + (title||'Untitled') + '\nContent: ' + content.substring(0,100) + '...');
+        document.getElementById('scriptContent').value = '';
+        document.getElementById('scriptTitle').value   = '';
+        document.getElementById('scriptHashtags').value= '';
+        renderCommunityScripts(scripts);
+        toast('Script submitted! DFR will review it and publish it to all partners once approved. \u2713','green');
+    } catch(e) {
+        toast('Submission failed: ' + e.message, 'red');
     }
 }
 
-// ── WhatsApp notify ───────────────────────────────────────────────────────────
-function notifyWA(msg){
-    return new Promise(function(res){
-        var cb='_cb'+Date.now();
-        window[cb]=function(){ delete window[cb]; res(); };
-        var s=document.createElement('script');
-        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
-        s.onerror=function(){ res(); };
+function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function notifyWA(msg) {
+    return new Promise(function(res) {
+        var cb = '_cb' + Date.now();
+        window[cb] = function(){ delete window[cb]; res(); };
+        var s = document.createElement('script');
+        s.src = APPS_URL + '?action=whatsapp&message=' + encodeURIComponent(msg) + '&callback=' + cb;
+        s.onerror = function(){ res(); };
         document.body.appendChild(s);
-        setTimeout(res,5000);
+        setTimeout(res, 5000);
     });
 }
 
-function toast(msg,color){
-    color=color||'green';
-    var t=document.getElementById('toast');
-    t.textContent=msg;
-    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.4)';
+function toast(msg, color) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.borderColor = color === 'red' ? 'rgba(239,68,68,0.4)' : 'rgba(16,185,129,0.4)';
     t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); },3000);
-}
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ── Tab switching — extended to handle reel ───────────────────────────────────
-function switchTab(id,el){
-    document.querySelectorAll('.platform-section').forEach(function(s){ s.classList.remove('active'); });
-    document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
-    var sec=document.getElementById('section-'+id);
-    if(sec) sec.classList.add('active');
-    if(el)  el.classList.add('active');
-    if(id==='community') loadCommunityScripts();
-    if(id==='reel')      initReelBuilder();
+    setTimeout(function(){ t.classList.remove('show'); }, 3000);
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// REEL BUILDER — full copy, partner-aware (auto-appends partner link to caption)
-// ══════════════════════════════════════════════════════════════════════════════
-
-const UNSPLASH_KEY = 'g7EGqA04ya3C46uRc1wbfulu6vQx0x5qctxwU9_SFBQ';
-
-const RB_SCRIPTS = {
-    script1:{
-        caption:'If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5–R8/litre on April 1st. Here\'s what that means for your business — and what you can actually do about it.',
-        hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner #satransport #businessowner #fuelefficiency',
-        slides:[
-            {type:'hook',    headline:'DIESEL UP R8\nIN APRIL?',           sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
-            {type:'stat',    headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',  sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
-            {type:'numbers', headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH', sub:'10,000km each per month · R5 more per litre\nEvery. Single. Month.'},
-            {type:'point',   headline:'THE FLEET OWNERS\nWHO SURVIVE\nKNOW THEIR NUMBERS', sub:'Which drivers are over-consuming.\nWhich vehicles are bleeding diesel.'},
-            {type:'proof',   headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA', sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
-            {type:'cta',     headline:'FREE FLEET\nAUDIT',                  sub:'Link in bio → Free assessment\n📞 083 314 9592'}
-        ]
-    },
-    script2:{
-        caption:'Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else\'s. After April\'s R5–R8 diesel increase, that silence costs R7,000–R8,000 extra per month.',
-        hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner #driverefficiency',
-        slides:[
-            {type:'hook',    headline:'ONE DRIVER\nIS COSTING YOU\nR8,000/MONTH', sub:'Every fleet has one.\nThe driver nobody talks about.'},
-            {type:'point',   headline:'20% ABOVE\nEVERYONE ELSE',           sub:'You know something\'s off.\nBut you can\'t prove it without data.'},
-            {type:'numbers', headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH', sub:'Per outlier driver · Per month'},
-            {type:'stat',    headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH', sub:'Same driver · Same bad habits\nNow costs almost double.'},
-            {type:'proof',   headline:'OUR REPORT:\nEVERY DRIVER\nRANKED',   sub:'Outliers highlighted in red.\nEvery month. Actionable.'},
-            {type:'cta',     headline:'FREE FLEET\nASSESSMENT',              sub:'📞 083 314 9592'}
-        ]
-    },
-    script3:{
-        caption:'Let me do the maths for you. R5.50 more per litre × your fleet × every month. The number is bigger than you think — and 20–30% of it is preventable waste.',
-        hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #fuelefficiency #fleetowner',
-        slides:[
-            {type:'hook',    headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?', sub:'Let me do the maths quickly.'},
-            {type:'numbers', headline:'R18.50 → R24+\n= R5.50 MORE\nPER LITRE', sub:'Current diesel → April diesel'},
-            {type:'stat',    headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH', sub:'10,000km/month at 3km/L = 3,333 litres × R5.50'},
-            {type:'numbers', headline:'10 TRUCKS\n= R183,000\nMORE/MONTH', sub:'20 trucks = R366,000 more per month'},
-            {type:'point',   headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE', sub:'Over-consuming drivers.\nInefficient vehicles. Fix it now.'},
-            {type:'cta',     headline:'WE SHOW YOU\nWHERE IT\'S GOING', sub:'Free fleet efficiency assessment\n📞 083 314 9592'}
-        ]
-    }
-};
-
-const RB_STYLES = {
-    dark: {bg:'#000000',bgGrad:['#000000','#0a0a0a'],headline:'#ffffff',sub:'#a0a0a0',accent:'#10b981',brand:'#10b981',brandBg:'rgba(16,185,129,0.15)',hookBg:['#000000','#031a0f'],numBg:['#000000','#031a0f'],statBg:['#000000','#0a1a00'],ctaBg:['#031a0f','#000000'],accentLine:true},
-    aggro:{bg:'#0a0000',bgGrad:['#0a0000','#1a0000'],headline:'#ffffff',sub:'#ffaaaa',accent:'#ef4444',brand:'#ef4444',brandBg:'rgba(239,68,68,0.15)',hookBg:['#1a0000','#0a0000'],numBg:['#1a0000','#0a0000'],statBg:['#0f0000','#050000'],ctaBg:['#1a0000','#050000'],accentLine:true},
-    navy: {bg:'#0f172a',bgGrad:['#0f172a','#1e293b'],headline:'#e2e8f0',sub:'#94a3b8',accent:'#3b82f6',brand:'#60a5fa',brandBg:'rgba(59,130,246,0.15)',hookBg:['#0f172a','#1e3a5f'],numBg:['#0f172a','#1a2f4a'],statBg:['#0f172a','#1e2d40'],ctaBg:['#1e3a5f','#0f172a'],accentLine:true},
-    light:{bg:'#f8fafc',bgGrad:['#f8fafc','#f1f5f9'],headline:'#0f172a',sub:'#475569',accent:'#059669',brand:'#059669',brandBg:'rgba(5,150,105,0.1)',hookBg:['#f8fafc','#ecfdf5'],numBg:['#f1f5f9','#ecfdf5'],statBg:['#f8fafc','#f0fdf4'],ctaBg:['#ecfdf5','#f8fafc'],accentLine:true},
-    custom:{bg:'#1a0a2e',bgGrad:['#1a0a2e','#0d0618'],headline:'#ffffff',sub:'#cccccc',accent:'#f59e0b',brand:'#f59e0b',brandBg:'rgba(245,158,11,0.15)',hookBg:['#1a0a2e','#2a0a3e'],numBg:['#1a0a2e','#2a0a3e'],statBg:['#1a0a2e','#200a36'],ctaBg:['#2a0a3e','#1a0a2e'],accentLine:true}
-};
-
-const SVG_ILLUS=[
-    {id:'none',label:'No BG'},
-    {id:'semi_side',label:'Semi Side'},
-    {id:'truck_front',label:'Truck Front'},
-    {id:'fleet_row',label:'Fleet Row'},
-    {id:'dashboard',label:'Dashboard'},
-    {id:'highway',label:'Highway'},
-    {id:'wheels',label:'Wheels'},
-    {id:'cargo',label:'Cargo'},
-    {id:'sunset_road',label:'Sunset'},
-    {id:'speedometer',label:'Speedo'},
-    {id:'sa_map',label:'SA Map'}
-];
-
-var rb_slides=[],rb_activeSlide=0,rb_style='dark',rb_canvas=null,rb_ctx=null;
-var rb_W=1080,rb_H=1920,rb_bgOpacity=0.22,rb_bgScope='slide';
-var rb_slideImages={},rb_allImage=null,rb_activeIllusId='none';
-var rb_initialized=false;
-
-function initReelBuilder(){
-    var sec=document.getElementById('section-reel');
-    if(!sec) return;
-    if(!rb_initialized){
-        sec.innerHTML=buildReelHTML();
-        rb_initialized=true;
-    }
-    rb_canvas=document.getElementById('reelCanvas');
-    if(!rb_canvas) return;
-    rb_ctx=rb_canvas.getContext('2d');
-    rb_canvas.width=rb_W; rb_canvas.height=rb_H;
-    if(!rb_slides.length) rbReset();
-    else{ rbRenderList(); rbDraw(rb_activeSlide); }
-    rbRenderIllus();
-}
-
-function buildReelHTML(){
-    return '<div style="margin-bottom:1rem;"><div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#f472b6;margin-bottom:4px;">🎬 Reel Builder</div><div style="font-size:12px;color:#64748b;font-weight:600;">Build a vertical reel for TikTok, Instagram Reels or Facebook Reels. Your referral link is automatically added to the caption.</div></div>'+
-    '<div class="rb-toolbar">'+
-        '<select class="rb-script-select" id="rb_scriptSelect" onchange="rbLoadScript(this.value)">'+
-            '<option value="">— Start blank —</option>'+
-            '<option value="script1">Script #1: "The April Bomb"</option>'+
-            '<option value="script2">Script #2: "The Driver Nobody Talks About"</option>'+
-            '<option value="script3">Script #3: "The Maths"</option>'+
-        '</select>'+
-        '<button onclick="rbReset()" style="background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:#94a3b8;padding:8px 14px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap;">🔄 Reset</button>'+
-    '</div>'+
-    '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.5rem;">Style</div>'+
-    '<div class="style-row">'+
-        '<button class="style-btn sb-dark active" onclick="rbSetStyle(\'dark\',this)">⚫ Dark</button>'+
-        '<button class="style-btn sb-aggro"       onclick="rbSetStyle(\'aggro\',this)">🔴 Aggressive</button>'+
-        '<button class="style-btn sb-navy"        onclick="rbSetStyle(\'navy\',this)">🔵 Navy</button>'+
-        '<button class="style-btn sb-light"       onclick="rbSetStyle(\'light\',this)">⚪ Light</button>'+
-        '<button class="style-btn sb-custom"      onclick="rbSetStyle(\'custom\',this)">🎨 Custom</button>'+
-    '</div>'+
-    '<div class="custom-colours" id="rb_customColours">'+
-        '<div class="cc-item"><div class="cc-label">Background</div><input type="color" class="cc-swatch" id="rb_cc_bg"     value="#1a0a2e" oninput="rbUpdateCustom()"></div>'+
-        '<div class="cc-item"><div class="cc-label">Headline</div>  <input type="color" class="cc-swatch" id="rb_cc_head"   value="#ffffff" oninput="rbUpdateCustom()"></div>'+
-        '<div class="cc-item"><div class="cc-label">Subtext</div>   <input type="color" class="cc-swatch" id="rb_cc_sub"    value="#cccccc" oninput="rbUpdateCustom()"></div>'+
-        '<div class="cc-item"><div class="cc-label">Accent</div>    <input type="color" class="cc-swatch" id="rb_cc_accent" value="#f59e0b" oninput="rbUpdateCustom()"></div>'+
-    '</div>'+
-    '<div class="rb-layout">'+
-        '<div>'+
-            '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.6rem;">Slides <span style="color:#475569;font-weight:600;">(click to preview →)</span></div>'+
-            '<div class="slides-list" id="rb_slidesList"></div>'+
-            '<button class="add-slide-btn" onclick="rbAddSlide()">➕ Add Slide</button>'+
-            '<div class="illus-picker">'+
-                '<div class="illus-picker-title">🚛 Background</div>'+
-                '<div class="illus-scope-row">'+
-                    '<button class="illus-scope-btn active" onclick="rbSetScope(\'slide\',this)">This slide</button>'+
-                    '<button class="illus-scope-btn"        onclick="rbSetScope(\'all\',this)">All slides</button>'+
-                '</div>'+
-                '<div class="illus-grid" id="rb_illusGrid"></div>'+
-                '<div class="illus-opacity-row">'+
-                    '<span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;">Opacity</span>'+
-                    '<input type="range" class="illus-opacity-slider" id="rb_illusOpacity" min="5" max="60" value="22" oninput="rbUpdateOpacity(this.value)">'+
-                    '<span style="font-size:10px;font-weight:700;color:#64748b;width:26px;" id="rb_illusOpacityVal">22%</span>'+
-                '</div>'+
-            '</div>'+
-            '<div class="caption-box">'+
-                '<div class="caption-label">Caption</div>'+
-                '<textarea class="caption-textarea" id="rb_caption" placeholder="Write your caption here..."></textarea>'+
-                '<div class="caption-label" style="margin-top:0.6rem;">Hashtags</div>'+
-                '<input type="text" class="hashtag-input-rb" id="rb_hashtags" placeholder="#FleetManagement #SouthAfrica #TruckingLife">'+
-            '</div>'+
-        '</div>'+
-        '<div class="rb-preview-panel">'+
-            '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-bottom:0.6rem;text-align:center;">Preview (9:16)</div>'+
-            '<div class="rb-preview-wrap"><div class="rb-canvas-container"><canvas id="reelCanvas"></canvas></div></div>'+
-            '<div class="slide-nav">'+
-                '<button class="slide-nav-btn" id="rb_prev" onclick="rbNav(-1)">‹</button>'+
-                '<span class="slide-counter" id="rb_counter">Slide 1 of 1</span>'+
-                '<button class="slide-nav-btn" id="rb_next" onclick="rbNav(1)">›</button>'+
-            '</div>'+
-            '<button class="rb-dl-btn"           onclick="rbDownload()">⬇️ Download This Slide</button>'+
-            '<button class="rb-dl-all-btn"       onclick="rbDownloadAll()">⬇️ Download All Slides</button>'+
-            '<button class="rb-copy-caption-btn" onclick="rbCopyCaption()">📋 Copy Caption + Hashtags</button>'+
-            '<div class="rb-hint">Upload slides to TikTok as photos, or combine in CapCut (free) for a reel. Paste caption when uploading.</div>'+
-        '</div>'+
-    '</div>';
-}
-
-function rbReset(){
-    rb_slides=[
-        {type:'hook',    headline:'YOUR HOOK\nGOES HERE',  sub:'What\'s the big problem? State it boldly.'},
-        {type:'stat',    headline:'THE KEY STAT\nOR FACT',  sub:'Numbers create urgency. Use them.'},
-        {type:'point',   headline:'YOUR MAIN\nPOINT',       sub:'Keep it short. One idea per slide.'},
-        {type:'cta',     headline:'CALL TO\nACTION',        sub:'Link in bio · 📞 083 314 9592'}
-    ];
-    rb_activeSlide=0;
-    var cap=document.getElementById('rb_caption');
-    var hash=document.getElementById('rb_hashtags');
-    if(cap)  cap.value='';
-    if(hash) hash.value='#fleetmanagement #southafrica #transport #trucking #diesel #fuelefficiency';
-    rbRenderList();
-    if(rb_canvas) rbDraw(0);
-    rbUpdateNav();
-}
-
-function rbLoadScript(key){
-    if(!key){ rbReset(); return; }
-    var s=RB_SCRIPTS[key]; if(!s) return;
-    rb_slides=s.slides.map(function(sl){ return Object.assign({},sl); });
-    rb_activeSlide=0;
-    var cap=document.getElementById('rb_caption');
-    var hash=document.getElementById('rb_hashtags');
-    if(cap)  cap.value=s.caption;
-    if(hash) hash.value=s.hashtags;
-    rbRenderList();
-    if(rb_canvas) rbDraw(0);
-    rbUpdateNav();
-}
-
-function rbRenderList(){
-    var list=document.getElementById('rb_slidesList'); if(!list) return;
-    list.innerHTML=rb_slides.map(function(sl,i){
-        return '<div class="slide-item '+(i===rb_activeSlide?'active-slide':'')+'" id="rbsli_'+i+'" onclick="rbSelect('+i+')">'+
-            '<div class="slide-item-head">'+
-                '<div class="slide-num">'+(i+1)+'</div>'+
-                '<select class="slide-type-select" onchange="rbChangeType('+i+',this.value)" onclick="event.stopPropagation()">'+
-                    ['hook','stat','numbers','point','proof','cta'].map(function(t){ return '<option value="'+t+'" '+(sl.type===t?'selected':'')+'>'+{hook:'🪝 Hook',stat:'📊 Stat',numbers:'🔢 Numbers',point:'💡 Point',proof:'✅ Proof',cta:'📣 CTA'}[t]+'</option>'; }).join('')+
-                '</select>'+
-                '<button class="slide-up" onclick="rbMove('+i+',-1,event)">↑</button>'+
-                '<button class="slide-dn" onclick="rbMove('+i+',1,event)">↓</button>'+
-                '<button class="slide-del" onclick="rbDel('+i+',event)">✕</button>'+
-            '</div>'+
-            '<input class="slide-headline-input" type="text" value="'+rbEscAttr(sl.headline.replace(/\n/g,' | '))+'" placeholder="HEADLINE (use | for line break)" oninput="rbUpdateHead('+i+',this.value)" onclick="rbSelect('+i+')">'+
-            '<textarea class="slide-sub-input" placeholder="Supporting text" oninput="rbUpdateSub('+i+',this.value)" onclick="rbSelect('+i+')">'+rbEscAttr(sl.sub||'')+'</textarea>'+
-        '</div>';
-    }).join('');
-    rbUpdateNav();
-}
-
-function rbEscAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function rbSelect(i){ rb_activeSlide=i; rbRenderList(); rbDraw(i); rbUpdateNav(); }
-function rbChangeType(i,t){ rb_slides[i].type=t; rbDraw(rb_activeSlide); }
-function rbUpdateHead(i,v){ rb_slides[i].headline=v.replace(/\|/g,'\n'); rbDraw(rb_activeSlide); }
-function rbUpdateSub(i,v){ rb_slides[i].sub=v; rbDraw(rb_activeSlide); }
-function rbAddSlide(){ rb_slides.push({type:'point',headline:'NEW SLIDE',sub:''}); rb_activeSlide=rb_slides.length-1; rbRenderList(); rbDraw(rb_activeSlide); }
-function rbDel(i,e){ e.stopPropagation(); if(rb_slides.length<=1){ toast('Need at least 1 slide','red'); return; } rb_slides.splice(i,1); if(rb_activeSlide>=rb_slides.length) rb_activeSlide=rb_slides.length-1; rbRenderList(); rbDraw(rb_activeSlide); }
-function rbMove(i,d,e){ e.stopPropagation(); var ni=i+d; if(ni<0||ni>=rb_slides.length) return; var tmp=rb_slides[i]; rb_slides[i]=rb_slides[ni]; rb_slides[ni]=tmp; rb_activeSlide=ni; rbRenderList(); rbDraw(rb_activeSlide); }
-function rbNav(d){ var ni=rb_activeSlide+d; if(ni<0||ni>=rb_slides.length) return; rbSelect(ni); }
-function rbUpdateNav(){ var p=document.getElementById('rb_prev'),n=document.getElementById('rb_next'),c=document.getElementById('rb_counter'); if(p) p.disabled=rb_activeSlide===0; if(n) n.disabled=rb_activeSlide===rb_slides.length-1; if(c) c.textContent='Slide '+(rb_activeSlide+1)+' of '+rb_slides.length; }
-function rbSetStyle(name,el){ rb_style=name; document.querySelectorAll('.style-btn').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); var cc=document.getElementById('rb_customColours'); if(cc){ if(name==='custom') cc.classList.add('show'); else cc.classList.remove('show'); } if(rb_canvas) rbDraw(rb_activeSlide); }
-function rbUpdateCustom(){ var st=RB_STYLES.custom; st.bg=document.getElementById('rb_cc_bg').value; st.bgGrad=[st.bg,st.bg]; st.hookBg=[st.bg,st.bg]; st.numBg=[st.bg,st.bg]; st.statBg=[st.bg,st.bg]; st.ctaBg=[st.bg,st.bg]; st.headline=document.getElementById('rb_cc_head').value; st.sub=document.getElementById('rb_cc_sub').value; st.accent=document.getElementById('rb_cc_accent').value; st.brand=st.accent; st.brandBg=st.accent+'26'; if(rb_canvas) rbDraw(rb_activeSlide); }
-function rbSetScope(scope,el){ rb_bgScope=scope; document.querySelectorAll('.illus-scope-btn').forEach(function(b){ b.classList.remove('active'); }); el.classList.add('active'); }
-function rbUpdateOpacity(val){ rb_bgOpacity=parseInt(val)/100; var lbl=document.getElementById('rb_illusOpacityVal'); if(lbl) lbl.textContent=val+'%'; rbDraw(rb_activeSlide); }
-
-function rbRenderIllus(){
-    var grid=document.getElementById('rb_illusGrid'); if(!grid) return;
-    var html='<div style="grid-column:1/-1;display:flex;gap:5px;margin-bottom:6px;">'+
-        '<input type="text" id="rb_unsplashQ" placeholder="Search photos..." value="semi truck south africa" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:Outfit,sans-serif;font-size:11px;outline:none;" onkeydown="if(event.key===\'Enter\')rbSearchUnsplash()">'+
-        '<button onclick="rbSearchUnsplash()" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.25);color:#f472b6;padding:5px 10px;border-radius:5px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;">🔍</button>'+
-    '</div>'+
-    '<div id="rb_unsplashResults" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:6px;"></div>'+
-    '<div style="grid-column:1/-1;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:3px;">SVG Illustrations</div>';
-    SVG_ILLUS.forEach(function(il){
-        var active=rb_activeIllusId===il.id&&!rb_allImage?'active-illus':'';
-        if(il.id==='none'){
-            html+='<div class="illus-thumb illus-none '+active+'" onclick="rbApplyIllus(\'none\')" title="None">🚫</div>';
-        } else {
-            html+='<div class="illus-thumb '+active+'" onclick="rbApplyIllus(\''+il.id+'\')" title="'+il.label+'"><svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">'+rbGetSvgThumb(il.id)+'</svg></div>';
-        }
-    });
-    grid.innerHTML=html;
-    rbSearchUnsplash();
-}
-
-async function rbSearchUnsplash(){
-    var q=(document.getElementById('rb_unsplashQ')||{}).value||'semi truck';
-    var res=document.getElementById('rb_unsplashResults'); if(!res) return;
-    res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:10px;padding:3px 0;">Searching...</div>';
-    try{
-        var r=await fetch('https://api.unsplash.com/search/photos?query='+encodeURIComponent(q)+'&per_page=12&orientation=portrait&client_id='+UNSPLASH_KEY);
-        var data=await r.json();
-        if(!data.results||!data.results.length){ res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:10px;">No results. Try "truck" or "highway".</div>'; return; }
-        res.innerHTML=data.results.map(function(p){
-            return '<div class="illus-thumb" onclick="rbApplyPhoto(\''+p.urls.regular+'\',\''+p.id+'\')" style="background-image:url('+p.urls.thumb+');background-size:cover;background-position:center;" title="'+( p.alt_description||p.user.name)+'"></div>';
-        }).join('')+'<div style="grid-column:1/-1;font-size:7px;color:#334155;">Photos: <a href="https://unsplash.com" target="_blank" style="color:#475569;">Unsplash</a></div>';
-    } catch(e){ res.innerHTML='<div style="grid-column:1/-1;color:#f87171;font-size:10px;">Search failed.</div>'; }
-}
-
-function rbApplyPhoto(url,id){
-    rb_activeIllusId='unsplash_'+id;
-    var img=new Image(); img.crossOrigin='anonymous';
-    img.onload=function(){
-        if(rb_bgScope==='all'){ rb_allImage=img; rb_slideImages={}; }
-        else { rb_slideImages[rb_activeSlide]=img; rb_allImage=null; }
-        rbDraw(rb_activeSlide);
-    };
-    img.onerror=function(){ toast('Could not load photo','red'); };
-    img.src=url;
-}
-
-function rbApplyIllus(id){
-    rb_activeIllusId=id; rb_allImage=null;
-    if(rb_bgScope==='all') rb_slideImages={};
-    else rb_slideImages[rb_activeSlide]=null;
-    document.querySelectorAll('#rb_illusGrid .illus-thumb').forEach(function(t){ t.classList.remove('active-illus'); if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes('\''+id+'\'')) t.classList.add('active-illus'); });
-    rbDraw(rb_activeSlide);
-}
-
-function rbDraw(idx){
-    if(!rb_canvas||!rb_ctx) return;
-    var sl=rb_slides[idx]; if(!sl) return;
-    var st=RB_STYLES[rb_style], ctx=rb_ctx, W=rb_W, H=rb_H;
-    ctx.clearRect(0,0,W,H);
-    // BG gradient
-    var bgC=st.bgGrad||[st.bg,st.bg];
-    if(sl.type==='hook'||sl.type==='cta') bgC=st.hookBg||bgC;
-    else if(sl.type==='numbers')          bgC=st.numBg||bgC;
-    else if(sl.type==='stat')             bgC=st.statBg||bgC;
-    var g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,bgC[0]); g.addColorStop(1,bgC[1]);
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    // Photo BG
-    var photo=rb_allImage||rb_slideImages[idx];
-    if(photo){
-        ctx.save(); ctx.globalAlpha=rb_bgOpacity;
-        var ir=photo.width/photo.height,cr=W/H,sw,sh,sx=0,sy=0;
-        if(ir>cr){ sh=photo.height; sw=sh*cr; sx=(photo.width-sw)/2; }
-        else      { sw=photo.width;  sh=sw/cr; sy=(photo.height-sh)/2; }
-        ctx.drawImage(photo,sx,sy,sw,sh,0,0,W,H);
-        ctx.globalAlpha=Math.min(rb_bgOpacity*2,0.65); ctx.fillStyle=bgC[0]; ctx.fillRect(0,0,W,H);
-        ctx.restore();
-    }
-    // SVG illus
-    if(!photo&&rb_activeIllusId&&rb_activeIllusId!=='none'&&rb_activeIllusId.indexOf('unsplash_')<0){
-        rbDrawIllus(ctx,rb_activeIllusId,W,H,st.accent,rb_bgOpacity);
-    }
-    // Grid
-    ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.lineWidth=1;
-    for(var gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
-    for(var gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
-    // Accent bar
-    if(st.accentLine){ ctx.fillStyle=st.accent; ctx.fillRect(0,0,14,H); }
-    // Brand bar
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,0,W-14,110);
-    ctx.fillStyle=st.brand; ctx.font="900 38px 'Outfit',Arial,sans-serif"; ctx.textAlign='left';
-    ctx.fillText('DYNAMIC FLEET REPORTING',60,72);
-    // Badge
-    var badges={hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
-    ctx.font="900 30px 'Outfit',Arial,sans-serif"; ctx.fillStyle=st.accent;
-    ctx.fillText(badges[sl.type]||sl.type.toUpperCase(),60,170);
-    // Slide num
-    ctx.font="700 28px 'Outfit',Arial,sans-serif"; ctx.fillStyle='rgba(255,255,255,0.2)';
-    ctx.textAlign='right'; ctx.fillText((idx+1)+' / '+rb_slides.length,W-50,170); ctx.textAlign='left';
-    // Divider
-    ctx.strokeStyle=st.accent; ctx.lineWidth=4;
-    ctx.beginPath(); ctx.moveTo(60,200); ctx.lineTo(W-60,200); ctx.stroke();
-    // Headline
-    var hLines=sl.headline?sl.headline.split('\n'):[''];
-    var hs=hLines.length>3?120:hLines.length>2?140:160;
-    ctx.fillStyle=st.headline; ctx.textAlign='left';
-    var hy=sl.sub?H*0.36:H*0.44;
-    hLines.forEach(function(line){ var fs=hs; ctx.font='900 '+fs+"px 'Outfit',Arial,sans-serif"; while(ctx.measureText(line).width>W-120&&fs>60){ fs-=4; ctx.font='900 '+fs+"px 'Outfit',Arial,sans-serif"; } ctx.fillText(line,60,hy); hy+=fs*1.2; });
-    // Subtext
-    if(sl.sub){ var sLines=sl.sub.split('\n'); var sy2=hy+60; ctx.fillStyle=st.sub; sLines.forEach(function(line){ var fs=52; ctx.font='600 '+fs+"px 'Outfit',Arial,sans-serif"; while(ctx.measureText(line).width>W-120&&fs>32){ fs-=2; ctx.font='600 '+fs+"px 'Outfit',Arial,sans-serif"; } ctx.fillText(line,60,sy2); sy2+=fs*1.4; }); }
-    // CTA
-    if(sl.type==='cta'){ ctx.fillStyle=st.accent; ctx.font="900 56px 'Outfit',Arial,sans-serif"; ctx.fillText('083 314 9592',60,H-220); ctx.fillStyle=st.sub; ctx.font="600 40px 'Outfit',Arial,sans-serif"; ctx.fillText('dynamicfleetreports@gmail.com',60,H-155); }
-    // Bottom bar
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,H-100,W-14,100);
-    ctx.fillStyle=st.brand; ctx.font="700 34px 'Outfit',Arial,sans-serif";
-    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit',60,H-38);
-}
-
-function rbDownload(){ if(!rb_canvas) return; rbDraw(rb_activeSlide); var a=document.createElement('a'); a.download='dfr-reel-slide-'+(rb_activeSlide+1)+'.png'; a.href=rb_canvas.toDataURL('image/png'); a.click(); toast('Slide '+(rb_activeSlide+1)+' downloaded ✓','green'); }
-async function rbDownloadAll(){
-    if(!rb_canvas){ toast('Canvas not ready','red'); return; }
-    toast('Downloading all slides...','green');
-    for(var i=0;i<rb_slides.length;i++){
-        rbDraw(i); await new Promise(function(r){ setTimeout(r,120); });
-        var a=document.createElement('a'); a.download='dfr-reel-slide-'+(i+1)+'-of-'+rb_slides.length+'.png'; a.href=rb_canvas.toDataURL('image/png'); a.click();
-        await new Promise(function(r){ setTimeout(r,300); });
-    }
-    rbDraw(rb_activeSlide); toast('All '+rb_slides.length+' slides downloaded ✓','green');
-}
-
-function rbCopyCaption(){
-    var cap=(document.getElementById('rb_caption')||{}).value||'';
-    var hash=(document.getElementById('rb_hashtags')||{}).value||'';
-    // Append partner link automatically
-    var link=_partnerLink?'\n\n🔗 '+_partnerLink:'';
-    var full=cap+(hash?'\n\n'+hash:'')+link;
-    navigator.clipboard.writeText(full).then(function(){ toast('Caption + hashtags + your link copied ✓','green'); });
-}
-
-function rbGetSvgThumb(id){
-    var c='#10b981';
-    var t={
-        semi_side:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="8" y="68" width="60" height="25" rx="3"/><rect fill="'+c+'" opacity=".8" x="68" y="72" width="32" height="21" rx="3"/><rect fill="rgba(255,255,255,.1)" x="78" y="74" width="16" height="14" rx="2"/><circle fill="#222" cx="22" cy="96" r="7"/><circle fill="'+c+'" opacity=".4" cx="22" cy="96" r="4"/><circle fill="#222" cx="80" cy="96" r="7"/><circle fill="'+c+'" opacity=".4" cx="80" cy="96" r="4"/>',
-        truck_front:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="24" y="60" width="60" height="80" rx="8"/><rect fill="rgba(255,255,255,.12)" x="34" y="68" width="40" height="28" rx="4"/><rect fill="'+c+'" opacity=".7" x="18" y="136" width="72" height="12" rx="4"/><circle fill="#222" cx="16" cy="150" r="10"/><circle fill="'+c+'" opacity=".4" cx="16" cy="150" r="5"/><circle fill="#222" cx="92" cy="150" r="10"/><circle fill="'+c+'" opacity=".4" cx="92" cy="150" r="5"/>',
-        fleet_row:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" x="4" y="90" width="80" height="20" rx="3"/><rect fill="'+c+'" opacity=".8" x="84" y="92" width="20" height="18" rx="3"/><rect fill="'+c+'" opacity=".6" x="14" y="72" width="62" height="16" rx="2"/><rect fill="'+c+'" opacity=".8" x="76" y="74" width="18" height="14" rx="2"/><rect fill="'+c+'" opacity=".4" x="22" y="57" width="46" height="13" rx="2"/>',
-        dashboard:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="none" stroke="'+c+'" stroke-width="6" cx="54" cy="96" r="32"/><line x1="54" y1="96" x2="54" y2="68" stroke="'+c+'" stroke-width="4"/><circle fill="'+c+'" cx="54" cy="96" r="5"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".5" cx="22" cy="80" r="14"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".5" cx="86" cy="80" r="14"/>',
-        highway:'<rect fill="#0a0a14" width="108" height="192"/><polygon fill="'+c+'" opacity=".15" points="0,192 108,192 80,80 28,80"/><rect fill="'+c+'" opacity=".4" x="50" y="80" width="8" height="20" rx="2"/><rect fill="'+c+'" opacity=".4" x="50" y="110" width="8" height="20" rx="2"/><rect fill="'+c+'" opacity=".4" x="50" y="140" width="8" height="20" rx="2"/>',
-        wheels:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="none" stroke="'+c+'" stroke-width="8" cx="54" cy="96" r="36"/><circle fill="none" stroke="'+c+'" stroke-width="3" opacity=".4" cx="54" cy="96" r="24"/><circle fill="'+c+'" cx="54" cy="96" r="10"/>',
-        cargo:'<rect fill="#0a0a14" width="108" height="192"/><rect fill="'+c+'" opacity=".2" x="10" y="50" width="88" height="100" rx="4"/><rect fill="'+c+'" opacity=".5" x="10" y="50" width="88" height="6" rx="2"/><rect fill="'+c+'" opacity=".3" x="18" y="60" width="18" height="82" rx="2"/><rect fill="'+c+'" opacity=".3" x="40" y="60" width="18" height="82" rx="2"/><rect fill="'+c+'" opacity=".3" x="62" y="60" width="18" height="82" rx="2"/>',
-        sunset_road:'<rect fill="#0a0a14" width="108" height="192"/><circle fill="'+c+'" opacity=".2" cx="54" cy="72" r="28"/><circle fill="'+c+'" opacity=".1" cx="54" cy="72" r="42"/><polygon fill="'+c+'" opacity=".08" points="0,192 108,192 108,90 0,90"/><rect fill="'+c+'" opacity=".5" x="46" y="90" width="16" height="28" rx="2"/><rect fill="'+c+'" opacity=".3" x="46" y="124" width="16" height="16" rx="2"/>',
-        speedometer:'<rect fill="#0a0a14" width="108" height="192"/><path fill="none" stroke="'+c+'" stroke-width="7" opacity=".3" d="M 16 110 A 38 38 0 0 1 92 110"/><path fill="none" stroke="'+c+'" stroke-width="7" d="M 16 110 A 38 38 0 0 1 62 75"/><circle fill="'+c+'" cx="54" cy="110" r="6"/>',
-        sa_map:'<rect fill="#0a0a14" width="108" height="192"/><path fill="'+c+'" opacity=".25" d="M30,55 L78,52 L88,65 L92,85 L85,105 L75,118 L65,128 L54,135 L42,128 L30,115 L22,95 L20,75 Z"/><circle fill="'+c+'" cx="54" cy="95" r="5"/><circle fill="none" stroke="'+c+'" stroke-width="2" cx="54" cy="95" r="10" opacity=".4"/>'
-    };
-    return t[id]||'<rect fill="#0a0a14" width="108" height="192"/>';
-}
-
-function rbDrawIllus(ctx,id,W,H,color,op){
-    ctx.save(); ctx.globalAlpha=op;
-    var s=W/1080;
-    function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath(); ctx.fill(); }
-    function wheel(cx,cy,r){ ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=3*s; ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,r*0.28,0,Math.PI*2); ctx.fill(); }
-    ctx.fillStyle=color;
-    if(id==='semi_side'){
-        ctx.globalAlpha=op*0.25; ctx.fillRect(0,H*0.72,W,H*0.013); ctx.globalAlpha=op;
-        rr(W*0.06,H*0.56,W*0.47,H*0.155,12*s);
-        ctx.fillStyle='rgba(255,255,255,0.08)'; rr(W*0.54,H*0.555,W*0.38,H*0.16,16*s);
-        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(W*0.81,H*0.568,W*0.09,H*0.1,8*s);
-        ctx.fillStyle=color; wheel(W*0.17,H*0.718,H*0.042); wheel(W*0.29,H*0.718,H*0.042); wheel(W*0.69,H*0.718,H*0.042); wheel(W*0.82,H*0.718,H*0.042);
-    } else if(id==='truck_front'){
-        var cx=W*0.5,ty=H*0.35; rr(cx-W*0.22,ty,W*0.44,H*0.33,22*s);
-        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(cx-W*0.14,ty+H*0.02,W*0.28,H*0.14,12*s);
-        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=4*s;
-        for(var i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(cx-W*0.19,ty+H*0.19+i*H*0.024); ctx.lineTo(cx+W*0.19,ty+H*0.19+i*H*0.024); ctx.stroke(); }
-        ctx.fillStyle=color; wheel(cx-W*0.27,ty+H*0.27,H*0.075); wheel(cx+W*0.27,ty+H*0.27,H*0.075);
-    } else if(id==='fleet_row'){
-        [{x:W*0.04,y:H*0.54,w:W*0.56,h:H*0.14,sc:1},{x:W*0.18,y:H*0.41,w:W*0.43,h:H*0.11,sc:0.78},{x:W*0.3,y:H*0.31,w:W*0.33,h:H*0.085,sc:0.6}].forEach(function(t){
-            ctx.fillStyle=color; rr(t.x,t.y,t.w*0.72,t.h,8*s*t.sc);
-            ctx.fillStyle='rgba(255,255,255,0.08)'; rr(t.x+t.w*0.73,t.y,t.w*0.27,t.h,8*s*t.sc);
-            var wr=t.h*0.32; wheel(t.x+t.w*0.12,t.y+t.h+wr*0.1,wr); wheel(t.x+t.w*0.28,t.y+t.h+wr*0.1,wr); wheel(t.x+t.w*0.78,t.y+t.h+wr*0.1,wr);
-        });
-    } else if(id==='dashboard'){
-        var cx2=W*0.5,cy2=H*0.5; ctx.strokeStyle=color; ctx.lineWidth=18*s; ctx.beginPath(); ctx.arc(cx2,cy2,W*0.24,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=8*s; for(var j=0;j<3;j++){ var a=j*(Math.PI*2/3)-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx2,cy2); ctx.lineTo(cx2+Math.cos(a)*W*0.24,cy2+Math.sin(a)*W*0.24); ctx.stroke(); } ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx2,cy2,W*0.05,0,Math.PI*2); ctx.fill();
-    } else if(id==='highway'){
-        ctx.globalAlpha=op*0.1; ctx.fillStyle=color; ctx.beginPath(); ctx.moveTo(0,H*0.65); ctx.lineTo(W,H*0.65); ctx.lineTo(W*0.75,H*0.4); ctx.lineTo(W*0.25,H*0.4); ctx.fill(); ctx.globalAlpha=op*0.5; for(var d=0;d<5;d++) rr(W*0.47,H*0.42+d*H*0.05,W*0.06,H*0.03,4*s);
-    } else if(id==='wheels'){
-        var cx3=W*0.5,cy3=H*0.5; ctx.strokeStyle=color; ctx.lineWidth=10*s; ctx.beginPath(); ctx.arc(cx3,cy3,W*0.38,0,Math.PI*2); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx3,cy3,W*0.065,0,Math.PI*2); ctx.fill(); ctx.lineWidth=6*s; [0,60,120,180,240,300].forEach(function(ang){ ctx.beginPath(); ctx.moveTo(cx3,cy3); ctx.lineTo(cx3+Math.cos(ang*Math.PI/180)*W*0.38,cy3+Math.sin(ang*Math.PI/180)*W*0.38); ctx.stroke(); });
-    } else if(id==='cargo'){
-        rr(W*0.08,H*0.35,W*0.84,H*0.36,12*s); ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s; for(var k=1;k<4;k++){ ctx.beginPath(); ctx.moveTo(W*0.08+k*(W*0.84/4),H*0.35); ctx.lineTo(W*0.08+k*(W*0.84/4),H*0.71); ctx.stroke(); }
-    } else if(id==='sunset_road'){
-        ctx.globalAlpha=op*0.2; var rg=ctx.createRadialGradient(W*0.5,H*0.38,0,W*0.5,H*0.38,W*0.45); rg.addColorStop(0,color); rg.addColorStop(1,'transparent'); ctx.fillStyle=rg; ctx.fillRect(0,0,W,H); ctx.globalAlpha=op*0.35; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.38,W*0.14,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=op*0.5; for(var d2=0;d2<5;d2++) rr(W*0.47,H*0.55+d2*H*0.09,W*0.06,H*0.04,4*s);
-    } else if(id==='speedometer'){
-        var cx4=W*0.5,cy4=H*0.52; ctx.strokeStyle=color; ctx.globalAlpha=op*0.3; ctx.lineWidth=14*s; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.34,Math.PI*0.85,Math.PI*0.15); ctx.stroke(); ctx.globalAlpha=op; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.34,Math.PI*0.85,Math.PI*1.6); ctx.stroke(); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=7*s; var na=Math.PI*0.85+Math.PI*0.75*0.68; ctx.beginPath(); ctx.moveTo(cx4,cy4); ctx.lineTo(cx4+Math.cos(na)*W*0.3,cy4+Math.sin(na)*W*0.3); ctx.stroke(); ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx4,cy4,W*0.04,0,Math.PI*2); ctx.fill();
-    } else if(id==='sa_map'){
-        ctx.globalAlpha=op*0.3; ctx.beginPath(); ctx.moveTo(W*0.28,H*0.28); ctx.lineTo(W*0.72,H*0.26); ctx.lineTo(W*0.85,H*0.36); ctx.lineTo(W*0.88,H*0.46); ctx.lineTo(W*0.82,H*0.58); ctx.lineTo(W*0.72,H*0.68); ctx.lineTo(W*0.6,H*0.76); ctx.lineTo(W*0.5,H*0.8); ctx.lineTo(W*0.4,H*0.76); ctx.lineTo(W*0.28,H*0.66); ctx.lineTo(W*0.18,H*0.54); ctx.lineTo(W*0.15,H*0.42); ctx.closePath(); ctx.fill(); ctx.globalAlpha=op; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.04,0,Math.PI*2); ctx.fill();
-    }
-    ctx.restore();
-}
-
+// Activate FB tab on load
+document.addEventListener('DOMContentLoaded', function() {
+    var fb = document.getElementById('section-fb');
+    if (fb) fb.classList.add('active');
+});
+</script>
 </body>
 </html>
