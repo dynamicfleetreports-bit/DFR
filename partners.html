@@ -835,7 +835,7 @@ function notifyWA(msg, toPhone){
     var url = APPS_URL
         + '?action=whatsapp'
         + '&message=' + encodeURIComponent(msg)
-        + '&phone='   + encodeURIComponent(OWNER_NUMBER);
+        + '&phone='   + encodeURIComponent(DFR_OWNER_PHONE);
     return fetch(url, {method:'get', mode:'no-cors'})
         .then(function(){ return {success:true}; })
         .catch(function(e){ return {success:false}; });
