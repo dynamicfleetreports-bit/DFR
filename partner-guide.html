@@ -472,8 +472,10 @@ var PAGES=14;
 var IDS=["welcome","yourlink","portal","marketing","reel","community","referring","pipeline","commission","statements","bonus","agreement","faq","quickref"];
 function go(n){
   if(n<0||n>=PAGES) return;
-  document.querySelector('.page.on').classList.remove('on');
-  document.querySelector('.si.on').classList.remove('on');
+  var curPage=document.querySelector('.page.on');
+  var curSi=document.querySelector('.si.on');
+  if(curPage) curPage.classList.remove('on');
+  if(curSi) curSi.classList.remove('on');
   cur=n;
   document.getElementById('page-'+IDS[cur]).classList.add('on');
   document.getElementById('si-'+IDS[cur]).classList.add('on');
