@@ -7,7 +7,7 @@
     <title>Marketing Hub | Dynamic Fleet Reporting</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--pink:#ec4899;--txt:#e2e8f0;--mut:#64748b;}
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--txt:#e2e8f0;--mut:#64748b;}
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;}
         #sidebar{width:260px;background:var(--panel);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
@@ -20,110 +20,13 @@
         .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
         .page-title span{color:var(--grn);}
         .page-sub{font-size:13px;color:#64748b;margin-top:0.5rem;font-weight:600;}
-
-        /* Section tabs */
+        /* Tabs */
         .section-tabs{display:flex;gap:6px;margin:1.5rem 0;border-bottom:1px solid var(--brd);padding-bottom:1rem;flex-wrap:wrap;}
         .stab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
         .stab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
         .stab.active{background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.35);color:var(--grn);}
-        .stab.manage.active{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.35);color:#c4b5fd;}
-        .stab.reel.active, #stab-reel.active{background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.35);color:#f472b6;}
+        .stab.s-manage.active{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.35);color:#c4b5fd;}
         .tab-section{display:none;}.tab-section.active{display:block;}
-
-        /* ══ REEL BUILDER ═══════════════════════════════════════════════════ */
-        .rb-layout{display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start;}
-        @media(max-width:1100px){.rb-layout{grid-template-columns:1fr;}}
-
-        /* Left panel — editor */
-        .rb-editor{min-width:0;}
-        .rb-toolbar{display:flex;gap:0.6rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
-        .rb-script-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:200px;}
-        .rb-script-select option{background:#0f172a;}
-
-        /* Style picker */
-        .style-row{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;}
-        .style-btn{padding:7px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
-        .style-btn.active{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
-        .sb-dark{background:#000;color:#10b981;border-color:#10b981;}
-        .sb-dark.active{box-shadow:0 4px 16px rgba(16,185,129,0.4);}
-        .sb-aggro{background:#111;color:#ef4444;border-color:#ef4444;}
-        .sb-aggro.active{box-shadow:0 4px 16px rgba(239,68,68,0.4);}
-        .sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}
-        .sb-navy.active{box-shadow:0 4px 16px rgba(59,130,246,0.4);}
-        .sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}
-        .sb-light.active{box-shadow:0 4px 16px rgba(255,255,255,0.2);}
-        .sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}
-        .sb-custom.active{box-shadow:0 4px 16px rgba(139,92,246,0.4);}
-
-        /* Custom colour pickers */
-        .custom-colours{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:1rem;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;align-items:center;}
-        .custom-colours.show{display:flex;}
-        .cc-item{display:flex;flex-direction:column;gap:4px;align-items:center;}
-        .cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
-        .cc-swatch{width:36px;height:36px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
-
-        /* Slides list */
-        .slides-list{display:flex;flex-direction:column;gap:0.6rem;}
-        .slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1rem;transition:border-color 0.2s;}
-        .slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.06);}
-        .slide-item-head{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;}
-        .slide-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.08);font-size:10px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .slide-type-select{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
-        .slide-type-select option{background:#0f172a;}
-        .slide-del{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;margin-left:auto;padding:2px 6px;border-radius:4px;transition:color 0.2s;}
-        .slide-del:hover{color:#f87171;}
-        .slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:4px;transition:color 0.2s;}
-        .slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
-        .slide-headline-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 9px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;outline:none;margin-bottom:4px;transition:border-color 0.2s;}
-        .slide-headline-input:focus{border-color:rgba(236,72,153,0.5);}
-        .slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:6px;padding:5px 9px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:12px;outline:none;resize:none;min-height:52px;transition:border-color 0.2s;}
-        .slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
-        .add-slide-btn{background:rgba(236,72,153,0.1);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:9px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;transition:all 0.2s;margin-top:0.5rem;}
-        .add-slide-btn:hover{background:rgba(236,72,153,0.18);}
-
-        /* Caption box */
-        .caption-box{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-top:1.25rem;}
-        .caption-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.5rem;}
-        .caption-textarea{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:8px;padding:10px 12px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:80px;outline:none;}
-        .caption-textarea:focus{border-color:rgba(236,72,153,0.4);}
-        .hashtag-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;margin-top:6px;}
-        .hashtag-input:focus{border-color:rgba(236,72,153,0.4);}
-
-        /* Right panel — preview */
-        .rb-preview-panel{position:sticky;top:2rem;}
-        .rb-preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.08);}
-        .rb-canvas-container{position:absolute;inset:0;}
-        #reelCanvas{width:100%;height:100%;display:block;}
-        .slide-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1rem;}
-        .slide-nav-btn{background:rgba(255,255,255,0.08);border:1px solid var(--brd);color:#e2e8f0;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-        .slide-nav-btn:hover{background:rgba(255,255,255,0.15);}
-        .slide-nav-btn:disabled{opacity:0.3;cursor:default;}
-        .slide-counter{font-size:12px;font-weight:700;color:#64748b;}
-        .rb-dl-btn{width:100%;background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.35);color:#f472b6;padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.75rem;}
-        .rb-dl-btn:hover{background:rgba(236,72,153,0.25);}
-        .rb-dl-all-btn{width:100%;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:var(--grn);padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.5rem;}
-        .rb-dl-all-btn:hover{background:rgba(16,185,129,0.25);}
-        .rb-copy-caption-btn{width:100%;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:var(--gld);padding:10px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-top:0.5rem;}
-        .rb-copy-caption-btn:hover{background:rgba(245,158,11,0.25);}
-        .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.6rem;line-height:1.5;font-weight:600;}
-
-        /* Illustration picker */
-        .illus-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
-        .illus-picker-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;}
-        .illus-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
-        .illus-thumb{width:100%;aspect-ratio:9/16;border-radius:6px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
-        .illus-thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-2px);}
-        .illus-thumb.active-illus{border-color:#f472b6;box-shadow:0 0 12px rgba(236,72,153,0.4);}
-        .illus-thumb svg{width:100%;height:100%;display:block;}
-        .illus-none{display:flex;align-items:center;justify-content:center;font-size:20px;color:#475569;background:rgba(255,255,255,0.03);}
-        .illus-label{font-size:8px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:3px;letter-spacing:0.04em;}
-        .illus-scope-row{display:flex;gap:6px;margin-bottom:0.6rem;}
-        .illus-scope-btn{padding:4px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
-        .illus-scope-btn.active{background:rgba(236,72,153,0.12);border-color:rgba(236,72,153,0.35);color:#f472b6;}
-        .illus-opacity-row{display:flex;align-items:center;gap:0.75rem;margin-top:0.6rem;}
-        .illus-opacity-label{font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;}
-        .illus-opacity-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
-
         /* Platform tabs */
         .plat-bar{display:flex;gap:5px;margin-bottom:1.25rem;flex-wrap:wrap;}
         .ptab{padding:7px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1.5px solid rgba(255,255,255,0.1);color:#64748b;background:none;transition:all 0.2s;}
@@ -135,24 +38,31 @@
         .ptab-tt.active{background:rgba(255,255,255,0.08);border-color:white;color:white;}
         .ptab-email.active{background:rgba(245,158,11,0.15);border-color:#f59e0b;color:#fbbf24;}
         .plat-section{display:none;}.plat-section.active{display:block;}
-
-        /* Platform banner */
-        .platform-banner{border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+        /* Banners */
+        .bio-banner{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
+        .reel-banner{background:linear-gradient(135deg,rgba(236,72,153,0.12),rgba(139,92,246,0.08));border:1.5px solid rgba(236,72,153,0.3);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;}
+        .btn-reel{background:linear-gradient(135deg,#ec4899,#8b5cf6);color:white;border:none;padding:12px 28px;border-radius:10px;font-size:12px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:0.06em;transition:all 0.2s;text-decoration:none;display:inline-block;white-space:nowrap;}
+        .btn-reel:hover{opacity:0.88;transform:translateY(-1px);}
+        .platform-banner{border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
         .pb-fb{background:linear-gradient(135deg,rgba(24,119,242,0.12),rgba(24,119,242,0.04));border:1px solid rgba(24,119,242,0.25);}
         .pb-li{background:linear-gradient(135deg,rgba(0,119,181,0.12),rgba(0,119,181,0.04));border:1px solid rgba(0,119,181,0.25);}
         .pb-ig{background:linear-gradient(135deg,rgba(236,72,153,0.12),rgba(236,72,153,0.04));border:1px solid rgba(236,72,153,0.25);}
         .pb-wa{background:linear-gradient(135deg,rgba(37,211,102,0.12),rgba(37,211,102,0.04));border:1px solid rgba(37,211,102,0.25);}
         .pb-tt{background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.12);}
         .pb-email{background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.04));border:1px solid rgba(245,158,11,0.25);}
-        .pb-title{font-size:1.3rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;}
+        .pb-title{font-size:1.2rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;}
         .pb-meta{font-size:11px;color:rgba(255,255,255,0.4);font-weight:700;margin-top:2px;}
         .pb-tip{background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 14px;font-size:11px;color:rgba(255,255,255,0.55);max-width:320px;line-height:1.5;font-weight:600;}
         .pb-tip strong{color:var(--grn);}
-
-        /* Bio link banner */
-        .bio-banner{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:1rem;padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
-
-        /* Post grid */
+        /* Tips */
+        .tips-box{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.25rem;}
+        .tips-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#818cf8;margin-bottom:0.75rem;}
+        .tips-list{display:flex;flex-direction:column;gap:6px;}
+        .tips-list li{font-size:12px;color:rgba(255,255,255,0.5);font-weight:600;list-style:none;padding-left:1.25rem;position:relative;}
+        .tips-list li::before{content:'→';position:absolute;left:0;color:#818cf8;}
+        .wa-note{background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);border-radius:8px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:1rem;font-weight:600;}
+        .wa-note strong{color:#4ade80;}
+        /* Post cards */
         .posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(500px,1fr));gap:1.25rem;}
         .post-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;transition:border-color 0.2s;}
         .post-card:hover{border-color:rgba(255,255,255,0.14);}
@@ -161,11 +71,10 @@
         .post-card-body{padding:16px;}
         .post-preview{background:#000d1a;border-radius:8px;padding:14px;font-size:13px;line-height:1.7;color:#cbd5e1;white-space:pre-wrap;max-height:280px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);}
         .post-footer{padding:12px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-        .btn-copy{background:var(--grn);color:#020617;border:none;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;letter-spacing:0.05em;}
+        .btn-copy{background:var(--grn);color:#020617;border:none;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
         .btn-copy:hover{background:var(--gd);}
         .btn-copy.copied{background:#6366f1;}
         .hashtag-wrap{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 10px;font-size:10px;color:#64748b;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-
         /* Email cards */
         .email-card{background:rgba(30,41,59,0.5);border:1px solid var(--brd);border-radius:1rem;overflow:hidden;margin-bottom:1.25rem;}
         .email-card-head{padding:14px 20px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
@@ -173,31 +82,23 @@
         .email-when{font-size:10px;font-weight:900;padding:4px 10px;border-radius:4px;background:rgba(245,158,11,0.1);color:#f59e0b;text-transform:uppercase;}
         .email-body-wrap{padding:16px 20px;}
         .email-preview{background:#000d1a;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;color:#cbd5e1;white-space:pre-wrap;max-height:360px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);}
-        .email-footer{padding:12px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-
-        /* Tips box */
-        .tips-box{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:1rem;padding:1.25rem 1.5rem;margin-bottom:1.5rem;}
-        .tips-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#818cf8;margin-bottom:0.75rem;}
-        .tips-list{display:flex;flex-direction:column;gap:6px;}
-        .tips-list li{font-size:12px;color:rgba(255,255,255,0.5);font-weight:600;list-style:none;padding-left:1.25rem;position:relative;}
-        .tips-list li::before{content:'→';position:absolute;left:0;color:#818cf8;}
-
-        /* ══ MANAGE POSTS TAB ══════════════════════════════════════════════ */
-        .manage-toolbar{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+        .email-footer{padding:12px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;}
+        /* Manage tab */
+        .mstats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem;}
+        .mstat{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;text-align:center;}
+        .mstat-val{font-size:1.6rem;font-weight:900;font-style:italic;color:white;}
+        .mstat-val.grn{color:var(--grn);}.mstat-val.gld{color:var(--gld);}.mstat-val.pur{color:#c4b5fd;}
+        .mstat-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-top:3px;}
+        .manage-toolbar{display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
         .btn{padding:9px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
-        .btn-pur{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);}
-        .btn-pur:hover{background:rgba(139,92,246,0.25);}
-        .btn-green{background:var(--grn);color:#020617;}
-        .btn-green:hover{background:var(--gd);}
-        .btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;}
-        .btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
+        .btn-green{background:var(--grn);color:#020617;}.btn-green:hover{background:var(--gd);}
+        .btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;}.btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
+        .btn-pur{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);}.btn-pur:hover{background:rgba(139,92,246,0.25);}
         .filter-bar{display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap;}
         .fbtn{padding:5px 14px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
         .fbtn.active{border-color:rgba(139,92,246,0.4);background:rgba(139,92,246,0.1);color:#c4b5fd;}
         .fbtn:hover{color:#e2e8f0;}
-
-        /* Manage post card */
-        .mpost-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:0.75rem;transition:border-color 0.2s;}
+        .mpost-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:0.75rem;}
         .mpost-card:hover{border-color:rgba(255,255,255,0.1);}
         .mpost-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:0.5rem;}
         .mpost-meta{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
@@ -206,23 +107,14 @@
         .pb-draft{background:rgba(245,158,11,0.15);color:var(--gld);}
         .mpost-actions{display:flex;gap:6px;}
         .btn-sm{padding:5px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
-        .bsb{background:rgba(59,130,246,0.15);color:#60a5fa;}
-        .bsb:hover{background:rgba(59,130,246,0.25);}
-        .bsr{background:rgba(239,68,68,0.1);color:#f87171;}
-        .bsr:hover{background:rgba(239,68,68,0.2);}
-        .bsg{background:rgba(16,185,129,0.15);color:var(--grn);}
-        .bsg:hover{background:rgba(16,185,129,0.25);}
-        .bsgd{background:rgba(245,158,11,0.15);color:var(--gld);}
-        .bsgd:hover{background:rgba(245,158,11,0.25);}
-        .mpost-body{padding:12px 16px;font-size:12.5px;color:#94a3b8;white-space:pre-wrap;max-height:120px;overflow:hidden;line-height:1.6;position:relative;}
-        .mpost-body.expanded{max-height:none;}
-        .mpost-fade{position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,rgba(15,23,42,0.95));pointer-events:none;}
+        .bsb{background:rgba(59,130,246,0.15);color:#60a5fa;}.bsb:hover{background:rgba(59,130,246,0.25);}
+        .bsr{background:rgba(239,68,68,0.1);color:#f87171;}.bsr:hover{background:rgba(239,68,68,0.2);}
+        .bsg{background:rgba(16,185,129,0.15);color:var(--grn);}.bsg:hover{background:rgba(16,185,129,0.25);}
+        .bsgd{background:rgba(245,158,11,0.15);color:var(--gld);}.bsgd:hover{background:rgba(245,158,11,0.25);}
+        .mpost-body{padding:12px 16px;font-size:12.5px;color:#94a3b8;white-space:pre-wrap;max-height:100px;overflow:hidden;line-height:1.6;}
         .mpost-foot{padding:8px 16px;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;font-size:10px;color:#475569;flex-wrap:wrap;gap:0.5rem;}
-
-        /* Empty state */
         .empty-state{text-align:center;padding:3rem 2rem;color:#64748b;}
         .empty-state .icon{font-size:2.5rem;margin-bottom:0.75rem;}
-
         /* Modal */
         .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;}
         .modal-overlay.open{display:flex;}
@@ -235,21 +127,9 @@
         .form-group textarea{resize:vertical;min-height:160px;}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
         .modal-footer{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap;}
-
         /* Toast */
         .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
         .toast.show{transform:translateY(0);opacity:1;}
-
-        /* WA note */
-        .wa-note{background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);border-radius:8px;padding:12px 14px;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:1rem;font-weight:600;}
-        .wa-note strong{color:#4ade80;}
-
-        /* Stats row in manage */
-        .mstats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem;}
-        .mstat{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;text-align:center;}
-        .mstat-val{font-size:1.6rem;font-weight:900;font-style:italic;color:white;}
-        .mstat-val.grn{color:var(--grn);} .mstat-val.gld{color:var(--gld);} .mstat-val.pur{color:#c4b5fd;}
-        .mstat-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;margin-top:3px;}
     </style>
 </head>
 <body>
@@ -273,34 +153,36 @@
 <main class="main">
     <div class="eyebrow">Client Acquisition</div>
     <h1 class="page-title">Marketing <span>Hub</span></h1>
-    <p class="page-sub">Ready-to-post content for every platform. Manage all posts from ✏️ Manage Posts — changes sync to partners instantly on publish.</p>
+    <p class="page-sub">Ready-to-post content for every platform. Manage posts from ✏️ Manage Posts — changes sync to partners on publish.</p>
+
+    <!-- Reel Builder Banner -->
+    <div class="reel-banner">
+        <div>
+            <div style="font-size:1.3rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">🎬 Reel Builder</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;">Build vertical reels for TikTok, Instagram Reels & Facebook Reels. 20 backgrounds, 5 styles, download-ready slides. Partners can use it too.</div>
+        </div>
+        <a href="reel-builder.html" class="btn-reel" target="_blank">🎬 Open Reel Builder →</a>
+    </div>
 
     <!-- Section Tabs -->
     <div class="section-tabs">
-        <button class="stab active"  onclick="switchSection('view',this)">📣 View Posts</button>
-        <button class="stab manage"  onclick="switchSection('manage',this)">✏️ Manage Posts</button>
-        <button class="stab" style="border-color:rgba(236,72,153,0.3);color:#64748b;" id="stab-reel" onclick="switchSection('reel',this)">🎬 Reel Builder</button>
+        <button class="stab active"   onclick="switchSection('view',this)">📣 View Posts</button>
+        <button class="stab s-manage" onclick="switchSection('manage',this)">✏️ Manage Posts</button>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         VIEW POSTS SECTION
-    ════════════════════════════════════════════════════════ -->
+    <!-- VIEW POSTS -->
     <div class="tab-section active" id="tab-view">
-
-        <!-- Bio Link Banner -->
         <div class="bio-banner">
             <div style="font-size:2rem;">🔗</div>
             <div style="flex:1;min-width:200px;">
                 <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);margin-bottom:4px;">Your "Link in Bio" URL</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:10px;">Put this link in your Instagram bio, TikTok bio, and anywhere posts say "link in bio"</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:10px;">Use this in your Instagram bio, TikTok bio, and anywhere posts say "link in bio"</div>
                 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                     <div style="background:#000d1a;border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 16px;font-family:'Courier New',monospace;font-size:13px;color:#10b981;font-weight:700;flex:1;min-width:260px;word-break:break-all;">https://dynamicfleetreports-bit.github.io/DFR/discover.html</div>
                     <button onclick="copyBioLink(this)" style="background:var(--grn);color:#020617;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">📋 Copy Link</button>
                 </div>
             </div>
         </div>
-
-        <!-- Platform Tabs -->
         <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
             <div class="plat-bar" style="margin-bottom:0;flex:1;">
                 <button class="ptab ptab-fb active" onclick="switchPlat('fb',this)">📘 Facebook</button>
@@ -312,30 +194,22 @@
             </div>
             <button id="openPlatBtn" onclick="openPlat('fb')" style="background:rgba(16,185,129,0.15);color:var(--grn);border:1.5px solid rgba(16,185,129,0.4);padding:8px 18px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🚀 Open Facebook</button>
         </div>
-
-        <!-- Platform sections — rendered dynamically -->
         <div id="plat-fb"    class="plat-section active"></div>
         <div id="plat-li"    class="plat-section"></div>
         <div id="plat-ig"    class="plat-section"></div>
         <div id="plat-wa"    class="plat-section"></div>
         <div id="plat-tt"    class="plat-section"></div>
         <div id="plat-email" class="plat-section"></div>
+    </div>
 
-    </div><!-- /tab-view -->
-
-    <!-- ═══════════════════════════════════════════════════════
-         MANAGE POSTS SECTION
-    ════════════════════════════════════════════════════════ -->
+    <!-- MANAGE POSTS -->
     <div class="tab-section" id="tab-manage">
-
         <div class="mstats" id="manageStats"></div>
-
         <div class="manage-toolbar">
             <button class="btn btn-pur" onclick="openNewPostModal()">➕ New Post</button>
             <button class="btn btn-outline" onclick="loadPosts()">🔄 Refresh</button>
         </div>
-
-        <div class="filter-bar" id="filterBar">
+        <div class="filter-bar">
             <button class="fbtn active" onclick="filterPosts('all',this)">All</button>
             <button class="fbtn" onclick="filterPosts('live',this)">✅ Live</button>
             <button class="fbtn" onclick="filterPosts('draft',this)">📝 Draft</button>
@@ -346,149 +220,25 @@
             <button class="fbtn" onclick="filterPosts('tt',this)">🎵 TikTok</button>
             <button class="fbtn" onclick="filterPosts('email',this)">📧 Email</button>
         </div>
-
         <div id="managePostsList"></div>
+    </div>
 
-    </div><!-- /tab-manage -->
+</main>
 
-    <!-- ═══════════════════════════════════════════════════════
-         REEL BUILDER SECTION
-    ════════════════════════════════════════════════════════ -->
-    <div class="tab-section" id="tab-reel">
-
-        <div style="margin-bottom:1.5rem;">
-            <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:#f472b6;margin-bottom:0.4rem;">🎬 Reel Builder</div>
-            <div style="font-size:13px;color:#64748b;font-weight:600;">Build a vertical reel for TikTok, Instagram Reels or Facebook Reels. Load a script, customise each slide, pick your style, then download the slides and copy your caption.</div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="rb-toolbar">
-            <select class="rb-script-select" id="rb_scriptSelect" onchange="loadScript(this.value)">
-                <option value="">— Start blank —</option>
-                <option value="script1">Script #1: "The April Bomb" (30 sec)</option>
-                <option value="script2">Script #2: "The Driver Nobody Talks About" (45 sec)</option>
-                <option value="script3">Script #3: "The Maths" (20 sec)</option>
-            </select>
-            <button class="btn btn-outline" onclick="resetBuilder()" style="white-space:nowrap;">🔄 Reset</button>
-        </div>
-
-        <!-- Style Picker -->
-        <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;">Choose Style</div>
-        <div class="style-row">
-            <button class="style-btn sb-dark active" onclick="setStyle('dark',this)">⚫ Dark &amp; Bold</button>
-            <button class="style-btn sb-aggro"       onclick="setStyle('aggro',this)">🔴 Aggressive</button>
-            <button class="style-btn sb-navy"        onclick="setStyle('navy',this)">🔵 Clean Navy</button>
-            <button class="style-btn sb-light"       onclick="setStyle('light',this)">⚪ Light &amp; Clean</button>
-            <button class="style-btn sb-custom"      onclick="setStyle('custom',this)">🎨 Custom</button>
-        </div>
-
-        <!-- Custom colour pickers -->
-        <div class="custom-colours" id="customColours">
-            <div class="cc-item"><div class="cc-label">Background</div><input type="color" class="cc-swatch" id="cc_bg"      value="#1a0a2e" oninput="updateCustomStyle()"></div>
-            <div class="cc-item"><div class="cc-label">Headline</div>  <input type="color" class="cc-swatch" id="cc_head"    value="#ffffff" oninput="updateCustomStyle()"></div>
-            <div class="cc-item"><div class="cc-label">Subtext</div>   <input type="color" class="cc-swatch" id="cc_sub"     value="#cccccc" oninput="updateCustomStyle()"></div>
-            <div class="cc-item"><div class="cc-label">Accent</div>    <input type="color" class="cc-swatch" id="cc_accent"  value="#f59e0b" oninput="updateCustomStyle()"></div>
-            <div class="cc-item"><div class="cc-label">Brand text</div><input type="color" class="cc-swatch" id="cc_brand"   value="#f59e0b" oninput="updateCustomStyle()"></div>
-        </div>
-
-        <!-- Two-column layout -->
-        <div class="rb-layout">
-
-            <!-- LEFT: Slide editor -->
-            <div class="rb-editor">
-                <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.75rem;">Slides <span style="color:#475569;font-weight:600;">(click a slide to preview it →)</span></div>
-                <div class="slides-list" id="slidesList"></div>
-                <button class="add-slide-btn" onclick="addSlide()">➕ Add Slide</button>
-
-                <!-- Illustration Picker -->
-                <div class="illus-picker">
-                    <div class="illus-picker-title">🚛 Background Illustration</div>
-                    <div class="illus-scope-row">
-                        <button class="illus-scope-btn active" id="scopeThisBtn" onclick="setIllusScope('slide',this)">This slide only</button>
-                        <button class="illus-scope-btn"        id="scopeAllBtn"  onclick="setIllusScope('all',this)">Apply to all slides</button>
-                    </div>
-                    <div class="illus-grid" id="illusGrid"></div>
-                    <div class="illus-opacity-row">
-                        <span class="illus-opacity-label">Opacity</span>
-                        <input type="range" class="illus-opacity-slider" id="illusOpacity" min="5" max="60" value="22" oninput="updateIllusOpacity(this.value)">
-                        <span style="font-size:10px;font-weight:700;color:#64748b;width:28px;" id="illusOpacityVal">22%</span>
-                    </div>
-                </div>
-                <div class="caption-box">
-                    <div class="caption-label">Caption (paste into TikTok / Reels when uploading)</div>
-                    <textarea class="caption-textarea" id="rb_caption" placeholder="Write your caption here..."></textarea>
-                    <div class="caption-label" style="margin-top:0.75rem;">Hashtags</div>
-                    <input type="text" class="hashtag-input" id="rb_hashtags" placeholder="#FleetManagement #SouthAfrica #TruckingLife #Diesel #TransportSA">
-                </div>
-            </div>
-
-            <!-- RIGHT: Preview -->
-            <div class="rb-preview-panel">
-                <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.75rem;text-align:center;">Live Preview (9:16)</div>
-                <div class="rb-preview-wrap">
-                    <div class="rb-canvas-container">
-                        <canvas id="reelCanvas"></canvas>
-                    </div>
-                </div>
-                <div class="slide-nav">
-                    <button class="slide-nav-btn" id="rb_prev" onclick="navSlide(-1)">‹</button>
-                    <span class="slide-counter" id="rb_counter">Slide 1 of 1</span>
-                    <button class="slide-nav-btn" id="rb_next" onclick="navSlide(1)">›</button>
-                </div>
-                <button class="rb-dl-btn"        onclick="downloadSlide()">⬇️ Download This Slide</button>
-                <button class="rb-dl-all-btn"    onclick="downloadAllSlides()">⬇️ Download All Slides</button>
-                <button class="rb-copy-caption-btn" onclick="copyCaption()">📋 Copy Caption + Hashtags</button>
-                <div class="rb-hint">Upload slides 1 by 1 to TikTok as photos, or use a video editor (CapCut is free) to combine them into a reel. Paste caption when uploading.</div>
-            </div>
-
-        </div><!-- /rb-layout -->
-    </div><!-- /tab-reel -->
-
-<!-- New/Edit Post Modal -->
+<!-- Post Modal -->
 <div class="modal-overlay" id="postModal">
     <div class="modal">
         <div class="modal-title" id="postModalTitle">➕ New Post</div>
         <div class="form-row">
-            <div class="form-group">
-                <label>Platform *</label>
-                <select id="pm_platform">
-                    <option value="fb">📘 Facebook</option>
-                    <option value="li">💼 LinkedIn</option>
-                    <option value="ig">📸 Instagram</option>
-                    <option value="wa">💬 WhatsApp</option>
-                    <option value="tt">🎵 TikTok / Reels</option>
-                    <option value="email">📧 Email</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Tag / Label *</label>
-                <input type="text" id="pm_tag" placeholder="e.g. 💸 Money Shock">
-            </div>
+            <div class="form-group"><label>Platform *</label><select id="pm_platform" onchange="toggleEmailFields(this.value)"><option value="fb">📘 Facebook</option><option value="li">💼 LinkedIn</option><option value="ig">📸 Instagram</option><option value="wa">💬 WhatsApp</option><option value="tt">🎵 TikTok / Reels</option><option value="email">📧 Email</option></select></div>
+            <div class="form-group"><label>Tag / Label *</label><input type="text" id="pm_tag" placeholder="e.g. 💸 Money Shock"></div>
         </div>
-        <div class="form-group" id="pm_subject_group" style="display:none;">
-            <label>Email Subject Line</label>
-            <input type="text" id="pm_subject" placeholder="e.g. Your free fleet audit — here's how it works">
-        </div>
-        <div class="form-group" id="pm_when_group" style="display:none;">
-            <label>When to Send</label>
-            <input type="text" id="pm_when" placeholder="e.g. Send within 1 hour">
-        </div>
-        <div class="form-group">
-            <label>Post Content *</label>
-            <textarea id="pm_content" placeholder="Write your post here..."></textarea>
-        </div>
-        <div class="form-group">
-            <label>Hashtags</label>
-            <input type="text" id="pm_hashtags" placeholder="#FleetManagement #SouthAfrica #Transport">
-        </div>
-        <div class="form-group">
-            <label>Post Number / Order Label</label>
-            <input type="text" id="pm_order" placeholder="e.g. Post #1 — Use this first">
-        </div>
-        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#fbbf24;font-weight:600;line-height:1.6;">
-            💡 <strong>Save as Draft</strong> stores the post but keeps it hidden from partners.<br>
-            <strong>Save &amp; Publish</strong> makes it live in the partner hub immediately.
-        </div>
+        <div class="form-group" id="pm_subj_grp" style="display:none;"><label>Email Subject Line</label><input type="text" id="pm_subject" placeholder="e.g. Your free fleet audit"></div>
+        <div class="form-group" id="pm_when_grp" style="display:none;"><label>When to Send</label><input type="text" id="pm_when" placeholder="e.g. Send within 1 hour"></div>
+        <div class="form-group"><label>Post Content *</label><textarea id="pm_content" placeholder="Write your post here..."></textarea></div>
+        <div class="form-group"><label>Hashtags</label><input type="text" id="pm_hashtags" placeholder="#FleetManagement #SouthAfrica #Transport"></div>
+        <div class="form-group"><label>Order / Label</label><input type="text" id="pm_order" placeholder="e.g. Post #1 — Use this first"></div>
+        <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#fbbf24;font-weight:600;line-height:1.6;">💡 <strong>Save as Draft</strong> hides from partners. <strong>Save &amp; Publish</strong> makes it live immediately.</div>
         <div class="modal-footer">
             <button class="btn btn-outline" onclick="closeModal('postModal')">Cancel</button>
             <button class="btn" style="background:rgba(245,158,11,0.15);color:var(--gld);border:1px solid rgba(245,158,11,0.3);" onclick="savePost(false)">💾 Save as Draft</button>
@@ -496,1765 +246,123 @@
         </div>
     </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Constants ─────────────────────────────────────────────────────────────────
-const POSTS_KEY = 'DFR_MARKETING_POSTS';
+const POSTS_KEY  = 'DFR_MARKETING_POSTS';
 const PLAT_NAMES = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels',email:'Email'};
 const PLAT_ICONS = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵',email:'📧'};
-const PLAT_URLS  = {fb:'https://www.facebook.com',li:'https://www.linkedin.com/feed/',ig:'https://www.instagram.com',wa:'https://web.whatsapp.com',tt:'https://www.tiktok.com',email:'https://mail.google.com'};
-const PLAT_TIPS  = {
-    fb:{times:'Best times: Tue–Thu · 12pm–2pm & 6pm–8pm · Post 3x per week',tip:'<strong>Your best platform.</strong> SA fleet owners are 35–55, very active on Facebook. Groups like "SA Trucking" and "Transport SA" are gold — join them and post there too.'},
-    li:{times:'Best times: Tue–Thu · 8am–10am · Post 2x per week',tip:'<strong>Target audience here:</strong> Transport managers, logistics directors, ops managers. Be professional but personal. Stories outperform statistics.'},
-    ig:{times:'Best times: Mon, Wed, Fri · 7pm–9pm · Post 4x per week',tip:'<strong>Keep it punchy.</strong> Instagram is visual first — pair these captions with a photo of a truck or a report screenshot. Short hooks in the first line are everything.'},
-    wa:{times:'Status: Daily · Direct message: As needed · Groups: 2–3x per week',tip:'<strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts. Fleet owner groups are pure gold.'},
-    tt:{times:'Best times: Mon–Fri · 6pm–10pm · Post 3–5x per week',tip:'<strong>Fastest growing reach in SA.</strong> Point-to-text videos of fleet stats go viral. Post the same video to Instagram Reels — double the reach for zero extra work.'},
-    email:{times:'Respond within 1 hour of any enquiry · Follow up at Day 1, 3, 7, 14',tip:'<strong>Speed is everything.</strong> Responding within 1 hour increases conversion by 7x vs 24 hours. Have these saved and ready.'}
+const PLAT_OPEN  = {fb:'https://www.facebook.com',li:'https://www.linkedin.com/feed/',ig:'https://www.instagram.com',wa:'https://web.whatsapp.com',tt:'https://www.tiktok.com',email:'https://mail.google.com'};
+const PLAT_CFG = {
+    fb:{banner:'pb-fb',color:'#60a5fa',times:'Best times: Tue–Thu · 12pm–2pm & 6pm–8pm · 3x per week',tip:'<strong>Your best platform.</strong> SA fleet owners are 35–55, very active on Facebook. Post in SA trucking groups too.',tips:['Always end with a call to action — "Comment YES if you want in"','Post in SA trucking Facebook groups — massive free reach','Reply to every comment within 1 hour — the algorithm rewards it','A real truck photo beats a stock image every time']},
+    li:{banner:'pb-li',color:'#38bdf8',times:'Best times: Tue–Thu · 8am–10am · 2x per week',tip:'<strong>Target audience:</strong> Transport managers, logistics directors. Be professional but personal.',tips:['Connect with transport managers and fleet directors — 20/day','Comment on transport posts before posting your own','LinkedIn rewards long-form content','End every post with a direct question to drive comments']},
+    ig:{banner:'pb-ig',color:'#f472b6',times:'Best times: Mon/Wed/Fri · 7pm–9pm · 4x per week',tip:'<strong>Keep it punchy.</strong> Pair captions with a truck photo. Short hooks in the first line are everything.',tips:['First line is everything — Instagram cuts off after 2 lines','Use 20–25 hashtags — mix big (#trucking) with niche (#SATrucking)','Stories every day — even just a quote or a stat','Reels get 3x reach of normal posts right now']},
+    wa:{banner:'pb-wa',color:'#4ade80',times:'Status: Daily · Direct message: As needed · Groups: 2–3x/week',tip:'<strong>Most underrated platform in SA.</strong> WhatsApp Status reaches people who never see your Facebook posts.',tips:['Post to your Status daily — simple stats or quotes work','Join SA trucking/transport WhatsApp groups and add value first','For DMs, only message people who have shown interest','WhatsApp Status reaches people who never see your Facebook posts']},
+    tt:{banner:'pb-tt',color:'white',times:'Best times: Mon–Fri · 6pm–10pm · 3–5x per week',tip:'<strong>Fastest growing reach in SA.</strong> Point-to-text videos go viral. Post same video to Instagram Reels.',tips:['Stand in front of a truck — instant credibility','Speak naturally — stumbling builds trust on TikTok','Use text overlays for key stats — many watch without sound','Post the exact same video to Instagram Reels and YouTube Shorts']},
+    email:{banner:'pb-email',color:'#fbbf24',times:'Respond within 1 hour · Follow up Day 1, 3, 7, 14',tip:'<strong>Speed is everything.</strong> Responding within 1 hour increases conversion by 7x.',tips:['Always personalise — use their name and company every time','Subject lines with R amounts get opened more','Keep it short and scannable — fleet owners are busy','One clear call to action per email']}
 };
 
-// ── Seed posts (loaded once if Firebase is empty) ─────────────────────────────
 const SEED_POSTS = [
-    // ── FACEBOOK ──
-    {platform:'fb',tag:'💸 Money Shock',order:'Post #1 — Use this first',hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA',live:true,content:`😱 Diesel is about to go up by R5 a litre. Maybe more.
-
-April 1st. That's the date every fleet owner in SA needs to circle in red right now.
-
-The US-Iran war has pushed Brent Crude to $115 a barrel. The rand is weak. And the government's adding 21c/litre in new fuel taxes on the same day.
-
-Best case: diesel up R5.66/litre.
-Worst case: analysts are saying R8/litre.
-
-For a 20-truck fleet doing 10,000km each per month, that's between R150,000 and R250,000 MORE in fuel costs. Every. Single. Month.
-
-The only way to fight back is to know exactly where your fuel is going — which drivers are burning excess, which vehicles are bleeding efficiency, and where the rand leakage is happening.
-
-That's what we do at Dynamic Fleet Reporting.
-
-We give you a forensic breakdown of every litre, every vehicle, every month — so you can plug the leaks before April destroys your margins.
-
-📞 083 314 9592
-WhatsApp us today. April is a few days away.`},
-    {platform:'fb',tag:'❓ Curiosity Hook',order:'Post #2',hashtags:'#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA',live:true,content:`Quick question for fleet owners 👇
-
-Diesel goes up R5+ on April 1st.
-
-Do you know, right now, which of your drivers are burning 15–20% more than they should be?
-
-Most fleet owners don't. And that was expensive BEFORE this fuel crisis. After April, it could be the difference between a profitable month and a loss.
-
-We audit every vehicle in your fleet. We identify exactly where the excess consumption is. We give you a monthly report you can act on.
-
-For most clients, we find R30,000–R100,000+ in recoverable losses every single month.
-
-Our fee? A fraction of that.
-
-With fuel at R25+ per litre from April, the ROI is going to be even more obvious.
-
-Comment "AUDIT" below and I'll reach out directly. Or WhatsApp me on 083 314 9592.
-
-Time is short. April 1st is a few days away. 🔥`},
-    {platform:'fb',tag:'📈 Before & After',order:'Post #3',hashtags:'#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica',live:true,content:`Real numbers. Real client. Real urgency. 👇
-
-A transport company with 18 trucks came to us 3 months ago.
-
-Month 1 audit findings:
-→ 4 drivers averaging 18% above fleet consumption target
-→ 2 vehicles with undetected mechanical fuel loss
-→ R74,000 in monthly fuel waste identified
-
-Month 3 after implementing our recommendations:
-→ Fleet efficiency up 22%
-→ Monthly savings: R68,000
-→ Our monthly fee: R5,100
-
-Now imagine that same fleet in April, when diesel goes up by R5+ per litre.
-
-Without our reporting: that R74,000 monthly waste balloons to over R110,000.
-With our reporting: they've already fixed the leaks. They're protected.
-
-📞 083 314 9592
-
-With April's fuel shock coming in a few days, there's no better time to get your fleet under control. Let's talk.`},
-    {platform:'fb',tag:'😤 Pain Point',order:'Post #4',hashtags:'#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement',live:true,content:`To every transport business owner in SA who's watching the fuel news this week 👇
-
-R5. R6. R7. R8 per litre diesel increase. April 1st.
-
-The Iran war, the weak rand, the new fuel levies — all hitting at once.
-
-I'm not going to sugarcoat it: this is going to be brutal for fleets that aren't optimised.
-
-But here's the thing — the fleet owners who survive this are the ones who KNOW their numbers.
-
-→ Which routes are killing efficiency?
-→ Which drivers need retraining?
-→ Which vehicles are consuming 20% above target?
-
-We answer all of that. Every month. With hard data.
-
-Dynamic Fleet Reporting gives you forensic fuel and speed analysis on every vehicle in your fleet — so you can make decisions based on facts, not gut feel.
-
-WhatsApp: 083 314 9592
-Or reply "FUEL CRISIS" in the comments and I'll contact you directly.
-
-April is coming. Don't get caught unprepared. 🚛`},
-    {platform:'fb',tag:'🏆 Social Proof',order:'Post #5',hashtags:'#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency',live:true,content:`A client called me on Monday.
-
-Not to complain. Not to ask for a discount.
-
-He called to say: "I'm really glad we started this before the fuel crisis hit."
-
-His fleet of 23 trucks. After 4 months of our monthly reports, he'd already cut excess consumption by 19% and retrained his 6 worst-performing drivers.
-
-Then last week the news broke. Diesel going up R5–R8/litre in April.
-
-His response? "At least I know my fleet is running as lean as possible going in."
-
-His competitor down the road? Still running blind. About to get hit with a massive, unpredictable fuel bill and no idea why.
-
-The difference between these two fleet owners isn't luck. It's data.
-
-📞 083 314 9592
-
-It's not too late to get ahead of April. But almost. WhatsApp us today.`},
-    {platform:'fb',tag:'⏰ Urgency',order:'Post #6 — End of month',hashtags:'#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica #EndOfMonth',live:true,content:`April 1st is a few days away. 📅
-
-That's when diesel is predicted to jump by R5–R8 per litre.
-That's when the new fuel levy kicks in.
-That's when fleet operating costs across SA are going to spike sharply.
-
-Most fleet owners right now are doing one of two things:
-1. Hoping their fuel bill "won't be that bad"
-2. Getting a forensic audit done so they know exactly where every litre goes
-
-The ones doing option 2 are going to come out the other side in far better shape.
-
-We do full monthly fleet reporting — fuel efficiency, driver behaviour, speed violations, cost-per-km analysis — for fleets of any size across South Africa.
-
-First report includes a complete audit of your current fleet efficiency. Most clients find enough waste in month one to cover our annual fee.
-
-📞 083 314 9592
-dynamicfleetreports@gmail.com
-
-Don't head into the worst fuel shock in SA history flying blind. 🚛💨`},
-    // ── LINKEDIN ──
-    {platform:'li',tag:'📖 Story Post',order:'Post #1 — Strong opener',hashtags:'#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations',live:true,content:`Diesel is predicted to increase by R5–R8 per litre on April 1st.
-
-For South African fleet operators, this isn't just a fuel cost story. It's an efficiency story.
-
-I've spent years analysing fleet data across the SA transport sector, and here's what I know to be true: the average heavy fleet is running at 60–70% of its possible fuel efficiency. That gap — the 30–40% being lost to driver behaviour, mechanical issues, and inefficient routing — was always expensive. After April, it becomes existential.
-
-The fleet owners who are going to navigate this crisis successfully are the ones who have real data. Not estimates. Not averages. Actual vehicle-by-vehicle, driver-by-driver forensic analysis.
-
-That's the service we provide at Dynamic Fleet Reporting.
-
-Monthly reports. Full audit trail. Actionable findings. Measurable ROI.
-
-If you run a fleet in South Africa and you're not getting monthly performance reporting, April 1st is the most urgent wake-up call you're going to get.
-
-📞 083 314 9592
-
-I'm offering free fleet efficiency assessments to transport businesses this week. DM me directly or WhatsApp the number above.`},
-    {platform:'li',tag:'📊 Data & Insight',order:'Post #2',hashtags:'#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations #FleetManagement',live:true,content:`The average SA heavy fleet is leaking 30% of its fuel efficiency. Here's why April changes everything.
-
-With diesel predicted to increase by R5–R8/litre on April 1st — driven by the Iran conflict, a weak rand, and new government levies — a 30% efficiency gap is no longer just a margin issue. It's a survival issue.
-
-Let me put that in numbers:
-
-A 20-truck fleet, each doing 10,000km/month at 3.0km/L actual vs 3.8km/L possible:
-→ Monthly fuel waste before April: ±R110,000
-→ Monthly fuel waste after April (at R26/L diesel): ±R170,000
-
-That's R60,000 MORE in preventable waste per month — just from April's price increase, just from drivers and vehicles that aren't operating at target.
-
-The solution isn't to hope for cheaper fuel. It's to eliminate the waste you can control.
-
-Dynamic Fleet Reporting provides forensic monthly fleet analysis — fuel efficiency, driver behaviour, speed compliance, and cost-per-km benchmarking — for transport companies across South Africa.
-
-With April's fuel shock a few days away, there's never been a better time to understand exactly where your fleet's money is going.
-
-📩 dynamicfleetreports@gmail.com | 📞 083 314 9592`},
-    {platform:'li',tag:'🤝 Value Offer',order:'Post #3',hashtags:'#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment #FleetManagement',live:true,content:`I'm going to share something uncomfortable.
-
-Most transport companies in SA are about to get hit with a fuel bill in April that they have no framework to respond to.
-
-Diesel up R5–R8/litre. Petrol up R3+. New levies on top. All hitting on April 1st.
-
-And most of them will respond the same way: they'll absorb the hit, squeeze margins, and hope that oil prices come down in May.
-
-The ones who won't be in that position are the ones who already know their numbers.
-
-They know which of their 30 trucks is consuming 22% above target. They know which driver needs retraining. They know which route is bleeding diesel. They've been fixing those things every month.
-
-For those fleet owners, April is still painful — but it's manageable. Because they're not carrying preventable waste into a fuel shock.
-
-If you're in transport in SA and you want to be in that second group, I'd like to help.
-
-Dynamic Fleet Reporting. Forensic fleet analysis, every month.
-
-📞 083 314 9592 | dynamicfleetreports@gmail.com
-
-DM me or call. A few days left before April 1st.`},
-    {platform:'li',tag:'🎯 Direct Pitch',order:'Post #4',hashtags:'#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting',live:true,content:`If you manage a fleet in South Africa, this is for you.
-
-We specialise in one thing: turning fleet data into money back in your pocket.
-
-We work with SA transport companies to:
-✅ Benchmark every vehicle against manufacturer targets
-✅ Track driver efficiency weekly — not monthly when it's too late
-✅ Identify your worst-performing vehicles before they kill your margins
-✅ Deliver simple, clear reports your whole team can understand
-
-We're not a GPS company. We're not a fuel card company.
-
-We're the people who take all that data and tell you what it actually means — and what to do about it.
-
-Current availability: 3 new client slots this month.
-
-If you want to know what your fleet is really costing you, let's talk.
-
-Free audit. 48-hour turnaround. Zero obligation.
-
-DM me or email dynamicfleetreports@gmail.com
-
-Repost if you know someone in SA transport who'd benefit. 🙏`},
-    // ── INSTAGRAM ──
-    {platform:'ig',tag:'🪝 Hard Hook',order:'Post #1',hashtags:'#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence',live:true,content:`⛽ APRIL 1ST WARNING ⛽
-
-Diesel predicted up R5–R8/litre.
-Petrol up R3+.
-New fuel levies on the same day.
-
-For a 20-truck fleet that's potentially R150,000–R250,000 MORE per month in fuel.
-
-The only defence? Knowing exactly where every litre goes.
-
-📊 Monthly forensic fleet reports
-🚛 Per vehicle. Per driver. Per route.
-💸 Find the waste before it finds you.
-
-Link in bio → Free fleet efficiency assessment
-📞 083 314 9592`},
-    {platform:'ig',tag:'📊 Stats',order:'Post #2',hashtags:'#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics',live:true,content:`Numbers every SA fleet owner needs to see right now 👇
-
-Current diesel price: ~R18.50/L
-Predicted April price: R24–R26/L
-
-A driver running 20% above your fleet target:
-→ TODAY costs you: ~R3,700 extra per month per truck
-→ AFTER APRIL costs you: ~R5,200 extra per month per truck
-
-Multiply that by how many trucks you have.
-Multiply that by how many over-consuming drivers you have.
-
-Now ask yourself: do you know who those drivers are?
-
-We do fleet forensics every month. We tell you exactly who, what, and how much. 📊
-
-Link in bio for a free assessment.
-📞 083 314 9592`},
-    {platform:'ig',tag:'🔄 Before/After',order:'Post #3',hashtags:'#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness',live:true,content:`Same fleet. Before and after our reporting. 📈
-
-Month 1 (before):
-❌ Fleet avg: 2.8 km/L
-❌ Worst driver: 2.1 km/L
-❌ Monthly waste: R74,000
-
-Month 4 (after):
-✅ Fleet avg: 3.4 km/L
-✅ Worst driver now at: 3.1 km/L
-✅ Monthly savings: R68,000
-
-They fixed this BEFORE April's R5+ diesel hike.
-
-Imagine their competitors right now — still running blind, about to walk into the worst fuel shock in SA history.
-
-Don't be the competitor. 🚛
-
-Link in bio → Get your free fleet audit
-📞 083 314 9592`},
-    {platform:'ig',tag:'💬 Relatable',order:'Post #4',hashtags:'#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics',live:true,content:`Every fleet owner I talk to this week is saying the same thing 😬
-
-"R5 diesel increase?"
-"R8 worst case?!"
-"How are we supposed to survive this?"
-
-Here's the honest answer:
-The fleet owners who've been tracking their efficiency will survive.
-The ones running blind will bleed.
-
-You can't control oil prices.
-You can't control the rand.
-You can't control the Iran war.
-
-But you CAN control whether your drivers are burning fuel unnecessarily.
-You CAN control whether your vehicles are running at target.
-You CAN control how much preventable waste is leaving your fleet every month.
-
-That's where we come in. 📊
-
-Link in bio for a free fleet assessment.
-📞 083 314 9592
-⚡ April 1st is a few days away.`},
-    // ── WHATSAPP ──
-    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #1',hashtags:'Post as WhatsApp Status — no hashtags needed',live:true,content:`🚨 Fleet Alert — April 1st Fuel Shock
-
-Diesel predicted: UP R5–R8/litre
-Petrol predicted: UP R3+/litre
-New fuel levies: +21c/litre (same day)
-
-For a 20-truck fleet that's potentially R150,000–R250,000 MORE per month.
-
-Do you know where your fuel is going right now?
-
-📊 Dynamic Fleet Reporting gives you a forensic breakdown of every vehicle, every driver, every month — so you can cut the waste before the price hits.
-
-📞 083 314 9592 — WhatsApp us for a free fleet efficiency assessment. April is a few days away.`},
-    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #2',hashtags:'Post as WhatsApp Status',live:true,content:`Quick question for fleet owners 👇
-
-With diesel going up R5+ on April 1st — do you know which of your drivers are burning 15–20% above target right now?
-
-Most don't. And that's about to get very expensive.
-
-We identify exactly where your fleet's fuel is being wasted — per vehicle, per driver, per route — and give you a monthly report you can act on.
-
-Most clients save R30,000–R100,000+ per month. Our fee is a fraction of that.
-
-With April's fuel shock coming, the ROI has never been more obvious.
-
-📞 083 314 9592 — WhatsApp us today for a free assessment.`},
-    {platform:'wa',tag:'💬 Group Message',order:'Transport Group Post',hashtags:'For SA trucking/transport WhatsApp groups',live:true,content:`Hi all 👋
-
-Sharing this with the group because I think it's genuinely important right now.
-
-With diesel predicted to jump R5–R8/litre on April 1st (due to the Iran war + new fuel levies), any fleet that isn't tracking consumption forensically is about to take a massive hit.
-
-We specialise in monthly fleet reporting for SA transport companies — full fuel efficiency, driver behaviour and speed analysis on every vehicle.
-
-If anyone in the group wants a free fleet efficiency assessment before April, please reach out directly.
-
-📞 083 314 9592
-dynamicfleetreports@gmail.com
-
-The fleet owners who know their numbers going into this are going to be in a very different position to those who don't. 🚛`},
-    {platform:'wa',tag:'📩 Follow-Up DM',order:'After someone shows interest',hashtags:'Send as direct WhatsApp after first contact',live:true,content:`Hi [Name] 👋
-
-Hope you're well. I'll get straight to the point given what's happening in the news this week.
-
-With diesel predicted to increase by R5–R8/litre on April 1st, I wanted to reach out specifically to fleet operators in our network.
-
-We provide monthly forensic fleet reporting — fuel efficiency, driver behaviour, speed analysis — for transport companies across SA. Most clients identify R30,000–R100,000+ in monthly waste in the first audit alone.
-
-With the fuel shock coming, there's genuinely never been a better time to know exactly where your diesel is going.
-
-Would you be open to a 10-minute call this week? I'd love to run a quick efficiency estimate on your fleet — no obligation at all.
-
-📞 083 314 9592`},
-    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #3',hashtags:'Post last day of each month as Status',live:true,content:`April 1st is a few days away 📅
-
-That's when diesel jumps R5–R8/litre.
-That's when the new fuel levies kick in.
-That's when fleet margins across SA are going to get squeezed hard.
-
-If you haven't already done a forensic audit of your fleet's fuel consumption, now is genuinely the last chance to get ahead of it.
-
-We turn around full fleet reports in 48 hours. You send us your telematics data, we give you a complete breakdown of where every litre is going.
-
-📞 083 314 9592
-
-Don't walk into the worst fuel shock in SA history without knowing your numbers. 🚛`},
-    {platform:'wa',tag:'📩 Cold Intro DM',order:'When messaging someone new',hashtags:'Use carefully — only for warm connections, not strangers',live:true,content:`Hi [Name], hope things are good 👋
-
-I know everyone in transport is watching the fuel price news right now — diesel up potentially R5–R8 on April 1st is a serious situation.
-
-I wanted to check in and see if there's anything we can do to help before the price hits. If you haven't had a full fleet efficiency audit done recently, we can turn one around for you quickly.
-
-Knowing exactly which vehicles and drivers are burning above target is the one thing you can actually control going into this.
-
-Happy to chat whenever suits you.
-📞 083 314 9592`},
-    // ── TIKTOK ──
-    {platform:'tt',tag:'🎬 Video Script',order:'Script #1 — 30 sec',hashtags:'#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica',live:true,content:`🎬 SCRIPT #1 — "The April Bomb"
-[Hook — 0–3s, text on screen: "DIESEL UP R8 IN APRIL?"]
-
-[On camera, direct to lens:]
-"If you own a fleet of trucks in South Africa, you need to hear this right now."
-
-[Cut — text on screen: "April 1st. R5–R8 diesel increase."]
-
-"The Iran war. The weak rand. New fuel levies. All hitting at once on April 1st. Analysts are saying diesel could go up R5, R6, R7 — some are saying R8 per litre."
-
-[Cut — calculator visual or text animation:]
-"20 trucks. 10,000km each per month. R5 more per litre. That's R150,000 extra. Every month."
-
-[Back on camera:]
-"The fleet owners who are going to survive this are the ones who know exactly where their fuel is going. Which drivers are over-consuming. Which vehicles are bleeding diesel."
-
-"That's what we show you. Every month. With hard data."
-
-[CTA:]
-"Link in bio for a free fleet audit. April 1st is a few days away. Don't sleep on this."
-
-#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking`},
-    {platform:'tt',tag:'🎬 Video Script',order:'Script #2 — 45 sec',hashtags:'#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica',live:true,content:`🎬 SCRIPT #2 — "The Driver Nobody Talks About"
-[Hook — text on screen: "One driver is costing you R8,000/month extra"]
-
-[On camera:]
-"Every fleet has one. The driver nobody talks about. The one whose fuel consumption is 20% above everyone else's."
-
-"You know something's off. But you can't prove it. And you definitely can't afford to have that conversation without the data."
-
-[Cut — show mock report graphic:]
-"This is what our monthly report looks like. Every driver. Every vehicle. Ranked by efficiency. The outliers highlighted in red."
-
-[Back on camera:]
-"Before April's fuel increase, that outlier driver was costing you maybe R4,000–R5,000 extra per month."
-
-"After April? We're talking R7,000–R8,000. Per driver. Per month."
-
-"The data pays for itself. Many times over."
-
-[CTA:]
-"Link in bio. Free fleet assessment. Sort it before April 1st."
-
-#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport`},
-    {platform:'tt',tag:'🎬 Video Script',order:'Script #3 — 20 sec (Reel format)',hashtags:'#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency',live:true,content:`🎬 SCRIPT #3 — "The Maths"
-[Hook — text on screen: "R5 diesel increase × your fleet = ?"]
-
-[On camera, simple and direct:]
-"Let me just do the maths for you really quickly."
-
-[Text animation / whiteboard style:]
-"Current diesel: R18.50/litre
-April diesel: R24+ /litre
-Difference: R5.50/litre"
-
-"Average truck doing 10,000km/month at 3km/L uses 3,333 litres."
-
-"That's R18,333 MORE in fuel. Per truck. Per month."
-
-"Times 10 trucks: R183,000 more per month."
-"Times 20 trucks: R366,000 more per month."
-
-[Back on camera:]
-"Now. How much of that is preventable waste from over-consuming drivers and inefficient vehicles?"
-
-"In most fleets we audit: 20–30%."
-
-"That's R55,000 to R110,000 per month that you don't have to spend — if you know where it's going."
-
-[CTA:]
-"That's what we show you. Link in bio for a free fleet efficiency assessment. Clock is ticking — April 1st."
-
-#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport`},
-    // ── EMAIL ──
-    {platform:'email',tag:'📧 Initial Response',order:'Email #1',subject:'Your free fleet audit — here\'s how it works',when:'Send within 1 hour',hashtags:'',live:true,content:`Hi [First Name],
-
-I'll get straight to the point — I know you're watching the fuel price news this week.
-
-Diesel is predicted to increase by R5–R8 per litre on April 1st. Petrol by R3+. And the government's new 21c/litre fuel levies kick in on the same day.
-
-For a fleet of 20 trucks doing 10,000km each per month, the conservative estimate is R150,000–R250,000 more in fuel costs every single month from April onwards.
-
-The only part of that equation you can control is how efficiently your fleet is running.
-
-Right now, most SA fleets are leaking 20–30% of their possible fuel efficiency — through driver behaviour, mechanical issues, and inefficient routing. That was always expensive. After April, it becomes critical.
-
-I'd like to offer you a complimentary fleet efficiency assessment before April 1st.
-
-In 48 hours, I can tell you:
-• Which vehicles are running above consumption target (and by how much)
-• Which drivers need attention
-• A conservative estimate of your monthly recoverable losses — at current prices AND at April's predicted prices
-
-No obligation. No sales pressure. Just the numbers.
-
-Is this something you'd find useful? I can turn it around quickly.
-
-[Your Name]
-083 314 9592
-dynamicfleetreports@gmail.com`},
-    {platform:'email',tag:'📧 Day 3 Follow-Up',order:'Email #2',subject:'Still keen on the audit? [Company Name]',when:'Day 3 — no response',hashtags:'',live:true,content:`Hi [First Name],
-
-Following up on my note from last week — with the fuel price news getting worse by the day, I wanted to reach out again.
-
-The latest CEF data is showing diesel under-recovery of R7/litre. Analysts are now saying R5 is the best case for April, with R8 a real possibility if the Iran situation continues.
-
-I know that number is alarming. But here's the thing — for every fleet operator I've worked with, the question isn't just "how do we afford the fuel increase." It's "how do we make sure we're not paying for MORE fuel than we need to."
-
-In the fleets we audit, we typically find 20–30% excess consumption that's entirely addressable — driver behaviour, vehicles running below optimal, routes that could be tightened.
-
-At current diesel prices, that's often R50,000–R100,000/month in recoverable waste.
-At April's prices, that same waste becomes R80,000–R160,000/month.
-
-I'd love to show you what those numbers look like for your specific fleet.
-
-Could we find 15 minutes this week for a quick call?
-
-[Your Name]
-083 314 9592`},
-    {platform:'email',tag:'📧 Day 7 Final Nudge',order:'Email #3',subject:'Last one from me — free audit expires [Date]',when:'Day 7 — still no response',hashtags:'',live:true,content:`Hi [First Name],
-
-I want to share a quick case study that feels very relevant right now.
-
-A client in [region] came to us with a 22-truck fleet. First month audit findings:
-
-→ 5 drivers averaging 19% above fleet consumption target
-→ 3 vehicles with consumption anomalies suggesting mechanical issues
-→ Total monthly recoverable waste identified: R82,000
-
-By month 3, after acting on our recommendations:
-→ Fleet efficiency improved by 24%
-→ Monthly savings realised: R74,000
-→ Our monthly fee: R5,500
-
-They fixed these issues before April's predicted R5–R8/litre diesel increase.
-
-The same inefficiencies that cost them R82,000/month at current prices would cost them R125,000+/month after April. They've already closed those gaps.
-
-If you'd like to understand what similar inefficiencies might be costing your fleet — and what the numbers look like at April's predicted prices — I'd be happy to do a quick assessment.
-
-Reply to this email or WhatsApp me on 083 314 9592.
-
-[Your Name]
-Dynamic Fleet Reporting`},
-    {platform:'email',tag:'📧 Data Received',order:'Email #4',subject:'Got it — your audit is running now',when:'Send immediately when data arrives',hashtags:'',live:true,content:`Hi [First Name],
-
-Got your data — thank you. Your fleet efficiency audit is running now.
-
-You'll have your full report within 48 hours. It will include:
-
-• Vehicle-by-vehicle efficiency vs manufacturer targets
-• Driver ranking by fuel consumption
-• Estimated monthly rand value of recoverable waste
-• Same figures projected at April's predicted diesel prices
-
-If you have any questions in the meantime, WhatsApp me directly on 083 314 9592.
-
-[Your Name]
-Dynamic Fleet Reporting`},
-    {platform:'email',tag:'📧 Re-engagement',order:'Email #5',subject:'Thought you\'d want to see this [Company Name]',when:'Day 14 — if still cold',hashtags:'',live:true,content:`Hi [First Name],
-
-I'm going to be honest — this is a follow-up email, and I promise it's the last one if you're not interested.
-
-But given that diesel is predicted to go up R5–R8/litre in a few days, I felt like I'd be doing you a disservice if I didn't try one more time.
-
-Fleet efficiency reporting isn't a nice-to-have at R24–R26/litre diesel. It's the difference between knowing exactly where your fuel is going — and being able to act on it — versus absorbing a massive, uncontrolled cost increase with no visibility.
-
-If the timing genuinely isn't right, I completely understand. Just say the word and I won't bother you again.
-
-But if there's any chance you'd want to understand your fleet's efficiency position before April hits — I can turn it around in 48 hours.
-
-[Your Name]
-083 314 9592
-dynamicfleetreports@gmail.com
-
-(And if the timing really isn't right — just say the word and I'll stop. No hard feelings at all.) 😊`}
+    {platform:'fb',tag:'💸 Money Shock',order:'Post #1 — Use this first',hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA',live:true,content:`😱 Diesel is about to go up by R5 a litre. Maybe more.\n\nApril 1st. That's the date every fleet owner in SA needs to circle in red right now.\n\nFor a 20-truck fleet doing 10,000km each per month, that's between R150,000 and R250,000 MORE in fuel costs. Every. Single. Month.\n\nThe only way to fight back is to know exactly where your fuel is going.\n\nThat's what we do at Dynamic Fleet Reporting.\n\n📞 083 314 9592\nWhatsApp us today. April is a few days away.`},
+    {platform:'fb',tag:'❓ Curiosity Hook',order:'Post #2',hashtags:'#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA',live:true,content:`Quick question for fleet owners 👇\n\nDiesel goes up R5+ on April 1st.\n\nDo you know, right now, which of your drivers are burning 15–20% more than they should be?\n\nMost fleet owners don't. And that was expensive BEFORE this fuel crisis.\n\nWe audit every vehicle in your fleet and give you a monthly report you can act on.\n\nFor most clients, we find R30,000–R100,000+ in recoverable losses every single month.\n\nComment "AUDIT" below or WhatsApp 083 314 9592. 🔥`},
+    {platform:'fb',tag:'📈 Before & After',order:'Post #3',hashtags:'#FleetResults #TransportSA #FuelSavings #TruckingBusiness #FleetManagement #BusinessGrowth #SouthAfrica',live:true,content:`Real numbers. Real client. Real urgency. 👇\n\nA transport company with 18 trucks came to us 3 months ago.\n\nMonth 1 audit findings:\n→ 4 drivers averaging 18% above fleet consumption target\n→ 2 vehicles with undetected mechanical fuel loss\n→ R74,000 in monthly fuel waste identified\n\nMonth 3:\n→ Fleet efficiency up 22%\n→ Monthly savings: R68,000\n→ Our monthly fee: R5,100\n\n📞 083 314 9592 — Let's talk.`},
+    {platform:'fb',tag:'😤 Pain Point',order:'Post #4',hashtags:'#TransportOwner #SouthAfrica #DieselPrice #FleetCosts #TruckingLife #BusinessOwner #FleetManagement',live:true,content:`To every transport business owner in SA watching the fuel news 👇\n\nR5. R6. R7. R8 per litre diesel increase. April 1st.\n\nThe fleet owners who survive this are the ones who KNOW their numbers.\n\n→ Which routes are killing efficiency?\n→ Which drivers need retraining?\n→ Which vehicles are consuming 20% above target?\n\nWe answer all of that. Every month. With hard data.\n\nWhatsApp: 083 314 9592 🚛`},
+    {platform:'fb',tag:'🏆 Social Proof',order:'Post #5',hashtags:'#ClientResults #FleetManagement #SouthAfrica #TransportIndustry #TruckingSA #FuelEfficiency',live:true,content:`A client called me on Monday.\n\nNot to complain. Not to ask for a discount.\n\nHe called to say: "I'm really glad we started this before the fuel crisis hit."\n\nHis fleet of 23 trucks. After 4 months of our monthly reports, he'd already cut excess consumption by 19% and retrained his 6 worst-performing drivers.\n\nThe difference between these two fleet owners isn't luck. It's data.\n\n📞 083 314 9592 — WhatsApp us today.`},
+    {platform:'fb',tag:'⏰ Urgency',order:'Post #6 — End of month',hashtags:'#FreeAudit #FleetManagement #TransportSA #FuelCosts #FleetOwner #SouthAfrica',live:true,content:`April 1st is a few days away. 📅\n\nThat's when diesel is predicted to jump by R5–R8 per litre.\nThat's when the new fuel levy kicks in.\n\nWe do full monthly fleet reporting — fuel efficiency, driver behaviour, speed violations, cost-per-km analysis — for fleets of any size across South Africa.\n\n📞 083 314 9592\ndynamicfleetreports@gmail.com\n\nDon't head into the worst fuel shock in SA history flying blind. 🚛💨`},
+    {platform:'li',tag:'📖 Story Post',order:'Post #1 — Strong opener',hashtags:'#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica #FuelEfficiency #Operations',live:true,content:`Diesel is predicted to increase by R5–R8 per litre on April 1st.\n\nFor South African fleet operators, this isn't just a fuel cost story. It's an efficiency story.\n\nThe average heavy fleet is running at 60–70% of its possible fuel efficiency. That gap becomes existential after April.\n\nThe fleet owners who navigate this crisis successfully are the ones who have real data. Vehicle-by-vehicle, driver-by-driver forensic analysis.\n\nThat's the service we provide at Dynamic Fleet Reporting.\n\n📞 083 314 9592 — Free fleet efficiency assessments this week.`},
+    {platform:'li',tag:'📊 Data & Insight',order:'Post #2',hashtags:'#FleetEfficiency #FuelManagement #Logistics #Transport #DataDriven #SouthAfrica #Operations',live:true,content:`The average SA heavy fleet is leaking 30% of its fuel efficiency. Here's why April changes everything.\n\nA 20-truck fleet at 3.0km/L actual vs 3.8km/L possible:\n→ Monthly fuel waste before April: ±R110,000\n→ Monthly fuel waste after April (at R26/L): ±R170,000\n\nThat's R60,000 MORE in preventable waste per month.\n\nThe solution isn't to hope for cheaper fuel. It's to eliminate the waste you can control.\n\n📩 dynamicfleetreports@gmail.com | 📞 083 314 9592`},
+    {platform:'li',tag:'🤝 Value Offer',order:'Post #3',hashtags:'#FleetReporting #TransportManagement #Logistics #SouthAfrica #FuelEfficiency #BusinessDevelopment',live:true,content:`I'm going to share something uncomfortable.\n\nMost transport companies in SA are about to get hit with a fuel bill in April that they have no framework to respond to.\n\nThe ones who won't be in that position are the ones who already know their numbers — which trucks are consuming 22% above target, which drivers need retraining, which routes are bleeding diesel.\n\nDynamic Fleet Reporting. Forensic fleet analysis, every month.\n\n📞 083 314 9592 | dynamicfleetreports@gmail.com`},
+    {platform:'li',tag:'🎯 Direct Pitch',order:'Post #4',hashtags:'#FleetManagement #SouthAfrica #Logistics #Transport #FuelEfficiency #BusinessOwner #FleetReporting',live:true,content:`If you manage a fleet in South Africa, this is for you.\n\nWe specialise in one thing: turning fleet data into money back in your pocket.\n\n✅ Benchmark every vehicle against manufacturer targets\n✅ Track driver efficiency weekly — not monthly when it's too late\n✅ Identify your worst-performing vehicles before they kill your margins\n✅ Deliver simple, clear reports your whole team can understand\n\nFree audit. 48-hour turnaround. Zero obligation.\n\nDM me or email dynamicfleetreports@gmail.com\n\nRepost if you know someone in SA transport who'd benefit. 🙏`},
+    {platform:'ig',tag:'🪝 Hard Hook',order:'Post #1',hashtags:'#FleetManagement #SATrucking #TruckingLife #FleetOwner #FuelSavings #TransportSA #BusinessOwner #FreeAudit #FleetOptimization #Logistics #SouthAfrica #TruckDriver #HeavyTruck #FleetEfficiency #DieselSavings #TransportBusiness #TruckingBusiness #SABusiness #FleetReporting #OperationalExcellence',live:true,content:`⛽ APRIL 1ST WARNING ⛽\n\nDiesel predicted up R5–R8/litre.\nPetrol up R3+.\nNew fuel levies on the same day.\n\nFor a 20-truck fleet that's potentially R150,000–R250,000 MORE per month in fuel.\n\nThe only defence? Knowing exactly where every litre goes.\n\n📊 Monthly forensic fleet reports\n🚛 Per vehicle. Per driver. Per route.\n💸 Find the waste before it finds you.\n\nLink in bio → Free fleet efficiency assessment\n📞 083 314 9592`},
+    {platform:'ig',tag:'📊 Stats',order:'Post #2',hashtags:'#FleetStats #FleetManagement #FuelEfficiency #SATrucking #TransportSA #TruckingLife #FleetOwner #FuelSavings #LogisticsSA #HeavyTransport #FleetCosts #TruckingBusiness #SouthAfrica #BusinessGrowth #FleetOptimization #FuelManagement #TransportBusiness #SAEntrepreneur #FleetReporting #Logistics',live:true,content:`Numbers every SA fleet owner needs to see right now 👇\n\nCurrent diesel price: ~R18.50/L\nPredicted April price: R24–R26/L\n\nA driver running 20% above your fleet target:\n→ TODAY costs you: ~R3,700 extra per month per truck\n→ AFTER APRIL costs you: ~R5,200 extra per month per truck\n\nNow ask yourself: do you know who those drivers are?\n\nWe do fleet forensics every month. We tell you exactly who, what, and how much. 📊\n\nLink in bio for a free assessment.\n📞 083 314 9592`},
+    {platform:'ig',tag:'🔄 Before/After',order:'Post #3',hashtags:'#BeforeAndAfter #FleetResults #FleetManagement #SATrucking #FuelSavings #TransportSA #FleetEfficiency #BusinessResults #TruckingLife #LogisticsSA #FleetOptimization #SouthAfrica #TransportBusiness #HeavyTruck #FleetOwner #FuelManagement #BusinessGrowth #Results #TruckingBusiness #SABusiness',live:true,content:`Same fleet. Before and after our reporting. 📈\n\nMonth 1 (before):\n❌ Fleet avg: 2.8 km/L\n❌ Worst driver: 2.1 km/L\n❌ Monthly waste: R74,000\n\nMonth 4 (after):\n✅ Fleet avg: 3.4 km/L\n✅ Worst driver now at: 3.1 km/L\n✅ Monthly savings: R68,000\n\nDon't be the competitor. 🚛\n\nLink in bio → Get your free fleet audit\n📞 083 314 9592`},
+    {platform:'ig',tag:'💬 Relatable',order:'Post #4',hashtags:'#FleetOwner #SATrucking #TruckingLife #TransportSA #FuelCosts #FleetManagement #HeavyTransport #BusinessOwner #LogisticsSA #FleetEfficiency #TruckingBusiness #SouthAfrica #FuelSavings #SAEntrepreneur #FleetReporting #TransportBusiness #FleetOptimization #DieselPrice #BusinessGrowth #Logistics',live:true,content:`Every fleet owner I talk to this week is saying the same thing 😬\n\n"R5 diesel increase?"\n"R8 worst case?!"\n"How are we supposed to survive this?"\n\nYou can't control oil prices or the rand or the Iran war.\n\nBut you CAN control whether your drivers are burning fuel unnecessarily.\nYou CAN control whether your vehicles are running at target.\n\nThat's where we come in. 📊\n\nLink in bio for a free fleet assessment.\n📞 083 314 9592`},
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #1',hashtags:'Post as WhatsApp Status — no hashtags needed',live:true,content:`🚨 Fleet Alert — April 1st Fuel Shock\n\nDiesel predicted: UP R5–R8/litre\nPetrol predicted: UP R3+/litre\nNew fuel levies: +21c/litre (same day)\n\nFor a 20-truck fleet that's potentially R150,000–R250,000 MORE per month.\n\n📞 083 314 9592 — WhatsApp us for a free fleet efficiency assessment.`},
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #2',hashtags:'Post as WhatsApp Status',live:true,content:`Quick question for fleet owners 👇\n\nWith diesel going up R5+ on April 1st — do you know which of your drivers are burning 15–20% above target right now?\n\nMost clients save R30,000–R100,000+ per month. Our fee is a fraction of that.\n\n📞 083 314 9592 — WhatsApp us today for a free assessment.`},
+    {platform:'wa',tag:'💬 Group Message',order:'Transport Group Post',hashtags:'For SA trucking/transport WhatsApp groups',live:true,content:`Hi all 👋\n\nSharing this with the group because I think it's genuinely important right now.\n\nWith diesel predicted to jump R5–R8/litre on April 1st, any fleet that isn't tracking consumption forensically is about to take a massive hit.\n\nWe specialise in monthly fleet reporting for SA transport companies.\n\n📞 083 314 9592\ndynamicfleetreports@gmail.com 🚛`},
+    {platform:'wa',tag:'📩 Follow-Up DM',order:'After someone shows interest',hashtags:'Send as direct WhatsApp after first contact',live:true,content:`Hi [Name] 👋\n\nWith diesel predicted to increase by R5–R8/litre on April 1st, I wanted to reach out specifically to fleet operators in our network.\n\nWe provide monthly forensic fleet reporting for transport companies across SA. Most clients identify R30,000–R100,000+ in monthly waste in the first audit alone.\n\nWould you be open to a 10-minute call this week?\n\n📞 083 314 9592`},
+    {platform:'wa',tag:'📊 Status Post',order:'Daily Status #3',hashtags:'Post last day of each month as Status',live:true,content:`April 1st is a few days away 📅\n\nThat's when diesel jumps R5–R8/litre.\nThat's when fleet margins across SA are going to get squeezed hard.\n\nWe turn around full fleet reports in 48 hours.\n\n📞 083 314 9592 — Don't walk in without knowing your numbers. 🚛`},
+    {platform:'wa',tag:'📩 Cold Intro DM',order:'When messaging someone new',hashtags:'Use carefully — only for warm connections, not strangers',live:true,content:`Hi [Name], hope things are good 👋\n\nI know everyone in transport is watching the fuel price news right now.\n\nIf you haven't had a full fleet efficiency audit done recently, we can turn one around for you quickly.\n\nHappy to chat whenever suits you.\n📞 083 314 9592`},
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #1 — 30 sec',hashtags:'#FleetManagement #SATrucking #FuelSavings #TransportSA #TruckingLife #BusinessTips #SouthAfrica',live:true,content:`🎬 SCRIPT #1 — "The April Bomb"\n[Hook — 0–3s, text on screen: "DIESEL UP R8 IN APRIL?"]\n\n[On camera:]\n"If you own a fleet of trucks in South Africa, you need to hear this right now."\n\n"The Iran war. The weak rand. New fuel levies. All hitting at once on April 1st."\n\n"20 trucks. 10,000km each per month. R5 more per litre. That's R150,000 extra. Every month."\n\n"The fleet owners who survive are the ones who know exactly where their fuel is going."\n\n[CTA:]\n"Link in bio for a free fleet audit. Don't sleep on this."`},
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #2 — 45 sec',hashtags:'#SATrucking #FleetManagement #TruckingLife #FuelCosts #TransportSA #BusinessOwner #SouthAfrica',live:true,content:`🎬 SCRIPT #2 — "The Driver Nobody Talks About"\n[Hook — text on screen: "One driver is costing you R8,000/month extra"]\n\n[On camera:]\n"Every fleet has one. The driver nobody talks about. The one whose fuel consumption is 20% above everyone else's."\n\n"Before April's fuel increase, that outlier driver was costing you maybe R4,000–R5,000 extra per month."\n\n"After April? We're talking R7,000–R8,000. Per driver. Per month."\n\n"The data pays for itself. Many times over."\n\n[CTA:]\n"Link in bio. Free fleet assessment."`},
+    {platform:'tt',tag:'🎬 Video Script',order:'Script #3 — 20 sec (Reel format)',hashtags:'#FleetOwner #SATrucking #TransportSA #FleetManagement #TruckingTips #BusinessOwner #FuelEfficiency',live:true,content:`🎬 SCRIPT #3 — "The Maths"\n[Hook — text on screen: "R5 diesel increase × your fleet = ?"]\n\n"Current diesel: R18.50/litre → April diesel: R24+ /litre"\n\n"1 truck doing 10,000km/month = 3,333 litres × R5.50 = R18,333 MORE per month."\n\n"Times 10 trucks: R183,000 more per month."\n"Times 20 trucks: R366,000 more per month."\n\n"20–30% of that is preventable waste you can fix right now."\n\n[CTA:]\n"Link in bio for a free fleet efficiency assessment."`},
+    {platform:'email',tag:'📧 Initial Response',order:'Email #1',subject:"Your free fleet audit — here's how it works",when:'Send within 1 hour',hashtags:'',live:true,content:`Hi [First Name],\n\nI'll get straight to the point — I know you're watching the fuel price news this week.\n\nDiesel is predicted to increase by R5–R8 per litre on April 1st. For a fleet of 20 trucks doing 10,000km each per month, the conservative estimate is R150,000–R250,000 more in fuel costs every single month.\n\nI'd like to offer you a complimentary fleet efficiency assessment.\n\nIn 48 hours, I can tell you:\n• Which vehicles are running above consumption target\n• Which drivers need attention\n• A conservative estimate of your monthly recoverable losses\n\nNo obligation. No sales pressure. Just the numbers.\n\n[Your Name]\n083 314 9592\ndynamicfleetreports@gmail.com`},
+    {platform:'email',tag:'📧 Day 3 Follow-Up',order:'Email #2',subject:'Still keen on the audit? [Company Name]',when:'Day 3 — no response',hashtags:'',live:true,content:`Hi [First Name],\n\nFollowing up — with the fuel price news getting worse by the day, I wanted to reach out again.\n\nIn the fleets we audit, we typically find 20–30% excess consumption that's entirely addressable.\n\nAt current diesel prices, that's often R50,000–R100,000/month in recoverable waste.\nAt April's prices, that same waste becomes R80,000–R160,000/month.\n\nCould we find 15 minutes this week for a quick call?\n\n[Your Name]\n083 314 9592`},
+    {platform:'email',tag:'📧 Day 7 Final Nudge',order:'Email #3',subject:'Last one from me — [Company Name]',when:'Day 7 — still no response',hashtags:'',live:true,content:`Hi [First Name],\n\nA client came to us with a 22-truck fleet.\n\nFirst month audit findings:\n→ 5 drivers averaging 19% above fleet consumption target\n→ Monthly recoverable waste identified: R82,000\n\nBy month 3: Fleet efficiency improved 24%, monthly savings R74,000, our fee R5,500.\n\nReply to this email or WhatsApp me on 083 314 9592.\n\n[Your Name]\nDynamic Fleet Reporting`},
+    {platform:'email',tag:'📧 Re-engagement',order:'Email #4',subject:"Thought you'd want to see this [Company Name]",when:'Day 14 — if still cold',hashtags:'',live:true,content:`Hi [First Name],\n\nI'm going to be honest — this is a follow-up email, and I promise it's the last one if you're not interested.\n\nFleet efficiency reporting isn't a nice-to-have at R24–R26/litre diesel. It's the difference between knowing exactly where your fuel is going versus absorbing a massive, uncontrolled cost increase.\n\nIf there's any chance you'd want to understand your fleet's efficiency position — I can turn it around in 48 hours.\n\n[Your Name]\n083 314 9592\ndynamicfleetreports@gmail.com 😊`}
 ];
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let _posts = [];
-let _editId = null;
-let _filterMode = 'all';
-let _currentPlat = 'fb';
-
-// ── Boot ──────────────────────────────────────────────────────────────────────
+let _posts = [], _editId = null, _filter = 'all';
 function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
-async function boot(){
-    await waitFor(()=>typeof cloudStorage!=='undefined');
-    await loadPosts();
-}
+async function boot(){ await waitFor(()=>typeof cloudStorage!=='undefined'); await loadPosts(); }
 boot();
 
-// ── Load posts from Firebase, seed if empty ───────────────────────────────────
 async function loadPosts(){
     try{
-        const stored = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
-        if(stored && stored.length){
-            _posts = stored;
-        } else {
-            // First run — seed with default posts
-            _posts = SEED_POSTS.map((p,i)=>Object.assign({id:'post_seed_'+i,createdAt:new Date().toISOString()},p));
-            await cloudStorage.setItem(POSTS_KEY, JSON.stringify(_posts));
-        }
-    } catch(e){ _posts = []; }
-    renderViewPosts();
-    renderManagePosts();
+        const s = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
+        if(s && s.length){ _posts = s; }
+        else{ _posts = SEED_POSTS.map((p,i)=>Object.assign({id:'seed_'+i,createdAt:new Date().toISOString()},p)); await cloudStorage.setItem(POSTS_KEY,JSON.stringify(_posts)); }
+    }catch(e){ _posts = []; }
+    renderViewPosts(); renderManagePosts();
 }
-
-// ── Save posts to Firebase ────────────────────────────────────────────────────
-async function savePosts(){
-    await cloudStorage.setItem(POSTS_KEY, JSON.stringify(_posts));
-}
-
-// ── Render view tab (per platform) ───────────────────────────────────────────
-const PLAT_CSS = {
-    fb:{banner:'pb-fb',color:'#60a5fa',tips:['Always end with a question or call to action — "Comment YES if you want in"','Post in SA trucking Facebook groups — massive free reach','Reply to every comment within 1 hour — the algorithm rewards it','A bad photo of a real truck beats a perfect stock image every time']},
-    li:{banner:'pb-li',color:'#38bdf8',tips:['Connect with transport managers and logistics directors — 20 per day','Comment on posts in the transport/logistics space before posting your own','LinkedIn rewards long-form content — don\'t be afraid of a long post','End every post with a direct question to drive comments']},
-    ig:{banner:'pb-ig',color:'#f472b6',tips:['First line is everything — Instagram cuts off after 2 lines. Make it impossible not to tap "more"','Use 20–25 hashtags — mix big ones (#trucking) with niche ones (#SATrucking)','Stories every day — even just a quote or a stat. Keeps you visible','Reels get 3x the reach of normal posts right now — TikTok content reposts perfectly']},
-    wa:{banner:'pb-wa',color:'#4ade80',tips:['Post to your Status daily — simple stats or quotes work perfectly','Join SA trucking/transport WhatsApp groups and add value before promoting','For direct messages, only message people who\'ve shown interest — never cold spam','WhatsApp Status reaches people who never see your Facebook posts']},
-    tt:{banner:'pb-tt',color:'white',tips:['Stand in front of a truck or in a yard — instant credibility','Speak naturally — stumbling over words actually builds trust on TikTok','Use text overlays for every key stat — many people watch without sound','Post the exact same video to Instagram Reels and YouTube Shorts']},
-    email:{banner:'pb-email',color:'#fbbf24',tips:['Always personalise — use their name and company every time','Subject lines with numbers or R amounts get opened more','Keep it short and scannable — fleet owners are busy people','One clear call to action per email — don\'t give them 3 things to do']}
-};
+async function savePosts(){ await cloudStorage.setItem(POSTS_KEY,JSON.stringify(_posts)); }
 
 function renderViewPosts(){
     ['fb','li','ig','wa','tt','email'].forEach(plat=>{
-        const el = document.getElementById('plat-'+plat);
-        if(!el) return;
-        const posts = _posts.filter(p=>p.platform===plat && p.live);
-        const cfg   = PLAT_CSS[plat];
-        const tip   = PLAT_TIPS[plat];
-        let html = `<div class="platform-banner ${cfg.banner}">
-            <div><div class="pb-title">${PLAT_ICONS[plat]} ${PLAT_NAMES[plat]}</div><div class="pb-meta">${tip.times}</div></div>
-            <div class="pb-tip">${tip.tip}</div>
-        </div>`;
-        if(plat==='wa') html+=`<div class="wa-note"><strong>💡 How to use WhatsApp for marketing:</strong> Post to your Status daily. Join SA trucking/transport WhatsApp groups and add value before promoting. For direct messages, only message people who've shown interest.</div>`;
-        const tipItems = cfg.tips.map(t=>`<li>${t}</li>`).join('');
-        html+=`<div class="tips-box"><div class="tips-title">💡 Quick Tips</div><ul class="tips-list">${tipItems}</ul></div>`;
-        if(!posts.length){
-            html+=`<div class="empty-state"><div class="icon">${PLAT_ICONS[plat]}</div><p>No live posts for ${PLAT_NAMES[plat]} yet.<br><span style="font-size:12px;color:#475569;">Add posts in the ✏️ Manage Posts tab.</span></p></div>`;
-            el.innerHTML=html; return;
-        }
+        const el=document.getElementById('plat-'+plat); if(!el) return;
+        const posts=_posts.filter(p=>p.platform===plat&&p.live);
+        const cfg=PLAT_CFG[plat];
+        let html=`<div class="platform-banner ${cfg.banner}"><div><div class="pb-title">${PLAT_ICONS[plat]} ${PLAT_NAMES[plat]}</div><div class="pb-meta">${cfg.times}</div></div><div class="pb-tip">${cfg.tip}</div></div>`;
+        if(plat==='wa') html+=`<div class="wa-note"><strong>💡 How to use WhatsApp for marketing:</strong> Post to your Status daily. Join SA trucking groups and add value before promoting.</div>`;
+        html+=`<div class="tips-box"><div class="tips-title">💡 Quick Tips</div><ul class="tips-list">${cfg.tips.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+        if(!posts.length){ html+=`<div class="empty-state"><div class="icon">${PLAT_ICONS[plat]}</div><p>No live posts for ${PLAT_NAMES[plat]} yet.<br><span style="font-size:12px;color:#475569;">Add posts in ✏️ Manage Posts and publish them.</span></p></div>`; el.innerHTML=html; return; }
         if(plat==='email'){
-            html += posts.map(p=>`
-            <div class="email-card">
-                <div class="email-card-head">
-                    <div><div style="font-size:13px;font-weight:900;color:white;">${escHtml(p.tag)} <span style="font-size:10px;color:#64748b;font-weight:700;">${escHtml(p.order||'')}</span></div>${p.subject?`<div class="email-subject">Subject: ${escHtml(p.subject)}</div>`:''}</div>
-                    ${p.when?`<span class="email-when">${escHtml(p.when)}</span>`:''}
-                </div>
-                <div class="email-body-wrap"><div class="email-preview" id="vp_${p.id}">${escHtml(p.content)}</div></div>
-                <div class="email-footer"><button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Email</button></div>
-            </div>`).join('');
+            html+=posts.map(p=>`<div class="email-card"><div class="email-card-head"><div><div style="font-size:13px;font-weight:900;color:white;">${esc(p.tag)} <span style="font-size:10px;color:#64748b;">${esc(p.order||'')}</span></div>${p.subject?`<div class="email-subject">Subject: ${esc(p.subject)}</div>`:''}</div>${p.when?`<span class="email-when">${esc(p.when)}</span>`:''}</div><div class="email-body-wrap"><div class="email-preview" id="vp_${p.id}">${esc(p.content)}</div></div><div class="email-footer"><button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Email</button></div></div>`).join('');
         } else {
-            html+=`<div class="posts-grid">${posts.map(p=>`
-            <div class="post-card">
-                <div class="post-card-head">
-                    <span class="post-tag" style="background:rgba(255,255,255,0.07);color:${cfg.color};">${escHtml(p.tag)}</span>
-                    <span style="font-size:10px;color:#64748b;font-weight:700;">${escHtml(p.order||'')}</span>
-                </div>
-                <div class="post-card-body"><div class="post-preview" id="vp_${p.id}">${escHtml(p.content)}</div></div>
-                <div class="post-footer">
-                    <button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Post</button>
-                    ${p.hashtags?`<div class="hashtag-wrap">${escHtml(p.hashtags)}</div>`:''}
-                </div>
-            </div>`).join('')}</div>`;
+            html+=`<div class="posts-grid">${posts.map(p=>`<div class="post-card"><div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.07);color:${cfg.color};">${esc(p.tag)}</span><span style="font-size:10px;color:#64748b;font-weight:700;">${esc(p.order||'')}</span></div><div class="post-card-body"><div class="post-preview" id="vp_${p.id}">${esc(p.content)}</div></div><div class="post-footer"><button class="btn-copy" onclick="copyPost('vp_${p.id}',this)">📋 Copy Post</button>${p.hashtags?`<div class="hashtag-wrap">${esc(p.hashtags)}</div>`:''}</div></div>`).join('')}</div>`;
         }
-        el.innerHTML = html;
+        el.innerHTML=html;
     });
 }
 
-// ── Render manage tab ─────────────────────────────────────────────────────────
 function renderManagePosts(){
-    const total  = _posts.length;
-    const live   = _posts.filter(p=>p.live).length;
-    const drafts = _posts.filter(p=>!p.live).length;
-    const plats  = [...new Set(_posts.map(p=>p.platform))].length;
-    document.getElementById('manageStats').innerHTML=`
-        <div class="mstat"><div class="mstat-val">${total}</div><div class="mstat-label">Total Posts</div></div>
-        <div class="mstat"><div class="mstat-val grn">${live}</div><div class="mstat-label">Live / Published</div></div>
-        <div class="mstat"><div class="mstat-val gld">${drafts}</div><div class="mstat-label">Drafts</div></div>
-        <div class="mstat"><div class="mstat-val pur">${plats}</div><div class="mstat-label">Platforms</div></div>`;
-    let filtered = _posts;
-    if(_filterMode==='live')   filtered=_posts.filter(p=>p.live);
-    else if(_filterMode==='draft') filtered=_posts.filter(p=>!p.live);
-    else if(_filterMode!=='all')   filtered=_posts.filter(p=>p.platform===_filterMode);
-    const el = document.getElementById('managePostsList');
-    if(!filtered.length){
-        el.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>No posts match this filter.<br><span style="font-size:12px;color:#475569;">Add a new post using the button above.</span></p></div>`;
-        return;
-    }
-    el.innerHTML = filtered.map(p=>{
-        const liveLabel = p.live
-            ? '<span class="plat-badge pb-live">✅ Live</span>'
-            : '<span class="plat-badge pb-draft">📝 Draft</span>';
-        const publishBtn = p.live
-            ? `<button class="btn-sm bsgd" onclick="toggleLive('${p.id}',false)">↩ Unpublish</button>`
-            : `<button class="btn-sm bsg"  onclick="toggleLive('${p.id}',true)">🚀 Publish</button>`;
-        return `<div class="mpost-card">
-            <div class="mpost-head">
-                <div class="mpost-meta">
-                    <span style="font-size:13px;color:white;font-weight:800;">${escHtml(p.tag)}</span>
-                    <span class="plat-badge" style="background:rgba(255,255,255,0.07);color:#94a3b8;">${PLAT_ICONS[p.platform]||''} ${PLAT_NAMES[p.platform]||p.platform}</span>
-                    ${liveLabel}
-                    ${p.order?`<span style="font-size:10px;color:#475569;font-weight:700;">${escHtml(p.order)}</span>`:''}
-                </div>
-                <div class="mpost-actions">
-                    <button class="btn-sm bsb" onclick="editPost('${p.id}')">✏️ Edit</button>
-                    ${publishBtn}
-                    <button class="btn-sm bsr" onclick="deletePost('${p.id}')">🗑 Delete</button>
-                </div>
-            </div>
-            <div class="mpost-body" id="mb_${p.id}">${escHtml(p.content.substring(0,220))}${p.content.length>220?'...':''}
-                ${p.content.length>220?`<div class="mpost-fade"></div>`:''}
-            </div>
-            <div class="mpost-foot">
-                <span>${p.platform==='email'&&p.subject?'Subject: '+escHtml(p.subject):(p.hashtags?escHtml(p.hashtags.substring(0,80))+'...':'No hashtags')}</span>
-                <span style="color:#334155;">Added ${p.createdAt?new Date(p.createdAt).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—'}</span>
-            </div>
-        </div>`;
+    const total=_posts.length,live=_posts.filter(p=>p.live).length,drafts=_posts.filter(p=>!p.live).length,plats=[...new Set(_posts.map(p=>p.platform))].length;
+    document.getElementById('manageStats').innerHTML=`<div class="mstat"><div class="mstat-val">${total}</div><div class="mstat-label">Total Posts</div></div><div class="mstat"><div class="mstat-val grn">${live}</div><div class="mstat-label">Live</div></div><div class="mstat"><div class="mstat-val gld">${drafts}</div><div class="mstat-label">Drafts</div></div><div class="mstat"><div class="mstat-val pur">${plats}</div><div class="mstat-label">Platforms</div></div>`;
+    let filtered=_posts;
+    if(_filter==='live') filtered=_posts.filter(p=>p.live);
+    else if(_filter==='draft') filtered=_posts.filter(p=>!p.live);
+    else if(_filter!=='all') filtered=_posts.filter(p=>p.platform===_filter);
+    const el=document.getElementById('managePostsList');
+    if(!filtered.length){ el.innerHTML=`<div class="empty-state"><div class="icon">📝</div><p>No posts match this filter.</p></div>`; return; }
+    el.innerHTML=filtered.map(p=>{
+        const liveLabel=p.live?'<span class="plat-badge pb-live">✅ Live</span>':'<span class="plat-badge pb-draft">📝 Draft</span>';
+        const publishBtn=p.live?`<button class="btn-sm bsgd" onclick="toggleLive('${p.id}',false)">↩ Unpublish</button>`:`<button class="btn-sm bsg" onclick="toggleLive('${p.id}',true)">🚀 Publish</button>`;
+        return `<div class="mpost-card"><div class="mpost-head"><div class="mpost-meta"><span style="font-size:13px;color:white;font-weight:800;">${esc(p.tag)}</span><span class="plat-badge" style="background:rgba(255,255,255,0.07);color:#94a3b8;">${PLAT_ICONS[p.platform]||''} ${PLAT_NAMES[p.platform]||p.platform}</span>${liveLabel}${p.order?`<span style="font-size:10px;color:#475569;font-weight:700;">${esc(p.order)}</span>`:''}</div><div class="mpost-actions"><button class="btn-sm bsb" onclick="editPost('${p.id}')">✏️ Edit</button>${publishBtn}<button class="btn-sm bsr" onclick="deletePost('${p.id}')">🗑 Delete</button></div></div><div class="mpost-body">${esc(p.content.substring(0,200))}${p.content.length>200?'...':''}</div><div class="mpost-foot"><span>${p.platform==='email'&&p.subject?'Subject: '+esc(p.subject):(p.hashtags?esc(p.hashtags.substring(0,80)):'No hashtags')}</span><span style="color:#334155;">Added ${p.createdAt?new Date(p.createdAt).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—'}</span></div></div>`;
     }).join('');
 }
 
-// ── Filter ────────────────────────────────────────────────────────────────────
-function filterPosts(mode, el){
-    _filterMode = mode;
-    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-    el.classList.add('active');
-    renderManagePosts();
-}
-
-// ── Toggle publish ────────────────────────────────────────────────────────────
-async function toggleLive(id, live){
-    const p = _posts.find(x=>x.id===id); if(!p) return;
-    p.live = live;
-    p.updatedAt = new Date().toISOString();
-    await savePosts();
-    renderViewPosts();
-    renderManagePosts();
-    toast(live ? '🚀 Post published — live for partners ✓' : '↩ Post unpublished — moved to drafts', live?'green':'gold');
-}
-
-// ── Delete ────────────────────────────────────────────────────────────────────
-async function deletePost(id){
-    const p = _posts.find(x=>x.id===id);
-    if(!p || !confirm(`Delete "${p.tag}" permanently? This cannot be undone.`)) return;
-    _posts = _posts.filter(x=>x.id!==id);
-    await savePosts();
-    renderViewPosts();
-    renderManagePosts();
-    toast('Post deleted','red');
-}
-
-// ── Open modal for new post ───────────────────────────────────────────────────
-function openNewPostModal(){
-    _editId = null;
-    document.getElementById('postModalTitle').textContent = '➕ New Post';
-    document.getElementById('pm_platform').value  = 'fb';
-    document.getElementById('pm_tag').value       = '';
-    document.getElementById('pm_content').value   = '';
-    document.getElementById('pm_hashtags').value  = '';
-    document.getElementById('pm_order').value     = '';
-    document.getElementById('pm_subject').value   = '';
-    document.getElementById('pm_when').value      = '';
-    toggleEmailFields('fb');
-    document.getElementById('postModal').classList.add('open');
-}
-
-// ── Open modal for edit ───────────────────────────────────────────────────────
-function editPost(id){
-    const p = _posts.find(x=>x.id===id); if(!p) return;
-    _editId = id;
-    document.getElementById('postModalTitle').textContent = '✏️ Edit Post';
-    document.getElementById('pm_platform').value  = p.platform;
-    document.getElementById('pm_tag').value       = p.tag||'';
-    document.getElementById('pm_content').value   = p.content||'';
-    document.getElementById('pm_hashtags').value  = p.hashtags||'';
-    document.getElementById('pm_order').value     = p.order||'';
-    document.getElementById('pm_subject').value   = p.subject||'';
-    document.getElementById('pm_when').value      = p.when||'';
-    toggleEmailFields(p.platform);
-    document.getElementById('postModal').classList.add('open');
-}
-
-// ── Show/hide email-only fields ───────────────────────────────────────────────
-document.getElementById('pm_platform').addEventListener('change', function(){ toggleEmailFields(this.value); });
-function toggleEmailFields(plat){
-    const isEmail = plat==='email';
-    document.getElementById('pm_subject_group').style.display = isEmail?'flex':'none';
-    document.getElementById('pm_when_group').style.display    = isEmail?'flex':'none';
-}
-
-// ── Save post ─────────────────────────────────────────────────────────────────
+function filterPosts(mode,el){ _filter=mode; document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderManagePosts(); }
+async function toggleLive(id,live){ const p=_posts.find(x=>x.id===id); if(!p) return; p.live=live; p.updatedAt=new Date().toISOString(); await savePosts(); renderViewPosts(); renderManagePosts(); toast(live?'🚀 Post published — live for partners ✓':'↩ Post moved to drafts',live?'green':'gold'); }
+async function deletePost(id){ const p=_posts.find(x=>x.id===id); if(!p||!confirm(`Delete "${p.tag}" permanently?`)) return; _posts=_posts.filter(x=>x.id!==id); await savePosts(); renderViewPosts(); renderManagePosts(); toast('Post deleted','red'); }
+function openNewPostModal(){ _editId=null; document.getElementById('postModalTitle').textContent='➕ New Post'; ['pm_tag','pm_content','pm_hashtags','pm_order','pm_subject','pm_when'].forEach(id=>document.getElementById(id).value=''); document.getElementById('pm_platform').value='fb'; toggleEmailFields('fb'); document.getElementById('postModal').classList.add('open'); }
+function editPost(id){ const p=_posts.find(x=>x.id===id); if(!p) return; _editId=id; document.getElementById('postModalTitle').textContent='✏️ Edit Post'; document.getElementById('pm_platform').value=p.platform; document.getElementById('pm_tag').value=p.tag||''; document.getElementById('pm_content').value=p.content||''; document.getElementById('pm_hashtags').value=p.hashtags||''; document.getElementById('pm_order').value=p.order||''; document.getElementById('pm_subject').value=p.subject||''; document.getElementById('pm_when').value=p.when||''; toggleEmailFields(p.platform); document.getElementById('postModal').classList.add('open'); }
+function toggleEmailFields(plat){ const e=plat==='email'; document.getElementById('pm_subj_grp').style.display=e?'flex':'none'; document.getElementById('pm_when_grp').style.display=e?'flex':'none'; }
 async function savePost(publish){
-    const platform = document.getElementById('pm_platform').value;
-    const tag      = document.getElementById('pm_tag').value.trim();
-    const content  = document.getElementById('pm_content').value.trim();
-    const hashtags = document.getElementById('pm_hashtags').value.trim();
-    const order    = document.getElementById('pm_order').value.trim();
-    const subject  = document.getElementById('pm_subject').value.trim();
-    const when     = document.getElementById('pm_when').value.trim();
+    const platform=document.getElementById('pm_platform').value, tag=document.getElementById('pm_tag').value.trim(), content=document.getElementById('pm_content').value.trim(), hashtags=document.getElementById('pm_hashtags').value.trim(), order=document.getElementById('pm_order').value.trim(), subject=document.getElementById('pm_subject').value.trim(), when=document.getElementById('pm_when').value.trim();
     if(!tag||!content){ toast('Tag and content are required','red'); return; }
-    if(_editId){
-        const idx = _posts.findIndex(p=>p.id===_editId);
-        if(idx>-1){
-            _posts[idx] = Object.assign(_posts[idx],{platform,tag,content,hashtags,order,subject,when,live:publish,updatedAt:new Date().toISOString()});
-        }
-    } else {
-        _posts.push({id:'post_'+Date.now(),platform,tag,content,hashtags,order,subject,when,live:publish,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
-    }
-    await savePosts();
-    closeModal('postModal');
-    renderViewPosts();
-    renderManagePosts();
-    toast(publish ? '🚀 Post published — live for partners ✓' : '💾 Saved as draft ✓', 'green');
+    if(_editId){ const idx=_posts.findIndex(p=>p.id===_editId); if(idx>-1) _posts[idx]=Object.assign(_posts[idx],{platform,tag,content,hashtags,order,subject,when,live:publish,updatedAt:new Date().toISOString()}); }
+    else{ _posts.push({id:'post_'+Date.now(),platform,tag,content,hashtags,order,subject,when,live:publish,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}); }
+    await savePosts(); closeModal('postModal'); renderViewPosts(); renderManagePosts();
+    toast(publish?'🚀 Post published — live for partners ✓':'💾 Saved as draft ✓','green');
 }
-
-// ── Platform switcher (view tab) ──────────────────────────────────────────────
-const PLAT_OPEN_URLS = {fb:'https://www.facebook.com',li:'https://www.linkedin.com/feed/',ig:'https://www.instagram.com',wa:'https://web.whatsapp.com',tt:'https://www.tiktok.com',email:'https://mail.google.com'};
-function switchPlat(id, el){
-    _currentPlat = id;
-    document.querySelectorAll('.plat-section').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
-    const sec = document.getElementById('plat-'+id);
-    if(sec) sec.classList.add('active');
-    if(el)  el.classList.add('active');
-    const btn = document.getElementById('openPlatBtn');
-    if(btn){ btn.textContent='🚀 Open '+PLAT_NAMES[id]; btn.onclick=()=>openPlat(id); }
-}
-function openPlat(id){ window.open(PLAT_OPEN_URLS[id],'_blank'); }
-
-// ── Section switcher ──────────────────────────────────────────────────────────
-function switchSection(id, el){
-    document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active'));
-    const sec = document.getElementById('tab-'+id);
-    if(sec) sec.classList.add('active');
-    if(el)  el.classList.add('active');
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function copyPost(id, btn){
-    const el = document.getElementById(id); if(!el) return;
-    navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{
-        const o=btn.textContent; btn.textContent='✅ Copied!'; btn.classList.add('copied');
-        setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); },2000);
-    });
-}
-function copyBioLink(btn){
-    navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(()=>{
-        const o=btn.textContent; btn.textContent='✅ Copied!'; btn.style.background='#6366f1';
-        setTimeout(()=>{ btn.textContent=o; btn.style.background='var(--grn)'; },2000);
-    });
-}
+function switchSection(id,el){ document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('tab-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); }
+function switchPlat(id,el){ document.querySelectorAll('.plat-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('plat-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); const btn=document.getElementById('openPlatBtn'); if(btn){ btn.textContent='🚀 Open '+PLAT_NAMES[id]; btn.onclick=()=>openPlat(id); } }
+function openPlat(id){ window.open(PLAT_OPEN[id],'_blank'); }
+function copyPost(id,btn){ const el=document.getElementById(id); if(!el) return; navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); },2000); }); }
+function copyBioLink(btn){ navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.style.background='#6366f1'; setTimeout(()=>{ btn.textContent=o; btn.style.background='var(--grn)'; },2000); }); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function toast(msg,color){
-    color=color||'green';
-    const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':color==='gold'?'rgba(245,158,11,0.4)':'rgba(16,185,129,0.4)';
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),3000);
-}
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ══════════════════════════════════════════════════════════════════════════════
-// REEL BUILDER
-// ══════════════════════════════════════════════════════════════════════════════
-
-// ── Preset scripts ────────────────────────────────────────────────────────────
-const RB_SCRIPTS = {
-    script1:{
-        caption:'If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5–R8/litre on April 1st. Here\'s what that means for your business — and what you can actually do about it.',
-        hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner #satransport #businessowner #fuelefficiency #tiktokbusiness',
-        slides:[
-            {type:'hook',    headline:'DIESEL UP R8\nIN APRIL?',          sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
-            {type:'stat',    headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',  sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
-            {type:'numbers', headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH',sub:'10,000km each per month · R5 more per litre\nEvery. Single. Month.'},
-            {type:'point',   headline:'THE FLEET OWNERS\nWHO SURVIVE THIS\nKNOW THEIR NUMBERS',sub:'Which drivers are over-consuming.\nWhich vehicles are bleeding diesel.'},
-            {type:'proof',   headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA',sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
-            {type:'cta',     headline:'FREE FLEET\nAUDIT',                 sub:'Link in bio → dynamicfleetreports.co.za\n📞 083 314 9592'}
-        ]
-    },
-    script2:{
-        caption:'Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else\'s. After April\'s R5–R8 diesel increase, that silence is going to cost you R7,000–R8,000 extra per month. Per driver.',
-        hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner #driverefficiency #satransport #businesstips',
-        slides:[
-            {type:'hook',    headline:'ONE DRIVER\nIS COSTING YOU\nR8,000/MONTH EXTRA',sub:'Every fleet has one.\nThe driver nobody talks about.'},
-            {type:'point',   headline:'20% ABOVE\nEVERYONE ELSE',          sub:'You know something\'s off.\nBut you can\'t prove it without the data.'},
-            {type:'numbers', headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH',     sub:'Per outlier driver · Per month\nThat was already expensive.'},
-            {type:'stat',    headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH',      sub:'Same driver · Same bad habits\nNow costs almost double.'},
-            {type:'proof',   headline:'OUR REPORT:\nEVERY DRIVER\nRANKED BY EFFICIENCY',sub:'Outliers highlighted in red.\nEvery month. Actionable data.'},
-            {type:'cta',     headline:'FREE FLEET\nASSESSMENT',            sub:'Link in bio\n📞 083 314 9592'}
-        ]
-    },
-    script3:{
-        caption:'Let me do the maths for you. R5.50 more per litre × your fleet × every month. The number is bigger than you think — and 20–30% of it is preventable waste you can fix right now.',
-        hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #fuelefficiency #fleetowner #businessmath #satransport',
-        slides:[
-            {type:'hook',    headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?',  sub:'Let me do the maths\nfor you quickly.'},
-            {type:'numbers', headline:'R18.50 → R24+\nPER LITRE\n= R5.50 MORE',  sub:'Current diesel → April diesel\nDifference: R5.50/litre'},
-            {type:'stat',    headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH',       sub:'10,000km/month at 3km/L\n= 3,333 litres × R5.50'},
-            {type:'numbers', headline:'10 TRUCKS\n= R183,000\nMORE/MONTH',        sub:'20 trucks = R366,000 more per month\nEvery. Single. Month.'},
-            {type:'point',   headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE',    sub:'Over-consuming drivers.\nInefficient vehicles.\nYou can fix this.'},
-            {type:'cta',     headline:'WE SHOW YOU\nWHERE IT\'S GOING',           sub:'Free fleet efficiency assessment\nLink in bio · 📞 083 314 9592'}
-        ]
-    }
-};
-
-// ── Style definitions ─────────────────────────────────────────────────────────
-const RB_STYLES = {
-    dark:{
-        bg:'#000000', bgGrad:['#000000','#0a0a0a'],
-        headline:'#ffffff', sub:'#a0a0a0', accent:'#10b981',
-        brand:'#10b981', brandBg:'rgba(16,185,129,0.15)',
-        hookBg:['#000000','#031a0f'], numBg:['#000000','#031a0f'],
-        statBg:['#000000','#0a1a00'], ctaBg:['#031a0f','#000000'],
-        accentLine:true
-    },
-    aggro:{
-        bg:'#0a0000', bgGrad:['#0a0000','#1a0000'],
-        headline:'#ffffff', sub:'#ffaaaa', accent:'#ef4444',
-        brand:'#ef4444', brandBg:'rgba(239,68,68,0.15)',
-        hookBg:['#1a0000','#0a0000'], numBg:['#1a0000','#0a0000'],
-        statBg:['#0f0000','#050000'], ctaBg:['#1a0000','#050000'],
-        accentLine:true
-    },
-    navy:{
-        bg:'#0f172a', bgGrad:['#0f172a','#1e293b'],
-        headline:'#e2e8f0', sub:'#94a3b8', accent:'#3b82f6',
-        brand:'#60a5fa', brandBg:'rgba(59,130,246,0.15)',
-        hookBg:['#0f172a','#1e3a5f'], numBg:['#0f172a','#1a2f4a'],
-        statBg:['#0f172a','#1e2d40'], ctaBg:['#1e3a5f','#0f172a'],
-        accentLine:true
-    },
-    light:{
-        bg:'#f8fafc', bgGrad:['#f8fafc','#f1f5f9'],
-        headline:'#0f172a', sub:'#475569', accent:'#059669',
-        brand:'#059669', brandBg:'rgba(5,150,105,0.1)',
-        hookBg:['#f8fafc','#ecfdf5'], numBg:['#f1f5f9','#ecfdf5'],
-        statBg:['#f8fafc','#f0fdf4'], ctaBg:['#ecfdf5','#f8fafc'],
-        accentLine:true
-    },
-    custom:{
-        bg:'#1a0a2e', bgGrad:['#1a0a2e','#0d0618'],
-        headline:'#ffffff', sub:'#cccccc', accent:'#f59e0b',
-        brand:'#f59e0b', brandBg:'rgba(245,158,11,0.15)',
-        hookBg:['#1a0a2e','#2a0a3e'], numBg:['#1a0a2e','#2a0a3e'],
-        statBg:['#1a0a2e','#200a36'], ctaBg:['#2a0a3e','#1a0a2e'],
-        accentLine:true
-    }
-};
-
-// ── State ─────────────────────────────────────────────────────────────────────
-let rb_slides       = [];
-let rb_activeSlide  = 0;
-let rb_style        = 'dark';
-let rb_canvas       = null;
-let rb_ctx          = null;
-let rb_W            = 1080;
-let rb_H            = 1920;
-
-// ── Init reel builder when tab opens ─────────────────────────────────────────
-function initReelBuilder(){
-    rb_canvas = document.getElementById('reelCanvas');
-    rb_ctx    = rb_canvas.getContext('2d');
-    rb_canvas.width  = rb_W;
-    rb_canvas.height = rb_H;
-    if(!rb_slides.length) resetBuilder();
-    else { renderSlidesList(); drawSlide(rb_activeSlide); }
-}
-
-function resetBuilder(){
-    rb_slides = [
-        {type:'hook',    headline:'YOUR HOOK\nGOES HERE',    sub:'Supporting text — what\'s the big problem?'},
-        {type:'stat',    headline:'THE KEY STAT\nOR FACT',    sub:'Numbers create urgency. Use them.'},
-        {type:'point',   headline:'YOUR MAIN\nPOINT',         sub:'Keep it short. One idea per slide.'},
-        {type:'cta',     headline:'CALL TO\nACTION',          sub:'Link in bio · 📞 083 314 9592'}
-    ];
-    rb_activeSlide = 0;
-    document.getElementById('rb_caption').value  = '';
-    document.getElementById('rb_hashtags').value = '#fleetmanagement #southafrica #transport #trucking #diesel #fuelefficiency';
-    renderSlidesList();
-    if(rb_canvas) drawSlide(0);
-    updateNavButtons();
-}
-
-// ── Load a preset script ──────────────────────────────────────────────────────
-function loadScript(key){
-    if(!key){ resetBuilder(); return; }
-    const s = RB_SCRIPTS[key]; if(!s) return;
-    rb_slides      = s.slides.map(sl=>Object.assign({},sl));
-    rb_activeSlide = 0;
-    document.getElementById('rb_caption').value  = s.caption;
-    document.getElementById('rb_hashtags').value = s.hashtags;
-    renderSlidesList();
-    if(rb_canvas) drawSlide(0);
-    updateNavButtons();
-}
-
-// ── Render the slides list in the editor ─────────────────────────────────────
-function renderSlidesList(){
-    const list = document.getElementById('slidesList');
-    if(!list) return;
-    list.innerHTML = rb_slides.map((sl,i)=>`
-        <div class="slide-item ${i===rb_activeSlide?'active-slide':''}" id="sli_${i}" onclick="selectSlide(${i})">
-            <div class="slide-item-head">
-                <div class="slide-num">${i+1}</div>
-                <select class="slide-type-select" onchange="changeSlideType(${i},this.value)" onclick="event.stopPropagation()">
-                    <option value="hook"    ${sl.type==='hook'   ?'selected':''}>🪝 Hook</option>
-                    <option value="stat"    ${sl.type==='stat'   ?'selected':''}>📊 Stat</option>
-                    <option value="numbers" ${sl.type==='numbers'?'selected':''}>🔢 Numbers</option>
-                    <option value="point"   ${sl.type==='point'  ?'selected':''}>💡 Point</option>
-                    <option value="proof"   ${sl.type==='proof'  ?'selected':''}>✅ Proof</option>
-                    <option value="cta"     ${sl.type==='cta'    ?'selected':''}>📣 CTA</option>
-                </select>
-                <button class="slide-up" onclick="moveSlide(${i},-1,event)" title="Move up">↑</button>
-                <button class="slide-dn" onclick="moveSlide(${i},1,event)"  title="Move down">↓</button>
-                <button class="slide-del" onclick="deleteSlide(${i},event)" title="Delete">✕</button>
-            </div>
-            <input class="slide-headline-input" type="text" value="${escAttr(sl.headline.replace(/\n/g,' | '))}"
-                placeholder="HEADLINE TEXT (use | for new line)"
-                oninput="updateSlideHeadline(${i},this.value)"
-                onclick="selectSlide(${i})">
-            <textarea class="slide-sub-input" placeholder="Supporting text (optional)"
-                oninput="updateSlideSub(${i},this.value)"
-                onclick="selectSlide(${i})">${escAttr(sl.sub||'')}</textarea>
-        </div>`).join('');
-    updateNavButtons();
-}
-
-function escAttr(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function selectSlide(i){
-    rb_activeSlide = i;
-    document.querySelectorAll('.slide-item').forEach((el,idx)=>{
-        el.classList.toggle('active-slide', idx===i);
-    });
-    drawSlide(i);
-    updateNavButtons();
-}
-
-function changeSlideType(i, type){ rb_slides[i].type=type; drawSlide(rb_activeSlide); }
-
-function updateSlideHeadline(i, val){
-    rb_slides[i].headline = val.replace(/\|/g,'\n');
-    drawSlide(rb_activeSlide);
-}
-function updateSlideSub(i, val){
-    rb_slides[i].sub = val;
-    drawSlide(rb_activeSlide);
-}
-
-function addSlide(){
-    rb_slides.push({type:'point', headline:'NEW SLIDE\nHEADLINE', sub:'Supporting text here'});
-    rb_activeSlide = rb_slides.length-1;
-    renderSlidesList();
-    drawSlide(rb_activeSlide);
-}
-
-function deleteSlide(i, e){
-    e.stopPropagation();
-    if(rb_slides.length<=1){ toast('You need at least 1 slide','red'); return; }
-    rb_slides.splice(i,1);
-    if(rb_activeSlide>=rb_slides.length) rb_activeSlide=rb_slides.length-1;
-    renderSlidesList();
-    drawSlide(rb_activeSlide);
-}
-
-function moveSlide(i, dir, e){
-    e.stopPropagation();
-    const ni = i+dir;
-    if(ni<0||ni>=rb_slides.length) return;
-    [rb_slides[i],rb_slides[ni]] = [rb_slides[ni],rb_slides[i]];
-    rb_activeSlide = ni;
-    renderSlidesList();
-    drawSlide(rb_activeSlide);
-}
-
-function navSlide(dir){
-    const ni = rb_activeSlide+dir;
-    if(ni<0||ni>=rb_slides.length) return;
-    selectSlide(ni);
-}
-
-function updateNavButtons(){
-    const prev = document.getElementById('rb_prev');
-    const next = document.getElementById('rb_next');
-    const ctr  = document.getElementById('rb_counter');
-    if(prev) prev.disabled = rb_activeSlide===0;
-    if(next) next.disabled = rb_activeSlide===rb_slides.length-1;
-    if(ctr)  ctr.textContent = `Slide ${rb_activeSlide+1} of ${rb_slides.length}`;
-}
-
-// ── Style switching ───────────────────────────────────────────────────────────
-function setStyle(name, el){
-    rb_style = name;
-    document.querySelectorAll('.style-btn').forEach(b=>b.classList.remove('active'));
-    el.classList.add('active');
-    const cc = document.getElementById('customColours');
-    if(name==='custom') cc.classList.add('show');
-    else cc.classList.remove('show');
-    if(rb_canvas) drawSlide(rb_activeSlide);
-}
-
-function updateCustomStyle(){
-    RB_STYLES.custom.bg       = document.getElementById('cc_bg').value;
-    RB_STYLES.custom.bgGrad   = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
-    RB_STYLES.custom.headline = document.getElementById('cc_head').value;
-    RB_STYLES.custom.sub      = document.getElementById('cc_sub').value;
-    RB_STYLES.custom.accent   = document.getElementById('cc_accent').value;
-    RB_STYLES.custom.brand    = document.getElementById('cc_brand').value;
-    RB_STYLES.custom.brandBg  = document.getElementById('cc_accent').value+'26';
-    RB_STYLES.custom.hookBg   = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
-    RB_STYLES.custom.numBg    = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
-    RB_STYLES.custom.ctaBg    = [document.getElementById('cc_bg').value, document.getElementById('cc_bg').value];
-    if(rb_canvas) drawSlide(rb_activeSlide);
-}
-
-// ── Canvas drawing ────────────────────────────────────────────────────────────
-function drawSlide(idx){
-    if(!rb_canvas||!rb_ctx) return;
-    const sl  = rb_slides[idx];
-    if(!sl) return;
-    const st  = RB_STYLES[rb_style];
-    const ctx = rb_ctx;
-    const W   = rb_W;
-    const H   = rb_H;
-    ctx.clearRect(0,0,W,H);
-
-    // Background gradient
-    let bgColors = st.bg ? [st.bg, st.bg] : st.bgGrad;
-    if(sl.type==='hook'||sl.type==='cta') bgColors = st.hookBg||st.bgGrad;
-    else if(sl.type==='numbers')          bgColors = st.numBg||st.bgGrad;
-    else if(sl.type==='stat')             bgColors = st.statBg||st.bgGrad;
-    const grad = ctx.createLinearGradient(0,0,W,H);
-    grad.addColorStop(0, bgColors[0]);
-    grad.addColorStop(1, bgColors[1]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,W,H);
-
-    // Subtle grid pattern overlay
-    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
-    ctx.lineWidth   = 1;
-    for(let gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
-    for(let gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
-
-    // Accent bar (left side)
-    if(st.accentLine){
-        ctx.fillStyle = st.accent;
-        ctx.fillRect(0, 0, 14, H);
-    }
-
-    // Top brand bar
-    ctx.fillStyle = st.brandBg || 'rgba(16,185,129,0.12)';
-    ctx.fillRect(14,0, W-14, 110);
-    ctx.fillStyle = st.brand;
-    ctx.font      = `900 38px 'Outfit', Arial, sans-serif`;
-    ctx.textAlign = 'left';
-    ctx.fillText('DYNAMIC FLEET REPORTING', 60, 72);
-
-    // Slide type badge
-    const badges = {hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
-    const badgeText = badges[sl.type]||sl.type.toUpperCase();
-    ctx.font      = `900 30px 'Outfit', Arial, sans-serif`;
-    ctx.fillStyle = st.accent;
-    ctx.fillText(badgeText, 60, 170);
-
-    // Slide number (top right)
-    ctx.font      = `700 28px 'Outfit', Arial, sans-serif`;
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.textAlign = 'right';
-    ctx.fillText(`${idx+1} / ${rb_slides.length}`, W-50, 170);
-    ctx.textAlign = 'left';
-
-    // Accent divider line
-    ctx.strokeStyle = st.accent;
-    ctx.lineWidth   = 4;
-    ctx.beginPath();
-    ctx.moveTo(60, 200);
-    ctx.lineTo(W-60, 200);
-    ctx.stroke();
-
-    // Headline text — large, bold, multiline
-    const headLines = sl.headline ? sl.headline.split('\n') : [''];
-    const headSize  = headLines.length>3 ? 120 : headLines.length>2 ? 140 : 160;
-    ctx.font        = `900 ${headSize}px 'Outfit', Arial, sans-serif`;
-    ctx.fillStyle   = st.headline;
-    ctx.textAlign   = 'left';
-
-    // Dynamic vertical centring
-    const totalHeadH = headLines.length * (headSize * 1.15);
-    let headY = sl.sub ? H*0.36 : H*0.44;
-    headLines.forEach(line=>{
-        // Shrink font if line too wide
-        let fs = headSize;
-        ctx.font = `900 ${fs}px 'Outfit', Arial, sans-serif`;
-        while(ctx.measureText(line).width > W-120 && fs>60){ fs-=4; ctx.font=`900 ${fs}px 'Outfit', Arial, sans-serif`; }
-        ctx.fillText(line, 60, headY);
-        headY += fs*1.2;
-    });
-
-    // Subtext
-    if(sl.sub){
-        const subLines = sl.sub.split('\n');
-        let subY = headY + 60;
-        ctx.font      = `600 52px 'Outfit', Arial, sans-serif`;
-        ctx.fillStyle = st.sub;
-        subLines.forEach(line=>{
-            let fs = 52;
-            ctx.font = `600 ${fs}px 'Outfit', Arial, sans-serif`;
-            while(ctx.measureText(line).width > W-120 && fs>32){ fs-=2; ctx.font=`600 ${fs}px 'Outfit', Arial, sans-serif`; }
-            ctx.fillText(line, 60, subY);
-            subY += fs*1.4;
-        });
-    }
-
-    // CTA slide extras — phone number prominent
-    if(sl.type==='cta'){
-        ctx.fillStyle = st.accent;
-        ctx.font      = `900 56px 'Outfit', Arial, sans-serif`;
-        ctx.fillText('083 314 9592', 60, H-220);
-        ctx.fillStyle = st.sub;
-        ctx.font      = `600 40px 'Outfit', Arial, sans-serif`;
-        ctx.fillText('dynamicfleetreports@gmail.com', 60, H-155);
-    }
-
-    // Bottom bar
-    ctx.fillStyle = st.brandBg || 'rgba(16,185,129,0.12)';
-    ctx.fillRect(14, H-100, W-14, 100);
-    ctx.fillStyle = st.brand;
-    ctx.font      = `700 34px 'Outfit', Arial, sans-serif`;
-    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit', 60, H-38);
-}
-
-// ── Download helpers ──────────────────────────────────────────────────────────
-function downloadSlide(){
-    if(!rb_canvas) return;
-    drawSlide(rb_activeSlide);
-    const link = document.createElement('a');
-    link.download = `dfr-reel-slide-${rb_activeSlide+1}.png`;
-    link.href = rb_canvas.toDataURL('image/png');
-    link.click();
-    toast(`Slide ${rb_activeSlide+1} downloaded ✓`,'green');
-}
-
-async function downloadAllSlides(){
-    if(!rb_canvas){ toast('Canvas not ready','red'); return; }
-    toast('Downloading all slides...','green');
-    for(let i=0;i<rb_slides.length;i++){
-        drawSlide(i);
-        await new Promise(r=>setTimeout(r,120));
-        const link = document.createElement('a');
-        link.download = `dfr-reel-slide-${i+1}-of-${rb_slides.length}.png`;
-        link.href = rb_canvas.toDataURL('image/png');
-        link.click();
-        await new Promise(r=>setTimeout(r,300));
-    }
-    drawSlide(rb_activeSlide);
-    toast(`All ${rb_slides.length} slides downloaded ✓`,'green');
-}
-
-function copyCaption(){
-    const caption  = document.getElementById('rb_caption').value.trim();
-    const hashtags = document.getElementById('rb_hashtags').value.trim();
-    const full     = caption + (hashtags ? '\n\n' + hashtags : '');
-    navigator.clipboard.writeText(full).then(()=>toast('Caption + hashtags copied ✓','green'));
-}
-
-// ── Hook reel builder init into switchSection ─────────────────────────────────
-const _origSwitchSection = switchSection;
-function switchSection(id, el){
-    _origSwitchSection(id, el);
-    if(id==='reel'){
-        document.getElementById('stab-reel').classList.add('active');
-        setTimeout(initReelBuilder, 50);
-    }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// BACKGROUND IMAGES — Unsplash + SVG Illustrations
-// ══════════════════════════════════════════════════════════════════════════════
-
-const UNSPLASH_KEY = 'g7EGqA04ya3C46uRc1wbfulu6vQx0x5qctxwU9_SFBQ';
-
-// State for backgrounds
-let rb_bgImage      = null;   // current HTMLImageElement or null
-let rb_bgOpacity    = 0.22;
-let rb_bgScope      = 'slide'; // 'slide' or 'all'
-let rb_slideImages  = {};      // {slideIndex: HTMLImageElement}
-let rb_allImage     = null;    // image applied to all slides
-let rb_activeIllusId = 'none';
-
-// SVG Illustration definitions — drawn directly onto canvas
-const SVG_ILLUS = [
-    { id:'none', label:'No BG' },
-    { id:'semi_side',   label:'Semi Side' },
-    { id:'truck_front', label:'Truck Front' },
-    { id:'fleet_row',   label:'Fleet Row' },
-    { id:'dashboard',   label:'Dashboard' },
-    { id:'highway',     label:'Highway' },
-    { id:'wheels',      label:'Close-Up Wheels' },
-    { id:'cargo',       label:'Cargo View' },
-    { id:'sunset_road', label:'Sunset Road' },
-    { id:'speedometer', label:'Speedometer' },
-    { id:'sa_map',      label:'SA Silhouette' }
-];
-
-// ── Render the illustration / image picker ────────────────────────────────────
-function renderIllusGrid(){
-    const grid = document.getElementById('illusGrid');
-    if(!grid) return;
-
-    // Search row
-    let html = `<div style="grid-column:1/-1;display:flex;gap:6px;margin-bottom:8px;">
-        <input type="text" id="unsplashQuery" placeholder="Search photos (truck, fleet, road...)"
-            style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;outline:none;"
-            onkeydown="if(event.key==='Enter')searchUnsplash()"
-            value="semi truck south africa">
-        <button onclick="searchUnsplash()" style="background:rgba(236,72,153,0.15);border:1px solid rgba(236,72,153,0.3);color:#f472b6;padding:6px 14px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;">🔍 Search</button>
-    </div>
-    <div id="unsplashResults" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:8px;"></div>
-    <div style="grid-column:1/-1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#475569;margin-bottom:4px;">SVG Illustrations</div>`;
-
-    // SVG thumbs
-    SVG_ILLUS.forEach(il=>{
-        const active = rb_activeIllusId===il.id && !rb_bgImage ? 'active-illus' : '';
-        if(il.id==='none'){
-            html += `<div class="illus-thumb illus-none ${active}" onclick="applyIllus('none')" title="No background">🚫<div class="illus-label">None</div></div>`;
-        } else {
-            html += `<div class="illus-thumb ${active}" onclick="applyIllus('${il.id}')" title="${il.label}">
-                <svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">${getSvgThumb(il.id)}</svg>
-                <div class="illus-label">${il.label}</div>
-            </div>`;
-        }
-    });
-
-    html += '</div>';
-    grid.innerHTML = html;
-
-    // Auto-search on init
-    searchUnsplash();
-}
-
-// ── Unsplash search ───────────────────────────────────────────────────────────
-async function searchUnsplash(){
-    const q   = (document.getElementById('unsplashQuery')||{}).value || 'semi truck';
-    const res = document.getElementById('unsplashResults');
-    if(!res) return;
-    res.innerHTML = `<div style="grid-column:1/-1;color:#64748b;font-size:11px;padding:4px 0;">Searching...</div>`;
-    try{
-        const r    = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=12&orientation=portrait&client_id=${UNSPLASH_KEY}`);
-        const data = await r.json();
-        if(!data.results||!data.results.length){
-            res.innerHTML=`<div style="grid-column:1/-1;color:#64748b;font-size:11px;">No results found. Try "truck" or "highway".</div>`;
-            return;
-        }
-        res.innerHTML = data.results.map(photo=>`
-            <div class="illus-thumb" onclick="applyUnsplashPhoto('${photo.urls.regular}','${photo.id}')"
-                title="${photo.alt_description||photo.user.name}"
-                style="background-image:url(${photo.urls.thumb});background-size:cover;background-position:center;">
-                <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.7));padding:3px 4px;font-size:7px;color:rgba(255,255,255,0.6);">${photo.user.name}</div>
-            </div>`).join('');
-        // Attribution note
-        res.innerHTML += `<div style="grid-column:1/-1;font-size:8px;color:#334155;margin-top:2px;">Photos by <a href="https://unsplash.com" target="_blank" style="color:#475569;">Unsplash</a></div>`;
-    } catch(e){
-        res.innerHTML=`<div style="grid-column:1/-1;color:#f87171;font-size:11px;">Search failed. Check your connection.</div>`;
-    }
-}
-
-// ── Apply Unsplash photo ──────────────────────────────────────────────────────
-function applyUnsplashPhoto(url, id){
-    rb_activeIllusId = 'unsplash_'+id;
-    // Clear SVG illus active states
-    document.querySelectorAll('.illus-thumb').forEach(t=>t.classList.remove('active-illus'));
-    // Find and mark active
-    event.currentTarget.classList.add('active-illus');
-
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = ()=>{
-        if(rb_bgScope==='all'){
-            rb_allImage = img;
-            rb_slideImages = {};
-        } else {
-            rb_slideImages[rb_activeSlide] = img;
-            rb_allImage = null;
-        }
-        rb_bgImage = img;
-        drawSlide(rb_activeSlide);
-    };
-    img.onerror = ()=>toast('Could not load photo — try another','red');
-    img.src = url;
-}
-
-// ── Apply SVG illustration ────────────────────────────────────────────────────
-function applyIllus(id){
-    rb_activeIllusId = id;
-    rb_bgImage = null;
-    if(rb_bgScope==='all'){
-        rb_allImage   = null;
-        rb_slideImages = {};
-    } else {
-        rb_slideImages[rb_activeSlide] = null;
-    }
-    document.querySelectorAll('.illus-thumb').forEach(t=>t.classList.remove('active-illus'));
-    // Mark the clicked one active
-    const thumbs = document.querySelectorAll('.illus-thumb');
-    thumbs.forEach(t=>{ if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes(id)) t.classList.add('active-illus'); });
-    drawSlide(rb_activeSlide);
-}
-
-function setIllusScope(scope, el){
-    rb_bgScope = scope;
-    document.querySelectorAll('.illus-scope-btn').forEach(b=>b.classList.remove('active'));
-    el.classList.add('active');
-}
-
-function updateIllusOpacity(val){
-    rb_bgOpacity = parseInt(val)/100;
-    document.getElementById('illusOpacityVal').textContent = val+'%';
-    drawSlide(rb_activeSlide);
-}
-
-// ── SVG thumb mini previews ───────────────────────────────────────────────────
-function getSvgThumb(id){
-    const c = '#10b981';
-    const thumbs = {
-        semi_side: `<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" opacity=".15" x="5" y="95" width="98" height="2"/>
-            <rect fill="${c}" x="8" y="68" width="60" height="25" rx="3"/>
-            <rect fill="${c}" opacity=".8" x="68" y="72" width="32" height="21" rx="3"/>
-            <rect fill="rgba(255,255,255,.1)" x="78" y="74" width="16" height="14" rx="2"/>
-            <circle fill="#222" cx="22" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="22" cy="96" r="4"/>
-            <circle fill="#222" cx="38" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="38" cy="96" r="4"/>
-            <circle fill="#222" cx="80" cy="96" r="7"/><circle fill="${c}" opacity=".4" cx="80" cy="96" r="4"/>`,
-        truck_front: `<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" x="24" y="60" width="60" height="80" rx="8"/>
-            <rect fill="rgba(255,255,255,.12)" x="34" y="68" width="40" height="28" rx="4"/>
-            <rect fill="${c}" opacity=".7" x="18" y="136" width="72" height="12" rx="4"/>
-            <circle fill="rgba(255,255,255,.15)" cx="30" cy="74" r="8"/>
-            <circle fill="rgba(255,255,255,.15)" cx="78" cy="74" r="8"/>
-            <circle fill="#222" cx="16" cy="148" r="10"/><circle fill="${c}" opacity=".4" cx="16" cy="148" r="5"/>
-            <circle fill="#222" cx="92" cy="148" r="10"/><circle fill="${c}" opacity=".4" cx="92" cy="148" r="5"/>`,
-        fleet_row: `<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" x="4" y="90" width="80" height="20" rx="3"/>
-            <rect fill="${c}" opacity=".8" x="84" y="92" width="20" height="18" rx="3"/>
-            <rect fill="${c}" opacity=".6" x="14" y="72" width="62" height="16" rx="2"/>
-            <rect fill="${c}" opacity=".8" x="76" y="74" width="18" height="14" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="22" y="57" width="46" height="13" rx="2"/>
-            <rect fill="${c}" opacity=".6" x="68" y="59" width="16" height="11" rx="2"/>`,
-        dashboard: `<rect fill="#0a0a14" width="108" height="192"/>
-            <circle fill="none" stroke="${c}" stroke-width="6" cx="54" cy="96" r="32"/>
-            <line x1="54" y1="96" x2="54" y2="68" stroke="${c}" stroke-width="4"/>
-            <line x1="54" y1="96" x2="78" y2="82" stroke="${c}" stroke-width="3" opacity=".5"/>
-            <circle fill="${c}" cx="54" cy="96" r="5"/>
-            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".5" cx="22" cy="80" r="14"/>
-            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".5" cx="86" cy="80" r="14"/>`,
-        highway: `<rect fill="#0a0a14" width="108" height="192"/>
-            <polygon fill="${c}" opacity=".15" points="0,192 108,192 80,80 28,80"/>
-            <rect fill="${c}" opacity=".4" x="50" y="80" width="8" height="20" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="50" y="110" width="8" height="20" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="50" y="140" width="8" height="20" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="50" y="170" width="8" height="18" rx="2"/>
-            <line x1="0" y1="192" x2="108" y2="192" stroke="${c}" stroke-width="3" opacity=".3"/>`,
-        wheels: `<rect fill="#0a0a14" width="108" height="192"/>
-            <circle fill="none" stroke="${c}" stroke-width="8" cx="54" cy="96" r="36"/>
-            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".4" cx="54" cy="96" r="24"/>
-            <circle fill="${c}" cx="54" cy="96" r="10"/>
-            ${[0,60,120,180,240,300].map(a=>`<line x1="54" y1="96" x2="${54+Math.cos(a*Math.PI/180)*36}" y2="${96+Math.sin(a*Math.PI/180)*36}" stroke="${c}" stroke-width="4" opacity=".6"/>`).join('')}`,
-        cargo: `<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" opacity=".2" x="10" y="50" width="88" height="100" rx="4"/>
-            <rect fill="${c}" opacity=".5" x="10" y="50" width="88" height="6" rx="2"/>
-            ${[0,1,2,3].map(i=>`<rect fill="${c}" opacity=".3" x="${18+i*22}" y="60" width="18" height="82" rx="2"/>`).join('')}
-            <rect fill="${c}" opacity=".6" x="10" y="144" width="88" height="6" rx="2"/>`,
-        sunset_road: `<rect fill="#0a0a14" width="108" height="192"/>
-            <circle fill="${c}" opacity=".2" cx="54" cy="72" r="28"/>
-            <circle fill="${c}" opacity=".1" cx="54" cy="72" r="42"/>
-            <polygon fill="${c}" opacity=".08" points="0,192 108,192 108,90 0,90"/>
-            <line x1="0" y1="90" x2="108" y2="90" stroke="${c}" stroke-width="2" opacity=".3"/>
-            <rect fill="${c}" opacity=".5" x="46" y="90" width="16" height="28" rx="2"/>
-            <rect fill="${c}" opacity=".3" x="46" y="124" width="16" height="16" rx="2"/>
-            <rect fill="${c}" opacity=".3" x="46" y="146" width="16" height="16" rx="2"/>`,
-        speedometer: `<rect fill="#0a0a14" width="108" height="192"/>
-            <path fill="none" stroke="${c}" stroke-width="7" opacity=".3" d="M 16 110 A 38 38 0 0 1 92 110"/>
-            <path fill="none" stroke="${c}" stroke-width="7" d="M 16 110 A 38 38 0 0 1 62 75"/>
-            <line x1="54" y1="110" x2="72" y2="76" stroke="#f59e0b" stroke-width="4"/>
-            <circle fill="${c}" cx="54" cy="110" r="6"/>
-            <text x="54" y="134" text-anchor="middle" fill="${c}" font-size="10" font-weight="900" opacity=".7">km/h</text>
-            ${[0,1,2,3,4,5,6].map(i=>{const a=-180+i*25.7; return `<line x1="${54+Math.cos(a*Math.PI/180)*30}" y1="${110+Math.sin(a*Math.PI/180)*30}" x2="${54+Math.cos(a*Math.PI/180)*38}" y2="${110+Math.sin(a*Math.PI/180)*38}" stroke="${c}" stroke-width="2" opacity=".5"/>`;}).join('')}`,
-        sa_map: `<rect fill="#0a0a14" width="108" height="192"/>
-            <path fill="${c}" opacity=".25" d="M30,55 L78,52 L88,65 L92,85 L85,105 L75,118 L65,128 L54,135 L42,128 L30,115 L22,95 L20,75 Z"/>
-            <circle fill="${c}" cx="54" cy="95" r="5"/>
-            <circle fill="none" stroke="${c}" stroke-width="2" cx="54" cy="95" r="10" opacity=".4"/>
-            <circle fill="none" stroke="${c}" stroke-width="1" cx="54" cy="95" r="16" opacity=".2"/>`
-    };
-    return thumbs[id] || `<rect fill="#0a0a14" width="108" height="192"/><text x="54" y="100" text-anchor="middle" fill="#10b981" font-size="12">?</text>`;
-}
-
-// ── Draw SVG illustration onto canvas ─────────────────────────────────────────
-function drawSvgIllus(ctx, id, W, H, color, opacity){
-    if(!id || id==='none') return;
-    ctx.save();
-    ctx.globalAlpha = opacity;
-
-    const s = W/1080;
-    ctx.strokeStyle = color;
-    ctx.fillStyle   = color;
-
-    if(id==='semi_side'){
-        // Road
-        ctx.globalAlpha=opacity*0.3; ctx.fillRect(0,H*0.72,W,H*0.014);
-        ctx.globalAlpha=opacity;
-        // Trailer
-        rr(ctx,W*0.06,H*0.56,W*0.47,H*0.155,12*s);
-        // Cab
-        ctx.fillStyle=blend(color,0.15); rr(ctx,W*0.54,H*0.555,W*0.38,H*0.16,16*s);
-        // Windscreen
-        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,W*0.81,H*0.568,W*0.09,H*0.1,8*s);
-        // Trailer lines
-        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s;
-        for(let i=1;i<4;i++){ ctx.beginPath(); ctx.moveTo(W*0.06+i*(W*0.47/4),H*0.56); ctx.lineTo(W*0.06+i*(W*0.47/4),H*0.715); ctx.stroke(); }
-        // DFR text
-        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.2; ctx.font=`900 ${48*s}px Arial,sans-serif`; ctx.textAlign='center';
-        ctx.fillText('DYNAMIC FLEET REPORTING',W*0.3,H*0.655);
-        ctx.globalAlpha=opacity;
-        // Wheels
-        dWheel(ctx,W*0.17,H*0.718,H*0.042,s,color);
-        dWheel(ctx,W*0.29,H*0.718,H*0.042,s,color);
-        dWheel(ctx,W*0.69,H*0.718,H*0.042,s,color);
-        dWheel(ctx,W*0.82,H*0.718,H*0.042,s,color);
-
-    } else if(id==='truck_front'){
-        const cx=W*0.5, ty=H*0.35;
-        ctx.fillStyle=color; rr(ctx,cx-W*0.22,ty,W*0.44,H*0.33,22*s);
-        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,cx-W*0.14,ty+H*0.02,W*0.28,H*0.14,12*s);
-        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=4*s;
-        for(let i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(cx-W*0.19,ty+H*0.19+i*H*0.024); ctx.lineTo(cx+W*0.19,ty+H*0.19+i*H*0.024); ctx.stroke(); }
-        ctx.fillStyle=blend(color,0.2); rr(ctx,cx-W*0.25,ty+H*0.3,W*0.5,H*0.058,10*s);
-        ctx.fillStyle='rgba(255,255,255,0.18)'; rr(ctx,cx-W*0.2,ty+H*0.015,W*0.075,H*0.042,6*s); rr(ctx,cx+W*0.125,ty+H*0.015,W*0.075,H*0.042,6*s);
-        dWheel(ctx,cx-W*0.27,ty+H*0.27,H*0.075,s,color);
-        dWheel(ctx,cx+W*0.27,ty+H*0.27,H*0.075,s,color);
-
-    } else if(id==='fleet_row'){
-        const trucks=[{x:W*0.04,y:H*0.54,w:W*0.56,h:H*0.14,sc:1},{x:W*0.18,y:H*0.41,w:W*0.43,h:H*0.11,sc:0.78},{x:W*0.3,y:H*0.31,w:W*0.33,h:H*0.085,sc:0.6}];
-        trucks.forEach(t=>{
-            ctx.fillStyle=color; rr(ctx,t.x,t.y,t.w*0.72,t.h,8*s*t.sc);
-            ctx.fillStyle=blend(color,0.12); rr(ctx,t.x+t.w*0.73,t.y,t.w*0.27,t.h,8*s*t.sc);
-            ctx.fillStyle='rgba(255,255,255,0.1)'; rr(ctx,t.x+t.w*0.82,t.y+t.h*0.08,t.w*0.14,t.h*0.55,5*s*t.sc);
-            const wr=t.h*0.32; dWheel(ctx,t.x+t.w*0.12,t.y+t.h+wr*0.1,wr,s*t.sc,color); dWheel(ctx,t.x+t.w*0.28,t.y+t.h+wr*0.1,wr,s*t.sc,color); dWheel(ctx,t.x+t.w*0.78,t.y+t.h+wr*0.1,wr,s*t.sc,color);
-        });
-        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.25; ctx.fillRect(0,H*0.72,W,H*0.012);
-
-    } else if(id==='dashboard'){
-        const cx=W*0.5, cy=H*0.5;
-        ctx.strokeStyle=color; ctx.lineWidth=18*s;
-        ctx.beginPath(); ctx.arc(cx,cy,W*0.24,0,Math.PI*2); ctx.stroke();
-        ctx.lineWidth=8*s;
-        for(let i=0;i<3;i++){ const a=i*(Math.PI*2/3)-Math.PI/2; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*W*0.24,cy+Math.sin(a)*W*0.24); ctx.stroke(); }
-        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.05,0,Math.PI*2); ctx.fill();
-        [{x:cx-W*0.3,y:cy-H*0.06},{x:cx+W*0.3,y:cy-H*0.06}].forEach(g=>{
-            ctx.strokeStyle=color; ctx.lineWidth=6*s; ctx.beginPath(); ctx.arc(g.x,g.y,W*0.1,0,Math.PI*2); ctx.stroke();
-            ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=5*s; ctx.beginPath(); ctx.moveTo(g.x,g.y); ctx.lineTo(g.x+Math.cos(-0.8)*W*0.08,g.y+Math.sin(-0.8)*W*0.08); ctx.stroke();
-        });
-
-    } else if(id==='highway'){
-        // Sky gradient
-        ctx.globalAlpha=opacity*0.15;
-        const sg=ctx.createLinearGradient(0,0,0,H*0.6); sg.addColorStop(0,color); sg.addColorStop(1,'transparent');
-        ctx.fillStyle=sg; ctx.fillRect(0,0,W,H*0.6);
-        // Road
-        ctx.globalAlpha=opacity*0.12;
-        ctx.fillStyle=color;
-        ctx.beginPath(); ctx.moveTo(0,H*0.65); ctx.lineTo(W,H*0.65); ctx.lineTo(W*0.75,H*0.4); ctx.lineTo(W*0.25,H*0.4); ctx.fill();
-        // Dashes
-        ctx.globalAlpha=opacity*0.5; ctx.fillStyle=color;
-        for(let d=0;d<5;d++) rr(ctx,W*0.47,H*0.42+d*H*0.05,W*0.06,H*0.03,4*s);
-
-    } else if(id==='wheels'){
-        const cx=W*0.5, cy=H*0.5;
-        ctx.strokeStyle=color; ctx.lineWidth=10*s;
-        ctx.beginPath(); ctx.arc(cx,cy,W*0.38,0,Math.PI*2); ctx.stroke();
-        ctx.lineWidth=4*s; ctx.strokeStyle=color; ctx.globalAlpha=opacity*0.4;
-        ctx.beginPath(); ctx.arc(cx,cy,W*0.25,0,Math.PI*2); ctx.stroke();
-        ctx.globalAlpha=opacity; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.065,0,Math.PI*2); ctx.fill();
-        ctx.strokeStyle=color; ctx.lineWidth=6*s;
-        [0,60,120,180,240,300].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*W*0.38,cy+Math.sin(a*Math.PI/180)*W*0.38); ctx.stroke(); });
-
-    } else if(id==='cargo'){
-        rr(ctx,W*0.08,H*0.35,W*0.84,H*0.36,12*s);
-        ctx.strokeStyle='rgba(0,0,0,0.2)'; ctx.lineWidth=3*s;
-        for(let i=1;i<4;i++){ ctx.beginPath(); ctx.moveTo(W*0.08+i*(W*0.84/4),H*0.35); ctx.lineTo(W*0.08+i*(W*0.84/4),H*0.71); ctx.stroke(); }
-        ctx.fillStyle=blend(color,0.3); ctx.fillRect(W*0.08,H*0.35,W*0.84,H*0.02);
-        ctx.fillRect(W*0.08,H*0.69,W*0.84,H*0.02);
-
-    } else if(id==='sunset_road'){
-        // Sun
-        ctx.globalAlpha=opacity*0.2;
-        const rg=ctx.createRadialGradient(W*0.5,H*0.38,0,W*0.5,H*0.38,W*0.45);
-        rg.addColorStop(0,color); rg.addColorStop(1,'transparent');
-        ctx.fillStyle=rg; ctx.fillRect(0,0,W,H);
-        ctx.globalAlpha=opacity*0.35; ctx.fillStyle=color;
-        ctx.beginPath(); ctx.arc(W*0.5,H*0.38,W*0.14,0,Math.PI*2); ctx.fill();
-        // Horizon
-        ctx.globalAlpha=opacity*0.3; ctx.fillRect(0,H*0.52,W,H*0.012);
-        // Road
-        ctx.globalAlpha=opacity*0.1; ctx.fillStyle=color;
-        ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(W,H); ctx.lineTo(W*0.72,H*0.52); ctx.lineTo(W*0.28,H*0.52); ctx.fill();
-        ctx.globalAlpha=opacity*0.5; ctx.fillStyle=color;
-        for(let d=0;d<5;d++) rr(ctx,W*0.47,H*0.55+d*H*0.09,W*0.06,H*0.04,4*s);
-
-    } else if(id==='speedometer'){
-        const cx=W*0.5, cy=H*0.52;
-        // Outer arc
-        ctx.globalAlpha=opacity*0.3; ctx.strokeStyle=color; ctx.lineWidth=14*s;
-        ctx.beginPath(); ctx.arc(cx,cy,W*0.34,Math.PI*0.85,Math.PI*0.15); ctx.stroke();
-        // Active arc
-        ctx.globalAlpha=opacity; ctx.strokeStyle=color; ctx.lineWidth=14*s;
-        ctx.beginPath(); ctx.arc(cx,cy,W*0.34,Math.PI*0.85,Math.PI*1.6); ctx.stroke();
-        // Needle
-        const na=Math.PI*0.85+Math.PI*0.75*0.68;
-        ctx.strokeStyle='#f59e0b'; ctx.lineWidth=7*s;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(na)*W*0.3,cy+Math.sin(na)*W*0.3); ctx.stroke();
-        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.04,0,Math.PI*2); ctx.fill();
-        // Ticks
-        ctx.strokeStyle=color; ctx.lineWidth=3*s;
-        for(let i=0;i<=10;i++){ const a=Math.PI*0.85+i*(Math.PI*1.3/10); ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*W*0.27,cy+Math.sin(a)*W*0.27); ctx.lineTo(cx+Math.cos(a)*W*0.34,cy+Math.sin(a)*W*0.34); ctx.stroke(); }
-        ctx.font=`900 ${52*s}px Arial,sans-serif`; ctx.fillStyle=color; ctx.textAlign='center';
-        ctx.fillText('km/h',cx,cy+W*0.12);
-
-    } else if(id==='sa_map'){
-        // SA silhouette (simplified)
-        ctx.fillStyle=color; ctx.globalAlpha=opacity*0.3;
-        ctx.beginPath();
-        ctx.moveTo(W*0.28,H*0.28); ctx.lineTo(W*0.72,H*0.26); ctx.lineTo(W*0.85,H*0.36);
-        ctx.lineTo(W*0.88,H*0.46); ctx.lineTo(W*0.82,H*0.58); ctx.lineTo(W*0.72,H*0.68);
-        ctx.lineTo(W*0.6,H*0.76);  ctx.lineTo(W*0.5,H*0.8);   ctx.lineTo(W*0.4,H*0.76);
-        ctx.lineTo(W*0.28,H*0.66); ctx.lineTo(W*0.18,H*0.54); ctx.lineTo(W*0.15,H*0.42);
-        ctx.closePath(); ctx.fill();
-        // Pin
-        ctx.globalAlpha=opacity;
-        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.04,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.08,0,Math.PI*2); ctx.strokeStyle=color; ctx.lineWidth=4*s; ctx.stroke();
-        ctx.beginPath(); ctx.arc(W*0.5,H*0.52,W*0.13,0,Math.PI*2); ctx.lineWidth=2*s; ctx.globalAlpha=opacity*0.4; ctx.stroke();
-    }
-
-    ctx.restore();
-}
-
-// ── Canvas helper functions ───────────────────────────────────────────────────
-function rr(ctx,x,y,w,h,r){
-    ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
-    ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
-    ctx.closePath(); ctx.fill();
-}
-function dWheel(ctx,cx,cy,r,s,color){
-    ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle=color; ctx.lineWidth=3*s; ctx.beginPath(); ctx.arc(cx,cy,r*0.85,0,Math.PI*2); ctx.stroke();
-    ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,r*0.3,0,Math.PI*2); ctx.fill();
-    [0,72,144,216,288].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*r*0.75,cy+Math.sin(a*Math.PI/180)*r*0.75); ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=3*s; ctx.stroke(); });
-}
-function blend(hex,amt){
-    // Lighten a hex/color slightly
-    return hex;  // pass-through — canvas uses globalAlpha for tinting
-}
-
-// ── Override drawSlide to inject background before drawing ────────────────────
-const _origDrawSlide = drawSlide;
-function drawSlide(idx){
-    if(!rb_canvas||!rb_ctx) return;
-    const sl  = rb_slides[idx]; if(!sl) return;
-    const st  = RB_STYLES[rb_style];
-    const ctx = rb_ctx;
-    const W   = rb_W, H = rb_H;
-    ctx.clearRect(0,0,W,H);
-
-    // 1. Draw gradient background (same as original)
-    let bgColors = st.bgGrad||[st.bg,st.bg];
-    if(sl.type==='hook'||sl.type==='cta')  bgColors = st.hookBg||bgColors;
-    else if(sl.type==='numbers')            bgColors = st.numBg||bgColors;
-    else if(sl.type==='stat')               bgColors = st.statBg||bgColors;
-    const grad = ctx.createLinearGradient(0,0,W,H);
-    grad.addColorStop(0,bgColors[0]); grad.addColorStop(1,bgColors[1]);
-    ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
-
-    // 2. Draw photo background (Unsplash) if set
-    const photoImg = rb_allImage || rb_slideImages[idx];
-    if(photoImg){
-        ctx.save();
-        ctx.globalAlpha = rb_bgOpacity;
-        // Cover-fit the image
-        const ir=photoImg.width/photoImg.height, cr=W/H;
-        let sw,sh,sx=0,sy=0;
-        if(ir>cr){ sh=photoImg.height; sw=sh*cr; sx=(photoImg.width-sw)/2; }
-        else      { sw=photoImg.width;  sh=sw/cr; sy=(photoImg.height-sh)/2; }
-        ctx.drawImage(photoImg,sx,sy,sw,sh,0,0,W,H);
-        // Dark overlay so text stays readable
-        ctx.globalAlpha=Math.min(rb_bgOpacity*2,0.65);
-        ctx.fillStyle=bgColors[0]; ctx.fillRect(0,0,W,H);
-        ctx.restore();
-    }
-
-    // 3. Draw SVG illustration if no photo and illus selected
-    if(!photoImg && rb_activeIllusId && rb_activeIllusId!=='none' && !rb_activeIllusId.startsWith('unsplash_')){
-        drawSvgIllus(ctx, rb_activeIllusId, W, H, st.accent, rb_bgOpacity);
-    }
-
-    // 4. Grid pattern overlay
-    ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.lineWidth=1;
-    for(let gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
-    for(let gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
-
-    // 5. Accent bar
-    if(st.accentLine){ ctx.fillStyle=st.accent; ctx.fillRect(0,0,14,H); }
-
-    // 6. Top brand bar
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,0,W-14,110);
-    ctx.fillStyle=st.brand; ctx.font=`900 38px 'Outfit',Arial,sans-serif`; ctx.textAlign='left';
-    ctx.fillText('DYNAMIC FLEET REPORTING',60,72);
-
-    // 7. Badge
-    const badges={hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
-    ctx.font=`900 30px 'Outfit',Arial,sans-serif`; ctx.fillStyle=st.accent;
-    ctx.fillText(badges[sl.type]||sl.type.toUpperCase(),60,170);
-
-    // 8. Slide number
-    ctx.font=`700 28px 'Outfit',Arial,sans-serif`; ctx.fillStyle='rgba(255,255,255,0.2)';
-    ctx.textAlign='right'; ctx.fillText(`${idx+1} / ${rb_slides.length}`,W-50,170); ctx.textAlign='left';
-
-    // 9. Accent divider
-    ctx.strokeStyle=st.accent; ctx.lineWidth=4;
-    ctx.beginPath(); ctx.moveTo(60,200); ctx.lineTo(W-60,200); ctx.stroke();
-
-    // 10. Headline
-    const headLines=sl.headline?sl.headline.split('\n'):[''];
-    const headSize=headLines.length>3?120:headLines.length>2?140:160;
-    ctx.fillStyle=st.headline; ctx.textAlign='left';
-    let headY=sl.sub?H*0.36:H*0.44;
-    headLines.forEach(line=>{
-        let fs=headSize; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`;
-        while(ctx.measureText(line).width>W-120&&fs>60){ fs-=4; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`; }
-        ctx.fillText(line,60,headY); headY+=fs*1.2;
-    });
-
-    // 11. Subtext
-    if(sl.sub){
-        const subLines=sl.sub.split('\n'); let subY=headY+60;
-        ctx.fillStyle=st.sub;
-        subLines.forEach(line=>{
-            let fs=52; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`;
-            while(ctx.measureText(line).width>W-120&&fs>32){ fs-=2; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`; }
-            ctx.fillText(line,60,subY); subY+=fs*1.4;
-        });
-    }
-
-    // 12. CTA extras
-    if(sl.type==='cta'){
-        ctx.fillStyle=st.accent; ctx.font=`900 56px 'Outfit',Arial,sans-serif`;
-        ctx.fillText('083 314 9592',60,H-220);
-        ctx.fillStyle=st.sub; ctx.font=`600 40px 'Outfit',Arial,sans-serif`;
-        ctx.fillText('dynamicfleetreports@gmail.com',60,H-155);
-    }
-
-    // 13. Bottom bar
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,H-100,W-14,100);
-    ctx.fillStyle=st.brand; ctx.font=`700 34px 'Outfit',Arial,sans-serif`;
-    ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit',60,H-38);
-}
-
-// ── Extend initReelBuilder to also build illus grid ───────────────────────────
-const _origInitReelBuilder = initReelBuilder;
-function initReelBuilder(){
-    rb_canvas = document.getElementById('reelCanvas');
-    rb_ctx    = rb_canvas.getContext('2d');
-    rb_canvas.width  = rb_W;
-    rb_canvas.height = rb_H;
-    if(!rb_slides.length) resetBuilder();
-    else { renderSlidesList(); drawSlide(rb_activeSlide); }
-    renderIllusGrid();
-}
-
-
+function toast(msg,color){ color=color||'green'; const t=document.getElementById('toast'); t.textContent=msg; t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':color==='gold'?'rgba(245,158,11,0.4)':'rgba(16,185,129,0.4)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
 </body>
 </html>
