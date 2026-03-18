@@ -394,7 +394,7 @@ function renderPlatformSection(plat, posts) {
         html += '</div>';
         html += '<div class="post-card-body"><div class="post-preview" id="' + pid + '">' + escHtml(p.content || '') + '</div></div>';
         html += '<div class="post-card-footer">';
-        html += '<button class="btn-copy" onclick="copyPartnerPost('' + pid + '',this)">📋 Copy Post</button>';
+        html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Post</button>';
         if (p.hashtags) html += '<div class="hashtag-wrap">' + escHtml(p.hashtags) + '</div>';
         html += '</div></div>';
     });
