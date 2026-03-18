@@ -48,6 +48,8 @@
         .btn-copy-link:hover{background:var(--gd);}
         .btn-copy-link.copied{background:#6366f1;}
         .mlb-tip{font-size:12px;color:#64748b;margin-top:0.75rem;line-height:1.6;}
+        .btn-reel-link{background:linear-gradient(135deg,#ec4899,#8b5cf6);color:white;border:none;padding:10px 20px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;text-decoration:none;display:inline-block;}
+        .btn-reel-link:hover{opacity:0.88;transform:translateY(-1px);}
         .mlb-tip strong{color:#94a3b8;}
 
         /* Platform tabs */
@@ -240,6 +242,10 @@
             <div class="mlb-link" id="myLinkDisplay">—</div>
         </div>
         <div class="mlb-tip">Every post below already includes <strong>your referral link</strong>. When you click Copy Post the link is part of the text — paste straight to Facebook, WhatsApp, LinkedIn, anywhere.</div>
+        <div style="margin-top:0.85rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <a id="reelBuilderBtn" href="reel-builder.html" class="btn-reel-link" target="_blank">🎬 Open Reel Builder →</a>
+            <span style="font-size:11px;color:#64748b;font-weight:600;">Build TikTok / Reels slides — your link auto-appends to captions.</span>
+        </div>
     </div>
 
     <!-- Platform tabs -->
@@ -367,6 +373,9 @@ async function showHub(){
     document.getElementById('tbName').textContent             = _partner.name;
     document.getElementById('partnerDisplayName').textContent = _partner.name;
     document.getElementById('myLinkDisplay').textContent      = _partnerLink;
+    // Set reel builder link with partner code
+    var reelBtn = document.getElementById('reelBuilderBtn');
+    if(reelBtn) reelBtn.href = 'reel-builder.html?ref='+_partnerCode;
     await loadAndRenderPosts();
     await loadCommunityScripts();
 }
