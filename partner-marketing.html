@@ -26,7 +26,13 @@
         .btn-back:hover { background:rgba(255,255,255,0.1); }
 
         /* ── LOGIN ── */
-        .login-wrap { display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 66px); padding:2rem; }
+        .login-wrap { display:none; align-items:center; justify-content:center; min-height:calc(100vh - 66px); padding:2rem; }
+        .login-wrap.on { display:flex; }
+        .loading-wrap { display:none; align-items:center; justify-content:center; min-height:calc(100vh - 66px); flex-direction:column; gap:1.25rem; }
+        .loading-wrap.on { display:flex; }
+        .loading-spinner { width:38px; height:38px; border:3px solid rgba(16,185,129,0.15); border-top-color:var(--green); border-radius:50%; animation:spin 0.75s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .loading-text { font-size:13px; font-weight:700; color:#64748b; }
         .login-card { background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:400px; max-width:100%; text-align:center; }
         .lc-icon { font-size:3rem; margin-bottom:1rem; }
         .lc-title { font-size:1.4rem; font-weight:900; color:white; margin-bottom:0.4rem; }
@@ -141,6 +147,12 @@
         <span class="tb-partner" id="tbPartnerName" style="display:none;">Partner: <strong id="tbName">—</strong></span>
         <button class="btn-back" onclick="window.location.href='partner-portal.html?ref='+encodeURIComponent(window._partnerCode||'')">&#8592; My Portal</button>
     </div>
+</div>
+
+<!-- LOADING SPINNER — shown while Firebase initialises when ?ref= present -->
+<div class="loading-wrap" id="loadingWrap">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading your marketing hub...</div>
 </div>
 
 <!-- LOGIN -->
@@ -263,11 +275,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var p   = new URLSearchParams(window.location.search);
     var ref = p.get('ref') || p.get('pid');
     if (ref) {
-        // Partner arriving via their unique link — auto-login
+        // Partner arriving via their unique link — show spinner immediately, hide login
+        document.getElementById('loadingWrap').classList.add('on');
         document.getElementById('loginCode').value = ref;
         waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(doLogin);
     } else {
-        // No ref in URL = DFR owner accessing via portal — open hub directly
+        // No ref in URL = DFR owner — open hub directly
         showOwnerHub();
     }
 });
@@ -300,13 +313,19 @@ async function doLogin() {
             return code === refCode || p.id === input || code === input;
         });
         if (!_partner) {
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
             document.getElementById('loginErr').style.display = 'block'; return;
         }
         if (_partner.status === 'inactive') {
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
             document.getElementById('loginErr').textContent = 'This partner account is currently inactive. Please contact DFR on 083 314 9592.';
             document.getElementById('loginErr').style.display = 'block'; return;
         }
         if (_partner.status === 'pending') {
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
             document.getElementById('loginErr').textContent = 'Your application is still pending approval. You will receive a WhatsApp once activated.';
             document.getElementById('loginErr').style.display = 'block'; return;
         }
@@ -321,7 +340,8 @@ async function doLogin() {
 
 // ── Partner hub ───────────────────────────────────────────────────────────────
 function showHub() {
-    document.getElementById('loginWrap').style.display        = 'none';
+    document.getElementById('loadingWrap').classList.remove('on');
+    document.getElementById('loginWrap').classList.remove('on');
     document.getElementById('mainHub').classList.add('on');
     document.getElementById('myLinkBox').style.display        = 'block';
     document.getElementById('submitScriptBox').style.display  = 'block';
