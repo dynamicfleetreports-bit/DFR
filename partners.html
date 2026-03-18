@@ -830,13 +830,15 @@ Dynamic Fleet Reporting`;
 // Your Apps Script must accept a `phone` parameter and route accordingly.
 // The URL now includes &phone=<partnerPhone> so the script knows where to send.
 function notifyWA(msg, toPhone){
+    // Always send to DFR owner number — owner forwards to partner manually
+    // toPhone is included in the message body for reference
     var url = APPS_URL
         + '?action=whatsapp'
         + '&message=' + encodeURIComponent(msg)
-        + '&phone='   + encodeURIComponent(toPhone || OWNER_NUMBER);
+        + '&phone='   + encodeURIComponent(OWNER_NUMBER);
     return fetch(url, {method:'get', mode:'no-cors'})
         .then(function(){ return {success:true}; })
-        .catch(function(e){ Logger && Logger.log && Logger.log(e); return {success:false}; });
+        .catch(function(e){ return {success:false}; });
 }
 
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
