@@ -16,8 +16,17 @@
         .tb-partner{text-align:right;}
         .tb-pname{font-size:14px;font-weight:900;color:white;}
         .tb-pcode{font-size:10px;color:var(--mut);font-family:'Courier New',monospace;margin-top:1px;}
+
+        /* Loading state */
+        .loading-wrap{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 66px);flex-direction:column;gap:1.25rem;}
+        .loading-wrap.on{display:flex;}
+        .loading-spinner{width:38px;height:38px;border:3px solid rgba(16,185,129,0.15);border-top-color:var(--grn);border-radius:50%;animation:spin 0.75s linear infinite;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .loading-text{font-size:13px;font-weight:700;color:var(--mut);}
+
         /* Login */
-        .login-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
+        .login-wrap{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
+        .login-wrap.on{display:flex;}
         .login-card{background:var(--panel);border:1px solid var(--brd);border-radius:20px;padding:2.5rem;width:420px;max-width:100%;text-align:center;}
         .lc-icon{font-size:3rem;margin-bottom:1rem;}
         .lc-title{font-size:1.4rem;font-weight:900;color:white;margin-bottom:0.4rem;}
@@ -29,6 +38,7 @@
         .lc-err{color:#f87171;font-size:12px;margin-top:0.5rem;display:none;}
         .lc-signup{margin-top:1.25rem;font-size:12px;color:var(--mut);}
         .lc-signup a{color:var(--grn);text-decoration:none;font-weight:700;}
+
         /* Portal */
         .portal{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
         .portal.on{display:block;}
@@ -38,7 +48,6 @@
         .sc-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
         .sc-val.grn{color:var(--grn);} .sc-val.gld{color:var(--gld);} .sc-val.blu{color:var(--blu);}
         .sc-sub{font-size:11px;color:var(--mut);margin-top:2px;}
-        /* Ref link */
         .ref-box{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03));border:1.5px solid rgba(16,185,129,0.3);border-radius:14px;padding:1.25rem 1.75rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;}
         .ref-icon{font-size:2rem;}
         .ref-body{flex:1;min-width:200px;}
@@ -49,10 +58,8 @@
         .btn-copy{background:var(--grn);color:#020617;border:none;padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;transition:all 0.2s;}
         .btn-copy:hover{background:var(--gd);}
         .btn-copy.copied{background:#6366f1;}
-        /* Alerts */
         .alert-row{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:0.75rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;font-size:12.5px;}
         .alert-text{flex:1;color:#fde68a;} .alert-text strong{color:white;}
-        /* Bonus tracker */
         .bonus-track{background:rgba(245,158,11,0.06);border:1.5px solid rgba(245,158,11,0.25);border-radius:14px;padding:1.5rem;margin-bottom:2rem;}
         .bt-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:1rem;}
         .bt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
@@ -71,7 +78,6 @@
         .bt-tier.on .bt-tier-lbl{color:var(--gld);}
         .bt-tier-val{font-size:12px;font-weight:700;color:white;margin-top:2px;}
         .bt-est{margin-top:0.75rem;font-size:11px;color:#64748b;}
-        /* Earnings */
         .earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;}
         .earn-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:14px;padding:1.25rem;}
         .earn-card-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.75rem;}
@@ -79,7 +85,6 @@
         .earn-row:last-child{border-bottom:none;}
         .earn-lbl{color:var(--mut);} .earn-val{font-weight:800;color:white;}
         .earn-val.grn{color:var(--grn);} .earn-val.gld{color:var(--gld);}
-        /* Tables */
         .sec-hdr{display:flex;align-items:center;justify-content:space-between;margin:0 0 1rem;}
         .sec-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--grn);}
         .sec-count{font-size:11px;font-weight:700;color:var(--mut);background:rgba(255,255,255,0.05);padding:3px 10px;border-radius:20px;}
@@ -108,7 +113,13 @@
     </div>
 </div>
 
-<!-- LOGIN -->
+<!-- LOADING — shown while Firebase initialises when ?ref= is present -->
+<div class="loading-wrap" id="loadingWrap">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading your portal...</div>
+</div>
+
+<!-- LOGIN — only shown when no ?ref= in URL -->
 <div class="login-wrap" id="loginWrap">
     <div class="login-card">
         <div class="lc-icon">🤝</div>
@@ -123,7 +134,6 @@
 
 <!-- PORTAL -->
 <div class="portal" id="portal">
-
     <div class="stats-row">
         <div class="sc"><div class="sc-label">Total Referrals</div><div class="sc-val blu" id="sTot">0</div><div class="sc-sub">All time</div></div>
         <div class="sc"><div class="sc-label">Active Clients</div><div class="sc-val grn" id="sAct">0</div><div class="sc-sub">Paying &amp; live</div></div>
@@ -139,7 +149,7 @@
             <div class="ref-link-row">
                 <div class="ref-link-val" id="refLinkVal">—</div>
                 <button class="btn-copy" id="copyBtn" onclick="copyLink()">📋 Copy Link</button>
-                <button style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="window.location.href='partner-marketing.html?ref='+getRefCode(_partner)">📣 Marketing Hub</button>
+                <button style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="goMarketing()">📣 Marketing Hub</button>
                 <button style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="window.open('partner-guide.html','_blank')">📖 Partner Guide</button>
             </div>
         </div>
@@ -192,7 +202,6 @@
         <thead><tr><th>Company</th><th>Fleet</th><th>Monthly Retainer</th><th>Your Commission</th><th>Schedule</th><th>Active Since</th></tr></thead>
         <tbody id="actBody"><tr><td colspan="6" class="empty-msg">No active clients yet.</td></tr></tbody>
     </table>
-
 </div>
 
 <script>
@@ -202,29 +211,60 @@ let _partner=null,_allClients=[],_allPartners=[];
 function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
 async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
 
-// Auto-login from URL ?ref= or ?pid=
-document.addEventListener('DOMContentLoaded',function(){
-    const p=new URLSearchParams(window.location.search);
-    const ref=p.get('ref')||p.get('pid');
-    if(ref){ document.getElementById('loginCode').value=ref; ready().then(login); }
+// ── On load — detect ?ref= immediately and show correct state ────────────────
+document.addEventListener('DOMContentLoaded', function(){
+    var p   = new URLSearchParams(window.location.search);
+    var ref = p.get('ref') || p.get('pid');
+    if(ref){
+        // Has a ref — show loading spinner, hide login
+        document.getElementById('loadingWrap').classList.add('on');
+        document.getElementById('loginCode').value = ref;
+        ready().then(login);
+    } else {
+        // No ref — show login screen for manual entry
+        document.getElementById('loginWrap').classList.add('on');
+    }
 });
 
 async function login(){
-    const input=document.getElementById('loginCode').value.trim().toLowerCase();
+    var input = document.getElementById('loginCode').value.trim().toLowerCase();
     if(!input) return;
     try{
         await ready();
-        _allPartners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
-        _allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-        const refCode=input.startsWith('ref_')?input:'ref_'+input.replace(/\s+/g,'_');
-        _partner=_allPartners.find(p=>{
-            const code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            return code===refCode||p.id===input||code===input;
+        _allPartners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+        _allClients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))      || [];
+        var refCode  = input.startsWith('ref_') ? input : 'ref_' + input.replace(/\s+/g,'_');
+        _partner     = _allPartners.find(function(p){
+            var code = 'ref_' + p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            return code === refCode || p.id === input || code === input;
         });
-        if(!_partner){ document.getElementById('loginErr').style.display='block'; return; }
-        if(_partner.status==='inactive'){ document.getElementById('loginErr').textContent='This account is currently inactive. Contact DFR.'; document.getElementById('loginErr').style.display='block'; return; }
+        if(!_partner){
+            // Failed — hide loading, show login with error
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
+            document.getElementById('loginErr').style.display = 'block';
+            return;
+        }
+        if(_partner.status === 'inactive'){
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
+            document.getElementById('loginErr').textContent = 'This account is currently inactive. Contact DFR.';
+            document.getElementById('loginErr').style.display = 'block';
+            return;
+        }
         showPortal();
-    }catch(e){ document.getElementById('loginErr').style.display='block'; }
+    } catch(e){
+        document.getElementById('loadingWrap').classList.remove('on');
+        document.getElementById('loginWrap').classList.add('on');
+        document.getElementById('loginErr').style.display = 'block';
+    }
+}
+
+// ── Safe Marketing Hub navigation ────────────────────────────────────────────
+function goMarketing(){
+    if(!_partner){ return; }
+    var code = getRefCode(_partner);
+    window.location.href = 'partner-marketing.html?ref=' + code;
 }
 
 function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
@@ -232,134 +272,145 @@ function getTier(f){ return f<=15?{rate:200,lbl:'T1'}:f<=30?{rate:175,lbl:'T2'}:
 function getFS(c){ return c.fleet?c.fleet.length:(c.fleetSize||0); }
 function getRetainer(c){ const f=getFS(c),t=getTier(f); return 1500+(f*t.rate); }
 function getMyClients(status){
-    const code=getRefCode(_partner);
-    return _allClients.filter(c=>{
-        const match=(c.referralPartnerId===_partner.id)||(c.referralCode===code);
-        return match&&(status?c.status===status:true);
+    var code = getRefCode(_partner);
+    return _allClients.filter(function(c){
+        var match = (c.referralPartnerId === _partner.id) || (c.referralCode === code);
+        return match && (status ? c.status === status : true);
     });
 }
 
 function showPortal(){
-    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('loadingWrap').classList.remove('on');
+    document.getElementById('loginWrap').classList.remove('on');
     document.getElementById('portal').classList.add('on');
-    document.getElementById('tbPartner').style.display='block';
-    document.getElementById('tbPname').textContent=_partner.name;
-    document.getElementById('tbPcode').textContent=getRefCode(_partner);
-    document.getElementById('refLinkVal').textContent=DISCOVER_URL+'?ref='+getRefCode(_partner);
+    document.getElementById('tbPartner').style.display = 'block';
+    document.getElementById('tbPname').textContent     = _partner.name;
+    document.getElementById('tbPcode').textContent     = getRefCode(_partner);
+    document.getElementById('refLinkVal').textContent  = DISCOVER_URL + '?ref=' + getRefCode(_partner);
     renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
 }
 
 function renderStats(){
-    const all=getMyClients(),active=getMyClients('active');
-    const rate=_partner.commRate||15;
-    const comm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
-    const owed=(_partner.commissionHistory||[]).filter(h=>!h.paid).reduce((s,h)=>s+h.amount,0)+((_partner.bonusHistory||[]).filter(b=>!b.paid).reduce((s,b)=>s+b.amount,0));
-    document.getElementById('sTot').textContent=all.length;
-    document.getElementById('sAct').textContent=active.length;
-    document.getElementById('sComm').textContent='R '+Math.round(comm).toLocaleString('en-ZA');
-    document.getElementById('sOwed').textContent='R '+owed.toLocaleString('en-ZA');
+    var all    = getMyClients();
+    var active = getMyClients('active');
+    var rate   = _partner.commRate || 15;
+    var comm   = active.reduce(function(s,c){ return s + getRetainer(c) * (rate/100); }, 0);
+    var owed   = (_partner.commissionHistory||[]).filter(function(h){ return !h.paid; }).reduce(function(s,h){ return s+h.amount; },0)
+               + (_partner.bonusHistory||[]).filter(function(b){ return !b.paid; }).reduce(function(s,b){ return s+b.amount; },0);
+    document.getElementById('sTot').textContent  = all.length;
+    document.getElementById('sAct').textContent  = active.length;
+    document.getElementById('sComm').textContent = 'R ' + Math.round(comm).toLocaleString('en-ZA');
+    document.getElementById('sOwed').textContent = 'R ' + owed.toLocaleString('en-ZA');
 }
 
 function renderAlerts(){
-    const pros=getMyClients('prospect');
-    const alerts=pros.map(c=>{
-        const issues=[];
-        if(!c.slaDate&&!c.slaExecuted) issues.push('SLA not yet sent');
-        else if(!c.slaExecuted&&!c.slaReceivedDate) issues.push('⏳ Awaiting signed SLA');
+    var pros   = getMyClients('prospect');
+    var alerts = pros.map(function(c){
+        var issues = [];
+        if(!c.slaDate && !c.slaExecuted) issues.push('SLA not yet sent');
+        else if(!c.slaExecuted && !c.slaReceivedDate) issues.push('⏳ Awaiting signed SLA');
         if(!c.driveFolderUrl) issues.push('Drive folder not linked');
         if(!c.onboardingSubmitted) issues.push('Onboarding form pending');
-        return issues.length?{company:c.company,issues}:null;
+        return issues.length ? {company:c.company, issues:issues} : null;
     }).filter(Boolean);
-    const wrap=document.getElementById('alertsWrap');
-    if(!alerts.length){ wrap.innerHTML=''; return; }
-    wrap.innerHTML='<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:0.75rem;">⚠ Outstanding Items In Your Pipeline</div>'+alerts.map(a=>`<div class="alert-row"><div>⚠</div><div class="alert-text"><strong>${a.company}:</strong> ${a.issues.join(' · ')}</div></div>`).join('');
+    var wrap = document.getElementById('alertsWrap');
+    if(!alerts.length){ wrap.innerHTML = ''; return; }
+    wrap.innerHTML = '<div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.3em;color:var(--gld);margin-bottom:0.75rem;">⚠ Outstanding Items In Your Pipeline</div>'
+        + alerts.map(function(a){
+            return '<div class="alert-row"><div>⚠</div><div class="alert-text"><strong>' + a.company + ':</strong> ' + a.issues.join(' · ') + '</div></div>';
+          }).join('');
 }
 
 function renderBonusTracker(){
-    const now=new Date();
-    const active=getMyClients('active');
-    const start=_partner.clientsAtYearStart||0;
-    const cur=active.length;
-    const growth=start>0?Math.round(((cur-start)/start)*100):0;
-    document.getElementById('bYear').textContent=now.getFullYear();
-    document.getElementById('bStart').textContent=start;
-    document.getElementById('bNow').textContent=cur;
-    document.getElementById('bGrowth').textContent=growth+'%';
-    document.getElementById('barFill').style.width=Math.min(Math.max(growth,0),30)/30*100+'%';
-    ['bt1','bt2','bt3'].forEach(id=>document.getElementById(id).classList.remove('on'));
-    let bm=0;
-    if(growth>=21){document.getElementById('bt3').classList.add('on');bm=3;}
-    else if(growth>=11){document.getElementById('bt2').classList.add('on');bm=2;}
-    else if(growth>=1){document.getElementById('bt1').classList.add('on');bm=1;}
-    const rate=_partner.commRate||15;
-    const monthComm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
-    const bonusEst=Math.round(monthComm*bm);
-    const est=document.getElementById('btEst');
-    if(bm>0) est.innerHTML=`&#127942; You've unlocked <strong style="color:var(--gld);">${bm} month${bm>1?'s':''} bonus</strong> — estimated <strong style="color:var(--gld);">R ${bonusEst.toLocaleString('en-ZA')}</strong> payable in November.`;
-    else if(start>0){ const need=Math.max(0,Math.ceil(start*0.01)-(cur-start)); est.innerHTML=`Need <strong style="color:#94a3b8;">${need} more client${need!==1?'s':''} to reach 1% growth and unlock a bonus.</strong>`; }
-    else est.textContent='Bonus tracking begins once your first client is active at the start of the year.';
+    var now    = new Date();
+    var active = getMyClients('active');
+    var start  = _partner.clientsAtYearStart || 0;
+    var cur    = active.length;
+    var growth = start > 0 ? Math.round(((cur - start) / start) * 100) : 0;
+    document.getElementById('bYear').textContent   = now.getFullYear();
+    document.getElementById('bStart').textContent  = start;
+    document.getElementById('bNow').textContent    = cur;
+    document.getElementById('bGrowth').textContent = growth + '%';
+    document.getElementById('barFill').style.width = Math.min(Math.max(growth,0),30)/30*100 + '%';
+    ['bt1','bt2','bt3'].forEach(function(id){ document.getElementById(id).classList.remove('on'); });
+    var bm = 0;
+    if(growth >= 21){ document.getElementById('bt3').classList.add('on'); bm = 3; }
+    else if(growth >= 11){ document.getElementById('bt2').classList.add('on'); bm = 2; }
+    else if(growth >= 1){ document.getElementById('bt1').classList.add('on'); bm = 1; }
+    var rate      = _partner.commRate || 15;
+    var monthComm = active.reduce(function(s,c){ return s + getRetainer(c) * (rate/100); }, 0);
+    var bonusEst  = Math.round(monthComm * bm);
+    var est       = document.getElementById('btEst');
+    if(bm > 0) est.innerHTML = '&#127942; You\'ve unlocked <strong style="color:var(--gld);">' + bm + ' month' + (bm>1?'s':'') + ' bonus</strong> — estimated <strong style="color:var(--gld);">R ' + bonusEst.toLocaleString('en-ZA') + '</strong> payable in November.';
+    else if(start > 0){ var need = Math.max(0, Math.ceil(start*0.01) - (cur-start)); est.innerHTML = 'Need <strong style="color:#94a3b8;">' + need + ' more client' + (need!==1?'s':'') + ' to reach 1% growth and unlock a bonus.</strong>'; }
+    else est.textContent = 'Bonus tracking begins once your first client is active at the start of the year.';
 }
 
 function renderEarnings(){
-    const rate=_partner.commRate||15;
-    const active=getMyClients('active');
-    const now=new Date();
-    const h=_partner.commissionHistory||[];
-    const bon=_partner.bonusHistory||[];
-    const monthComm=active.reduce((s,c)=>s+getRetainer(c)*(rate/100),0);
-    const ytdE=h.filter(x=>new Date(x.date).getFullYear()===now.getFullYear()).reduce((s,x)=>s+x.amount,0);
-    const ytdP=h.filter(x=>x.paid&&new Date(x.date).getFullYear()===now.getFullYear()).reduce((s,x)=>s+x.amount,0);
-    const owed=h.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0)+bon.filter(x=>!x.paid).reduce((s,x)=>s+x.amount,0);
-    document.getElementById('eRate').textContent=rate+'%';
-    document.getElementById('eMonth').textContent='R '+Math.round(monthComm).toLocaleString('en-ZA');
-    document.getElementById('eYTD').textContent='R '+ytdE.toLocaleString('en-ZA');
-    document.getElementById('ePaid').textContent='R '+ytdP.toLocaleString('en-ZA');
-    document.getElementById('eOwed').textContent='R '+owed.toLocaleString('en-ZA');
-    const t1=active.filter(c=>getFS(c)<=15),t2=active.filter(c=>{const f=getFS(c);return f>15&&f<=30;}),t3=active.filter(c=>getFS(c)>30);
-    document.getElementById('tierBreakdown').innerHTML=[['Tier 1 (1–15 veh)',t1],['Tier 2 (16–30 veh)',t2],['Tier 3 (31+)',t3]].map(([lbl,arr])=>{
-        const c=arr.reduce((s,x)=>s+getRetainer(x)*(rate/100),0);
-        return `<div class="earn-row"><span class="earn-lbl">${lbl} (${arr.length})</span><span class="earn-val grn">R ${Math.round(c).toLocaleString('en-ZA')}/mo</span></div>`;
-    }).join('')+`<div class="earn-row" style="border-top:2px solid rgba(16,185,129,0.2);margin-top:4px;"><span class="earn-lbl" style="color:#cbd5e1;font-weight:800;">Total Monthly</span><span class="earn-val grn" style="font-size:1rem;">R ${Math.round(monthComm).toLocaleString('en-ZA')}</span></div>`;
+    var rate = _partner.commRate || 15;
+    var active = getMyClients('active');
+    var now  = new Date();
+    var h    = _partner.commissionHistory || [];
+    var bon  = _partner.bonusHistory || [];
+    var monthComm = active.reduce(function(s,c){ return s + getRetainer(c) * (rate/100); }, 0);
+    var ytdE = h.filter(function(x){ return new Date(x.date).getFullYear() === now.getFullYear(); }).reduce(function(s,x){ return s+x.amount; }, 0);
+    var ytdP = h.filter(function(x){ return x.paid && new Date(x.date).getFullYear() === now.getFullYear(); }).reduce(function(s,x){ return s+x.amount; }, 0);
+    var owed = h.filter(function(x){ return !x.paid; }).reduce(function(s,x){ return s+x.amount; }, 0)
+             + bon.filter(function(x){ return !x.paid; }).reduce(function(s,x){ return s+x.amount; }, 0);
+    document.getElementById('eRate').textContent  = rate + '%';
+    document.getElementById('eMonth').textContent = 'R ' + Math.round(monthComm).toLocaleString('en-ZA');
+    document.getElementById('eYTD').textContent   = 'R ' + ytdE.toLocaleString('en-ZA');
+    document.getElementById('ePaid').textContent  = 'R ' + ytdP.toLocaleString('en-ZA');
+    document.getElementById('eOwed').textContent  = 'R ' + owed.toLocaleString('en-ZA');
+    var t1 = active.filter(function(c){ return getFS(c)<=15; });
+    var t2 = active.filter(function(c){ var f=getFS(c); return f>15&&f<=30; });
+    var t3 = active.filter(function(c){ return getFS(c)>30; });
+    document.getElementById('tierBreakdown').innerHTML = [['Tier 1 (1–15 veh)',t1],['Tier 2 (16–30 veh)',t2],['Tier 3 (31+)',t3]].map(function(pair){
+        var lbl = pair[0], arr = pair[1];
+        var c = arr.reduce(function(s,x){ return s + getRetainer(x)*(rate/100); }, 0);
+        return '<div class="earn-row"><span class="earn-lbl">'+lbl+' ('+arr.length+')</span><span class="earn-val grn">R '+Math.round(c).toLocaleString('en-ZA')+'/mo</span></div>';
+    }).join('') + '<div class="earn-row" style="border-top:2px solid rgba(16,185,129,0.2);margin-top:4px;"><span class="earn-lbl" style="color:#cbd5e1;font-weight:800;">Total Monthly</span><span class="earn-val grn" style="font-size:1rem;">R '+Math.round(monthComm).toLocaleString('en-ZA')+'</span></div>';
 }
 
 function renderProspects(){
-    const pros=getMyClients('prospect');
-    document.getElementById('prosCnt').textContent=pros.length+' prospect'+(pros.length!==1?'s':'');
-    if(!pros.length){ document.getElementById('prosBody').innerHTML='<tr><td colspan="6" class="empty-msg">No prospects yet — start sharing your referral link!</td></tr>'; return; }
-    document.getElementById('prosBody').innerHTML=pros.map(c=>{
-        const f=getFS(c);
-        const slaGen=c.slaDate||c.slaSentDate,slaRec=c.slaExecuted||c.slaReceivedDate;
-        const prog=`<div class="prog-wrap">
-            <div class="prog-item"><div class="pdot ${slaGen?'done':'miss'}"></div><div class="prog-lbl ${slaGen?'done':''}">SLA Generated</div></div>
-            <div class="prog-item"><div class="pdot ${slaRec?'done':slaGen?'pend':'miss'}"></div><div class="prog-lbl ${slaRec?'done':slaGen?'pend':''}">SLA Signed</div></div>
-            <div class="prog-item"><div class="pdot ${c.onboardingSubmitted?'done':slaRec?'pend':'miss'}"></div><div class="prog-lbl ${c.onboardingSubmitted?'done':slaRec?'pend':''}">Onboarding Done</div></div>
-        </div>`;
-        const out=[];
+    var pros = getMyClients('prospect');
+    document.getElementById('prosCnt').textContent = pros.length + ' prospect' + (pros.length!==1?'s':'');
+    if(!pros.length){ document.getElementById('prosBody').innerHTML = '<tr><td colspan="6" class="empty-msg">No prospects yet — start sharing your referral link!</td></tr>'; return; }
+    document.getElementById('prosBody').innerHTML = pros.map(function(c){
+        var f      = getFS(c);
+        var slaGen = c.slaDate || c.slaSentDate;
+        var slaRec = c.slaExecuted || c.slaReceivedDate;
+        var prog   = '<div class="prog-wrap">'
+            + '<div class="prog-item"><div class="pdot '+(slaGen?'done':'miss')+'"></div><div class="prog-lbl '+(slaGen?'done':'')+'">SLA Generated</div></div>'
+            + '<div class="prog-item"><div class="pdot '+(slaRec?'done':slaGen?'pend':'miss')+'"></div><div class="prog-lbl '+(slaRec?'done':slaGen?'pend':'')+'">SLA Signed</div></div>'
+            + '<div class="prog-item"><div class="pdot '+(c.onboardingSubmitted?'done':slaRec?'pend':'miss')+'"></div><div class="prog-lbl '+(c.onboardingSubmitted?'done':slaRec?'pend':'')+'">Onboarding Done</div></div>'
+            + '</div>';
+        var out = [];
         if(!slaGen) out.push('SLA not sent');
         else if(!slaRec) out.push('⏳ Awaiting signed SLA');
         if(!c.onboardingSubmitted) out.push('Onboarding pending');
-        return `<tr><td><strong>${c.company}</strong></td><td style="color:var(--mut);">${c.contactName||'—'}</td><td>${f>0?f+' veh':'—'}</td><td><span class="pill pill-p">Prospect</span></td><td>${prog}</td><td>${out.length?out.map(o=>`<div style="font-size:11px;color:#fde68a;">${o}</div>`).join(''):'<div style="font-size:11px;color:#a7f3d0;">✓ All good</div>'}</td></tr>`;
+        return '<tr><td><strong>'+c.company+'</strong></td><td style="color:var(--mut);">'+(c.contactName||'—')+'</td><td>'+(f>0?f+' veh':'—')+'</td><td><span class="pill pill-p">Prospect</span></td><td>'+prog+'</td><td>'+(out.length?out.map(function(o){ return '<div style="font-size:11px;color:#fde68a;">'+o+'</div>'; }).join(''):'<div style="font-size:11px;color:#a7f3d0;">✓ All good</div>')+'</td></tr>';
     }).join('');
 }
 
 function renderActive(){
-    const active=getMyClients('active');
-    const rate=_partner.commRate||15;
-    document.getElementById('actCnt').textContent=active.length+' client'+(active.length!==1?'s':'');
-    if(!active.length){ document.getElementById('actBody').innerHTML='<tr><td colspan="6" class="empty-msg">No active clients yet.</td></tr>'; return; }
-    document.getElementById('actBody').innerHTML=active.map(c=>{
-        const f=getFS(c),r=getRetainer(c),comm=Math.round(r*(rate/100));
-        const since=c.activationDate?new Date(c.activationDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—';
-        return `<tr><td><strong>${c.company}</strong><br><span style="font-size:11px;color:var(--mut);">${c.contactName||'—'}</span></td><td>${f} veh<br><span style="font-size:10px;color:var(--mut);">${getTier(f).lbl}</span></td><td>R ${r.toLocaleString('en-ZA')}<span style="font-size:10px;color:var(--mut);">/mo</span></td><td style="color:var(--grn);font-weight:800;">R ${comm.toLocaleString('en-ZA')}<span style="font-size:10px;color:var(--mut);font-weight:600;">/mo</span></td><td>${c.reportSchedule==='weekly'?'📅 Weekly':'📆 Monthly'}</td><td style="color:var(--mut);font-size:12px;">${since}</td></tr>`;
+    var active = getMyClients('active');
+    var rate   = _partner.commRate || 15;
+    document.getElementById('actCnt').textContent = active.length + ' client' + (active.length!==1?'s':'');
+    if(!active.length){ document.getElementById('actBody').innerHTML = '<tr><td colspan="6" class="empty-msg">No active clients yet.</td></tr>'; return; }
+    document.getElementById('actBody').innerHTML = active.map(function(c){
+        var f     = getFS(c), r = getRetainer(c), comm = Math.round(r*(rate/100));
+        var since = c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+        return '<tr><td><strong>'+c.company+'</strong><br><span style="font-size:11px;color:var(--mut);">'+(c.contactName||'—')+'</span></td><td>'+f+' veh<br><span style="font-size:10px;color:var(--mut);">'+getTier(f).lbl+'</span></td><td>R '+r.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);">/mo</span></td><td style="color:var(--grn);font-weight:800;">R '+comm.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);font-weight:600;">/mo</span></td><td>'+(c.reportSchedule==='weekly'?'📅 Weekly':'📆 Monthly')+'</td><td style="color:var(--mut);font-size:12px;">'+since+'</td></tr>';
     }).join('');
 }
 
 function copyLink(){
-    const link=document.getElementById('refLinkVal').textContent;
-    navigator.clipboard.writeText(link).then(()=>{
-        const btn=document.getElementById('copyBtn');
-        btn.textContent='✅ Copied!'; btn.classList.add('copied');
-        setTimeout(()=>{ btn.textContent='📋 Copy Link'; btn.classList.remove('copied'); },2000);
+    var link = document.getElementById('refLinkVal').textContent;
+    navigator.clipboard.writeText(link).then(function(){
+        var btn = document.getElementById('copyBtn');
+        btn.textContent = '✅ Copied!'; btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = '📋 Copy Link'; btn.classList.remove('copied'); }, 2000);
     });
 }
 </script>
