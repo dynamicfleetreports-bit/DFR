@@ -330,8 +330,12 @@ document.addEventListener('DOMContentLoaded', function(){
     var p   = new URLSearchParams(window.location.search);
     var ref = p.get('ref') || p.get('pid');
     if(ref){
+        // Partner auto-login via URL
         document.getElementById('loginCode').value = ref;
         waitFor(function(){ return typeof cloudStorage!=='undefined'; }).then(doLogin);
+    } else {
+        // No ref param = DFR owner — open hub directly
+        waitFor(function(){ return typeof cloudStorage!=='undefined'; }).then(showOwnerHub);
     }
 });
 
@@ -364,6 +368,23 @@ async function doLogin(){
     }
 }
 function showErr(msg){ var e=document.getElementById('loginErr'); e.textContent=msg; e.style.display='block'; }
+
+// ── Owner mode — no login needed ──────────────────────────────────────────────
+async function showOwnerHub(){
+    _partner     = null;
+    _partnerCode = '';
+    _partnerLink = '';
+    document.getElementById('loginWrap').style.display       = 'none';
+    document.getElementById('mainHub').classList.add('on');
+    document.getElementById('submitScriptBox').style.display = 'none'; // owner doesn't submit scripts
+    document.getElementById('tbPartnerName').style.display   = 'block';
+    document.getElementById('tbName').textContent            = 'DFR Owner';
+    // Hide the My Link box — owner doesn't have a partner link
+    var linkBox = document.querySelector('.my-link-box');
+    if(linkBox) linkBox.style.display = 'none';
+    await loadAndRenderPosts();
+    await loadCommunityScripts();
+}
 
 async function showHub(){
     document.getElementById('loginWrap').style.display    = 'none';
@@ -433,16 +454,18 @@ function copyPartnerPost(id, btn){
     var el = document.getElementById(id);
     if(!el) return;
     var text = el.innerText || el.textContent;
-    // Replace any existing discover URL or append partner link
-    var baseUrl = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
-    if(text.indexOf(baseUrl) > -1){
-        text = text.replace(new RegExp(baseUrl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(\\?ref=[^\\s]*)?','g'), _partnerLink);
-    } else {
-        text += '\n\n🔗 '+_partnerLink;
+    if(_partnerLink){
+        // Append or replace with partner's referral link
+        var baseUrl = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+        if(text.indexOf(baseUrl) > -1){
+            text = text.replace(new RegExp(baseUrl.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(\\?ref=[^\\s]*)?','g'), _partnerLink);
+        } else {
+            text += '\n\n🔗 '+_partnerLink;
+        }
     }
     navigator.clipboard.writeText(text).then(function(){
         var orig = btn.textContent;
-        btn.textContent = '✅ Copied with my link!';
+        btn.textContent = _partnerLink ? '✅ Copied with my link!' : '✅ Copied!';
         btn.classList.add('copied');
         setTimeout(function(){ btn.textContent=orig; btn.classList.remove('copied'); },2500);
     });
