@@ -145,7 +145,7 @@
     <div class="tb-brand">🎬 Reel Builder <span>by Dynamic Fleet Reporting</span></div>
     <div class="tb-right">
         <span class="tb-partner" id="tbPartner" style="display:none;">Partner: <strong id="tbPartnerName">—</strong></span>
-        <a href="partner-marketing.html" class="btn-back">← Marketing Hub</a>
+        <a href="partner-marketing.html" class="btn-back" id="backBtn">← Marketing Hub</a>
     </div>
 </div>
 
@@ -272,6 +272,7 @@ const _partnerLink = _partnerCode ? DISCOVER_URL + '?ref=' + _partnerCode : '';
 if(_partnerCode){
     document.getElementById('tbPartner').style.display   = 'block';
     document.getElementById('tbPartnerName').textContent = _partnerCode.replace('ref_','').replace(/_/g,' ');
+    document.getElementById('backBtn').href = 'partner-marketing.html?ref=' + _partnerCode;
     document.getElementById('partnerNote').classList.add('show');
     document.getElementById('pNoteName').textContent     = _partnerCode.replace('ref_','').replace(/_/g,' ');
 }
