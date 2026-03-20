@@ -208,6 +208,7 @@
         <div class="manage-toolbar">
             <button class="btn btn-pur" onclick="openNewPostModal()">➕ New Post</button>
             <button class="btn btn-outline" onclick="loadPosts()">🔄 Refresh</button>
+            <button class="btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;font-weight:900;" onclick="seedEvergreenPosts()">🌱 Add Evergreen Posts</button>
         </div>
         <div class="filter-bar">
             <button class="fbtn active" onclick="filterPosts('all',this)">All</button>
@@ -339,6 +340,143 @@ const SEED_POSTS = [
     {platform:'wa',tag:'💬 Direct Message',order:'Evergreen DM #3',hashtags:'Send as direct WhatsApp message',live:true,content:`Hey [Name] 👋\n\nI know you're in transport — thought this might be useful.\n\nThere's a local SA service called Dynamic Fleet Reporting that does monthly forensic audits on fleets. Not GPS tracking — actual deep analysis of fuel, drivers, costs, maintenance. All in a clear monthly report.\n\nThe guy who runs it — Pieter Nell — really knows his stuff. Based in the Western Cape, works with fleets all over SA.\n\nMight be worth a quick call to see if it's a fit for your operation.\n\n📞 083 314 9592`},
     {platform:'wa',tag:'👥 Group Message',order:'Evergreen Group #2',hashtags:'Post in WhatsApp business/transport groups',live:true,content:`📋 For fleet owners and transport managers in this group:\n\nIf you're not getting a monthly forensic report on your fleet — fuel consumption, driver behaviour, vehicle costs, maintenance status — you're probably leaving money on the table.\n\nDynamic Fleet Reporting provides this service for SA fleets of all sizes.\n\nNo complicated software. No long contracts. Just a clear, actionable monthly report that tells you exactly what's happening in your fleet.\n\n📲 083 314 9592 to find out more.`},
 
+    // ── EVERGREEN EMAIL NURTURE SEQUENCE ──
+    {platform:'email',tag:'📧 Intro Email',order:'Evergreen Email #1',subject:'Introduction — Dynamic Fleet Reporting',when:'Day 1 — first contact',hashtags:'',live:true,content:`💡 USAGE NOTES:
+• Someone you know personally → change opening to "Hope you and the family are well" or similar
+• Business contact / acquaintance → use as is
+• Cold contact → change opening to "I came across your business and wanted to reach out"
+• Someone who showed interest → change opening to "Following up on our recent conversation"
+─────────────────────────────────────
+
+Hi [First Name],
+
+I hope this finds you well.
+
+I wanted to reach out because I've recently come across a service that I think could be genuinely valuable for fleet operators like yourself — and I'd feel remiss not sharing it.
+
+Dynamic Fleet Reporting is a South African forensic fleet auditing service run by Pieter Nell, based in the Western Cape. Every month, they produce a detailed report for each client covering fuel consumption per vehicle, driver behaviour analysis, maintenance alerts, route efficiency, and cost per kilometre — all written in plain language with clear, actionable recommendations.
+
+It's not GPS tracking. It's not software. It's a real monthly audit of what your fleet is actually costing you — and where the losses are hiding.
+
+Most clients identify savings that significantly exceed the cost of the service within the first month.
+
+I thought it was worth putting on your radar. I've included a link below where you can find out more, or you're welcome to contact Pieter directly on 083 314 9592.
+
+[YOUR REFERRAL LINK]
+
+Kind regards,
+[Your Name]
+[Your Contact Number]`},
+
+    {platform:'email',tag:'📧 Value Follow-Up',order:'Evergreen Email #2',subject:'What Dynamic Fleet Reporting actually does — [First Name]',when:'Day 3 — no response to Email #1',hashtags:'',live:true,content:`💡 USAGE NOTES:
+• If they responded positively to Email #1 → skip this and go straight to Email #3
+• If no response → send as is
+• Warm contact → add "I know you're busy, so I'll keep this brief" at the start
+─────────────────────────────────────
+
+Hi [First Name],
+
+I sent you a note a few days ago about Dynamic Fleet Reporting — I wanted to follow up with a bit more detail in case it's useful.
+
+Here's what their monthly report actually covers for every vehicle in a fleet:
+
+→ Fuel consumption versus the correct benchmark for that vehicle's route and load
+→ Driver behaviour — who's performing well and who isn't
+→ Maintenance status — upcoming service windows and overdue items
+→ Cost per kilometre tracked over time
+→ Fuel card reconciliation — to flag any exceptions or misuse
+→ A summary of the top 3 priority actions for the month
+
+The report is written for business owners and fleet managers — not analysts. Most clients read it in under 20 minutes and have specific actions to take immediately.
+
+If you'd like to see what a sample report looks like before committing to anything, I can arrange that through the link below.
+
+[YOUR REFERRAL LINK]
+
+No obligation at all — just want to make sure you have the full picture.
+
+[Your Name]
+[Your Contact Number]`},
+
+    {platform:'email',tag:'📧 Social Proof',order:'Evergreen Email #3',subject:'Real numbers from a recent fleet audit — worth a look',when:'Day 7 — no response to Email #2',hashtags:'',live:true,content:`💡 USAGE NOTES:
+• If they are in a similar industry to the example → mention it: "I know you're also in long-haul..."
+• If they have a smaller fleet → adjust the numbers down proportionally
+• Warm contact → lead with "I know I keep following up, but I genuinely think this is worth your time"
+─────────────────────────────────────
+
+Hi [First Name],
+
+I'll keep this one short — I just wanted to share a real example before I stop bothering you.
+
+A long-haul transport company with 22 vehicles came to Dynamic Fleet Reporting for a monthly forensic audit. Here's what the first report found:
+
+→ 3 vehicles consuming 19–24% above benchmark for their routes
+→ 1 driver with a pattern of unauthorised after-hours vehicle use
+→ 4 vehicles with maintenance items overdue by 30–60 days
+→ Fuel card exceptions totalling R23,400 requiring investigation
+
+Total estimated recoverable losses per month: R67,000+
+Monthly cost of the DFR service for that fleet: R6,300
+
+That's not unusual. It's what they find in most fleets in the first 90 days.
+
+If there's any chance your fleet has similar leaks — and most do — it's worth a conversation.
+
+[YOUR REFERRAL LINK]
+
+[Your Name]
+[Your Contact Number]`},
+
+    {platform:'email',tag:'📧 Soft Nudge',order:'Evergreen Email #4',subject:'Still on your radar, [First Name]?',when:'Day 14 — no response to Email #3',hashtags:'',live:true,content:`💡 USAGE NOTES:
+• Someone you know well → be more direct and personal: "I know you've been flat out — just checking in"
+• Cold contact → use as is, keep it light
+• If they did respond but haven't acted → change subject to "Just checking in — [First Name]"
+─────────────────────────────────────
+
+Hi [First Name],
+
+I know how it goes — things land in the inbox, they seem interesting, and then the day takes over.
+
+I just wanted to check in one more time on Dynamic Fleet Reporting, because I genuinely think it's the kind of service that pays for itself quickly and then keeps paying.
+
+The core idea is simple: most fleet operators are losing money they don't know about — not through any single dramatic event, but through dozens of small inefficiencies that compound month after month. Proper forensic reporting surfaces those losses and gives you something concrete to act on.
+
+If the timing isn't right or it's just not a fit, no problem at all — I completely understand. But if you're open to a quick 10-minute call with Pieter to understand what they'd find in your specific fleet, that's all it takes to get started.
+
+[YOUR REFERRAL LINK]
+
+Either way, I appreciate you taking the time to read these.
+
+[Your Name]
+[Your Contact Number]`},
+
+    {platform:'email',tag:'📧 Final Touch',order:'Evergreen Email #5',subject:'Last one from me — leaving the door open',when:'Day 21 — final email in sequence',hashtags:'',live:true,content:`💡 USAGE NOTES:
+• Someone you know personally → soften the closing: "Let's catch up sometime regardless"
+• Cold contact → use as is
+• If they previously showed interest but went quiet → change subject to "Circling back one last time — [First Name]"
+─────────────────────────────────────
+
+Hi [First Name],
+
+This is my last follow-up — I promise.
+
+I've reached out a few times about Dynamic Fleet Reporting and I don't want to become a nuisance. If it's not the right time or the right fit, I completely respect that.
+
+I'll just leave this here:
+
+If you ever find yourself at month-end wondering where the fuel budget went, or suspecting your fleet costs are higher than they should be, or wanting a clearer picture of what each vehicle is actually costing your business — Dynamic Fleet Reporting is worth a look.
+
+Monthly forensic fleet audits. Plain language. Actionable insights. Pricing from R1,500/month + R150–R200 per vehicle.
+
+Contact Pieter directly on 083 314 9592 or dynamicfleetreports@gmail.com — or use the link below.
+
+[YOUR REFERRAL LINK]
+
+Wishing you and your business all the best.
+
+[Your Name]
+[Your Contact Number]`},
+
     // ── EVERGREEN TIKTOK / REELS ──
     {platform:'tt',tag:'🎬 Video Script',order:'Evergreen Script #1 — 30 sec',hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner',live:true,content:`🎬 SCRIPT — "The Question"\n\n[Look at camera]\n"If I asked you right now — what is your most expensive vehicle costing you per kilometre this month — would you know the answer?"\n\n[Pause]\n\n"Most fleet owners in South Africa don't. And that's not a knock on them — it's just that nobody gives them that information in a clear, usable way."\n\n"That's what we do. Every month. For every vehicle in your fleet."\n\n"Dynamic Fleet Reporting. Forensic monthly fleet audits."\n\n[Show phone or link]\n"Link in bio. Or WhatsApp us on 083 314 9592."\n\n---\n📱 CAPTION: Do you know what your fleet is really costing you? 🚛 Most SA fleet owners don't — and it's costing them thousands every month. We change that. #FleetManagement #SouthAfrica #Transport #TruckingLife`},
     {platform:'tt',tag:'🎬 Video Script',order:'Evergreen Script #2 — 30 sec',hashtags:'#FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife #FleetOwner',live:true,content:`🎬 SCRIPT — "The Leak"\n\n[Look at camera, serious tone]\n"Your fleet is leaking money right now."\n\n"Not dramatically. Just quietly — every single month."\n\n"A vehicle running 15% over on fuel. A driver taking longer routes than necessary. A service that's overdue."\n\n"Individually, each one seems small. Together, they add up to tens of thousands of rands a month — gone before you even notice."\n\n"We find those leaks. We document them. We give you the report to fix them."\n\n"Dynamic Fleet Reporting. Link in bio."\n\n---\n📱 CAPTION: The losses in your fleet aren't dramatic — they're quiet. That's what makes them dangerous. 🔍 #FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife`},
@@ -365,6 +503,43 @@ async function loadPosts(){
     }catch(e){ _posts = []; }
     renderViewPosts(); renderManagePosts();
 }
+
+async function seedEvergreenPosts(){
+    const EVERGREEN_TAG = 'Evergreen';
+    // Find all evergreen posts from SEED_POSTS (those with order starting with 'Evergreen')
+    const evergreenSeeds = SEED_POSTS.filter(p => (p.order||'').startsWith('Evergreen'));
+    if(!evergreenSeeds.length){ alert('No evergreen posts found in seed data.'); return; }
+
+    // Check which ones are already in Firebase (by matching tag + platform + first 60 chars of content)
+    const existing = _posts || [];
+    const toAdd = evergreenSeeds.filter(seed => {
+        return !existing.some(p =>
+            p.platform === seed.platform &&
+            p.tag === seed.tag &&
+            (p.content||'').substring(0,60) === (seed.content||'').substring(0,60)
+        );
+    });
+
+    if(!toAdd.length){
+        alert('✅ All evergreen posts are already in your library — nothing to add.');
+        return;
+    }
+
+    if(!confirm(`Add ${toAdd.length} new evergreen posts to your existing library?\n\nYour current posts will not be changed.`)) return;
+
+    const now = new Date().toISOString();
+    const newPosts = toAdd.map((p, i) => Object.assign({
+        id: 'evergreen_' + Date.now() + '_' + i,
+        createdAt: now
+    }, p));
+
+    _posts = [...existing, ...newPosts];
+    await savePosts();
+    renderViewPosts();
+    renderManagePosts();
+    alert(`✅ Done! ${newPosts.length} evergreen posts added to your library and published.`);
+}
+
 async function savePosts(){ await cloudStorage.setItem(POSTS_KEY,JSON.stringify(_posts)); }
 
 function renderViewPosts(){
