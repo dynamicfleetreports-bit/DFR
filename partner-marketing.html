@@ -165,7 +165,7 @@
     <div class="tb-brand">Dynamic Fleet Reporting<span>Partner Marketing Hub</span></div>
     <div class="tb-right">
         <span class="tb-partner" id="tbPartnerName" style="display:none;">Partner: <strong id="tbName">—</strong></span>
-        <button class="btn-back" onclick="window.location.href='partner-portal.html?ref='+encodeURIComponent(window._partnerCode||'')">&#8592; My Portal</button>
+        <button class="btn-back" id="portalBackBtn" onclick="goPortal()">&#8592; My Portal</button>
     </div>
 </div>
 
@@ -287,6 +287,12 @@ const PARTNER_SCRIPTS_KEY = 'PARTNER_MARKETING_SCRIPTS';
 var _partner     = null;
 var _partnerCode = '';
 var _partnerLink = '';
+
+function goPortal() {
+    window.location.href = _partnerCode
+        ? 'partner-portal.html?ref=' + _partnerCode
+        : 'partner-portal.html';
+}
 
 function waitFor(fn){ return new Promise(function(r){ var t=setInterval(function(){ if(fn()){ clearInterval(t); r(); } },60); }); }
 
