@@ -57,6 +57,26 @@
         .spin{width:40px;height:40px;border:3px solid rgba(16,185,129,0.2);border-top-color:var(--grn);border-radius:50%;animation:spin 0.8s linear infinite;}
         @keyframes spin{to{transform:rotate(360deg);}}
         .loader-txt{font-size:13px;font-weight:700;color:var(--mut);}
+
+        /* ── Mobile Responsive ── */
+        @media(max-width:768px){
+            .topbar{padding:0.75rem 1rem;flex-wrap:wrap;gap:0.5rem;}
+            .tb-brand{font-size:17px;}
+            .wrap{margin:1.5rem auto;padding:0 1rem;}
+            h1{font-size:2rem;}
+            .comm-box{grid-template-columns:1fr;gap:0.75rem;}
+            .cb-val{font-size:1.4rem;}
+            .grid2,.grid3{grid-template-columns:1fr;}
+            .fg.full{grid-column:unset;}
+            .card{padding:1.25rem;}
+            .terms-box{max-height:160px;}
+            .check-row{padding:0.65rem 0.75rem;}
+            .check-text{font-size:12px;}
+            .submit-btn{font-size:13px;padding:0.9rem;}
+        }
+        @media(max-width:480px){
+            h1{font-size:1.7rem;}
+        }
     </style>
 </head>
 <body>

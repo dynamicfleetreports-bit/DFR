@@ -101,6 +101,36 @@
         .pdot.done{background:var(--grn);} .pdot.pend{background:var(--gld);} .pdot.miss{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);}
         .prog-lbl{color:var(--mut);} .prog-lbl.done{color:#a7f3d0;} .prog-lbl.pend{color:#fde68a;}
         .empty-msg{text-align:center;color:var(--mut);font-size:13px;padding:20px;}
+
+        /* ── Mobile Responsive ── */
+        @media(max-width:768px){
+            .topbar{padding:0.75rem 1rem;flex-wrap:wrap;gap:0.5rem;}
+            .tb-brand{font-size:16px;}
+            .portal{padding:1rem;}
+            .stats-row{grid-template-columns:1fr 1fr;gap:0.75rem;}
+            .sc-val{font-size:1.5rem;}
+            .ref-box{padding:1rem;flex-direction:column;gap:0.75rem;}
+            .ref-link-row{flex-direction:column;}
+            .ref-link-val{min-width:unset;width:100%;font-size:11px;}
+            .btn-copy,
+            .ref-box button{width:100%;text-align:center;padding:10px;font-size:12px;}
+            .bonus-track{padding:1rem;}
+            .bt-grid{grid-template-columns:1fr;gap:0.5rem;text-align:left;}
+            .bar-labels{font-size:9px;flex-wrap:wrap;gap:2px;}
+            .bonus-tiers{flex-direction:column;}
+            .bt-tier{min-width:unset;}
+            .earn-grid{grid-template-columns:1fr;}
+            .pt{font-size:11px;}
+            .pt th,.pt td{padding:7px 8px;}
+            /* Make tables scrollable horizontally */
+            .sec-hdr ~ .pt{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+            table.pt{min-width:480px;}
+        }
+        @media(max-width:480px){
+            .stats-row{grid-template-columns:1fr 1fr;}
+            .sc-val{font-size:1.3rem;}
+            .tb-partner{font-size:11px;}
+        }
     </style>
 </head>
 <body>
