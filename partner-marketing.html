@@ -97,7 +97,19 @@
         .tab-ig.active { background:rgba(236,72,153,0.15); border-color:rgba(236,72,153,0.4); color:#f472b6; }
         .tab-wa.active { background:rgba(37,211,102,0.15); border-color:rgba(37,211,102,0.4); color:#4ade80; }
         .tab-tt.active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white; }
+        .tab-email.active { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
         .tab-scripts.active { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+        /* Language toggle */
+        .lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:4px;margin-bottom:1.25rem;}
+        .lang-btn{padding:5px 14px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
+        .lang-btn.active{background:#10b981;color:#020617;}
+        /* Email cards */
+        .email-card{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+        .email-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;}
+        .email-subject{font-size:12px;color:#fbbf24;font-weight:700;margin-top:3px;}
+        .email-when{font-size:10px;font-weight:900;text-transform:uppercase;color:#64748b;white-space:nowrap;}
+        .email-preview{font-size:12px;color:#94a3b8;white-space:pre-wrap;line-height:1.7;max-height:160px;overflow:hidden;margin-bottom:0.75rem;}
+        .email-footer{display:flex;gap:0.5rem;flex-wrap:wrap;}
 
         /* ── PLATFORM SECTIONS ── */
         .platform-section { display:none; }
@@ -137,26 +149,6 @@
         /* ── TOAST ── */
         .toast { position:fixed; bottom:2rem; right:2rem; background:#1e293b; border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:13px; font-weight:700; color:white; z-index:9999; transform:translateY(100px); opacity:0; transition:all 0.3s; }
         .toast.show { transform:translateY(0); opacity:1; }
-
-        /* ── Mobile Responsive ── */
-        @media(max-width:768px){
-            .topbar{padding:0.75rem 1rem;flex-wrap:wrap;gap:0.5rem;}
-            .tb-right{gap:0.5rem;}
-            .tb-partner{display:none;}
-            .main{padding:1rem;}
-            .posts-grid{grid-template-columns:1fr;}
-            .tab-bar{gap:4px;}
-            .tab{padding:7px 10px;font-size:10px;}
-            .mlb-link-row{flex-direction:column;}
-            .mlb-link{min-width:unset;font-size:11px;}
-            .btn-copy-link{width:100%;text-align:center;}
-            .platform-banner{padding:1rem;gap:0.75rem;}
-            .sb-form{gap:0.6rem;}
-            .toast{bottom:1rem;right:1rem;left:1rem;text-align:center;}
-        }
-        @media(max-width:480px){
-            .tb-brand{font-size:14px;letter-spacing:2px;}
-        }
     </style>
 </head>
 <body>
@@ -165,7 +157,7 @@
     <div class="tb-brand">Dynamic Fleet Reporting<span>Partner Marketing Hub</span></div>
     <div class="tb-right">
         <span class="tb-partner" id="tbPartnerName" style="display:none;">Partner: <strong id="tbName">—</strong></span>
-        <button class="btn-back" id="portalBackBtn" onclick="goPortal()">&#8592; My Portal</button>
+        <button class="btn-back" onclick="window.location.href='partner-portal.html?ref='+encodeURIComponent(window._partnerCode||'')">&#8592; My Portal</button>
     </div>
 </div>
 
@@ -221,11 +213,16 @@
 
     <!-- Platform Tabs -->
     <div class="tab-bar">
+        <div class="lang-toggle">
+            <button class="lang-btn active" id="langBtnEn" onclick="setLang('en')">🇬🇧 English</button>
+            <button class="lang-btn" id="langBtnAf" onclick="setLang('af')">Afrikaans</button>
+        </div>
         <button class="tab tab-fb active" onclick="switchTab('fb',this)">&#128216; Facebook</button>
         <button class="tab tab-li"        onclick="switchTab('li',this)">&#128188; LinkedIn</button>
         <button class="tab tab-ig"        onclick="switchTab('ig',this)">&#128247; Instagram</button>
         <button class="tab tab-wa"        onclick="switchTab('wa',this)">&#128172; WhatsApp</button>
         <button class="tab tab-tt"        onclick="switchTab('tt',this)">&#127925; TikTok / Reels</button>
+        <button class="tab tab-email"     onclick="switchTab('email',this)">&#128231; Email</button>
         <button class="tab tab-scripts"   onclick="switchTab('community',this)">&#127775; Community Scripts</button>
     </div>
 
@@ -234,6 +231,7 @@
     <div class="platform-section"        id="section-ig"><div class="loading">Loading posts...</div></div>
     <div class="platform-section"        id="section-wa"><div class="loading">Loading posts...</div></div>
     <div class="platform-section"        id="section-tt"><div class="loading">Loading posts...</div></div>
+    <div class="platform-section"        id="section-email"><div class="loading">Loading posts...</div></div>
 
         <div class="platform-section" id="section-community">
         <div id="communityInTab"><p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet. Be the first to submit one below!</p></div>
@@ -288,12 +286,6 @@ var _partner     = null;
 var _partnerCode = '';
 var _partnerLink = '';
 
-function goPortal() {
-    window.location.href = _partnerCode
-        ? 'partner-portal.html?ref=' + _partnerCode
-        : 'partner-portal.html';
-}
-
 function waitFor(fn){ return new Promise(function(r){ var t=setInterval(function(){ if(fn()){ clearInterval(t); r(); } },60); }); }
 
 // ── Detect owner vs partner on load ──────────────────────────────────────────
@@ -323,7 +315,11 @@ function showOwnerHub() {
     document.getElementById('tbPartnerName').style.display  = 'block';
     document.getElementById('tbName').textContent           = 'DFR Owner';
     // Load community scripts (owner can see them, just can't submit)
-    waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(function(){ loadAndRenderPosts(); loadCommunityScripts(); });
+    waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(function(){
+        applyLangUI();
+        loadAndRenderPosts();
+        loadCommunityScripts();
+    });
 }
 
 // ── Partner login ─────────────────────────────────────────────────────────────
@@ -379,19 +375,38 @@ function showHub() {
     var reelBtn = document.getElementById('reelBuilderBtn');
     if (reelBtn) reelBtn.href = 'reel-builder.html?ref=' + _partnerCode;
     injectLinks();
+    applyLangUI();
     loadAndRenderPosts();
     loadCommunityScripts();
     // Activate FB tab handled by renderPlatformSection
 }
 
 // ── Load posts from Firebase ─────────────────────────────────────────────────
+var _lang = localStorage.getItem('dfr_lang') || 'en';
+
+function applyLangUI() {
+    var enBtn = document.getElementById('langBtnEn');
+    var afBtn = document.getElementById('langBtnAf');
+    if (enBtn) enBtn.classList.toggle('active', _lang === 'en');
+    if (afBtn) afBtn.classList.toggle('active', _lang === 'af');
+}
+
+function setLang(l) {
+    _lang = l;
+    localStorage.setItem('dfr_lang', l);
+    applyLangUI();
+    loadAndRenderPosts();
+}
+
 async function loadAndRenderPosts() {
     var posts = [];
     try {
         var stored = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
         posts = (stored && stored.length) ? stored : [];
+        // Backfill lang field for old posts that don't have it
+        posts = posts.map(function(p){ return p.lang ? p : Object.assign({lang:'en'}, p); });
     } catch(e) { posts = []; }
-    ['fb','li','ig','wa','tt'].forEach(function(plat) { renderPlatformSection(plat, posts); });
+    ['fb','li','ig','wa','tt','email'].forEach(function(plat) { renderPlatformSection(plat, posts); });
 }
 
 // ── Render one platform section ───────────────────────────────────────────────
@@ -399,26 +414,31 @@ function renderPlatformSection(plat, posts) {
     var el = document.getElementById('section-' + plat);
     if (!el) return;
 
-    var icons = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵'};
-    var names = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels'};
-    var colors= {fb:'#60a5fa',li:'#38bdf8',ig:'#f472b6',wa:'#4ade80',tt:'white'};
-    var css   = {fb:'pb-fb',li:'pb-li',ig:'pb-ig',wa:'pb-wa',tt:'pb-tt'};
+    var icons = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵',email:'📧'};
+    var names = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels',email:'Email'};
+    var colors= {fb:'#60a5fa',li:'#38bdf8',ig:'#f472b6',wa:'#4ade80',tt:'white',email:'#fbbf24'};
+    var css   = {fb:'pb-fb',li:'pb-li',ig:'pb-ig',wa:'pb-wa',tt:'pb-tt',email:'pb-li'};
     var times = {
         fb:'Best times: Tue–Thu · 12pm–2pm & 6pm–8pm · 3–4 posts/week',
         li:'Best times: Tue–Thu · 8am–10am · 2–3 posts/week',
         ig:'Best times: Mon/Wed/Fri · 11am–1pm · Daily stories',
         wa:'Status: Daily · Direct message: As needed · Groups: 2–3x per week',
-        tt:'Best times: 7pm–9pm daily · 1–2 videos/week minimum'
+        tt:'Best times: 7pm–9pm daily · 1–2 videos/week minimum',
+        email:'Send sequence over 3 weeks · Personalise the opening line for best results'
     };
     var tips = {
         fb:'These posts are written to perform on Facebook. Your referral link is included when you copy.',
         li:'LinkedIn reaches fleet managers and logistics directors directly. Use your real name for credibility.',
         ig:'Instagram is visual — pair these captions with photos of trucks or dashboards. Bio link is the money shot.',
         wa:'Most underrated platform in SA. WhatsApp Status reaches people who never see your Facebook posts.',
-        tt:'These are scripts, not captions. Read them naturally to camera. Keep each under 60 seconds.'
+        tt:'These are scripts, not captions. Read them naturally to camera. Keep each under 60 seconds.',
+        email:'Copy each email, personalise the opening, and send from your own email address. Your referral link is already included.'
     };
 
-    var live = posts.filter(function(p){ return p.platform === plat && p.live; });
+    // Filter by platform, live, and selected language
+    var live = posts.filter(function(p){
+        return p.platform === plat && p.live && (p.lang || 'en') === _lang;
+    });
 
     var html = '<div class="platform-banner ' + css[plat] + '">';
     html += '<div><div class="pb-title">' + icons[plat] + ' ' + names[plat] + '</div>';
@@ -426,25 +446,48 @@ function renderPlatformSection(plat, posts) {
     html += '<div class="pb-tip">' + tips[plat] + '</div></div>';
 
     if (!live.length) {
-        html += '<div class="empty-state"><div class="icon">' + icons[plat] + '</div>';
-        html += '<p>No posts live for ' + names[plat] + ' yet.<br><span style="font-size:12px;color:#475569;">DFR will publish posts here — check back soon.</span></p></div>';
+        var otherLang = _lang === 'en' ? 'af' : 'en';
+        var otherCount = posts.filter(function(p){ return p.platform === plat && p.live && (p.lang||'en') === otherLang; }).length;
+        var msg = otherCount > 0
+            ? 'No ' + (_lang==='en'?'English':'Afrikaans') + ' posts live yet.<br><span style="font-size:12px;color:#475569;">' + otherCount + ' post' + (otherCount!==1?'s':'') + ' available in the other language — use the toggle above.</span>'
+            : 'No posts live for ' + names[plat] + ' yet.<br><span style="font-size:12px;color:#475569;">DFR will publish posts here — check back soon.</span>';
+        html += '<div class="empty-state"><div class="icon">' + icons[plat] + '</div><p>' + msg + '</p></div>';
         el.innerHTML = html; return;
     }
 
-    html += '<div class="posts-grid">';
-    live.forEach(function(p) {
-        var pid = 'pp_' + p.id;
-        html += '<div class="post-card">';
-        html += '<div class="post-card-head">';
-        html += '<span class="post-tag" style="background:rgba(255,255,255,0.07);color:' + colors[plat] + ';">' + escHtml(p.tag || '') + '</span>';
+    // Email platform renders differently
+    if (plat === 'email') {
+        live.forEach(function(p) {
+            var pid = 'pp_' + p.id;
+            html += '<div class="email-card">';
+            html += '<div class="email-card-head">';
+            html += '<div><div style="font-size:13px;font-weight:900;color:white;">' + escHtml(p.tag||'') + '</div>';
+            if (p.subject) html += '<div class="email-subject">Subject: ' + escHtml(p.subject) + '</div>';
+            html += '</div>';
+            if (p.when) html += '<span class="email-when">' + escHtml(p.when) + '</span>';
+            html += '</div>';
+            html += '<div class="email-preview" id="' + pid + '">' + escHtml(p.content||'') + '</div>';
+            html += '<div class="email-footer">';
+            html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Email</button>';
+            html += '</div></div>';
+        });
+    } else {
+        html += '<div class="posts-grid">';
+        live.forEach(function(p) {
+            var pid = 'pp_' + p.id;
+            html += '<div class="post-card">';
+            html += '<div class="post-card-head">';
+            html += '<span class="post-tag" style="background:rgba(255,255,255,0.07);color:' + colors[plat] + ';">' + escHtml(p.tag || '') + '</span>';
+            html += '</div>';
+            html += '<div class="post-card-body"><div class="post-preview" id="' + pid + '">' + escHtml(p.content || '') + '</div></div>';
+            html += '<div class="post-card-footer">';
+            html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Post</button>';
+            if (p.hashtags) html += '<div class="hashtag-wrap">' + escHtml(p.hashtags) + '</div>';
+            html += '</div></div>';
+        });
         html += '</div>';
-        html += '<div class="post-card-body"><div class="post-preview" id="' + pid + '">' + escHtml(p.content || '') + '</div></div>';
-        html += '<div class="post-card-footer">';
-        html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Post</button>';
-        if (p.hashtags) html += '<div class="hashtag-wrap">' + escHtml(p.hashtags) + '</div>';
-        html += '</div></div>';
-    });
-    html += '</div>';
+    }
+
     el.innerHTML = html;
 }
 
