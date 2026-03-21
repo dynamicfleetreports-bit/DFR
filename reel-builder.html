@@ -1,146 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reel Builder | Dynamic Fleet Reporting</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--pink:#ec4899;--txt:#e2e8f0;--mut:#64748b;}
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
-        .topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-        .tb-brand{font-size:16px;font-weight:900;color:var(--pink);letter-spacing:0.05em;}
-        .tb-brand span{color:#94a3b8;font-weight:600;font-size:13px;margin-left:0.5rem;}
-        .tb-right{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
-        .tb-partner{font-size:11px;font-weight:700;color:#64748b;}
-        .tb-partner strong{color:var(--grn);}
-        .btn-back{background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:#e2e8f0;padding:7px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;display:inline-block;}
-        .btn-back:hover{background:rgba(255,255,255,0.1);}
-        .main{display:flex;gap:2rem;padding:2rem;max-width:1400px;margin:0 auto;align-items:start;}
-        .editor-col{flex:1;min-width:0;}
-        .preview-col{width:320px;flex-shrink:0;position:sticky;top:5rem;}
-        .sec-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;}
-        .script-row{display:flex;gap:0.6rem;margin-bottom:1.25rem;flex-wrap:wrap;}
-        .script-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:200px;}
-        .script-sel option{background:#0f172a;}
-        .btn{padding:8px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;white-space:nowrap;}
-        .btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;}.btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
-        .style-row{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap;}
-        .style-btn{padding:7px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
-        .style-btn.active{transform:translateY(-2px);}
-        .sb-dark{background:#000;color:#10b981;border-color:#10b981;}.sb-dark.active{box-shadow:0 4px 16px rgba(16,185,129,0.4);}
-        .sb-aggro{background:#110000;color:#ef4444;border-color:#ef4444;}.sb-aggro.active{box-shadow:0 4px 16px rgba(239,68,68,0.4);}
-        .sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}.sb-navy.active{box-shadow:0 4px 16px rgba(59,130,246,0.4);}
-        .sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}.sb-light.active{box-shadow:0 4px 16px rgba(255,255,255,0.2);}
-        .sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}.sb-custom.active{box-shadow:0 4px 16px rgba(139,92,246,0.4);}
-        .cc-row{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:0.85rem;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;align-items:center;}
-        .cc-row.show{display:flex;}
-        .cc-item{display:flex;flex-direction:column;gap:4px;align-items:center;}
-        .cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
-        .cc-sw{width:34px;height:34px;border-radius:6px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
-        .slides-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;}
-        .slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:9px;padding:0.75rem;cursor:pointer;transition:border-color 0.2s;}
-        .slide-item:hover{border-color:rgba(255,255,255,0.1);}
-        .slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.05);}
-        .slide-head{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
-        .slide-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.07);font-size:9px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-        .slide-type-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:3px 7px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;}
-        .slide-type-sel option{background:#0f172a;}
-        .slide-del,.slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:3px;}
-        .slide-del{margin-left:auto;font-size:13px;}.slide-del:hover{color:#f87171;}
-        .slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
-        .slide-head-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;margin-bottom:3px;}
-        .slide-head-input:focus{border-color:rgba(236,72,153,0.5);}
-        .slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:5px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:11px;outline:none;resize:none;min-height:42px;}
-        .slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
-        .add-slide-btn{background:rgba(236,72,153,0.08);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:8px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;transition:all 0.2s;margin-bottom:1rem;}
-        .add-slide-btn:hover{background:rgba(236,72,153,0.15);}
-        .bg-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
-        .scope-row{display:flex;gap:5px;margin-bottom:0.6rem;}
-        .scope-btn{padding:4px 12px;border-radius:6px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
-        .scope-btn.active{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
-        .unsplash-row{display:flex;gap:5px;margin-bottom:0.6rem;}
-        .unsplash-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:11px;outline:none;}
-        .unsplash-input:focus{border-color:rgba(236,72,153,0.4);}
-        .unsplash-btn{background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.25);color:#f472b6;padding:6px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;}
-        .cat-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:0.6rem;}
-        .cat-btn{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;white-space:nowrap;}
-        .cat-btn:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.2);}
-        .cat-btn.active-cat{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
-        .thumb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:0.5rem;}
-        .thumb{width:100%;aspect-ratio:9/16;border-radius:5px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
-        .thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-1px);}
-        .thumb.active-thumb{border-color:#f472b6;box-shadow:0 0 10px rgba(236,72,153,0.35);}
-        .thumb svg{width:100%;height:100%;display:block;}
-        .thumb-none{display:flex;align-items:center;justify-content:center;font-size:16px;color:#475569;background:rgba(255,255,255,0.03);}
-        .thumb-label{font-size:7px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:2px;letter-spacing:0.04em;}
-        .unsplash-attrib{font-size:7px;color:#334155;margin-top:3px;}
-        .unsplash-attrib a{color:#475569;}
-        .op-row{display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;}
-        .op-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
-        .caption-box{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
-        .cap-ta{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:9px 11px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:70px;outline:none;margin-bottom:6px;}
-        .cap-ta:focus{border-color:rgba(236,72,153,0.4);}
-        .hash-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:7px 11px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;}
-        .hash-input:focus{border-color:rgba(236,72,153,0.4);}
-        .preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.07);}
-        .canvas-container{position:absolute;inset:0;}
-        #reelCanvas{width:100%;height:100%;display:block;}
-        .slide-nav{display:flex;align-items:center;justify-content:center;gap:0.85rem;margin-top:0.85rem;}
-        .nav-btn{background:rgba(255,255,255,0.07);border:1px solid var(--brd);color:#e2e8f0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
-        .nav-btn:hover{background:rgba(255,255,255,0.14);}
-        .nav-btn:disabled{opacity:0.3;cursor:default;}
-        .slide-counter{font-size:11px;font-weight:700;color:#64748b;}
-
-        /* Play button */
-        .play-btn{width:100%;padding:11px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.6rem;border:none;transition:all 0.2s;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.4);color:#f472b6;display:flex;align-items:center;justify-content:center;gap:8px;}
-        .play-btn:hover{background:rgba(236,72,153,0.28);}
-        .play-btn.playing{background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.4);color:#f87171;}
-        /* Progress dots during playback */
-        .play-progress{display:none;justify-content:center;gap:4px;margin-top:6px;}
-        .play-progress.show{display:flex;}
-        .play-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background 0.2s;}
-        .play-dot.active{background:#f472b6;}
-        /* Speed selector */
-        .play-speed-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:5px;}
-        .speed-label{font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;}
-        .speed-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
-        .speed-sel option{background:#0f172a;}
-
-        .dl-btn{width:100%;padding:10px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.5rem;border:none;transition:all 0.2s;}
-        .dl-single{background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f472b6;}
-        .dl-single:hover{background:rgba(236,72,153,0.22);}
-        .dl-all{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--grn);}
-        .dl-all:hover{background:rgba(16,185,129,0.22);}
-        .copy-cap{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--gld);}
-        .copy-cap:hover{background:rgba(245,158,11,0.22);}
-        .rb-hint{font-size:10px;color:#475569;text-align:center;margin-top:0.5rem;line-height:1.5;font-weight:600;}
-        .partner-note{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:10px 14px;font-size:11px;color:#94a3b8;margin-bottom:1rem;line-height:1.6;display:none;}
-        .partner-note.show{display:block;}
-        .partner-note strong{color:var(--grn);}
-        .loading-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.8);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
-        .loading-overlay.show{display:flex;}
-        .spinner{width:40px;height:40px;border:3px solid rgba(236,72,153,0.2);border-top-color:#f472b6;border-radius:50%;animation:spin 0.8s linear infinite;}
-        @keyframes spin{to{transform:rotate(360deg);}}
-        .toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;}
-        .toast.show{transform:translateY(0);opacity:1;}
-        @media(max-width:900px){.main{flex-direction:column;}.preview-col{width:100%;position:static;}}
-        @media(max-width:768px){
-            .topbar{padding:0.75rem 1rem;flex-wrap:wrap;gap:0.5rem;}
-            .tb-brand span{display:none;}
-            .main{padding:1rem;gap:1.25rem;}
-            .controls-col{width:100%;}
-            .thumb-grid{grid-template-columns:repeat(4,1fr);}
-            .btn{padding:7px 12px;font-size:10px;}
-            .script-sel{font-size:11px;}
-            .add-slide-btn{padding:10px;}
-            .toast{bottom:1rem;right:1rem;left:1rem;text-align:center;}
-        }
+:root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--gld:#f59e0b;--red:#ef4444;--pur:#8b5cf6;--pink:#ec4899;--txt:#e2e8f0;--mut:#64748b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+.topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:0.5rem;}
+.tb-brand{font-size:16px;font-weight:900;color:var(--pink);letter-spacing:0.05em;}
+.tb-brand span{color:#94a3b8;font-weight:600;font-size:13px;margin-left:0.5rem;}
+.tb-right{display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;}
+.tb-partner{font-size:11px;font-weight:700;color:#64748b;}
+.tb-partner strong{color:var(--grn);}
+.btn-back{background:rgba(255,255,255,0.06);border:1px solid var(--brd);color:#e2e8f0;padding:7px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;display:inline-block;}
+.btn-back:hover{background:rgba(255,255,255,0.1);}
+.main{display:flex;gap:2rem;padding:2rem;max-width:1400px;margin:0 auto;align-items:start;}
+.editor-col{flex:1;min-width:0;}
+.preview-col{width:320px;flex-shrink:0;position:sticky;top:5rem;}
+.sec-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.6rem;}
+.script-row{display:flex;gap:0.6rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+.script-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;flex:1;min-width:200px;}
+.script-sel option{background:#0f172a;}
+.btn{padding:8px 16px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;white-space:nowrap;}
+.btn-outline{background:transparent;border:1px solid var(--brd);color:#94a3b8;}.btn-outline:hover{border-color:rgba(255,255,255,0.2);color:white;}
+.style-row{display:flex;gap:7px;margin-bottom:1rem;flex-wrap:wrap;}
+.style-btn{padding:7px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.style-btn.active{transform:translateY(-2px);}
+.sb-dark{background:#000;color:#10b981;border-color:#10b981;}.sb-dark.active{box-shadow:0 4px 16px rgba(16,185,129,0.4);}
+.sb-aggro{background:#110000;color:#ef4444;border-color:#ef4444;}.sb-aggro.active{box-shadow:0 4px 16px rgba(239,68,68,0.4);}
+.sb-navy{background:#0f172a;color:#60a5fa;border-color:#3b82f6;}.sb-navy.active{box-shadow:0 4px 16px rgba(59,130,246,0.4);}
+.sb-light{background:#f8fafc;color:#0f172a;border-color:#cbd5e1;}.sb-light.active{box-shadow:0 4px 16px rgba(255,255,255,0.2);}
+.sb-custom{background:rgba(139,92,246,0.15);color:#c4b5fd;border-color:#8b5cf6;}.sb-custom.active{box-shadow:0 4px 16px rgba(139,92,246,0.4);}
+.cc-row{display:none;background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:0.85rem;margin-bottom:1rem;gap:1rem;flex-wrap:wrap;align-items:center;}
+.cc-row.show{display:flex;}
+.cc-item{display:flex;flex-direction:column;gap:4px;align-items:center;}
+.cc-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
+.cc-sw{width:34px;height:34px;border-radius:6px;border:2px solid rgba(255,255,255,0.15);cursor:pointer;padding:0;}
+.slides-list{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.5rem;}
+.slide-item{background:rgba(15,23,42,0.9);border:1px solid var(--brd);border-radius:9px;padding:0.75rem;cursor:pointer;transition:border-color 0.2s;}
+.slide-item:hover{border-color:rgba(255,255,255,0.1);}
+.slide-item.active-slide{border-color:rgba(236,72,153,0.5);background:rgba(236,72,153,0.05);}
+.slide-head{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;}
+.slide-num{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.07);font-size:9px;font-weight:900;color:#64748b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.slide-type-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:3px 7px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;}
+.slide-type-sel option{background:#0f172a;}
+.slide-del,.slide-up,.slide-dn{background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:3px;}
+.slide-del{margin-left:auto;font-size:13px;}.slide-del:hover{color:#f87171;}
+.slide-up:hover,.slide-dn:hover{color:#e2e8f0;}
+.slide-head-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:5px 8px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;margin-bottom:3px;}
+.slide-head-input:focus{border-color:rgba(236,72,153,0.5);}
+.slide-sub-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:5px;padding:4px 8px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:11px;outline:none;resize:none;min-height:42px;}
+.slide-sub-input:focus{border-color:rgba(236,72,153,0.4);}
+.add-slide-btn{background:rgba(236,72,153,0.08);border:1px dashed rgba(236,72,153,0.3);color:#f472b6;padding:8px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;transition:all 0.2s;margin-bottom:1rem;}
+.add-slide-btn:hover{background:rgba(236,72,153,0.15);}
+.bg-picker{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
+.scope-row{display:flex;gap:5px;margin-bottom:0.6rem;}
+.scope-btn{padding:4px 12px;border-radius:6px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+.scope-btn.active{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
+.unsplash-row{display:flex;gap:5px;margin-bottom:0.6rem;}
+.unsplash-input{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:6px;padding:6px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:11px;outline:none;}
+.unsplash-input:focus{border-color:rgba(236,72,153,0.4);}
+.unsplash-btn{background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.25);color:#f472b6;padding:6px 12px;border-radius:6px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;}
+.cat-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:0.6rem;}
+.cat-btn{padding:3px 9px;border-radius:20px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--brd);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;white-space:nowrap;}
+.cat-btn:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.2);}
+.cat-btn.active-cat{background:rgba(236,72,153,0.1);border-color:rgba(236,72,153,0.3);color:#f472b6;}
+.thumb-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:0.5rem;}
+.thumb{width:100%;aspect-ratio:9/16;border-radius:5px;border:2px solid var(--brd);cursor:pointer;overflow:hidden;background:#0a0a0a;transition:all 0.2s;position:relative;}
+.thumb:hover{border-color:rgba(236,72,153,0.5);transform:translateY(-1px);}
+.thumb.active-thumb{border-color:#f472b6;box-shadow:0 0 10px rgba(236,72,153,0.35);}
+.thumb svg{width:100%;height:100%;display:block;}
+.thumb-none{display:flex;align-items:center;justify-content:center;font-size:16px;color:#475569;background:rgba(255,255,255,0.03);}
+.thumb-label{font-size:7px;font-weight:700;text-transform:uppercase;color:#475569;text-align:center;margin-top:2px;letter-spacing:0.04em;}
+.unsplash-attrib{font-size:7px;color:#334155;margin-top:3px;}
+.unsplash-attrib a{color:#475569;}
+.op-row{display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;}
+.op-slider{flex:1;accent-color:#f472b6;cursor:pointer;}
+.caption-box{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:1rem;}
+.cap-ta{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:9px 11px;color:#cbd5e1;font-family:'Outfit',sans-serif;font-size:12px;resize:vertical;min-height:70px;outline:none;margin-bottom:6px;}
+.cap-ta:focus{border-color:rgba(236,72,153,0.4);}
+.hash-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:7px;padding:7px 11px;color:#64748b;font-family:'Outfit',sans-serif;font-size:11px;outline:none;}
+.hash-input:focus{border-color:rgba(236,72,153,0.4);}
+.preview-wrap{position:relative;width:100%;padding-bottom:177.78%;background:#111;border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,0.6);border:2px solid rgba(255,255,255,0.07);}
+.canvas-container{position:absolute;inset:0;}
+#reelCanvas{width:100%;height:100%;display:block;}
+.slide-nav{display:flex;align-items:center;justify-content:center;gap:0.85rem;margin-top:0.85rem;}
+.nav-btn{background:rgba(255,255,255,0.07);border:1px solid var(--brd);color:#e2e8f0;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.nav-btn:hover{background:rgba(255,255,255,0.14);}
+.nav-btn:disabled{opacity:0.3;cursor:default;}
+.slide-counter{font-size:11px;font-weight:700;color:#64748b;}
+.play-btn{width:100%;padding:11px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.6rem;border:none;transition:all 0.2s;background:rgba(236,72,153,0.18);border:1px solid rgba(236,72,153,0.4);color:#f472b6;display:flex;align-items:center;justify-content:center;gap:8px;}
+.play-btn:hover{background:rgba(236,72,153,0.28);}
+.play-btn.playing{background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.4);color:#f87171;}
+.play-progress{display:none;justify-content:center;gap:4px;margin-top:6px;}
+.play-progress.show{display:flex;}
+.play-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background 0.2s;}
+.play-dot.active{background:#f472b6;}
+.speed-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:5px;}
+.speed-label{font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;}
+.speed-sel{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:5px;padding:2px 6px;color:#94a3b8;font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;outline:none;cursor:pointer;}
+.speed-sel option{background:#0f172a;}
+.dl-btn{width:100%;padding:10px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.5rem;border:none;transition:all 0.2s;}
+.dl-single{background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3);color:#f472b6;}.dl-single:hover{background:rgba(236,72,153,0.22);}
+.dl-all{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--grn);}.dl-all:hover{background:rgba(16,185,129,0.22);}
+.copy-cap{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);color:var(--gld);}.copy-cap:hover{background:rgba(245,158,11,0.22);}
+.rb-hint{font-size:10px;color:#475569;margin-top:0.75rem;line-height:1.6;font-weight:600;background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:8px;padding:10px 12px;}
+.partner-note{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:10px 14px;font-size:11px;color:#94a3b8;margin-bottom:1rem;line-height:1.6;display:none;}
+.partner-note.show{display:block;}
+.partner-note strong{color:var(--grn);}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.85);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
+.loading-overlay.show{display:flex;}
+.spinner{width:40px;height:40px;border:3px solid rgba(236,72,153,0.2);border-top-color:#f472b6;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1.25rem;font-size:13px;font-weight:700;color:white;z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+/* Language */
+.lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:20px;padding:4px;margin-bottom:1rem;}
+.lang-btn{padding:5px 14px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
+.lang-btn.active{background:var(--grn);color:#020617;}
+/* Owner panel */
+.owner-panel{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.18);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1rem;display:none;}
+.owner-panel.show{display:block;}
+.op-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.25em;color:var(--gld);margin-bottom:0.65rem;}
+.op-btn-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:0.4rem;}
+.abtn{padding:7px 14px;border-radius:7px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.abtn-new{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;}.abtn-new:hover{background:rgba(139,92,246,0.25);}
+.abtn-edit{background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;}.abtn-edit:hover{background:rgba(59,130,246,0.25);}
+.abtn-del{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;}.abtn-del:hover{background:rgba(239,68,68,0.2);}
+.abtn-save{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--grn);}.abtn-save:hover{background:rgba(16,185,129,0.25);}
+.abtn-cancel{background:transparent;border:1px solid var(--brd);color:#64748b;}.abtn-cancel:hover{color:#e2e8f0;}
+.name-row{display:none;gap:0.5rem;align-items:center;margin-top:0.5rem;flex-wrap:wrap;}
+.name-row.show{display:flex;}
+.name-input{flex:1;min-width:180px;background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:7px;padding:7px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;}
+.name-input:focus{border-color:var(--gld);}
+.lang-sel{background:rgba(255,255,255,0.05);border:1px solid rgba(245,158,11,0.3);border-radius:7px;padding:7px 10px;color:#e2e8f0;font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;outline:none;cursor:pointer;}
+.lang-sel option{background:#0f172a;}
+.edit-banner{display:none;background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.2);border-radius:8px;padding:8px 12px;margin-bottom:0.75rem;font-size:11px;color:#93c5fd;font-weight:700;line-height:1.5;}
+.edit-banner.show{display:block;}
+/* Partner submit */
+.submit-panel{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.18);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1rem;display:none;}
+.submit-panel.show{display:block;}
+.sp-title{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.25em;color:var(--grn);margin-bottom:0.5rem;}
+.sp-desc{font-size:12px;color:#94a3b8;margin-bottom:0.65rem;line-height:1.6;}
+.sp-row{display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;}
+/* Pending modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#0f172a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.5rem;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;}
+.modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;}
+.modal-title{font-size:14px;font-weight:900;color:white;}
+.pend-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:10px;padding:1rem;margin-bottom:0.75rem;}
+.pend-name{font-size:13px;font-weight:900;color:white;margin-bottom:2px;}
+.pend-meta{font-size:11px;color:#64748b;margin-bottom:0.5rem;}
+.pend-slides{font-size:11px;color:#94a3b8;margin-bottom:0.6rem;line-height:1.7;}
+.pend-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.pending-badge{background:#ef4444;color:white;border-radius:20px;padding:1px 7px;font-size:9px;font-weight:900;margin-left:4px;display:none;}
+/* Mobile */
+@media(max-width:900px){.main{flex-direction:column;}.preview-col{width:100%;position:static;}}
+@media(max-width:768px){.main{padding:1rem;gap:1.25rem;}.thumb-grid{grid-template-columns:repeat(4,1fr);}.toast{bottom:1rem;right:1rem;left:1rem;text-align:center;}}
     </style>
 </head>
 <body>
-
 <div class="topbar">
     <div class="tb-brand">🎬 Reel Builder <span>by Dynamic Fleet Reporting</span></div>
     <div class="tb-right">
@@ -149,110 +173,157 @@
     </div>
 </div>
 
-<div class="main">
-    <div class="editor-col">
-        <div class="partner-note" id="partnerNote">
-            ✅ You're logged in as <strong id="pNoteName">—</strong>. Your referral link will be automatically appended to the caption when you copy it.
+<!-- Pending Modal -->
+<div class="modal-overlay" id="pendingModal">
+    <div class="modal-box">
+        <div class="modal-top">
+            <div class="modal-title">⏳ Pending Submissions</div>
+            <button class="abtn abtn-cancel" onclick="closePendingModal()">✕ Close</button>
         </div>
-        <div class="sec-label">Load a Script</div>
-        <div class="script-row">
-            <select class="script-sel" id="scriptSel" onchange="loadScript(this.value)">
-                <option value="">— Start blank —</option>
-                <option value="s1">Script #1: "The April Bomb" (30 sec)</option>
-                <option value="s2">Script #2: "The Driver Nobody Talks About" (45 sec)</option>
-                <option value="s3">Script #3: "The Maths" (20 sec)</option>
-            </select>
-            <button class="btn btn-outline" onclick="resetBuilder()">🔄 Reset</button>
-        </div>
-        <div class="sec-label">Visual Style</div>
-        <div class="style-row">
-            <button class="style-btn sb-dark active" onclick="setStyle('dark',this)">⚫ Dark & Bold</button>
-            <button class="style-btn sb-aggro"       onclick="setStyle('aggro',this)">🔴 Aggressive</button>
-            <button class="style-btn sb-navy"        onclick="setStyle('navy',this)">🔵 Clean Navy</button>
-            <button class="style-btn sb-light"       onclick="setStyle('light',this)">⚪ Light & Clean</button>
-            <button class="style-btn sb-custom"      onclick="setStyle('custom',this)">🎨 Custom</button>
-        </div>
-        <div class="cc-row" id="ccRow">
-            <div class="cc-item"><div class="cc-label">Background</div><input type="color" class="cc-sw" id="cc_bg"     value="#1a0a2e" oninput="updateCustom()"></div>
-            <div class="cc-item"><div class="cc-label">Headline</div>  <input type="color" class="cc-sw" id="cc_head"   value="#ffffff" oninput="updateCustom()"></div>
-            <div class="cc-item"><div class="cc-label">Subtext</div>   <input type="color" class="cc-sw" id="cc_sub"    value="#cccccc" oninput="updateCustom()"></div>
-            <div class="cc-item"><div class="cc-label">Accent</div>    <input type="color" class="cc-sw" id="cc_accent" value="#f59e0b" oninput="updateCustom()"></div>
-        </div>
-        <div class="sec-label">Slides <span style="color:#475569;font-weight:600;">(click a slide to preview it →)</span></div>
-        <div class="slides-list" id="slidesList"></div>
-        <button class="add-slide-btn" onclick="addSlide()">➕ Add Slide</button>
-        <div class="bg-picker">
-            <div class="sec-label">Background Image</div>
-            <div class="scope-row">
-                <button class="scope-btn active" onclick="setScope('slide',this)">This slide only</button>
-                <button class="scope-btn"        onclick="setScope('all',this)">Apply to all slides</button>
-            </div>
-            <div class="unsplash-row">
-                <input type="text" class="unsplash-input" id="unsplashQ" placeholder="Search Unsplash photos..." value="semi truck south africa">
-                <button class="unsplash-btn" onclick="searchUnsplash()">🔍 Search</button>
-            </div>
-            <div class="cat-row" id="catRow">
-                <button class="cat-btn active-cat" onclick="quickSearch('semi truck south africa',this)">🚛 Semi Truck</button>
-                <button class="cat-btn" onclick="quickSearch('truck fleet logistics',this)">🚚 Fleet</button>
-                <button class="cat-btn" onclick="quickSearch('highway road south africa',this)">🛣️ Highway</button>
-                <button class="cat-btn" onclick="quickSearch('fuel petrol station',this)">⛽ Fuel</button>
-                <button class="cat-btn" onclick="quickSearch('truck driver cab',this)">👨‍✈️ Driver</button>
-                <button class="cat-btn" onclick="quickSearch('cargo container logistics',this)">📦 Cargo</button>
-                <button class="cat-btn" onclick="quickSearch('south africa landscape',this)">🌍 SA</button>
-                <button class="cat-btn" onclick="quickSearch('speedometer dashboard vehicle',this)">🎛️ Dashboard</button>
-                <button class="cat-btn" onclick="quickSearch('sunset road transport',this)">🌅 Sunset</button>
-                <button class="cat-btn" onclick="quickSearch('warehouse industrial',this)">🏭 Industrial</button>
-            </div>
-            <div class="thumb-grid" id="unsplashResults">
-                <div style="grid-column:1/-1;color:#64748b;font-size:11px;padding:4px 0;">Searching for photos...</div>
-            </div>
-            <div class="unsplash-attrib">Photos by <a href="https://unsplash.com" target="_blank">Unsplash</a></div>
-            <div class="sec-label" style="margin-top:0.75rem;">SVG Illustrations</div>
-            <div class="thumb-grid" id="svgGrid"></div>
-            <div class="op-row">
-                <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;">Opacity</span>
-                <input type="range" class="op-slider" id="opacitySlider" min="5" max="65" value="22" oninput="updateOpacity(this.value)">
-                <span style="font-size:10px;font-weight:700;color:#64748b;width:26px;" id="opacityVal">22%</span>
-            </div>
-        </div>
-        <div class="caption-box">
-            <div class="sec-label">Caption</div>
-            <textarea class="cap-ta" id="captionTA" placeholder="Write your caption here..."></textarea>
-            <div class="sec-label">Hashtags</div>
-            <input type="text" class="hash-input" id="hashtagsInput" placeholder="#FleetManagement #SouthAfrica #TruckingLife">
-        </div>
-    </div>
-
-    <div class="preview-col">
-        <div class="sec-label" style="text-align:center;">Live Preview (9:16)</div>
-        <div class="preview-wrap">
-            <div class="canvas-container"><canvas id="reelCanvas"></canvas></div>
-        </div>
-        <div class="slide-nav">
-            <button class="nav-btn" id="prevBtn" onclick="navSlide(-1)">‹</button>
-            <span class="slide-counter" id="slideCounter">Slide 1 of 1</span>
-            <button class="nav-btn" id="nextBtn" onclick="navSlide(1)">›</button>
-        </div>
-
-        <!-- Play Preview Button -->
-        <button class="play-btn" id="playBtn" onclick="togglePlay()">▶ Play Preview</button>
-        <div class="play-progress" id="playProgress"></div>
-        <div class="play-speed-row">
-            <span class="speed-label">Speed</span>
-            <select class="speed-sel" id="speedSel">
-                <option value="1500">Slow (1.5s)</option>
-                <option value="1000" selected>Normal (1s)</option>
-                <option value="600">Fast (0.6s)</option>
-                <option value="300">Very Fast (0.3s)</option>
-            </select>
-        </div>
-
-        <button class="dl-btn dl-single" onclick="downloadSlide()">⬇️ Download This Slide</button>
-        <button class="dl-btn dl-all"    onclick="downloadAllSlides()">⬇️ Download All Slides</button>
-        <button class="dl-btn copy-cap"  onclick="copyCaption()">📋 Copy Caption + Hashtags</button>
-        <div class="rb-hint">Upload slides 1-by-1 to TikTok as photos, or combine in <strong>CapCut</strong> (free) to make a reel.</div>
+        <div id="pendingList"><p style="color:#64748b;font-size:13px;">Loading...</p></div>
     </div>
 </div>
+
+<div class="main">
+<div class="editor-col">
+
+    <div class="partner-note" id="partnerNote">
+        ✅ You're logged in as <strong id="pNoteName">—</strong>. Your referral link will be appended to captions when you copy them.
+    </div>
+
+    <div class="lang-toggle">
+        <button class="lang-btn active" id="langBtnEn" onclick="setLang('en')">🇬🇧 English</button>
+        <button class="lang-btn" id="langBtnAf" onclick="setLang('af')">Afrikaans</button>
+    </div>
+
+    <div class="owner-panel" id="ownerPanel">
+        <div class="op-title">⚙️ Owner Controls</div>
+        <div class="op-btn-row">
+            <button class="abtn abtn-new"  onclick="startNew()">➕ New Script</button>
+            <button class="abtn abtn-edit" id="btnEdit"    onclick="startEdit()"   style="display:none;">✏️ Edit</button>
+            <button class="abtn abtn-del"  id="btnDelete"  onclick="doDelete()"    style="display:none;">🗑️ Delete</button>
+            <button class="abtn abtn-save" id="btnSave"    onclick="doSave()"      style="display:none;">💾 Save</button>
+            <button class="abtn abtn-cancel" id="btnCancel" onclick="cancelEdit()" style="display:none;">✕ Cancel</button>
+            <button class="abtn abtn-edit" id="btnPending" onclick="openPending()" style="display:none;">⏳ Pending <span class="pending-badge" id="pendBadge"></span></button>
+        </div>
+        <div class="name-row" id="nameRow">
+            <input type="text" class="name-input" id="scriptNameIn" placeholder="Script name — e.g. The Question (30 sec)">
+            <select class="lang-sel" id="scriptLangIn"><option value="en">🇬🇧 English</option><option value="af">Afrikaans</option></select>
+        </div>
+    </div>
+
+    <div class="edit-banner" id="editBanner"></div>
+
+    <div class="submit-panel" id="submitPanel">
+        <div class="sp-title">📤 Submit for Approval</div>
+        <div class="sp-desc">Happy with your reel? Give it a name and submit — Pieter will review and publish it for all partners if approved.</div>
+        <div class="sp-row">
+            <input type="text" class="name-input" id="submitNameIn" placeholder="Give your reel a name...">
+            <button class="abtn abtn-save" onclick="submitReel()">📤 Submit</button>
+        </div>
+    </div>
+
+    <div class="sec-label">Load a Script</div>
+    <div class="script-row">
+        <select class="script-sel" id="scriptSel" onchange="onScriptSelect(this.value)">
+            <option value="">— Start blank —</option>
+        </select>
+        <button class="btn btn-outline" onclick="resetBuilder()">🔄 Reset</button>
+    </div>
+
+    <div class="sec-label">Visual Style</div>
+    <div class="style-row">
+        <button class="style-btn sb-dark active" onclick="setStyle('dark',this)">⚫ Dark</button>
+        <button class="style-btn sb-aggro"       onclick="setStyle('aggro',this)">🔴 Aggressive</button>
+        <button class="style-btn sb-navy"        onclick="setStyle('navy',this)">🔵 Navy</button>
+        <button class="style-btn sb-light"       onclick="setStyle('light',this)">⚪ Light</button>
+        <button class="style-btn sb-custom"      onclick="setStyle('custom',this)">🎨 Custom</button>
+    </div>
+    <div class="cc-row" id="ccRow">
+        <div class="cc-item"><div class="cc-label">BG</div><input type="color" class="cc-sw" id="cc_bg" value="#1a0a2e" oninput="updateCustom()"></div>
+        <div class="cc-item"><div class="cc-label">Headline</div><input type="color" class="cc-sw" id="cc_head" value="#ffffff" oninput="updateCustom()"></div>
+        <div class="cc-item"><div class="cc-label">Subtext</div><input type="color" class="cc-sw" id="cc_sub" value="#cccccc" oninput="updateCustom()"></div>
+        <div class="cc-item"><div class="cc-label">Accent</div><input type="color" class="cc-sw" id="cc_accent" value="#f59e0b" oninput="updateCustom()"></div>
+    </div>
+
+    <div class="sec-label">Slides <span style="color:#475569;font-weight:600;">(click to select → preview updates)</span></div>
+    <div class="slides-list" id="slidesList"></div>
+    <button class="add-slide-btn" onclick="addSlide()">➕ Add Slide</button>
+
+    <div class="bg-picker">
+        <div class="sec-label">Background Image</div>
+        <div class="scope-row">
+            <button class="scope-btn active" onclick="setScope('slide',this)">This slide only</button>
+            <button class="scope-btn" onclick="setScope('all',this)">All slides</button>
+        </div>
+        <div class="unsplash-row">
+            <input type="text" class="unsplash-input" id="unsplashQ" placeholder="Search Unsplash photos..." value="semi truck south africa">
+            <button class="unsplash-btn" onclick="searchUnsplash()">🔍 Search</button>
+        </div>
+        <div class="cat-row">
+            <button class="cat-btn active-cat" onclick="quickSearch('semi truck south africa',this)">🚛 Semi Truck</button>
+            <button class="cat-btn" onclick="quickSearch('truck fleet logistics',this)">🚚 Fleet</button>
+            <button class="cat-btn" onclick="quickSearch('highway road south africa',this)">🛣️ Highway</button>
+            <button class="cat-btn" onclick="quickSearch('fuel petrol station',this)">⛽ Fuel</button>
+            <button class="cat-btn" onclick="quickSearch('truck driver cab',this)">👨‍✈️ Driver</button>
+            <button class="cat-btn" onclick="quickSearch('cargo container logistics',this)">📦 Cargo</button>
+            <button class="cat-btn" onclick="quickSearch('south africa landscape',this)">🌍 SA</button>
+            <button class="cat-btn" onclick="quickSearch('sunset road transport',this)">🌅 Sunset</button>
+            <button class="cat-btn" onclick="quickSearch('warehouse industrial',this)">🏭 Industrial</button>
+        </div>
+        <div class="thumb-grid" id="unsplashResults">
+            <div style="grid-column:1/-1;color:#64748b;font-size:11px;padding:4px 0;">Searching...</div>
+        </div>
+        <div class="unsplash-attrib">Photos by <a href="https://unsplash.com" target="_blank">Unsplash</a></div>
+        <div class="sec-label" style="margin-top:0.75rem;">SVG Illustrations</div>
+        <div class="thumb-grid" id="svgGrid"></div>
+        <div class="op-row">
+            <span style="font-size:10px;font-weight:700;color:#64748b;white-space:nowrap;">Opacity</span>
+            <input type="range" class="op-slider" id="opacitySlider" min="5" max="65" value="22" oninput="updateOpacity(this.value)">
+            <span style="font-size:10px;font-weight:700;color:#64748b;width:26px;" id="opacityVal">22%</span>
+        </div>
+    </div>
+
+    <div class="caption-box">
+        <div class="sec-label">Caption</div>
+        <textarea class="cap-ta" id="captionTA" placeholder="Write your caption here..."></textarea>
+        <div class="sec-label">Hashtags</div>
+        <input type="text" class="hash-input" id="hashtagsInput" placeholder="#FleetManagement #SouthAfrica #Transport">
+    </div>
+
+</div><!-- /editor-col -->
+
+<div class="preview-col">
+    <div class="sec-label" style="text-align:center;">Live Preview (9:16)</div>
+    <div class="preview-wrap">
+        <div class="canvas-container"><canvas id="reelCanvas"></canvas></div>
+    </div>
+    <div class="slide-nav">
+        <button class="nav-btn" id="prevBtn" onclick="navSlide(-1)">‹</button>
+        <span class="slide-counter" id="slideCounter">Slide 1 of 1</span>
+        <button class="nav-btn" id="nextBtn" onclick="navSlide(1)">›</button>
+    </div>
+    <button class="play-btn" id="playBtn" onclick="togglePlay()">▶ Play Preview</button>
+    <div class="play-progress" id="playProgress"></div>
+    <div class="speed-row">
+        <span class="speed-label">Speed</span>
+        <select class="speed-sel" id="speedSel">
+            <option value="1500">Slow (1.5s)</option>
+            <option value="1000" selected>Normal (1s)</option>
+            <option value="600">Fast (0.6s)</option>
+            <option value="300">Very Fast</option>
+        </select>
+    </div>
+    <button class="dl-btn dl-single" onclick="downloadSlide()">⬇️ Download This Slide</button>
+    <button class="dl-btn dl-all"    onclick="downloadAllSlides()">⬇️ Download All Slides</button>
+    <button class="dl-btn copy-cap"  onclick="copyCaption()">📋 Copy Caption + Hashtags</button>
+    <div class="rb-hint">
+        📱 <strong>TikTok:</strong> Upload slides as a photo post — TikTok auto-creates a slideshow.<br><br>
+        🎬 <strong>Instagram / Facebook Reels:</strong> Combine slides in <strong>CapCut</strong> (free app) to create a video, then upload as a Reel.<br><br>
+        📸 <strong>Instagram / Facebook:</strong> Upload as a Carousel — no video needed.
+    </div>
+</div>
+</div><!-- /main -->
 
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
@@ -261,768 +332,862 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Constants ──────────────────────────────────────────────────────────────
 const UNSPLASH_KEY = 'g7EGqA04ya3C46uRc1wbfulu6vQx0x5qctxwU9_SFBQ';
 const DISCOVER_URL = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+const SCRIPTS_KEY  = 'DFR_REEL_SCRIPTS';
+const PENDING_KEY  = 'DFR_REEL_PENDING';
 const RB_W = 1080, RB_H = 1920;
+const _urlP = new URLSearchParams(window.location.search);
+const _partnerCode = _urlP.get('ref') || '';
+const _isOwner = !_partnerCode;
 
-const _urlParams   = new URLSearchParams(window.location.search);
-const _partnerCode = _urlParams.get('ref') || '';
-const _partnerLink = _partnerCode ? DISCOVER_URL + '?ref=' + _partnerCode : '';
-
-if(_partnerCode){
-    document.getElementById('tbPartner').style.display   = 'block';
-    document.getElementById('tbPartnerName').textContent = _partnerCode.replace('ref_','').replace(/_/g,' ');
-    document.getElementById('backBtn').href = 'partner-marketing.html?ref=' + _partnerCode;
-    document.getElementById('partnerNote').classList.add('show');
-    document.getElementById('pNoteName').textContent     = _partnerCode.replace('ref_','').replace(/_/g,' ');
-}
-
-const SCRIPTS = {
-    s1:{
-        caption:"If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5–R8/litre on April 1st. Here's what that means for your business — and what you can actually do about it.",
-        hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner #satransport #businessowner #fuelefficiency',
-        slides:[
-            {type:'hook',    headline:'DIESEL UP R8\nIN APRIL?',             sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
-            {type:'stat',    headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',   sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
-            {type:'numbers', headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH', sub:'10,000km each per month · R5 more per litre\nEvery. Single. Month.'},
-            {type:'point',   headline:'THE FLEET OWNERS\nWHO SURVIVE\nKNOW THEIR NUMBERS', sub:'Which drivers are over-consuming.\nWhich vehicles are bleeding diesel.'},
-            {type:'proof',   headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA', sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
-            {type:'cta',     headline:'FREE FLEET\nAUDIT',                   sub:'📞 083 314 9592\nWhatsApp us today'}
-        ]
-    },
-    s2:{
-        caption:"Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else's. After April's R5–R8 diesel increase, that silence costs R7,000–R8,000 extra per month.",
-        hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner #driverefficiency #satransport',
-        slides:[
-            {type:'hook',    headline:'ONE DRIVER IS\nCOSTING YOU\nR8,000/MONTH', sub:'Every fleet has one.\nThe driver nobody talks about.'},
-            {type:'point',   headline:'20% ABOVE\nEVERYONE ELSE',              sub:"You know something's off.\nBut you can't prove it without data."},
-            {type:'numbers', headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH', sub:'Per outlier driver · Per month'},
-            {type:'stat',    headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH', sub:'Same driver · Same bad habits\nNow costs almost double.'},
-            {type:'proof',   headline:'OUR REPORT:\nEVERY DRIVER\nRANKED',     sub:'Outliers highlighted in red.\nEvery month. Actionable data.'},
-            {type:'cta',     headline:'FREE FLEET\nASSESSMENT',                sub:'Link in bio\n📞 083 314 9592'}
-        ]
-    },
-    s3:{
-        caption:"Let me do the maths for you. R5.50 more per litre × your fleet × every month. The number is bigger than you think — and 20–30% of it is preventable waste you can fix right now.",
-        hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport #fuelefficiency #fleetowner #businessmath',
-        slides:[
-            {type:'hook',    headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?',  sub:'Let me do the maths\nfor you quickly.'},
-            {type:'numbers', headline:'R18.50 → R24+\nPER LITRE\n= R5.50 MORE', sub:'Current diesel → April diesel'},
-            {type:'stat',    headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH',      sub:'10,000km/month at 3km/L\n= 3,333 litres × R5.50'},
-            {type:'numbers', headline:'10 TRUCKS\n= R183,000\nMORE/MONTH',       sub:'20 trucks = R366,000 more per month'},
-            {type:'point',   headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE',   sub:'Over-consuming drivers.\nInefficient vehicles.\nFix it now.'},
-            {type:'cta',     headline:'WE SHOW YOU\nWHERE IT\'S GOING',          sub:'Free fleet efficiency assessment\n📞 083 314 9592'}
-        ]
-    }
-};
-
-const STYLES = {
-    dark: {bg:'#000000',bgGrad:['#000000','#080808'],headline:'#ffffff',sub:'#a0a0a0',accent:'#10b981',brand:'#10b981',brandBg:'rgba(16,185,129,0.15)',hookBg:['#000000','#031a0f'],numBg:['#000000','#031a0f'],statBg:['#000000','#0a1500'],accentLine:true},
-    aggro:{bg:'#0a0000',bgGrad:['#0a0000','#1a0000'],headline:'#ffffff',sub:'#ffaaaa',accent:'#ef4444',brand:'#ef4444',brandBg:'rgba(239,68,68,0.15)',hookBg:['#1a0000','#0a0000'],numBg:['#150000','#0a0000'],statBg:['#0f0000','#060000'],accentLine:true},
-    navy: {bg:'#0f172a',bgGrad:['#0f172a','#1e293b'],headline:'#e2e8f0',sub:'#94a3b8',accent:'#3b82f6',brand:'#60a5fa',brandBg:'rgba(59,130,246,0.15)',hookBg:['#0f172a','#1e3a5f'],numBg:['#0f172a','#1a2f4a'],statBg:['#0f172a','#1e2d40'],accentLine:true},
-    light:{bg:'#f8fafc',bgGrad:['#f8fafc','#f1f5f9'],headline:'#0f172a',sub:'#475569',accent:'#059669',brand:'#059669',brandBg:'rgba(5,150,105,0.1)',hookBg:['#f8fafc','#ecfdf5'],numBg:['#f1f5f9','#ecfdf5'],statBg:['#f8fafc','#f0fdf4'],accentLine:true},
-    custom:{bg:'#1a0a2e',bgGrad:['#1a0a2e','#0d0618'],headline:'#ffffff',sub:'#cccccc',accent:'#f59e0b',brand:'#f59e0b',brandBg:'rgba(245,158,11,0.15)',hookBg:['#1a0a2e','#2a0a3e'],numBg:['#1a0a2e','#2a0a3e'],statBg:['#1a0a2e','#200a36'],accentLine:true}
-};
-
-// ── NEW fleet-focused SVG illustrations ──────────────────────────────────────
-const SVG_ILLUS = [
-    {id:'none',           label:'None'},
-    {id:'big_rig',        label:'Big Rig'},
-    {id:'convoy',         label:'Convoy'},
-    {id:'fuel_pump',      label:'Fuel Pump'},
-    {id:'driver_wheel',   label:'At The Wheel'},
-    {id:'speed_lines',    label:'Speed Lines'},
-    {id:'data_chart',     label:'Data Chart'},
-    {id:'road_ahead',     label:'Road Ahead'},
-    {id:'tyre_track',     label:'Tyre Track'},
-    {id:'warning_r',      label:'Warning R'},
-    {id:'sa_routes',      label:'SA Routes'}
-];
-
+// ── State ──────────────────────────────────────────────────────────────────
+let _scripts=[], _activeId=null, _editMode=false, _pendingId=null;
+let _lang = localStorage.getItem('dfr_reel_lang')||'en';
 let _slides=[], _activeSlide=0, _style='dark', _bgOpacity=0.22, _bgScope='slide';
-let _activeIllus='none', _slidePhotos={}, _allPhoto=null, _canvas, _ctx;
+let _activeIllus='none', _slidePhotos={}, _allPhoto=null;
+let _canvas, _ctx, _playing=false, _playTimer=null;
 
-// Playback state
-let _playing=false, _playTimer=null, _playLoop=false;
+// ── Firebase helpers ───────────────────────────────────────────────────────
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+async function fbGet(k){try{return JSON.parse(await cloudStorage.getItem(k));}catch(e){return null;}}
+async function fbSet(k,v){await cloudStorage.setItem(k,JSON.stringify(v));}
 
-window.addEventListener('load',()=>{
+// ── Seed Scripts EN ────────────────────────────────────────────────────────
+const SEED_EN=[
+{id:'s1',lang:'en',name:'The April Bomb (30 sec)',caption:"If you own a fleet of trucks in South Africa, you need to see this. Diesel going up R5-R8/litre on April 1st.",hashtags:'#fleetmanagement #diesel #fuelcrisis #southafrica #transport #trucking #fleetowner',slides:[
+{type:'hook',headline:'DIESEL UP R8\nIN APRIL?',sub:'If you own a fleet of trucks in SA —\nyou need to hear this right now.'},
+{type:'stat',headline:'APRIL 1ST\nR5–R8/litre\nINCREASE',sub:'The Iran war · The weak rand · New fuel levies\nAll hitting at once.'},
+{type:'numbers',headline:'20 TRUCKS\n= R150,000 EXTRA\nPER MONTH',sub:'10,000km each per month · R5 more per litre'},
+{type:'point',headline:'FLEET OWNERS\nWHO SURVIVE\nKNOW THEIR NUMBERS',sub:'Which drivers over-consume.\nWhich vehicles are bleeding diesel.'},
+{type:'proof',headline:'WE SHOW YOU\nEVERY MONTH\nWITH HARD DATA',sub:'Forensic fuel & speed analysis\nPer vehicle · Per driver · Per route'},
+{type:'cta',headline:'FREE FLEET\nAUDIT',sub:'📞 083 314 9592\nWhatsApp us today'}
+]},
+{id:'s2',lang:'en',name:'The Driver Nobody Talks About (45 sec)',caption:"Every fleet has one driver nobody talks about. The one whose fuel consumption is 20% above everyone else's.",hashtags:'#fleetmanagement #trucking #southafrica #fuelprices #diesel #transport #fleetowner',slides:[
+{type:'hook',headline:'ONE DRIVER\nCOSTING YOU\nR8,000/MONTH',sub:"Every fleet has one.\nThe driver nobody talks about."},
+{type:'point',headline:'20% ABOVE\nEVERYONE ELSE',sub:"You know something's off.\nBut you can't prove it without data."},
+{type:'numbers',headline:'BEFORE APRIL:\nR4,000–R5,000\nEXTRA/MONTH',sub:'Per outlier driver · Per month'},
+{type:'stat',headline:'AFTER APRIL:\nR7,000–R8,000\nEXTRA/MONTH',sub:'Same driver · Same bad habits\nNow costs almost double.'},
+{type:'proof',headline:'OUR REPORT:\nEVERY DRIVER\nRANKED',sub:'Outliers highlighted in red.\nEvery month. Actionable data.'},
+{type:'cta',headline:'FREE FLEET\nASSESSMENT',sub:'Link in bio\n📞 083 314 9592'}
+]},
+{id:'s3',lang:'en',name:'The Maths (20 sec)',caption:"Let me do the maths for you. R5.50 more per litre × your fleet × every month.",hashtags:'#diesel #fuelcrisis #fleetmanagement #southafrica #trucking #transport',slides:[
+{type:'hook',headline:'R5 DIESEL\nINCREASE ×\nYOUR FLEET = ?',sub:'Let me do the maths quickly.'},
+{type:'numbers',headline:'R18.50 → R24+\nPER LITRE\n= R5.50 MORE',sub:'Current diesel → April diesel'},
+{type:'stat',headline:'1 TRUCK\n= R18,333 MORE\nPER MONTH',sub:'10,000km/month at 3km/L = 3,333L × R5.50'},
+{type:'numbers',headline:'10 TRUCKS\n= R183,000\nMORE/MONTH',sub:'20 trucks = R366,000 more per month'},
+{type:'point',headline:'20–30% OF THAT\nIS PREVENTABLE\nWASTE',sub:'Over-consuming drivers. Inefficient vehicles.\nFix it now.'},
+{type:'cta',headline:"WE SHOW YOU\nWHERE IT'S GOING",sub:'Free fleet efficiency assessment\n📞 083 314 9592'}
+]},
+{id:'s4',lang:'en',name:'The Question (30 sec)',caption:"Do you know what your fleet is really costing you? Most SA fleet owners don't.",hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner',slides:[
+{type:'hook',headline:'DO YOU KNOW\nWHAT YOUR\nFLEET COSTS?',sub:'Per vehicle. Per kilometre.\nThis month. Right now.'},
+{type:'point',headline:"MOST SA\nFLEET OWNERS\nDON'T",sub:'Nobody gives them that information\nin a clear, usable way.'},
+{type:'stat',headline:'THAT\nUNCERTAINTY\nCOSTS MONEY',sub:'Every single month.\nQuietly. Consistently.'},
+{type:'proof',headline:'WE GIVE YOU\nTHE EXACT\nNUMBERS',sub:'Every vehicle. Every driver. Every month.'},
+{type:'point',headline:'FORENSIC\nMONTHLY\nFLEET AUDITS',sub:'Plain language. Actionable insights.\nNo jargon.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s5',lang:'en',name:'The Leak (30 sec)',caption:"The losses in your fleet aren't dramatic — they're quiet. That's what makes them dangerous.",hashtags:'#FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife #FleetOwner',slides:[
+{type:'hook',headline:'YOUR FLEET\nIS LEAKING\nMONEY RIGHT NOW',sub:"Not dramatically.\nJust quietly — every month."},
+{type:'point',headline:'A VEHICLE\n15% OVER\nON FUEL',sub:"A driver taking longer routes.\nA service overdue."},
+{type:'stat',headline:'INDIVIDUALLY\nSEEMS SMALL\nTOGETHER?',sub:'Tens of thousands of rands\ngone before you notice.'},
+{type:'proof',headline:'WE FIND\nTHE LEAKS\nEVERY MONTH',sub:'We document them. We show you what to fix.'},
+{type:'point',headline:'FORENSIC\nFLEET\nREPORTING',sub:'Dynamic Fleet Reporting · 083 314 9592'},
+{type:'cta',headline:'LINK IN BIO\nFIND OUT\nMORE',sub:'Stop the leak. Start saving.'}
+]},
+{id:'s6',lang:'en',name:'What We Actually Do (45 sec)',caption:"GPS tracking tells you WHERE. Forensic fleet reporting tells you WHY — and what it costs.",hashtags:'#FleetManagement #SouthAfrica #Transport #LogisticsSA #TruckingLife #FleetAudit',slides:[
+{type:'hook',headline:'FLEET\nREPORTING\nIS NOT GPS',sub:'GPS tells you WHERE.\nWe tell you WHAT IT COSTS.'},
+{type:'point',headline:'FUEL vs\nBENCHMARK\nPER VEHICLE',sub:"Is this vehicle normal?\nOr is something wrong?"},
+{type:'point',headline:'DRIVER\nBEHAVIOUR\nSCORED',sub:"Who's driving well. Who isn't.\nEvery month."},
+{type:'point',headline:'MAINTENANCE\nBEFORE IT\nBREAKS',sub:'Upcoming service windows flagged.\nNo nasty surprises.'},
+{type:'stat',headline:'COST PER KM\nROUTE\nEFFICIENCY',sub:'All in one plain-language report.\nNo jargon. No dashboards.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s7',lang:'en',name:'The Numbers (30 sec)',caption:"12–18% of your fuel budget. Wasted. Every month.",hashtags:'#FleetManagement #SouthAfrica #FuelSavings #Transport #TruckingLife #FleetOwner',slides:[
+{type:'hook',headline:'12–18%\nOF YOUR FUEL\nWASTED',sub:'Every month. In the average SA fleet.'},
+{type:'numbers',headline:'20 VEHICLES\n= R30,000–\nR60,000/MONTH',sub:'Through unmonitored driver behaviour alone.'},
+{type:'point',headline:"AND THAT'S\nJUST THE\nFUEL",sub:"We haven't talked about maintenance,\nroutes, fuel cards."},
+{type:'proof',headline:'OUR REPORTS\nSHOW YOU\nEVERY RAND',sub:"Where it's going. How to stop it."},
+{type:'stat',headline:'AVERAGE ROI\nMONTH ONE\n4–6×',sub:'Our fee vs what clients save.\nThe maths is simple.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s8',lang:'en',name:'Real Story (45 sec)',caption:"He had a feeling his fleet costs didn't add up. First report: R55,000/month in losses.",hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner',slides:[
+{type:'hook',headline:"18 VEHICLES\nFEELING THAT\nCOSTS DON'T ADD UP",sub:"Sound familiar?\nThis is a real story."},
+{type:'point',headline:'FIRST REPORT\nFOUND 2 DRIVERS\n+22% FUEL',sub:'Consistently over-consuming every month.'},
+{type:'point',headline:'ONE VEHICLE\nSLOW FUEL\nLEAK',sub:'No warning lights.\nJust silent monthly losses.'},
+{type:'stat',headline:'ONE ROUTE\n40KM LONGER\nEVERY DAY',sub:'Every. Single. Day. For months.'},
+{type:'numbers',headline:'TOTAL LOSS\nR55,000+\nPER MONTH',sub:'Recoverable. Fixable.\nGone without reporting.'},
+{type:'cta',headline:"THAT NAGGING\nFEELING?\nLET'S TALK",sub:'083 314 9592 · Dynamic Fleet Reporting'}
+]},
+{id:'s9',lang:'en',name:'Maintenance (30 sec)',caption:"Preventive maintenance costs 4x LESS than reactive repairs. But only if you know what's coming.",hashtags:'#FleetManagement #SouthAfrica #Transport #Maintenance #TruckingLife #FleetOwner',slides:[
+{type:'hook',headline:'PREVENTIVE\nMAINTENANCE\nCOSTS LESS',sub:'4 times less than reactive repairs.'},
+{type:'stat',headline:'4×\nCHEAPER\nTO PLAN AHEAD',sub:'But only if you know which vehicles\nneed it — and when.'},
+{type:'point',headline:'OVERDUE\nSERVICE\n= BORROWED TROUBLE',sub:'One breakdown can cost more\nthan 6 months of reporting.'},
+{type:'proof',headline:'OUR REPORTS\nFLAG EVERY\nSERVICE WINDOW',sub:'Every vehicle. Every month.\nBefore it becomes a problem.'},
+{type:'point',headline:'KEEP YOUR\nFLEET\nRUNNING',sub:'Dynamic Fleet Reporting\nForensic monthly audits.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Stop reactive. Start proactive.'}
+]},
+{id:'s10',lang:'en',name:'Two Types of Fleet Owners (30 sec)',caption:"Two types of fleet owners in SA. Which one are you?",hashtags:'#FleetManagement #SouthAfrica #Transport #BusinessOwner #TruckingLife #FleetAudit',slides:[
+{type:'hook',headline:'TWO TYPES\nOF FLEET\nOWNERS IN SA',sub:'Which one are you?'},
+{type:'point',headline:'TYPE 1\nKNOWS THEIR\nNUMBERS',sub:'Per vehicle. Per kilometre.\nEvery month. Exactly.'},
+{type:'point',headline:"TYPE 2\nHAS A\nROUGH IDEA",sub:"And the rough idea\nis always costing them more."},
+{type:'stat',headline:'THE DIFFERENCE?\nQUALITY OF\nREPORTING',sub:"That's it. That's the whole thing."},
+{type:'proof',headline:'WE HELP YOU\nBECOME\nTYPE 1',sub:'Monthly forensic fleet audits.\nPlain language. Actionable.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s11',lang:'en',name:"What's In The Report (45 sec)",caption:"Here's exactly what you get in a DFR monthly fleet report.",hashtags:'#FleetManagement #SouthAfrica #Transport #LogisticsSA #TruckingLife #FleetAudit',slides:[
+{type:'hook',headline:"WHAT'S IN\nA DFR\nMONTHLY REPORT?",sub:"Here's the quick version."},
+{type:'point',headline:'FUEL vs\nBENCHMARK\nEVERY VEHICLE',sub:"Correct benchmark for that vehicle's\nroute and load."},
+{type:'point',headline:'DRIVER\nBEHAVIOUR\nSCORED & FLAGGED',sub:'Every driver. Every month. No guessing.'},
+{type:'point',headline:'MAINTENANCE\nCOST PER KM\nFUEL CARDS',sub:'Exceptions flagged. Trends tracked.'},
+{type:'proof',headline:'TOP 3\nPRIORITY\nACTIONS',sub:'Plain language. No jargon.\nReady to act on in 20 minutes.'},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s12',lang:'en',name:'The Price (30 sec)',caption:"People assume forensic fleet reporting is expensive. Here's what it actually costs — and what it saves.",hashtags:'#FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife #BusinessOwner',slides:[
+{type:'hook',headline:'PEOPLE THINK\nFLEET REPORTING\nIS EXPENSIVE',sub:"It's not. Here's what it costs."},
+{type:'numbers',headline:'R1,500/MONTH\n+ R150–R200\nPER VEHICLE',sub:'10 vehicles = ~R3,000–R3,500/month'},
+{type:'stat',headline:'AVERAGE\nSAVING\nMONTH ONE',sub:'R20,000 to R60,000\nidentified in the first audit.'},
+{type:'point',headline:'THE MATHS\nIS PRETTY\nSIMPLE',sub:'Service pays for itself\nand keeps paying.'},
+{type:'proof',headline:'NO LONG\nCONTRACTS\nNO SOFTWARE',sub:"Just a clear monthly report.\nYou act on it. Costs drop."},
+{type:'cta',headline:'LINK IN BIO\nOR WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'s13',lang:'en',name:'Simple CTA (30 sec)',caption:"One step. WhatsApp 083 314 9592. We'll take it from there.",hashtags:'#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner',slides:[
+{type:'hook',headline:'IF YOU RUN\nA FLEET IN SA\nDO ONE THING',sub:"Just one thing. That's all I'm asking."},
+{type:'point',headline:"WHATSAPP US\n083 314 9592\nTHAT'S IT",sub:"We'll show you a sample report.\nExplain how it works."},
+{type:'point',headline:'NO PRESSURE\nNO COMPLICATED\nSALES PROCESS',sub:'Just a conversation about\nwhether we can help.'},
+{type:'proof',headline:'FROM R1,500\nPER MONTH\nROI FROM DAY ONE',sub:'Most clients save more than the\nannual cost in month one.'},
+{type:'point',headline:'FORENSIC\nMONTHLY\nFLEET AUDITS',sub:'Dynamic Fleet Reporting\nPlain language. Actionable.'},
+{type:'cta',headline:'WHATSAPP\n083 314 9592\nVANDAG',sub:'Link in bio · dynamicfleetreports@gmail.com'}
+]}
+];
+// ── Seed Scripts AF ────────────────────────────────────────────────────────
+const SEED_AF=[
+{id:'af1',lang:'af',name:'Die April-Bom (30 sek)',caption:"As jy 'n vloot vragmotors in Suid-Afrika besit, moet jy dit sien. Diesel gaan R5-R8/liter op op 1 April.",hashtags:'#Vlootbestuur #diesel #brandstofkrisis #SuidAfrika #vervoer #vragmotor #vlootwienaar',slides:[
+{type:'hook',headline:'DIESEL R8\nOP IN APRIL?',sub:"As jy 'n vloot vragmotors in SA besit —\nmoet jy dit nou hoor."},
+{type:'stat',headline:'1 APRIL\nR5–R8/LITER\nSTYGING',sub:'Die Iran-oorlog · Die swak rand · Nuwe heffings\nAlles gelyktydig.'},
+{type:'numbers',headline:'20 VRAGMOTORS\n= R150,000 EKSTRA\nPER MAAND',sub:'10,000km elk per maand · R5 meer per liter'},
+{type:'point',headline:'VLOOTEIENAARS\nWAT OORLEEF\nKEN HUL SYFERS',sub:'Watter bestuurders verbruik te veel.\nWatter voertuie lek diesel.'},
+{type:'proof',headline:'ONS WYS JOU\nELKE MAAND\nMET HARDE DATA',sub:'Forensiese brandstof- en spoedsanalise\nPer voertuig · Per bestuurder · Per roete'},
+{type:'cta',headline:'GRATIS\nVLOOT-OUDIT',sub:'📞 083 314 9592\nWhatsApp ons vandag'}
+]},
+{id:'af2',lang:'af',name:'Die Bestuurder Waaroor Niemand Praat (45 sek)',caption:"Elke vloot het een bestuurder waaroor niemand praat nie. Dié een wie se brandstofverbruik 20% bo almal anders s'n is.",hashtags:'#Vlootbestuur #vragmotor #SuidAfrika #brandstofpryse #diesel #vervoer #vlootwienaar',slides:[
+{type:'hook',headline:'EEN BESTUURDER\nKOS JOU\nR8,000/MAAND',sub:'Elke vloot het een.\nDie bestuurder waaroor niemand praat.'},
+{type:'point',headline:'20% BO\nALMAL ANDERS',sub:"Jy weet iets is fout.\nMaar jy kan dit nie bewys sonder data nie."},
+{type:'numbers',headline:'VOOR APRIL:\nR4,000–R5,000\nEKSTRA/MAAND',sub:'Per uitskieter-bestuurder · Per maand'},
+{type:'stat',headline:'NA APRIL:\nR7,000–R8,000\nEKSTRA/MAAND',sub:'Selfde bestuurder · Selfde slegte gewoontes\nKos nou byna dubbel.'},
+{type:'proof',headline:'ONS VERSLAG:\nELKE BESTUURDER\nGERANGSKIK',sub:'Uitskieters gemerk in rooi.\nElke maand. Uitvoerbare data.'},
+{type:'cta',headline:'GRATIS VLOOT-\nBEOORDELING',sub:'Skakel in bio\n📞 083 314 9592'}
+]},
+{id:'af3',lang:'af',name:'Die Wiskunde (20 sek)',caption:"Laat my die wiskunde vir jou doen. R5.50 meer per liter × jou vloot × elke maand.",hashtags:'#diesel #brandstofkrisis #Vlootbestuur #SuidAfrika #vragmotor #vervoer',slides:[
+{type:'hook',headline:'R5 DIESEL\nSTYGING ×\nJOU VLOOT = ?',sub:'Laat my die wiskunde vinnig vir jou doen.'},
+{type:'numbers',headline:'R18.50 → R24+\nPER LITER\n= R5.50 MEER',sub:'Huidige diesel → April diesel'},
+{type:'stat',headline:'1 VRAGMOTOR\n= R18,333 MEER\nPER MAAND',sub:'10,000km/maand teen 3km/L = 3,333L × R5.50'},
+{type:'numbers',headline:'10 VRAGMOTORS\n= R183,000\nMEER/MAAND',sub:'20 vragmotors = R366,000 meer per maand'},
+{type:'point',headline:'20–30% DAARVAN\nIS VOORKOMBARE\nMORSING',sub:'Te veel verbruikende bestuurders.\nOndoeltreffende voertuie. Stel dit nou reg.'},
+{type:'cta',headline:"ONS WYS JOU\nWAAR DIT\nHEENGAAN",sub:'Gratis vlootdobeltreffendheidsbeoordeling\n📞 083 314 9592'}
+]},
+{id:'af4',lang:'af',name:'Die Vraag (30 sek)',caption:"Weet jy wat jou vloot jou werklik kos? Meeste SA-vlooteienaars weet nie.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #VragmotorLewe #VlootOudit #SaakEienaar',slides:[
+{type:'hook',headline:'WEET JY WAT\nJOU VLOOT\nJOU KOS?',sub:'Per voertuig. Per kilometer.\nHierdie maand. Nou.'},
+{type:'point',headline:"MEESTE SA\nVLOOTEIENAARS\nWEET NIE",sub:"Niemand gee hulle daardie inligting\nop 'n duidelike manier nie."},
+{type:'stat',headline:'DAARDIE\nONSEKERHEID\nKOS GELD',sub:'Elke maand. Stilletjies. Konsekwent.'},
+{type:'proof',headline:'ONS GEE JOU\nDIE PRESIESE\nSYFERS',sub:'Elke voertuig. Elke bestuurder. Elke maand.'},
+{type:'point',headline:'FORENSIESE\nMAANDELIKSE\nVLOOTOUDITS',sub:'Eenvoudige taal. Uitvoerbare insigte.'},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af5',lang:'af',name:'Die Lek (30 sek)',caption:"Die verliese in jou vloot is nie dramaties nie — hulle is stil. Dit is wat hulle gevaarlik maak.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #BrandstofBesparing #VragmotorLewe',slides:[
+{type:'hook',headline:'JOU VLOOT\nLEK NOU\nGELD',sub:"Nie dramaties nie.\nNet stilletjies — elke maand."},
+{type:'point',headline:"'N VOERTUIG\n15% TE VEEL\nBRANDSTOF",sub:"'n Bestuurder wat langer roetes ry.\n'n Diens wat agterstallig is."},
+{type:'stat',headline:'INDIVIDUEEL\nLYK KLEIN\nSAAM?',sub:'Tienduisende rande weg\nvoordat jy dit agterkom.'},
+{type:'proof',headline:'ONS VIND\nDIE LEKKASIES\nELKE MAAND',sub:'Ons dokumenteer dit. Wys jou wat om reg te stel.'},
+{type:'point',headline:'FORENSIESE\nVLOOT-\nVERSLAGDOENING',sub:'Dynamic Fleet Reporting · 083 314 9592'},
+{type:'cta',headline:'SKAKEL IN BIO\nVIND UIT\nMEER',sub:'Stop die lek. Begin spaar.'}
+]},
+{id:'af6',lang:'af',name:'Wat Ons Werklik Doen (45 sek)',caption:"GPS-opsporing vertel jou WAAR. Forensiese vlootverslagdoening vertel jou HOEKOM.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #LogistiekSA #VragmotorLewe #VlootOudit',slides:[
+{type:'hook',headline:'VLOOT-\nVERSLAGDOENING\nIS NIE GPS NIE',sub:'GPS vertel jou WAAR.\nOns vertel jou WAT DIT KOS.'},
+{type:'point',headline:'BRANDSTOF vs\nMAASTAF\nPER VOERTUIG',sub:"Is hierdie voertuig normaal?\nOf is iets fout?"},
+{type:'point',headline:'BESTUURDER-\nGEDRAG\nGESTEL',sub:"Wie ry goed. Wie nie.\nElke maand."},
+{type:'point',headline:'ONDERHOUD\nVOOR DIT\nBREEK',sub:"Komende diensvenstere gemerk.\nGeen onaangename verrassings."},
+{type:'stat',headline:'KOSTE PER KM\nROETE-\nDOELTREFFENDHEID',sub:"Alles in een eenvoudige verslag.\nGeen jargon. Geen kontroleskerms."},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af7',lang:'af',name:'Die Syfers (30 sek)',caption:"12–18% van jou brandstofbegroting. Gemors. Elke maand.",hashtags:'#Vlootbestuur #SuidAfrika #BrandstofBesparing #Vervoer #VragmotorLewe',slides:[
+{type:'hook',headline:'12–18%\nVAN JOU BRAND-\nSTOF GEMORS',sub:'Elke maand. In die gemiddelde SA-vloot.'},
+{type:'numbers',headline:'20 VOERTUIE\n= R30,000–\nR60,000/MAAND',sub:'Deur ongemoniturde bestuurdergedrag alleen.'},
+{type:'point',headline:"EN DIT IS\nSLEGS DIE\nBRANDSTOF",sub:"Ons het nie eens gepraat van\norderhoud, roetes, brandstofkaarte nie."},
+{type:'proof',headline:'ONS VERSLAE\nWYS JOU\nELKE RAND',sub:"Waarheen dit gaan. Hoe om dit te stop."},
+{type:'stat',headline:'GEMIDDELDE OOB\nMAAND EEN\n4–6×',sub:'Ons fooi vs wat kliënte spaar.\nDie wiskunde is eenvoudig.'},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af8',lang:'af',name:'Werklike Storie (45 sek)',caption:"Hy het gevoel sy vlootkoste klop nie. Eerste verslag: R55,000/maand herstelbare verliese.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #VragmotorLewe #VlootOudit',slides:[
+{type:'hook',headline:"18 VOERTUIE\nGEVOEL DAT\nKOSTE NIE KLOP",sub:"Bekend?\nDit is 'n werklike storie."},
+{type:'point',headline:'EERSTE VERSLAG\nVIND 2 BESTUURDERS\n+22% BRANDSTOF',sub:'Konsekwent te veel verbruikend. Elke maand.'},
+{type:'point',headline:"'N VOERTUIG\nSTADIGE\nBRANDSTOFLEK",sub:'Geen waarskuigligte.\nNet stille maandelikse verliese.'},
+{type:'stat',headline:'EEN ROETE\n40KM LANGER\nELKE DAG',sub:'Elke. Enkele. Dag. Vir maande.'},
+{type:'numbers',headline:'TOTALE VERLIES\nR55,000+\nPER MAAND',sub:'Herstelbaar. Regmaakbaar.\nWeg sonder verslagdoening.'},
+{type:'cta',headline:"DAARDIE\nNAENDE GEVOEL?\nLAAT ONS GESELS",sub:'083 314 9592 · Dynamic Fleet Reporting'}
+]},
+{id:'af9',lang:'af',name:'Onderhoud (30 sek)',caption:"Voorkomende onderhoud kos 4× MINDER as reaktiewe herstelwerk.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #Onderhoud #VragmotorLewe',slides:[
+{type:'hook',headline:'VOORKOMENDE\nONDERHOUD\nKOS MINDER',sub:'4 keer minder as reaktiewe herstelwerk.'},
+{type:'stat',headline:'4×\nGOEDKOPER\nOM VOORUIT TE BEPLAN',sub:"Maar slegs as jy weet\nwatter voertuie dit nodig het."},
+{type:'point',headline:'AGTERSTALLIGE\nDIENS\n= GELEENDE MOEILIKHEID',sub:'Een ineenstorting kan meer kos\nas 6 maande verslagdoening.'},
+{type:'proof',headline:'ONS VERSLAE\nMERK ELKE\nDIENSVENSTER',sub:"Elke voertuig. Elke maand.\nVoor dit 'n probleem word."},
+{type:'point',headline:'HOU JOU\nVLOOT\nAAN DIE GANG',sub:'Dynamic Fleet Reporting\nForensiese maandelikse oudits.'},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Stop reaktief. Begin proaktief.'}
+]},
+{id:'af10',lang:'af',name:'Twee Tipes Vlooteienaars (30 sek)',caption:"Twee tipes vlooteienaars in SA. Watter een is jy?",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #SaakEienaar #VragmotorLewe',slides:[
+{type:'hook',headline:'TWEE TIPES\nVLOOT-\nEIENAARS IN SA',sub:'Watter een is jy?'},
+{type:'point',headline:'TIPE 1\nKEN HUL\nSYFERS',sub:'Per voertuig. Per kilometer.\nElke maand. Presies.'},
+{type:'point',headline:"TIPE 2\nHET 'N\nROWWE IDEE",sub:"En die rowwe idee\nkos hulle altyd meer."},
+{type:'stat',headline:'DIE VERSKIL?\nKWALITEIT\nVERSLAGDOENING',sub:"Dit is dit. Dit is die hele ding."},
+{type:'proof',headline:'ONS HELP JOU\nOM TIPE 1\nTE WORD',sub:'Maandelikse forensiese vlootoudits.\nEenvoudige taal. Uitvoerbaar.'},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af11',lang:'af',name:"Wat Is In Die Verslag (45 sek)",caption:"Hier is presies wat jy in 'n DFR maandelikse vlootverslag kry.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #LogistiekSA #VragmotorLewe #VlootOudit',slides:[
+{type:'hook',headline:"WAT IS IN\n'N DFR\nMAANDELIKSE VERSLAG?",sub:"Hier is die vinnige weergawe."},
+{type:'point',headline:'BRANDSTOF vs\nMAASTAF\nELKE VOERTUIG',sub:"Korrekte maatstaf vir\ndaardie voertuig se roete."},
+{type:'point',headline:'BESTUURDER-\nGEDRAG\nGESTEL & GEMERK',sub:'Elke bestuurder. Elke maand. Geen raaiskote.'},
+{type:'point',headline:'ONDERHOUD\nKOSTE PER KM\nBRANDSTOFKAARTE',sub:'Uitsonderings gemerk. Neiging opgespoor.'},
+{type:'proof',headline:'TOP 3\nPRIORITEITS-\nAKSIES',sub:'Eenvoudige taal. Geen jargon.\nReg om op te tree in 20 min.'},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af12',lang:'af',name:'Die Prys (30 sek)',caption:"Mense aanvaar forensiese vlootverslagdoening is duur. Hier is wat dit werklik kos.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #BrandstofBesparing #VragmotorLewe',slides:[
+{type:'hook',headline:'MENSE DINK\nVLOOTVERSLAG-\nDOENING IS DUUR',sub:"Dit is nie. Hier is wat dit kos."},
+{type:'numbers',headline:'R1,500/MAAND\n+ R150–R200\nPER VOERTUIG',sub:'10 voertuie = ~R3,000–R3,500/maand'},
+{type:'stat',headline:'GEMIDDELDE\nBESPARING\nMAAND EEN',sub:'R20,000 tot R60,000\ngeïdentifiseer in die eerste oudit.'},
+{type:'point',headline:'DIE WISKUNDE\nIS REDELIK\nEENVOUDIG',sub:'Diens betaal homself terug\nen bly betaal.'},
+{type:'proof',headline:'GEEN LANG\nKONTRAKTE\nGEEN SAGTEWARE',sub:"Net 'n duidelike maandelikse verslag.\nJy tree op. Koste daal."},
+{type:'cta',headline:'SKAKEL IN BIO\nOF WHATSAPP\n083 314 9592',sub:'Dynamic Fleet Reporting'}
+]},
+{id:'af13',lang:'af',name:'Eenvoudige CTA (30 sek)',caption:"Een stap. WhatsApp 083 314 9592. Ons neem dit van daar af.",hashtags:'#Vlootbestuur #SuidAfrika #Vervoer #VragmotorLewe #VlootOudit',slides:[
+{type:'hook',headline:"AS JY 'N VLOOT\nIN SA BESTUUR\nDOEN EEN DING",sub:"Net een ding.\nDit is al wat ek vra."},
+{type:'point',headline:"WHATSAPP ONS\n083 314 9592\nDIT IS DIT",sub:"Ons wys jou 'n voorbeeldverslag.\nVerduidelik hoe dit werk."},
+{type:'point',headline:'GEEN DRUK\nGEEN INGEWIKKELDE\nVERKOOPSPROSES',sub:"Net 'n gesprek oor of ons jou kan help."},
+{type:'proof',headline:'VANAF R1,500\nPER MAAND\nOOB VANAF DAG EEN',sub:'Meeste kliënte spaar meer\nas die jaarlikse koste in maand een.'},
+{type:'point',headline:'FORENSIESE\nMAANDELIKSE\nVLOOTOUDITS',sub:'Dynamic Fleet Reporting\nEenvoudige taal. Uitvoerbaar.'},
+{type:'cta',headline:'WHATSAPP\n083 314 9592\nVANDAG',sub:'Skakel in bio · dynamicfleetreports@gmail.com'}
+]}
+];
+// ── Styles config ──────────────────────────────────────────────────────────
+const STYLES={
+dark:{bg:'#000000',bgGrad:['#000000','#080808'],headline:'#ffffff',sub:'#a0a0a0',accent:'#10b981',brand:'#10b981',brandBg:'rgba(16,185,129,0.15)',hookBg:['#000000','#031a0f'],numBg:['#000000','#031a0f'],statBg:['#000000','#0a1500']},
+aggro:{bg:'#0a0000',bgGrad:['#0a0000','#1a0000'],headline:'#ffffff',sub:'#ffaaaa',accent:'#ef4444',brand:'#ef4444',brandBg:'rgba(239,68,68,0.15)',hookBg:['#1a0000','#0a0000'],numBg:['#150000','#0a0000'],statBg:['#0f0000','#060000']},
+navy:{bg:'#0f172a',bgGrad:['#0f172a','#1e293b'],headline:'#e2e8f0',sub:'#94a3b8',accent:'#3b82f6',brand:'#60a5fa',brandBg:'rgba(59,130,246,0.15)',hookBg:['#0f172a','#1e3a5f'],numBg:['#0f172a','#1a2f4a'],statBg:['#0f172a','#1e2d40']},
+light:{bg:'#f8fafc',bgGrad:['#f8fafc','#f1f5f9'],headline:'#0f172a',sub:'#475569',accent:'#059669',brand:'#059669',brandBg:'rgba(5,150,105,0.1)',hookBg:['#f8fafc','#ecfdf5'],numBg:['#f1f5f9','#ecfdf5'],statBg:['#f8fafc','#f0fdf4']},
+custom:{bg:'#1a0a2e',bgGrad:['#1a0a2e','#0d0618'],headline:'#ffffff',sub:'#cccccc',accent:'#f59e0b',brand:'#f59e0b',brandBg:'rgba(245,158,11,0.15)',hookBg:['#1a0a2e','#2a0a3e'],numBg:['#1a0a2e','#2a0a3e'],statBg:['#1a0a2e','#200a36']}
+};
+
+// ── Init ───────────────────────────────────────────────────────────────────
+window.addEventListener('load',async()=>{
     _canvas=document.getElementById('reelCanvas');
     _ctx=_canvas.getContext('2d');
-    _canvas.width=RB_W; _canvas.height=RB_H;
+    _canvas.width=RB_W;_canvas.height=RB_H;
+    if(_partnerCode){
+        document.getElementById('tbPartner').style.display='block';
+        const pname=_partnerCode.replace('ref_','').replace(/_/g,' ');
+        document.getElementById('tbPartnerName').textContent=pname;
+        document.getElementById('partnerNote').classList.add('show');
+        document.getElementById('pNoteName').textContent=pname;
+        document.getElementById('submitPanel').classList.add('show');
+        document.getElementById('backBtn').href='partner-marketing.html?ref='+_partnerCode;
+    } else {
+        document.getElementById('ownerPanel').classList.add('show');
+    }
+    applyLangUI();
+    await waitFor(()=>typeof cloudStorage!=='undefined');
+    await loadScripts();
     resetBuilder();
     buildSvgGrid();
     searchUnsplash();
+    if(_isOwner)checkPending();
 });
 
-function resetBuilder(){
-    _slides=[
-        {type:'hook',    headline:'YOUR HOOK\nGOES HERE',    sub:"What's the big problem? State it boldly."},
-        {type:'stat',    headline:'THE KEY STAT\nOR FACT',   sub:'Numbers create urgency. Use them.'},
-        {type:'point',   headline:'YOUR MAIN\nPOINT',        sub:'Keep it short. One idea per slide.'},
-        {type:'cta',     headline:'CALL TO\nACTION',         sub:'Link in bio · 📞 083 314 9592'}
-    ];
-    _activeSlide=0; _slidePhotos={}; _allPhoto=null; _activeIllus='none';
-    setEl('captionTA','');
-    setEl('hashtagsInput','#fleetmanagement #southafrica #transport #trucking #diesel #fuelefficiency');
-    stopPlay();
-    renderSlides(); draw(_activeSlide); updateNav();
-    highlightSvg('none');
+// ── Language ───────────────────────────────────────────────────────────────
+function setLang(l){
+    _lang=l;localStorage.setItem('dfr_reel_lang',l);applyLangUI();buildDropdown();
+    document.getElementById('scriptSel').value='';_activeId=null;_editMode=false;
+    hideBanner();updateOwnerBtns();
+}
+function applyLangUI(){
+    document.getElementById('langBtnEn').classList.toggle('active',_lang==='en');
+    document.getElementById('langBtnAf').classList.toggle('active',_lang==='af');
 }
 
-function loadScript(key){
-    if(!key){ resetBuilder(); return; }
-    const s=SCRIPTS[key]; if(!s) return;
+// ── Scripts / Firebase ─────────────────────────────────────────────────────
+async function loadScripts(){
+    let saved=await fbGet(SCRIPTS_KEY);
+    if(!saved||!saved.length){
+        saved=[...SEED_EN,...SEED_AF].map(s=>Object.assign({},s,{createdAt:new Date().toISOString()}));
+        await fbSet(SCRIPTS_KEY,saved);
+    } else {
+        saved=saved.map(s=>s.lang?s:Object.assign({lang:'en'},s));
+    }
+    _scripts=saved;buildDropdown();
+}
+
+function buildDropdown(){
+    const sel=document.getElementById('scriptSel');
+    const cur=sel.value;
+    const filtered=_scripts.filter(s=>(s.lang||'en')===_lang);
+    sel.innerHTML='<option value="">— Start blank —</option>';
+    filtered.forEach(s=>{
+        const o=document.createElement('option');
+        o.value=s.id;o.textContent=s.name;sel.appendChild(o);
+    });
+    if(cur&&filtered.find(s=>s.id===cur))sel.value=cur;
+    updateOwnerBtns();
+}
+
+function updateOwnerBtns(){
+    if(!_isOwner)return;
+    const has=!!_activeId;
+    document.getElementById('btnEdit').style.display=has&&!_editMode?'':'none';
+    document.getElementById('btnDelete').style.display=has&&!_editMode?'':'none';
+    document.getElementById('btnSave').style.display=_editMode?'':'none';
+    document.getElementById('btnCancel').style.display=_editMode?'':'none';
+    document.getElementById('nameRow').classList.toggle('show',_editMode);
+}
+
+function onScriptSelect(id){
+    _activeId=id||null;_editMode=false;hideBanner();updateOwnerBtns();
+    if(!id){resetBuilder();return;}
+    const s=_scripts.find(x=>x.id===id);if(!s)return;
     _slides=s.slides.map(sl=>Object.assign({},sl));
-    _activeSlide=0; _slidePhotos={}; _allPhoto=null;
-    setEl('captionTA',s.caption); setEl('hashtagsInput',s.hashtags);
-    stopPlay();
-    renderSlides(); draw(0); updateNav();
+    _activeSlide=0;_slidePhotos={};_allPhoto=null;
+    setEl('captionTA',s.caption||'');setEl('hashtagsInput',s.hashtags||'');
+    stopPlay();renderSlides();draw(0);updateNav();
+}
+
+// ── Owner controls ─────────────────────────────────────────────────────────
+function startNew(){
+    _editMode=true;_activeId=null;_pendingId=null;
+    document.getElementById('scriptSel').value='';
+    document.getElementById('scriptNameIn').value='';
+    document.getElementById('scriptLangIn').value=_lang;
+    setEl('captionTA','');setEl('hashtagsInput','');
+    resetBuilder();showBanner('➕ New script — build slides, add caption + hashtags, then 💾 Save.');
+    updateOwnerBtns();
+}
+function startEdit(){
+    if(!_activeId)return;
+    const s=_scripts.find(x=>x.id===_activeId);if(!s)return;
+    _editMode=true;
+    document.getElementById('scriptNameIn').value=s.name;
+    document.getElementById('scriptLangIn').value=s.lang||'en';
+    showBanner('✏️ Editing: <strong>'+escHtml(s.name)+'</strong> — make changes then 💾 Save.');
+    updateOwnerBtns();
+}
+async function doSave(){
+    const name=document.getElementById('scriptNameIn').value.trim();
+    const lang=document.getElementById('scriptLangIn').value||'en';
+    if(!name){toast('Enter a script name first','red');return;}
+    if(!_slides.length){toast('Add at least one slide','red');return;}
+    const entry={id:_activeId||('script_'+Date.now()),lang,name,caption:gv('captionTA'),hashtags:gv('hashtagsInput'),slides:_slides.map(s=>Object.assign({},s)),createdAt:new Date().toISOString()};
+    const idx=_scripts.findIndex(x=>x.id===entry.id);
+    if(idx>-1)_scripts[idx]=entry;else _scripts.push(entry);
+    await fbSet(SCRIPTS_KEY,_scripts);
+    if(_pendingId){
+        let pend=await fbGet(PENDING_KEY)||[];
+        pend=pend.filter(p=>p.id!==_pendingId);
+        await fbSet(PENDING_KEY,pend);
+        _pendingId=null;checkPending();
+        toast('Partner submission approved & published ✓','green');
+    } else {
+        toast('Script saved ✓','green');
+    }
+    _activeId=entry.id;_editMode=false;
+    buildDropdown();document.getElementById('scriptSel').value=entry.id;
+    hideBanner();updateOwnerBtns();
+}
+async function doDelete(){
+    if(!_activeId)return;
+    const s=_scripts.find(x=>x.id===_activeId);
+    if(!s||!confirm('Delete "'+s.name+'"? Cannot be undone.'))return;
+    _scripts=_scripts.filter(x=>x.id!==_activeId);
+    await fbSet(SCRIPTS_KEY,_scripts);
+    _activeId=null;_editMode=false;
+    buildDropdown();resetBuilder();hideBanner();updateOwnerBtns();
+    toast('Script deleted','green');
+}
+function cancelEdit(){
+    _editMode=false;_pendingId=null;hideBanner();updateOwnerBtns();
+    if(_activeId)onScriptSelect(_activeId);else resetBuilder();
+}
+function showBanner(msg){const b=document.getElementById('editBanner');b.innerHTML=msg;b.classList.add('show');}
+function hideBanner(){document.getElementById('editBanner').classList.remove('show');}
+
+// ── Partner submit ─────────────────────────────────────────────────────────
+async function submitReel(){
+    const name=document.getElementById('submitNameIn').value.trim();
+    if(!name){toast('Give your reel a name first','red');return;}
+    if(!_slides.length){toast('Add at least one slide first','red');return;}
+    if(!confirm('Submit "'+name+'" for approval by Pieter?'))return;
+    const pname=_partnerCode.replace('ref_','').replace(/_/g,' ');
+    const entry={id:'pend_'+Date.now(),name,lang:_lang,submittedBy:pname,submittedAt:new Date().toISOString(),caption:gv('captionTA'),hashtags:gv('hashtagsInput'),slides:_slides.map(s=>Object.assign({},s))};
+    let pend=await fbGet(PENDING_KEY)||[];
+    pend.push(entry);
+    await fbSet(PENDING_KEY,pend);
+    document.getElementById('submitNameIn').value='';
+    toast('"'+name+'" submitted for approval ✓','green');
+}
+
+// ── Pending approvals ──────────────────────────────────────────────────────
+async function checkPending(){
+    const pend=await fbGet(PENDING_KEY)||[];
+    const btn=document.getElementById('btnPending');
+    const badge=document.getElementById('pendBadge');
+    btn.style.display='';
+    badge.textContent=pend.length;
+    badge.style.display=pend.length?'':'none';
+}
+function openPending(){document.getElementById('pendingModal').classList.add('open');renderPending();}
+function closePendingModal(){document.getElementById('pendingModal').classList.remove('open');}
+async function renderPending(){
+    const pend=await fbGet(PENDING_KEY)||[];
+    const list=document.getElementById('pendingList');
+    if(!pend.length){list.innerHTML='<p style="color:#64748b;font-size:13px;">No pending submissions.</p>';return;}
+    list.innerHTML=pend.map(p=>{
+        const date=new Date(p.submittedAt).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'});
+        const summary=p.slides.map((s,i)=>`${i+1}. [${s.type}] ${escHtml(s.headline.replace(/\n/g,' '))}`).join('<br>');
+        const langLabel=p.lang==='af'?'Afrikaans':'English';
+        return `<div class="pend-card">
+            <div class="pend-name">${escHtml(p.name)} <span style="font-size:10px;color:#64748b;">(${langLabel})</span></div>
+            <div class="pend-meta">By <strong style="color:#c4b5fd;">${escHtml(p.submittedBy)}</strong> · ${date}</div>
+            <div class="pend-slides">${summary}</div>
+            ${p.caption?`<div style="font-size:11px;color:#64748b;margin-bottom:0.5rem;"><strong style="color:#94a3b8;">Caption:</strong> ${escHtml(p.caption.substring(0,100))}${p.caption.length>100?'...':''}</div>`:''}
+            <div class="pend-actions">
+                <button class="abtn abtn-save" onclick="approvePending('${p.id}')">✅ Approve</button>
+                <button class="abtn abtn-edit" onclick="editPending('${p.id}')">✏️ Edit then Approve</button>
+                <button class="abtn abtn-del"  onclick="rejectPending('${p.id}')">❌ Reject</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+async function approvePending(id){
+    let pend=await fbGet(PENDING_KEY)||[];
+    const entry=pend.find(p=>p.id===id);
+    if(!entry||!confirm('Approve "'+entry.name+'" and publish to all partners?'))return;
+    const ns={id:'script_'+Date.now(),lang:entry.lang||'en',name:entry.name,caption:entry.caption,hashtags:entry.hashtags,slides:entry.slides,createdAt:new Date().toISOString(),approvedFrom:entry.submittedBy};
+    _scripts.push(ns);
+    await fbSet(SCRIPTS_KEY,_scripts);
+    pend=pend.filter(p=>p.id!==id);
+    await fbSet(PENDING_KEY,pend);
+    buildDropdown();checkPending();renderPending();
+    toast('"'+entry.name+'" approved & published ✓','green');
+}
+async function editPending(id){
+    let pend=await fbGet(PENDING_KEY)||[];
+    const entry=pend.find(p=>p.id===id);if(!entry)return;
+    closePendingModal();
+    _editMode=true;_activeId=null;_pendingId=id;
+    _slides=entry.slides.map(s=>Object.assign({},s));
+    _activeSlide=0;_slidePhotos={};_allPhoto=null;
+    setEl('captionTA',entry.caption||'');setEl('hashtagsInput',entry.hashtags||'');
+    document.getElementById('scriptNameIn').value=entry.name;
+    document.getElementById('scriptLangIn').value=entry.lang||'en';
+    showBanner('✏️ Editing partner submission: <strong>'+escHtml(entry.name)+'</strong> — edit then 💾 Save to approve & publish.');
+    updateOwnerBtns();renderSlides();draw(0);updateNav();
+}
+async function rejectPending(id){
+    let pend=await fbGet(PENDING_KEY)||[];
+    const entry=pend.find(p=>p.id===id);
+    if(!entry||!confirm('Reject "'+entry.name+'"?'))return;
+    pend=pend.filter(p=>p.id!==id);
+    await fbSet(PENDING_KEY,pend);
+    checkPending();renderPending();
+    toast('Submission rejected','green');
+}
+
+// ── Builder core ───────────────────────────────────────────────────────────
+function resetBuilder(){
+    _slides=[
+        {type:'hook',headline:'YOUR HOOK\nGOES HERE',sub:"What's the big problem? State it boldly."},
+        {type:'stat',headline:'THE KEY STAT\nOR FACT',sub:'Numbers create urgency. Use them.'},
+        {type:'point',headline:'YOUR MAIN\nPOINT',sub:'Keep it short. One idea per slide.'},
+        {type:'cta',headline:'CALL TO\nACTION',sub:'Link in bio · 📞 083 314 9592'}
+    ];
+    _activeSlide=0;_slidePhotos={};_allPhoto=null;_activeIllus='none';
+    setEl('captionTA','');setEl('hashtagsInput','#FleetManagement #SouthAfrica #Transport #TruckingLife');
+    stopPlay();renderSlides();draw(0);updateNav();highlightSvg('none');
 }
 
 function renderSlides(){
     const list=document.getElementById('slidesList');
     const types={hook:'🪝 Hook',stat:'📊 Stat',numbers:'🔢 Numbers',point:'💡 Point',proof:'✅ Proof',cta:'📣 CTA'};
-    list.innerHTML=_slides.map((sl,i)=>`
-        <div class="slide-item ${i===_activeSlide?'active-slide':''}" id="sli_${i}" onclick="selectSlide(${i})">
-            <div class="slide-head">
-                <div class="slide-num">${i+1}</div>
-                <select class="slide-type-sel" onchange="changeType(${i},this.value)" onclick="event.stopPropagation()">
-                    ${Object.entries(types).map(([v,l])=>`<option value="${v}" ${sl.type===v?'selected':''}>${l}</option>`).join('')}
-                </select>
-                <button class="slide-up" onclick="moveSlide(${i},-1,event)">↑</button>
-                <button class="slide-dn" onclick="moveSlide(${i},1,event)">↓</button>
-                <button class="slide-del" onclick="delSlide(${i},event)">✕</button>
-            </div>
-            <input class="slide-head-input" type="text" value="${ea(sl.headline.replace(/\n/g,' | '))}" placeholder="HEADLINE (use | for line break)" oninput="updateHead(${i},this.value)" onclick="selectSlide(${i})">
-            <textarea class="slide-sub-input" placeholder="Supporting text" oninput="updateSub(${i},this.value)" onclick="selectSlide(${i})">${ea(sl.sub||'')}</textarea>
-        </div>`).join('');
-    updateNav();
-    buildPlayDots();
+    list.innerHTML=_slides.map((sl,i)=>`<div class="slide-item ${i===_activeSlide?'active-slide':''}" onclick="selectSlide(${i})">
+        <div class="slide-head">
+            <div class="slide-num">${i+1}</div>
+            <select class="slide-type-sel" onchange="changeType(${i},this.value)" onclick="event.stopPropagation()">
+                ${Object.entries(types).map(([v,l])=>`<option value="${v}"${sl.type===v?' selected':''}>${l}</option>`).join('')}
+            </select>
+            <button class="slide-up" onclick="moveSlide(${i},-1,event)">↑</button>
+            <button class="slide-dn" onclick="moveSlide(${i},1,event)">↓</button>
+            <button class="slide-del" onclick="delSlide(${i},event)">✕</button>
+        </div>
+        <input class="slide-head-input" type="text" value="${ea(sl.headline.replace(/\n/g,' | '))}" placeholder="HEADLINE (| = line break)" oninput="updateHead(${i},this.value)" onclick="selectSlide(${i})">
+        <textarea class="slide-sub-input" placeholder="Supporting text" oninput="updateSub(${i},this.value)" onclick="selectSlide(${i})">${ea(sl.sub||'')}</textarea>
+    </div>`).join('');
+    updateNav();buildPlayDots();
 }
 
-function selectSlide(i){ _activeSlide=i; renderSlides(); draw(i); updateNav(); }
-function changeType(i,t){ _slides[i].type=t; draw(_activeSlide); }
-function updateHead(i,v){ _slides[i].headline=v.replace(/\|/g,'\n'); draw(_activeSlide); }
-function updateSub(i,v){ _slides[i].sub=v; draw(_activeSlide); }
-function addSlide(){ _slides.push({type:'point',headline:'NEW SLIDE',sub:''}); _activeSlide=_slides.length-1; renderSlides(); draw(_activeSlide); }
-function delSlide(i,e){ e.stopPropagation(); if(_slides.length<=1){ toast('Need at least 1 slide','red'); return; } _slides.splice(i,1); if(_activeSlide>=_slides.length) _activeSlide=_slides.length-1; renderSlides(); draw(_activeSlide); }
-function moveSlide(i,d,e){ e.stopPropagation(); const ni=i+d; if(ni<0||ni>=_slides.length) return; [_slides[i],_slides[ni]]=[_slides[ni],_slides[i]]; _activeSlide=ni; renderSlides(); draw(_activeSlide); }
-function navSlide(d){ const ni=_activeSlide+d; if(ni<0||ni>=_slides.length) return; selectSlide(ni); }
-function updateNav(){ const p=document.getElementById('prevBtn'),n=document.getElementById('nextBtn'),c=document.getElementById('slideCounter'); if(p) p.disabled=_activeSlide===0||_playing; if(n) n.disabled=_activeSlide===_slides.length-1||_playing; if(c) c.textContent=`Slide ${_activeSlide+1} of ${_slides.length}`; }
-
-// ── PLAY PREVIEW ─────────────────────────────────────────────────────────────
+function selectSlide(i){_activeSlide=i;renderSlides();draw(i);updateNav();}
+function changeType(i,t){_slides[i].type=t;draw(_activeSlide);}
+function updateHead(i,v){_slides[i].headline=v.replace(/\|/g,'\n');draw(_activeSlide);}
+function updateSub(i,v){_slides[i].sub=v;draw(_activeSlide);}
+function addSlide(){_slides.push({type:'point',headline:'NEW SLIDE',sub:''});_activeSlide=_slides.length-1;renderSlides();draw(_activeSlide);}
+function delSlide(i,e){e.stopPropagation();if(_slides.length<=1){toast('Need at least 1 slide','red');return;}_slides.splice(i,1);if(_activeSlide>=_slides.length)_activeSlide=_slides.length-1;renderSlides();draw(_activeSlide);}
+function moveSlide(i,d,e){e.stopPropagation();const ni=i+d;if(ni<0||ni>=_slides.length)return;[_slides[i],_slides[ni]]=[_slides[ni],_slides[i]];_activeSlide=ni;renderSlides();draw(_activeSlide);}
+function navSlide(d){const ni=_activeSlide+d;if(ni<0||ni>=_slides.length)return;selectSlide(ni);}
+function updateNav(){
+    const p=document.getElementById('prevBtn'),n=document.getElementById('nextBtn'),c=document.getElementById('slideCounter');
+    if(p)p.disabled=_activeSlide===0||_playing;
+    if(n)n.disabled=_activeSlide===_slides.length-1||_playing;
+    if(c)c.textContent=`Slide ${_activeSlide+1} of ${_slides.length}`;
+}
 function buildPlayDots(){
-    const prog=document.getElementById('playProgress');
-    if(!prog) return;
-    prog.innerHTML=_slides.map((_,i)=>`<div class="play-dot ${i===_activeSlide?'active':''}" id="pd_${i}"></div>`).join('');
+    const prog=document.getElementById('playProgress');if(!prog)return;
+    prog.innerHTML=_slides.map((_,i)=>`<div class="play-dot${i===_activeSlide?' active':''}" id="pd_${i}"></div>`).join('');
 }
-
-function updatePlayDots(i){
-    document.querySelectorAll('.play-dot').forEach((d,idx)=>d.classList.toggle('active',idx===i));
-}
-
-function togglePlay(){
-    if(_playing) stopPlay(); else startPlay();
-}
-
+function updatePlayDots(i){document.querySelectorAll('.play-dot').forEach((d,idx)=>d.classList.toggle('active',idx===i));}
+function togglePlay(){if(_playing)stopPlay();else startPlay();}
 function startPlay(){
-    if(_slides.length<2){ toast('Add at least 2 slides to preview','red'); return; }
-    _playing=true;
-    _activeSlide=0;
+    if(_slides.length<2){toast('Add at least 2 slides to preview','red');return;}
+    _playing=true;_activeSlide=0;
     const btn=document.getElementById('playBtn');
-    btn.textContent='⏹ Stop Preview';
-    btn.classList.add('playing');
+    btn.textContent='⏹ Stop Preview';btn.classList.add('playing');
     document.getElementById('playProgress').classList.add('show');
     document.getElementById('prevBtn').disabled=true;
     document.getElementById('nextBtn').disabled=true;
     runPlayStep();
 }
-
 function runPlayStep(){
-    draw(_activeSlide);
-    renderSlides();
-    updatePlayDots(_activeSlide);
+    draw(_activeSlide);renderSlides();updatePlayDots(_activeSlide);
     document.getElementById('slideCounter').textContent=`Slide ${_activeSlide+1} of ${_slides.length}`;
-    const speed=parseInt((document.getElementById('speedSel')||{}).value||1000);
+    const speed=parseInt(document.getElementById('speedSel').value||1000);
     _playTimer=setTimeout(()=>{
-        if(!_playing) return;
+        if(!_playing)return;
         _activeSlide++;
-        if(_activeSlide>=_slides.length){
-            stopPlay();
-        } else {
-            runPlayStep();
-        }
-    }, speed);
+        if(_activeSlide>=_slides.length)stopPlay();
+        else runPlayStep();
+    },speed);
 }
-
 function stopPlay(){
-    _playing=false;
-    if(_playTimer){ clearTimeout(_playTimer); _playTimer=null; }
+    _playing=false;if(_playTimer){clearTimeout(_playTimer);_playTimer=null;}
     const btn=document.getElementById('playBtn');
-    if(btn){ btn.textContent='▶ Play Preview'; btn.classList.remove('playing'); }
-    const prog=document.getElementById('playProgress');
-    if(prog) prog.classList.remove('show');
-    updateNav();
-    draw(_activeSlide);
-    renderSlides();
+    if(btn){btn.textContent='▶ Play Preview';btn.classList.remove('playing');}
+    const prog=document.getElementById('playProgress');if(prog)prog.classList.remove('show');
+    updateNav();draw(_activeSlide);renderSlides();
 }
 
-// ── STYLE ─────────────────────────────────────────────────────────────────────
 function setStyle(name,el){
     _style=name;
     document.querySelectorAll('.style-btn').forEach(b=>b.classList.remove('active'));
     el.classList.add('active');
-    const cc=document.getElementById('ccRow');
-    if(name==='custom') cc.classList.add('show'); else cc.classList.remove('show');
+    document.getElementById('ccRow').classList.toggle('show',name==='custom');
     draw(_activeSlide);
 }
 function updateCustom(){
     const st=STYLES.custom;
-    st.bg=gv('cc_bg'); st.bgGrad=[st.bg,st.bg]; st.hookBg=[st.bg,st.bg]; st.numBg=[st.bg,st.bg]; st.statBg=[st.bg,st.bg];
-    st.headline=gv('cc_head'); st.sub=gv('cc_sub'); st.accent=gv('cc_accent'); st.brand=st.accent; st.brandBg=st.accent+'26';
+    st.bg=gv('cc_bg');st.bgGrad=[st.bg,st.bg];st.hookBg=[st.bg,st.bg];st.numBg=[st.bg,st.bg];st.statBg=[st.bg,st.bg];
+    st.headline=gv('cc_head');st.sub=gv('cc_sub');st.accent=gv('cc_accent');st.brand=st.accent;st.brandBg=st.accent+'26';
     draw(_activeSlide);
 }
-
-// ── BACKGROUND ────────────────────────────────────────────────────────────────
-function setScope(scope,el){ _bgScope=scope; document.querySelectorAll('.scope-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
-function updateOpacity(val){ _bgOpacity=parseInt(val)/100; document.getElementById('opacityVal').textContent=val+'%'; draw(_activeSlide); }
-
-function quickSearch(q,el){
-    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active-cat'));
-    el.classList.add('active-cat');
-    document.getElementById('unsplashQ').value=q;
-    searchUnsplash();
-}
+function setScope(scope,el){_bgScope=scope;document.querySelectorAll('.scope-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function updateOpacity(val){_bgOpacity=parseInt(val)/100;document.getElementById('opacityVal').textContent=val+'%';draw(_activeSlide);}
+function quickSearch(q,el){document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active-cat'));el.classList.add('active-cat');document.getElementById('unsplashQ').value=q;searchUnsplash();}
 
 async function searchUnsplash(){
-    const q=(document.getElementById('unsplashQ')||{}).value||'truck';
+    const q=document.getElementById('unsplashQ').value||'truck';
     const res=document.getElementById('unsplashResults');
     res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:11px;padding:4px 0;">Searching...</div>';
     try{
         const r=await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=10&orientation=portrait&client_id=${UNSPLASH_KEY}`);
         const data=await r.json();
-        if(!data.results||!data.results.length){ res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:11px;">No results.</div>'; return; }
-        res.innerHTML=data.results.map(p=>`<div class="thumb" id="uth_${p.id}" onclick="applyPhoto('${p.urls.regular}','${p.id}')" title="${p.alt_description||p.user.name}" style="background-image:url(${p.urls.thumb});background-size:cover;background-position:center;"></div>`).join('');
-    }catch(e){ res.innerHTML='<div style="grid-column:1/-1;color:#f87171;font-size:11px;">Search failed.</div>'; }
+        if(!data.results||!data.results.length){res.innerHTML='<div style="grid-column:1/-1;color:#64748b;font-size:11px;">No results.</div>';return;}
+        res.innerHTML=data.results.map(p=>`<div class="thumb" id="uth_${p.id}" onclick="applyPhoto('${p.urls.regular}','${p.id}')" style="background-image:url(${p.urls.thumb});background-size:cover;background-position:center;" title="${escHtml(p.alt_description||p.user.name)}"></div>`).join('');
+    }catch(e){res.innerHTML='<div style="grid-column:1/-1;color:#f87171;font-size:11px;">Search failed.</div>';}
 }
 
 function applyPhoto(url,id){
     _activeIllus='unsplash_'+id;
     document.querySelectorAll('#svgGrid .thumb').forEach(t=>t.classList.remove('active-thumb'));
     document.querySelectorAll('#unsplashResults .thumb').forEach(t=>t.classList.remove('active-thumb'));
-    const el=document.getElementById('uth_'+id);
-    if(el) el.classList.add('active-thumb');
-    const img=new Image(); img.crossOrigin='anonymous';
-    img.onload=()=>{ if(_bgScope==='all'){ _allPhoto=img; _slidePhotos={}; } else { _slidePhotos[_activeSlide]=img; _allPhoto=null; } draw(_activeSlide); };
+    const el=document.getElementById('uth_'+id);if(el)el.classList.add('active-thumb');
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=()=>{
+        if(_bgScope==='all'){_allPhoto=img;_slidePhotos={};}
+        else{_slidePhotos[_activeSlide]=img;_allPhoto=null;}
+        draw(_activeSlide);
+    };
     img.onerror=()=>toast('Could not load photo','red');
     img.src=url;
 }
 
+const SVG_IDS=['none','big_rig','convoy','fuel_pump','driver_wheel','speed_lines','data_chart','road_ahead','tyre_track','warning_r','sa_routes'];
+const SVG_LABELS={none:'None',big_rig:'Big Rig',convoy:'Convoy',fuel_pump:'Fuel Pump',driver_wheel:'At The Wheel',speed_lines:'Speed Lines',data_chart:'Data Chart',road_ahead:'Road Ahead',tyre_track:'Tyre Track',warning_r:'Warning R',sa_routes:'SA Routes'};
+
 function buildSvgGrid(){
     const grid=document.getElementById('svgGrid');
-    grid.innerHTML=SVG_ILLUS.map(il=>{
-        if(il.id==='none') return `<div class="thumb thumb-none active-thumb" id="svg_none" onclick="applyIllus('none')" title="No background">🚫<div class="thumb-label">None</div></div>`;
-        return `<div class="thumb" id="svg_${il.id}" onclick="applyIllus('${il.id}')" title="${il.label}"><svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">${getSvgThumb(il.id)}</svg><div class="thumb-label">${il.label}</div></div>`;
+    grid.innerHTML=SVG_IDS.map(id=>{
+        if(id==='none')return`<div class="thumb thumb-none active-thumb" id="svg_none" onclick="applyIllus('none')" title="No illustration" style="flex-direction:column;gap:2px;"><span style="font-size:18px;">🚫</span><div class="thumb-label">None</div></div>`;
+        return`<div class="thumb" id="svg_${id}" onclick="applyIllus('${id}')" title="${SVG_LABELS[id]}"><svg viewBox="0 0 108 192" xmlns="http://www.w3.org/2000/svg" style="background:#0a0a14;">${getSvgThumb(id)}</svg><div class="thumb-label">${SVG_LABELS[id]}</div></div>`;
     }).join('');
 }
 
 function applyIllus(id){
-    _activeIllus=id; _allPhoto=null;
-    if(_bgScope==='all') _slidePhotos={};
-    else _slidePhotos[_activeSlide]=null;
+    _activeIllus=id;_allPhoto=null;
+    if(_bgScope==='all')_slidePhotos={};else _slidePhotos[_activeSlide]=null;
     document.querySelectorAll('#unsplashResults .thumb').forEach(t=>t.classList.remove('active-thumb'));
-    highlightSvg(id);
-    draw(_activeSlide);
+    highlightSvg(id);draw(_activeSlide);
 }
-
 function highlightSvg(id){
     document.querySelectorAll('#svgGrid .thumb').forEach(t=>t.classList.remove('active-thumb'));
-    const el=document.getElementById('svg_'+id);
-    if(el) el.classList.add('active-thumb');
+    const el=document.getElementById('svg_'+id);if(el)el.classList.add('active-thumb');
 }
-
-// ── CANVAS DRAW ───────────────────────────────────────────────────────────────
+// ── Canvas draw ────────────────────────────────────────────────────────────
 function draw(idx){
-    if(!_canvas||!_ctx) return;
-    const sl=_slides[idx]; if(!sl) return;
-    const st=STYLES[_style], ctx=_ctx, W=RB_W, H=RB_H;
+    if(!_canvas||!_ctx)return;
+    const sl=_slides[idx];if(!sl)return;
+    const st=STYLES[_style],ctx=_ctx,W=RB_W,H=RB_H;
     ctx.clearRect(0,0,W,H);
     let bgC=st.bgGrad||[st.bg,st.bg];
-    if(sl.type==='hook'||sl.type==='cta')  bgC=st.hookBg||bgC;
-    else if(sl.type==='numbers')            bgC=st.numBg||bgC;
-    else if(sl.type==='stat')               bgC=st.statBg||bgC;
-    const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,bgC[0]); g.addColorStop(1,bgC[1]);
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    if(sl.type==='hook'||sl.type==='cta')bgC=st.hookBg||bgC;
+    else if(sl.type==='numbers')bgC=st.numBg||bgC;
+    else if(sl.type==='stat')bgC=st.statBg||bgC;
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,bgC[0]);g.addColorStop(1,bgC[1]);
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // Photo background
     const photo=_allPhoto||_slidePhotos[idx];
     if(photo){
-        ctx.save(); ctx.globalAlpha=_bgOpacity;
-        const ir=photo.width/photo.height, cr=W/H;
+        ctx.save();ctx.globalAlpha=_bgOpacity;
+        const ir=photo.width/photo.height,cr=W/H;
         let sw,sh,sx=0,sy=0;
-        if(ir>cr){ sh=photo.height; sw=sh*cr; sx=(photo.width-sw)/2; }
-        else      { sw=photo.width; sh=sw/cr; sy=(photo.height-sh)/2; }
+        if(ir>cr){sh=photo.height;sw=sh*cr;sx=(photo.width-sw)/2;}
+        else{sw=photo.width;sh=sw/cr;sy=(photo.height-sh)/2;}
         ctx.drawImage(photo,sx,sy,sw,sh,0,0,W,H);
-        ctx.globalAlpha=Math.min(_bgOpacity*2.2,0.7); ctx.fillStyle=bgC[0]; ctx.fillRect(0,0,W,H);
+        ctx.globalAlpha=Math.min(_bgOpacity*2.5,0.72);
+        ctx.fillStyle=bgC[0];ctx.fillRect(0,0,W,H);
         ctx.restore();
     }
-    if(!photo && _activeIllus && _activeIllus!=='none' && !_activeIllus.startsWith('unsplash_')){
-        drawIllus(ctx, _activeIllus, W, H, st.accent, _bgOpacity);
+    // SVG illustration
+    if(!photo&&_activeIllus&&_activeIllus!=='none'&&!_activeIllus.startsWith('unsplash_')){
+        drawIllus(ctx,_activeIllus,W,H,st.accent,_bgOpacity);
     }
-    ctx.strokeStyle='rgba(255,255,255,0.02)'; ctx.lineWidth=1;
-    for(let gx=0;gx<W;gx+=120){ ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke(); }
-    for(let gy=0;gy<H;gy+=120){ ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke(); }
-    if(st.accentLine){ ctx.fillStyle=st.accent; ctx.fillRect(0,0,14,H); }
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,0,W-14,110);
-    ctx.fillStyle=st.brand; ctx.font="900 38px 'Outfit',Arial,sans-serif"; ctx.textAlign='left';
+    // Grid lines
+    ctx.strokeStyle='rgba(255,255,255,0.02)';ctx.lineWidth=1;
+    for(let gx=0;gx<W;gx+=120){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+    for(let gy=0;gy<H;gy+=120){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+    // Left accent bar
+    ctx.fillStyle=st.accent;ctx.fillRect(0,0,14,H);
+    // Header band
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)';ctx.fillRect(14,0,W-14,110);
+    ctx.fillStyle=st.brand;
+    ctx.font="900 38px 'Outfit',Arial,sans-serif";ctx.textAlign='left';
     ctx.fillText('DYNAMIC FLEET REPORTING',60,72);
+    // Slide type badge
     const badges={hook:'🪝 HOOK',stat:'📊 STAT',numbers:'🔢 NUMBERS',point:'💡 KEY POINT',proof:'✅ PROOF',cta:'📣 CALL TO ACTION'};
-    ctx.font="900 30px 'Outfit',Arial,sans-serif"; ctx.fillStyle=st.accent;
+    ctx.font="900 30px 'Outfit',Arial,sans-serif";ctx.fillStyle=st.accent;
     ctx.fillText(badges[sl.type]||sl.type.toUpperCase(),60,170);
-    ctx.font="700 28px 'Outfit',Arial,sans-serif"; ctx.fillStyle='rgba(255,255,255,0.2)';
-    ctx.textAlign='right'; ctx.fillText(`${idx+1} / ${_slides.length}`,W-50,170); ctx.textAlign='left';
-    ctx.strokeStyle=st.accent; ctx.lineWidth=4;
-    ctx.beginPath(); ctx.moveTo(60,200); ctx.lineTo(W-60,200); ctx.stroke();
+    // Slide counter
+    ctx.font="700 28px 'Outfit',Arial,sans-serif";ctx.fillStyle='rgba(255,255,255,0.2)';ctx.textAlign='right';
+    ctx.fillText(`${idx+1} / ${_slides.length}`,W-50,170);ctx.textAlign='left';
+    // Divider line
+    ctx.strokeStyle=st.accent;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(60,200);ctx.lineTo(W-60,200);ctx.stroke();
+    // Headline
     const hLines=sl.headline?sl.headline.split('\n'):[''];
-    const hs=hLines.length>3?120:hLines.length>2?140:160;
-    ctx.fillStyle=st.headline; ctx.textAlign='left';
+    const baseFS=hLines.length>3?100:hLines.length>2?130:150;
+    ctx.fillStyle=st.headline;
     let hy=sl.sub?H*0.36:H*0.44;
-    hLines.forEach(line=>{ let fs=hs; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`; while(ctx.measureText(line).width>W-120&&fs>60){ fs-=4; ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`; } ctx.fillText(line,60,hy); hy+=fs*1.2; });
-    if(sl.sub){ const sLines=sl.sub.split('\n'); let sy=hy+60; ctx.fillStyle=st.sub; sLines.forEach(line=>{ let fs=52; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`; while(ctx.measureText(line).width>W-120&&fs>32){ fs-=2; ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`; } ctx.fillText(line,60,sy); sy+=fs*1.4; }); }
-    if(sl.type==='cta'){ ctx.fillStyle=st.accent; ctx.font="900 56px 'Outfit',Arial,sans-serif"; ctx.fillText('083 314 9592',60,H-220); ctx.fillStyle=st.sub; ctx.font="600 40px 'Outfit',Arial,sans-serif"; ctx.fillText('dynamicfleetreports@gmail.com',60,H-155); }
-    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)'; ctx.fillRect(14,H-100,W-14,100);
-    ctx.fillStyle=st.brand; ctx.font="700 34px 'Outfit',Arial,sans-serif";
+    hLines.forEach(line=>{
+        let fs=baseFS;
+        ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`;
+        while(ctx.measureText(line).width>W-130&&fs>60){fs-=4;ctx.font=`900 ${fs}px 'Outfit',Arial,sans-serif`;}
+        ctx.fillText(line,60,hy);hy+=fs*1.2;
+    });
+    // Sub text
+    if(sl.sub){
+        const sLines=sl.sub.split('\n');let sy2=hy+60;
+        ctx.fillStyle=st.sub;
+        sLines.forEach(line=>{
+            let fs=50;
+            ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`;
+            while(ctx.measureText(line).width>W-130&&fs>28){fs-=2;ctx.font=`600 ${fs}px 'Outfit',Arial,sans-serif`;}
+            ctx.fillText(line,60,sy2);sy2+=fs*1.4;
+        });
+    }
+    // CTA extras
+    if(sl.type==='cta'){
+        ctx.fillStyle=st.accent;ctx.font="900 56px 'Outfit',Arial,sans-serif";
+        ctx.fillText('083 314 9592',60,H-220);
+        ctx.fillStyle=st.sub;ctx.font="600 40px 'Outfit',Arial,sans-serif";
+        ctx.fillText('dynamicfleetreports@gmail.com',60,H-155);
+    }
+    // Footer band
+    ctx.fillStyle=st.brandBg||'rgba(16,185,129,0.12)';ctx.fillRect(14,H-100,W-14,100);
+    ctx.fillStyle=st.brand;ctx.font="700 34px 'Outfit',Arial,sans-serif";
     ctx.fillText('DFR · 083 314 9592 · Free Fleet Audit',60,H-38);
 }
 
-// ── SVG ILLUSTRATIONS — full canvas draw ─────────────────────────────────────
+// ── SVG illustration drawer ────────────────────────────────────────────────
 function drawIllus(ctx,id,W,H,color,op){
-    ctx.save(); ctx.globalAlpha=op;
+    ctx.save();ctx.globalAlpha=op;
     const s=W/1080;
-    const rr=(x,y,w,h,r=0)=>{ ctx.beginPath(); if(r){ ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); } else { ctx.rect(x,y,w,h); } ctx.closePath(); ctx.fill(); };
-    const wheel=(cx,cy,r)=>{ ctx.fillStyle='#0a0a14'; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=5*s; ctx.beginPath(); ctx.arc(cx,cy,r*0.82,0,Math.PI*2); ctx.stroke(); ctx.lineWidth=3*s; ctx.globalAlpha=op*0.5; ctx.beginPath(); ctx.arc(cx,cy,r*0.55,0,Math.PI*2); ctx.stroke(); ctx.globalAlpha=op; ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,r*0.2,0,Math.PI*2); ctx.fill(); [0,60,120,180,240,300].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx+Math.cos(a*Math.PI/180)*r*0.22,cy+Math.sin(a*Math.PI/180)*r*0.22); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*r*0.53,cy+Math.sin(a*Math.PI/180)*r*0.53); ctx.stroke(); }); };
-
-    ctx.fillStyle=color; ctx.strokeStyle=color;
-
+    const fillRect=(x,y,w,h,r=0)=>{
+        if(r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}else{ctx.rect(x,y,w,h);}ctx.fill();
+    };
+    const wheel=(cx,cy,r)=>{
+        ctx.fillStyle='rgba(0,0,0,0.5)';ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle=color;ctx.lineWidth=5*s;ctx.beginPath();ctx.arc(cx,cy,r*0.82,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle=color;ctx.beginPath();ctx.arc(cx,cy,r*0.18,0,Math.PI*2);ctx.fill();
+        ctx.lineWidth=3*s;[0,60,120,180,240,300].forEach(a=>{ctx.beginPath();ctx.moveTo(cx+Math.cos(a*Math.PI/180)*r*0.2,cy+Math.sin(a*Math.PI/180)*r*0.2);ctx.lineTo(cx+Math.cos(a*Math.PI/180)*r*0.52,cy+Math.sin(a*Math.PI/180)*r*0.52);ctx.stroke();});
+    };
+    ctx.fillStyle=color;ctx.strokeStyle=color;
     if(id==='big_rig'){
-        // Full large semi truck filling the frame — cab + trailer
-        const ty=H*0.38, cab_x=W*0.52, cab_w=W*0.44, cab_h=H*0.22;
-        const tr_x=W*0.04, tr_w=W*0.5, tr_h=H*0.18, tr_y=ty+H*0.02;
-        // Trailer
-        ctx.fillStyle=color; rr(tr_x,tr_y,tr_w,tr_h,8*s);
-        // Trailer panels
-        ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=3*s;
-        for(let i=1;i<5;i++){ ctx.beginPath(); ctx.moveTo(tr_x+i*(tr_w/5),tr_y+6*s); ctx.lineTo(tr_x+i*(tr_w/5),tr_y+tr_h-6*s); ctx.stroke(); }
-        ctx.fillStyle='rgba(255,255,255,0.12)'; rr(tr_x+4*s,tr_y+4*s,tr_w-8*s,6*s,2*s); rr(tr_x+4*s,tr_y+tr_h-10*s,tr_w-8*s,6*s,2*s);
-        // Cab
-        ctx.fillStyle=color; rr(cab_x,ty,cab_w,cab_h,16*s);
-        // Windscreen
-        ctx.fillStyle='rgba(255,255,255,0.14)'; rr(cab_x+W*0.04,ty+H*0.015,cab_w-W*0.08,H*0.075,10*s);
-        // Bumper
-        ctx.fillStyle=color; rr(cab_x,ty+cab_h-H*0.025,cab_w,H*0.04,6*s);
-        // Lights
-        ctx.fillStyle='rgba(255,255,255,0.7)'; rr(cab_x+W*0.03,ty+H*0.012,W*0.06,H*0.022,4*s); rr(cab_x+cab_w-W*0.09,ty+H*0.012,W*0.06,H*0.022,4*s);
-        // Exhaust pipes
-        ctx.fillStyle=color; rr(cab_x+W*0.04,ty-H*0.12,W*0.022,H*0.12,4*s); rr(cab_x+W*0.08,ty-H*0.09,W*0.022,H*0.09,4*s);
-        // Ground shadow
-        ctx.globalAlpha=op*0.18; ctx.fillStyle=color; rr(W*0.04,ty+cab_h+H*0.045,W*0.92,H*0.008,4*s);
-        ctx.globalAlpha=op;
-        // Wheels
-        const wr=H*0.052;
-        wheel(tr_x+tr_w*0.15, tr_y+tr_h+wr*0.02, wr);
-        wheel(tr_x+tr_w*0.32, tr_y+tr_h+wr*0.02, wr);
-        wheel(cab_x+cab_w*0.25, ty+cab_h+wr*0.02, wr);
-        wheel(cab_x+cab_w*0.78, ty+cab_h+wr*0.02, wr);
-
-    } else if(id==='convoy'){
-        // 3 trucks in a diagonal convoy formation
-        const trucks=[
-            {x:W*0.06, y:H*0.32, sc:0.95},
-            {x:W*0.22, y:H*0.48, sc:0.75},
-            {x:W*0.38, y:H*0.60, sc:0.58}
-        ];
+        const ty=H*0.38,cx=W*0.52,cw=W*0.44,ch=H*0.22,tx=W*0.04,tw=W*0.5,th=H*0.18,tr_y=ty+H*0.02;
+        fillRect(tx,tr_y,tw,th,8*s);
+        ctx.strokeStyle='rgba(0,0,0,0.2)';ctx.lineWidth=2*s;
+        for(let i=1;i<5;i++){ctx.beginPath();ctx.moveTo(tx+i*(tw/5),tr_y+6*s);ctx.lineTo(tx+i*(tw/5),tr_y+th-6*s);ctx.stroke();}
+        ctx.fillStyle=color;fillRect(cx,ty,cw,ch,16*s);
+        ctx.fillStyle='rgba(255,255,255,0.15)';fillRect(cx+W*0.04,ty+H*0.015,cw-W*0.08,H*0.075,10*s);
+        ctx.fillStyle='rgba(255,255,255,0.7)';fillRect(cx+W*0.03,ty+H*0.012,W*0.06,H*0.022,4*s);fillRect(cx+cw-W*0.09,ty+H*0.012,W*0.06,H*0.022,4*s);
+        ctx.fillStyle=color;fillRect(cx+W*0.04,ty-H*0.12,W*0.022,H*0.12,4*s);fillRect(cx+W*0.08,ty-H*0.09,W*0.022,H*0.09,4*s);
+        const wr=H*0.052;wheel(tx+tw*0.15,tr_y+th+wr*0.04,wr);wheel(tx+tw*0.32,tr_y+th+wr*0.04,wr);wheel(cx+cw*0.25,ty+ch+wr*0.04,wr);wheel(cx+cw*0.78,ty+ch+wr*0.04,wr);
+    }else if(id==='convoy'){
+        const trucks=[{x:W*0.06,y:H*0.32,sc:0.95},{x:W*0.22,y:H*0.48,sc:0.75},{x:W*0.38,y:H*0.60,sc:0.58}];
         trucks.forEach(t=>{
-            const tw=W*0.72*t.sc, th=H*0.14*t.sc, tx=t.x, ty=t.y;
-            ctx.fillStyle=color; rr(tx,ty,tw*0.6,th,8*s*t.sc);
-            ctx.fillStyle='rgba(255,255,255,0.09)'; rr(tx+tw*0.61,ty,tw*0.39,th,10*s*t.sc);
-            ctx.fillStyle='rgba(255,255,255,0.15)'; rr(tx+tw*0.68,ty+th*0.1,tw*0.26,th*0.5,5*s*t.sc);
-            const wr=th*0.35*t.sc;
-            ctx.fillStyle=color; wheel(tx+tw*0.13,ty+th+wr*0.05,wr); wheel(tx+tw*0.3,ty+th+wr*0.05,wr); wheel(tx+tw*0.78,ty+th+wr*0.05,wr);
+            const tw=W*0.72*t.sc,th=H*0.14*t.sc;
+            ctx.fillStyle=color;fillRect(t.x,t.y,tw*0.6,th,8*s*t.sc);
+            ctx.fillStyle='rgba(255,255,255,0.1)';fillRect(t.x+tw*0.61,t.y,tw*0.39,th,10*s*t.sc);
+            ctx.fillStyle='rgba(255,255,255,0.16)';fillRect(t.x+tw*0.68,t.y+th*0.1,tw*0.26,th*0.5,5*s*t.sc);
+            const wr=th*0.35*t.sc;ctx.fillStyle=color;wheel(t.x+tw*0.13,t.y+th+wr*0.05,wr);wheel(t.x+tw*0.3,t.y+th+wr*0.05,wr);wheel(t.x+tw*0.78,t.y+th+wr*0.05,wr);
         });
-        // Road line
-        ctx.globalAlpha=op*0.2; ctx.fillStyle=color; rr(0,H*0.78,W,H*0.01,0);
-
-    } else if(id==='fuel_pump'){
-        // Large fuel pump with price display
-        const px=W*0.25, py=H*0.22, pw=W*0.5, ph=H*0.5;
-        ctx.fillStyle=color; rr(px,py,pw,ph,18*s);
-        // Screen
-        ctx.fillStyle='rgba(0,0,0,0.6)'; rr(px+pw*0.1,py+ph*0.08,pw*0.8,ph*0.28,10*s);
-        // Price display
-        ctx.fillStyle=color; ctx.font=`900 ${62*s}px Arial,sans-serif`; ctx.textAlign='center';
-        ctx.fillText('R26',px+pw*0.5,py+ph*0.27);
-        ctx.font=`700 ${28*s}px Arial,sans-serif`; ctx.fillStyle='rgba(255,255,255,0.5)';
-        ctx.fillText('/litre',px+pw*0.5,py+ph*0.38);
-        // Nozzle
-        ctx.strokeStyle=color; ctx.lineWidth=14*s; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(px+pw*0.85,py+ph*0.35); ctx.quadraticCurveTo(px+pw*1.1,py+ph*0.5,px+pw*0.95,py+ph*0.72); ctx.stroke();
-        ctx.fillStyle=color; rr(px+pw*0.9,py+ph*0.7,pw*0.12,ph*0.06,5*s);
-        // Pump base
-        ctx.fillStyle=color; rr(px-pw*0.06,py+ph,pw*1.12,ph*0.08,8*s);
-        // Up arrow (price going up)
-        ctx.globalAlpha=op*0.6; ctx.fillStyle=color;
-        ctx.beginPath(); ctx.moveTo(px+pw*0.5,py-H*0.05); ctx.lineTo(px+pw*0.36,py-H*0.02); ctx.lineTo(px+pw*0.64,py-H*0.02); ctx.fill();
-        ctx.lineCap='butt'; ctx.textAlign='left';
-
-    } else if(id==='driver_wheel'){
-        // POV steering wheel + driver silhouette
-        const cx=W*0.5, cy=H*0.52;
-        // Driver silhouette (head + shoulders)
-        ctx.globalAlpha=op*0.35;
-        ctx.fillStyle=color;
-        ctx.beginPath(); ctx.arc(cx,H*0.28,W*0.1,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(cx-W*0.22,H*0.55); ctx.quadraticCurveTo(cx,H*0.32,cx+W*0.22,H*0.55); ctx.fill();
+    }else if(id==='fuel_pump'){
+        const px=W*0.25,py=H*0.22,pw=W*0.5,ph=H*0.5;
+        fillRect(px,py,pw,ph,18*s);
+        ctx.fillStyle='rgba(0,0,0,0.6)';fillRect(px+pw*0.1,py+ph*0.08,pw*0.8,ph*0.28,10*s);
+        ctx.fillStyle=color;ctx.font=`900 ${62*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText('R26',px+pw*0.5,py+ph*0.27);
+        ctx.font=`700 ${28*s}px Arial,sans-serif`;ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fillText('/litre',px+pw*0.5,py+ph*0.38);
+        ctx.strokeStyle=color;ctx.lineWidth=14*s;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(px+pw*0.85,py+ph*0.35);ctx.quadraticCurveTo(px+pw*1.1,py+ph*0.5,px+pw*0.95,py+ph*0.72);ctx.stroke();
+        ctx.fillStyle=color;fillRect(px+pw*0.9,py+ph*0.7,pw*0.12,ph*0.06,5*s);fillRect(px-pw*0.06,py+ph,pw*1.12,ph*0.08,8*s);
+        ctx.lineCap='butt';ctx.textAlign='left';
+    }else if(id==='driver_wheel'){
+        const cx=W*0.5,cy=H*0.52;
+        ctx.globalAlpha=op*0.3;ctx.fillStyle=color;ctx.beginPath();ctx.arc(cx,H*0.28,W*0.1,0,Math.PI*2);ctx.fill();
+        ctx.beginPath();ctx.moveTo(cx-W*0.22,H*0.55);ctx.quadraticCurveTo(cx,H*0.32,cx+W*0.22,H*0.55);ctx.fill();
+        ctx.globalAlpha=op;ctx.strokeStyle=color;ctx.lineWidth=16*s;
+        ctx.beginPath();ctx.arc(cx,cy,W*0.34,0,Math.PI*2);ctx.stroke();
+        ctx.lineWidth=12*s;[90,210,330].forEach(a=>{ctx.beginPath();ctx.moveTo(cx+Math.cos(a*Math.PI/180)*W*0.17,cy+Math.sin(a*Math.PI/180)*W*0.17);ctx.lineTo(cx+Math.cos(a*Math.PI/180)*W*0.34,cy+Math.sin(a*Math.PI/180)*W*0.34);ctx.stroke();});
+        ctx.fillStyle=color;ctx.beginPath();ctx.arc(cx,cy,W*0.09,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(0,0,0,0.4)';ctx.font=`900 ${22*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText('DFR',cx,cy+8*s);ctx.textAlign='left';
+    }else if(id==='speed_lines'){
+        const lines=[{y:0.30,len:0.88,h:0.018,a:0.9},{y:0.36,len:0.7,h:0.013,a:0.7},{y:0.41,len:0.55,h:0.010,a:0.55},{y:0.45,len:0.42,h:0.008,a:0.4},{y:0.48,len:0.32,h:0.006,a:0.3},{y:0.52,len:0.32,h:0.006,a:0.3},{y:0.55,len:0.42,h:0.008,a:0.4},{y:0.59,len:0.55,h:0.010,a:0.55},{y:0.64,len:0.7,h:0.013,a:0.7},{y:0.70,len:0.88,h:0.018,a:0.9}];
+        lines.forEach(l=>{ctx.globalAlpha=op*l.a;fillRect(W*0.15,H*l.y,W*l.len,H*l.h,4*s);});
+        ctx.globalAlpha=op;fillRect(0,H*0.44,W*0.12,H*0.12,6*s);ctx.fillStyle='rgba(255,255,255,0.1)';fillRect(W*0.12,H*0.448,W*0.07,H*0.104,6*s);
+        const wr=H*0.03;ctx.fillStyle=color;wheel(W*0.04,H*0.565,wr);wheel(W*0.16,H*0.565,wr);
+    }else if(id==='data_chart'){
+        const bx=W*0.1,by=H*0.28,bw=W*0.8,bh=H*0.42;
+        ctx.strokeStyle=color;ctx.lineWidth=2*s;
+        for(let i=0;i<=4;i++){ctx.globalAlpha=op*0.15;ctx.beginPath();ctx.moveTo(bx,by+bh*(i/4));ctx.lineTo(bx+bw,by+bh*(i/4));ctx.stroke();}
         ctx.globalAlpha=op;
-        // Steering wheel rim
-        ctx.strokeStyle=color; ctx.lineWidth=16*s; ctx.beginPath(); ctx.arc(cx,cy,W*0.34,0,Math.PI*2); ctx.stroke();
-        // Inner ring
-        ctx.lineWidth=5*s; ctx.globalAlpha=op*0.4; ctx.beginPath(); ctx.arc(cx,cy,W*0.18,0,Math.PI*2); ctx.stroke();
-        ctx.globalAlpha=op;
-        // Spokes
-        ctx.lineWidth=12*s;
-        [90,210,330].forEach(a=>{ ctx.beginPath(); ctx.moveTo(cx+Math.cos(a*Math.PI/180)*W*0.18,cy+Math.sin(a*Math.PI/180)*W*0.18); ctx.lineTo(cx+Math.cos(a*Math.PI/180)*W*0.34,cy+Math.sin(a*Math.PI/180)*W*0.34); ctx.stroke(); });
-        // Horn pad
-        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(cx,cy,W*0.09,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.font=`900 ${22*s}px Arial,sans-serif`; ctx.textAlign='center'; ctx.fillText('DFR',cx,cy+8*s); ctx.textAlign='left';
-
-    } else if(id==='speed_lines'){
-        // Bold horizontal speed lines radiating right — energy / urgency
-        const cx=W*0.15, cy=H*0.5;
-        const lines=[
-            {y:0.3,len:0.88,h:0.018,op:0.9},{y:0.36,len:0.7,h:0.013,op:0.7},
-            {y:0.41,len:0.55,h:0.010,op:0.55},{y:0.45,len:0.42,h:0.008,op:0.4},
-            {y:0.48,len:0.32,h:0.006,op:0.3},{y:0.52,len:0.32,h:0.006,op:0.3},
-            {y:0.55,len:0.42,h:0.008,op:0.4},{y:0.59,len:0.55,h:0.010,op:0.55},
-            {y:0.64,len:0.7,h:0.013,op:0.7},{y:0.7,len:0.88,h:0.018,op:0.9}
-        ];
-        lines.forEach(l=>{ ctx.globalAlpha=op*l.op; ctx.fillStyle=color; rr(cx,H*l.y,W*l.len,H*l.h,4*s); });
-        ctx.globalAlpha=op;
-        // Small truck silhouette at left edge
-        ctx.fillStyle=color; rr(0,H*0.44,W*0.12,H*0.12,6*s);
-        ctx.fillStyle='rgba(255,255,255,0.1)'; rr(W*0.12,H*0.448,W*0.07,H*0.104,6*s);
-        const wr=H*0.03; wheel(W*0.04,H*0.565,wr); wheel(W*0.16,H*0.565,wr);
-
-    } else if(id==='data_chart'){
-        // Bar chart showing fleet efficiency — data-driven feel
-        const bx=W*0.1, by=H*0.28, bw=W*0.8, bh=H*0.42;
-        // Grid lines
-        ctx.strokeStyle=color; ctx.lineWidth=2*s;
-        for(let i=0;i<=4;i++){
-            ctx.globalAlpha=op*0.15; ctx.beginPath();
-            ctx.moveTo(bx,by+bh*(i/4)); ctx.lineTo(bx+bw,by+bh*(i/4)); ctx.stroke();
-        }
-        ctx.globalAlpha=op;
-        // Bars — 6 drivers, varying heights, last one highlighted (the bad one)
-        const bars=[0.62,0.78,0.71,0.83,0.69,1.0];
-        const barW=bw/7;
+        const bars=[0.62,0.78,0.71,0.83,0.69,1.0];const bw2=bw/7;
         bars.forEach((h,i)=>{
-            const bh2=bh*h, bx2=bx+barW*0.25+i*(barW+barW*0.15), by2=by+bh-bh2;
-            ctx.fillStyle=i===5?'#ef4444':color;
-            ctx.globalAlpha=i===5?op:op*0.7;
-            rr(bx2,by2,barW,bh2,6*s);
-            if(i===5){
-                ctx.globalAlpha=op; ctx.fillStyle='#ef4444';
-                ctx.font=`900 ${28*s}px Arial,sans-serif`; ctx.textAlign='center';
-                ctx.fillText('!',bx2+barW/2,by2-12*s);
-            }
+            const bh2=bh*h,bx2=bx+bw2*0.25+i*(bw2+bw2*0.15),by2=by+bh-bh2;
+            ctx.fillStyle=i===5?'#ef4444':color;ctx.globalAlpha=i===5?op:op*0.7;fillRect(bx2,by2,bw2,bh2,6*s);
+            if(i===5){ctx.globalAlpha=op;ctx.fillStyle='#ef4444';ctx.font=`900 ${28*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText('!',bx2+bw2/2,by2-12*s);}
         });
-        ctx.globalAlpha=op; ctx.textAlign='left';
-        // Axis
-        ctx.strokeStyle=color; ctx.lineWidth=3*s;
-        ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx,by+bh); ctx.lineTo(bx+bw,by+bh); ctx.stroke();
-        // Label
-        ctx.fillStyle=color; ctx.font=`700 ${24*s}px Arial,sans-serif`; ctx.textAlign='center';
-        ctx.fillText('DRIVER FUEL EFFICIENCY',W*0.5,by+bh+H*0.04);
-        ctx.textAlign='left';
-
-    } else if(id==='road_ahead'){
-        // Wide-angle road stretching to vanishing point — perspective
-        const vx=W*0.5, vy=H*0.35;
-        // Sky gradient
-        ctx.globalAlpha=op*0.12;
-        const sky=ctx.createLinearGradient(0,0,0,vy);
-        sky.addColorStop(0,color); sky.addColorStop(1,'transparent');
-        ctx.fillStyle=sky; ctx.fillRect(0,0,W,vy);
+        ctx.globalAlpha=op;ctx.strokeStyle=color;ctx.lineWidth=3*s;ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(bx,by+bh);ctx.lineTo(bx+bw,by+bh);ctx.stroke();
+        ctx.fillStyle=color;ctx.font=`700 ${24*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText('DRIVER FUEL EFFICIENCY',W*0.5,by+bh+H*0.04);ctx.textAlign='left';
+    }else if(id==='road_ahead'){
+        const vx=W*0.5,vy=H*0.35;
+        ctx.globalAlpha=op*0.12;const sky=ctx.createLinearGradient(0,0,0,vy);sky.addColorStop(0,color);sky.addColorStop(1,'transparent');ctx.fillStyle=sky;ctx.fillRect(0,0,W,vy);
+        ctx.globalAlpha=op*0.15;ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(W,H);ctx.lineTo(vx+W*0.04,vy);ctx.lineTo(vx-W*0.04,vy);ctx.fill();
+        ctx.globalAlpha=op;ctx.strokeStyle=color;ctx.lineWidth=6*s;
+        ctx.beginPath();ctx.moveTo(W*0.05,H);ctx.lineTo(vx-W*0.02,vy);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(W*0.95,H);ctx.lineTo(vx+W*0.02,vy);ctx.stroke();
+        for(let i=0;i<6;i++){const t=i/6,t2=(i+0.4)/6,y1=vy+(H-vy)*t,y2=vy+(H-vy)*t2,xw=W*0.025*(1-t*0.7);ctx.globalAlpha=op*(0.3+t*0.5);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(vx-xw,y1);ctx.lineTo(vx+xw,y1);ctx.lineTo(vx+xw,y2);ctx.lineTo(vx-xw,y2);ctx.fill();}
         ctx.globalAlpha=op;
-        // Road surface
-        ctx.fillStyle=color; ctx.globalAlpha=op*0.18;
-        ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(W,H); ctx.lineTo(vx+W*0.04,vy); ctx.lineTo(vx-W*0.04,vy); ctx.fill();
-        ctx.globalAlpha=op;
-        // Road edge lines
-        ctx.strokeStyle=color; ctx.lineWidth=6*s;
-        ctx.beginPath(); ctx.moveTo(W*0.05,H); ctx.lineTo(vx-W*0.02,vy); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(W*0.95,H); ctx.lineTo(vx+W*0.02,vy); ctx.stroke();
-        // Centre dashes — perspective scaled
-        for(let i=0;i<6;i++){
-            const t=i/6, t2=(i+0.4)/6;
-            const y1=vy+(H-vy)*t, y2=vy+(H-vy)*t2;
-            const x1=vx+(W*0.5-W*0.5*t)*0, xw=(W*0.025)*(1-t*0.7);
-            ctx.globalAlpha=op*(0.3+t*0.5); ctx.fillStyle=color;
-            ctx.beginPath(); ctx.moveTo(vx-xw,y1); ctx.lineTo(vx+xw,y1); ctx.lineTo(vx+xw*(y2/y1),y2); ctx.lineTo(vx-xw*(y2/y1),y2); ctx.fill();
-        }
-        ctx.globalAlpha=op;
-        // Sun/glow at horizon
-        ctx.globalAlpha=op*0.25; const sun=ctx.createRadialGradient(vx,vy,0,vx,vy,W*0.3);
-        sun.addColorStop(0,color); sun.addColorStop(1,'transparent');
-        ctx.fillStyle=sun; ctx.fillRect(0,0,W,H); ctx.globalAlpha=op;
-
-    } else if(id==='tyre_track'){
-        // Tyre tread pattern as bold repeating motif
-        const tw=W*0.18, th=H*0.06, gap=H*0.025;
-        const cols=3, rows=12;
-        for(let row=0;row<rows;row++){
-            for(let col=0;col<cols;col++){
-                const offset=(row%2)*W*0.28;
-                const tx2=W*0.08+col*(W*0.3)+offset;
-                const ty2=H*0.05+row*(th+gap);
-                if(tx2+tw>W+tw*0.5) continue;
-                ctx.globalAlpha=op*(0.15+((rows-row)/rows)*0.7);
-                ctx.fillStyle=color; rr(tx2,ty2,tw,th,8*s);
-                // Tread grooves
-                ctx.fillStyle='rgba(0,0,0,0.3)';
-                rr(tx2+tw*0.15,ty2+th*0.25,tw*0.7,th*0.18,2*s);
-                rr(tx2+tw*0.15,ty2+th*0.57,tw*0.7,th*0.18,2*s);
-            }
-        }
-        ctx.globalAlpha=op;
-
-    } else if(id==='warning_r'){
-        // Bold R (Rand) with up arrow — the cost is going UP
-        // Background circle
-        ctx.globalAlpha=op*0.1; ctx.fillStyle=color;
-        ctx.beginPath(); ctx.arc(W*0.5,H*0.45,W*0.42,0,Math.PI*2); ctx.fill();
-        ctx.globalAlpha=op*0.2; ctx.beginPath(); ctx.arc(W*0.5,H*0.45,W*0.32,0,Math.PI*2); ctx.fill();
-        ctx.globalAlpha=op;
-        // Big R
-        ctx.fillStyle=color; ctx.font=`900 ${340*s}px Arial,sans-serif`; ctx.textAlign='center';
-        ctx.fillText('R',W*0.5,H*0.62);
-        // Up arrow overlay
-        ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.font=`900 ${200*s}px Arial,sans-serif`;
-        ctx.fillText('↑',W*0.5,H*0.52);
-        ctx.fillStyle=color; ctx.font=`900 ${180*s}px Arial,sans-serif`;
-        ctx.fillText('↑',W*0.5,H*0.52);
-        ctx.textAlign='left';
-
-    } else if(id==='sa_routes'){
-        // Stylised SA map with route lines between cities
-        ctx.globalAlpha=op*0.22; ctx.fillStyle=color;
-        ctx.beginPath(); ctx.moveTo(W*0.28,H*0.24); ctx.lineTo(W*0.72,H*0.22); ctx.lineTo(W*0.86,H*0.34); ctx.lineTo(W*0.9,H*0.46); ctx.lineTo(W*0.84,H*0.58); ctx.lineTo(W*0.74,H*0.7); ctx.lineTo(W*0.62,H*0.79); ctx.lineTo(W*0.5,H*0.84); ctx.lineTo(W*0.4,H*0.79); ctx.lineTo(W*0.26,H*0.68); ctx.lineTo(W*0.16,H*0.54); ctx.lineTo(W*0.13,H*0.4); ctx.closePath(); ctx.fill();
-        ctx.globalAlpha=op;
-        // Cities (dots)
-        const cities=[
-            {x:0.5,y:0.62,name:'JHB'},{x:0.42,y:0.75,name:'CPT'},
-            {x:0.68,y:0.58,name:'DBN'},{x:0.36,y:0.45,name:'BFN'},
-            {x:0.55,y:0.4,name:'PTB'}
-        ];
-        // Route lines
-        ctx.strokeStyle=color; ctx.lineWidth=4*s; ctx.setLineDash([12*s,8*s]);
-        ctx.globalAlpha=op*0.5;
-        [[0,1],[0,2],[0,3],[0,4],[3,1]].forEach(([a,b])=>{
-            ctx.beginPath(); ctx.moveTo(W*cities[a].x,H*cities[a].y); ctx.lineTo(W*cities[b].x,H*cities[b].y); ctx.stroke();
-        });
-        ctx.setLineDash([]); ctx.globalAlpha=op;
-        cities.forEach((c,i)=>{
-            ctx.fillStyle=i===0?color:'rgba(255,255,255,0.6)';
-            ctx.beginPath(); ctx.arc(W*c.x,H*c.y,i===0?16*s:10*s,0,Math.PI*2); ctx.fill();
-            if(i===0){ ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=3*s; ctx.beginPath(); ctx.arc(W*c.x,H*c.y,24*s,0,Math.PI*2); ctx.stroke(); }
-            ctx.fillStyle=color; ctx.font=`700 ${i===0?24*s:18*s}px Arial,sans-serif`; ctx.textAlign='center';
-            ctx.fillText(c.name,W*c.x,H*c.y-22*s);
-        });
+    }else if(id==='tyre_track'){
+        const tw=W*0.18,th=H*0.06,gap=H*0.025,cols=3,rows=12;
+        for(let row=0;row<rows;row++){for(let col=0;col<cols;col++){
+            const off=(row%2)*W*0.28,tx2=W*0.08+col*(W*0.3)+off,ty2=H*0.05+row*(th+gap);
+            if(tx2+tw>W+tw*0.5)continue;
+            ctx.globalAlpha=op*(0.15+((rows-row)/rows)*0.7);fillRect(tx2,ty2,tw,th,8*s);
+            ctx.fillStyle='rgba(0,0,0,0.3)';fillRect(tx2+tw*0.15,ty2+th*0.25,tw*0.7,th*0.18,2*s);fillRect(tx2+tw*0.15,ty2+th*0.57,tw*0.7,th*0.18,2*s);
+            ctx.fillStyle=color;
+        }}ctx.globalAlpha=op;
+    }else if(id==='warning_r'){
+        ctx.globalAlpha=op*0.08;ctx.fillStyle=color;ctx.beginPath();ctx.arc(W*0.5,H*0.45,W*0.42,0,Math.PI*2);ctx.fill();
+        ctx.globalAlpha=op;ctx.font=`900 ${340*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText('R',W*0.5,H*0.62);
+        ctx.fillStyle='rgba(0,0,0,0.7)';ctx.font=`900 ${180*s}px Arial,sans-serif`;ctx.fillText('↑',W*0.5,H*0.52);
+        ctx.fillStyle=color;ctx.font=`900 ${180*s}px Arial,sans-serif`;ctx.fillText('↑',W*0.5,H*0.52);ctx.textAlign='left';
+    }else if(id==='sa_routes'){
+        ctx.globalAlpha=op*0.2;ctx.fillStyle=color;
+        ctx.beginPath();ctx.moveTo(W*0.28,H*0.24);ctx.lineTo(W*0.72,H*0.22);ctx.lineTo(W*0.86,H*0.34);ctx.lineTo(W*0.9,H*0.46);ctx.lineTo(W*0.84,H*0.58);ctx.lineTo(W*0.74,H*0.7);ctx.lineTo(W*0.62,H*0.79);ctx.lineTo(W*0.5,H*0.84);ctx.lineTo(W*0.4,H*0.79);ctx.lineTo(W*0.26,H*0.68);ctx.lineTo(W*0.16,H*0.54);ctx.lineTo(W*0.13,H*0.4);ctx.closePath();ctx.fill();
+        ctx.globalAlpha=op;ctx.strokeStyle=color;ctx.lineWidth=4*s;ctx.setLineDash([12*s,8*s]);ctx.globalAlpha=op*0.5;
+        const cities=[{x:0.5,y:0.62,name:'JHB'},{x:0.42,y:0.75,name:'CPT'},{x:0.68,y:0.58,name:'DBN'},{x:0.36,y:0.45,name:'BFN'},{x:0.55,y:0.4,name:'PTB'}];
+        [[0,1],[0,2],[0,3],[0,4],[3,1]].forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(W*cities[a].x,H*cities[a].y);ctx.lineTo(W*cities[b].x,H*cities[b].y);ctx.stroke();});
+        ctx.setLineDash([]);ctx.globalAlpha=op;
+        cities.forEach((c,i)=>{ctx.fillStyle=i===0?color:'rgba(255,255,255,0.5)';ctx.beginPath();ctx.arc(W*c.x,H*c.y,i===0?16*s:10*s,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.font=`700 ${i===0?24*s:18*s}px Arial,sans-serif`;ctx.textAlign='center';ctx.fillText(c.name,W*c.x,H*c.y-22*s);});
         ctx.textAlign='left';
     }
     ctx.restore();
 }
 
-// ── SVG THUMBNAILS ────────────────────────────────────────────────────────────
+// ── SVG thumbnail data ─────────────────────────────────────────────────────
 function getSvgThumb(id){
     const c='#10b981';
     const t={
-        big_rig:`<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" x="6" y="70" width="54" height="28" rx="4"/>
-            <rect fill="${c}" opacity=".85" x="60" y="73" width="42" height="25" rx="5"/>
-            <rect fill="rgba(255,255,255,.15)" x="64" y="76" width="34" height="14" rx="3"/>
-            <rect fill="rgba(255,255,255,.7)" x="62" y="74" width="8" height="6" rx="1"/>
-            <rect fill="rgba(255,255,255,.7)" x="88" y="74" width="8" height="6" rx="1"/>
-            <rect fill="${c}" x="8" y="66" width="10" height="3" rx="1"/>
-            <rect fill="${c}" x="14" y="62" width="8" height="3" rx="1"/>
-            <circle fill="#0a0a14" cx="18" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="18" cy="101" r="7"/><circle fill="${c}" cx="18" cy="101" r="2"/>
-            <circle fill="#0a0a14" cx="36" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="36" cy="101" r="7"/><circle fill="${c}" cx="36" cy="101" r="2"/>
-            <circle fill="#0a0a14" cx="76" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="76" cy="101" r="7"/><circle fill="${c}" cx="76" cy="101" r="2"/>
-            <circle fill="#0a0a14" cx="93" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="93" cy="101" r="7"/><circle fill="${c}" cx="93" cy="101" r="2"/>`,
-
-        convoy:`<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" x="4" y="60" width="56" height="18" rx="3"/>
-            <rect fill="${c}" opacity=".8" x="60" y="62" width="28" height="16" rx="3"/>
-            <rect fill="rgba(255,255,255,.12)" x="64" y="64" width="18" height="10" rx="2"/>
-            <circle fill="#0a0a14" cx="14" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="14" cy="81" r="5.5"/><circle fill="${c}" cx="14" cy="81" r="1.5"/>
-            <circle fill="#0a0a14" cx="28" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="28" cy="81" r="5.5"/><circle fill="${c}" cx="28" cy="81" r="1.5"/>
-            <circle fill="#0a0a14" cx="72" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="72" cy="81" r="5.5"/><circle fill="${c}" cx="72" cy="81" r="1.5"/>
-            <rect fill="${c}" opacity=".65" x="16" y="96" width="44" height="15" rx="3"/>
-            <rect fill="${c}" opacity=".55" x="60" y="98" width="22" height="13" rx="3"/>
-            <circle fill="#0a0a14" cx="24" cy="114" r="6"/><circle fill="none" stroke="${c}" stroke-width="2" cx="24" cy="114" r="4.5"/><circle fill="${c}" cx="24" cy="114" r="1.2"/>
-            <circle fill="#0a0a14" cx="68" cy="114" r="6"/><circle fill="none" stroke="${c}" stroke-width="2" cx="68" cy="114" r="4.5"/>
-            <rect fill="${c}" opacity=".4" x="28" y="128" width="32" height="12" rx="2"/>
-            <rect fill="${c}" opacity=".35" x="60" y="130" width="16" height="10" rx="2"/>`,
-
-        fuel_pump:`<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" x="24" y="32" width="56" height="110" rx="8"/>
-            <rect fill="rgba(0,0,0,.6)" x="30" y="42" width="44" height="44" rx="5"/>
-            <text x="52" y="73" text-anchor="middle" fill="${c}" font-size="22" font-weight="900">R26</text>
-            <text x="52" y="84" text-anchor="middle" fill="${c}" font-size="9" opacity=".6">/litre</text>
-            <rect fill="${c}" opacity=".5" x="30" y="94" width="44" height="8" rx="3"/>
-            <rect fill="${c}" opacity=".3" x="30" y="106" width="44" height="8" rx="3"/>
-            <path d="M80 80 Q100 95 90 118" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round"/>
-            <rect fill="${c}" x="86" y="116" width="14" height="8" rx="3"/>
-            <rect fill="${c}" x="16" y="142" width="72" height="10" rx="4"/>
-            <polygon fill="${c}" opacity=".7" points="52,20 42,32 62,32"/>`,
-
-        driver_wheel:`<rect fill="#0a0a14" width="108" height="192"/>
-            <circle fill="${c}" opacity=".2" cx="54" cy="42" r="16"/>
-            <path d="M28 88 Q54 55 80 88" fill="${c}" opacity=".2"/>
-            <circle fill="none" stroke="${c}" stroke-width="6" cx="54" cy="112" r="40"/>
-            <circle fill="none" stroke="${c}" stroke-width="3" opacity=".4" cx="54" cy="112" r="26"/>
-            <line x1="54" y1="86" x2="54" y2="72" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-            <line x1="54" y1="138" x2="54" y2="152" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-            <line x1="28" y1="112" x2="14" y2="112" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-            <circle fill="${c}" cx="54" cy="112" r="10"/>
-            <text x="54" y="116" text-anchor="middle" fill="#0a0a14" font-size="7" font-weight="900">DFR</text>`,
-
-        speed_lines:`<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" opacity=".9" x="16" y="64" width="86" height="9" rx="2"/>
-            <rect fill="${c}" opacity=".7" x="24" y="80" width="70" height="7" rx="2"/>
-            <rect fill="${c}" opacity=".55" x="30" y="93" width="56" height="6" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="36" y="104" width="42" height="5" rx="2"/>
-            <rect fill="${c}" opacity=".3" x="40" y="113" width="32" height="4" rx="2"/>
-            <rect fill="${c}" opacity=".3" x="40" y="121" width="32" height="4" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="36" y="129" width="42" height="5" rx="2"/>
-            <rect fill="${c}" opacity=".55" x="30" y="138" width="56" height="6" rx="2"/>
-            <rect fill="${c}" opacity=".7" x="24" y="150" width="70" height="7" rx="2"/>
-            <rect fill="${c}" opacity=".9" x="16" y="163" width="86" height="9" rx="2"/>
-            <rect fill="${c}" x="2" y="86" width="12" height="44" rx="3"/>
-            <rect fill="${c}" opacity=".7" x="14" y="90" width="6" height="36" rx="2"/>`,
-
-        data_chart:`<rect fill="#0a0a14" width="108" height="192"/>
-            <line x1="16" y1="52" x2="16" y2="142" stroke="${c}" stroke-width="2.5" opacity=".6"/>
-            <line x1="16" y1="142" x2="102" y2="142" stroke="${c}" stroke-width="2.5" opacity=".6"/>
-            <rect fill="${c}" opacity=".6" x="20" y="102" width="11" height="40" rx="2"/>
-            <rect fill="${c}" opacity=".6" x="35" y="82" width="11" height="60" rx="2"/>
-            <rect fill="${c}" opacity=".6" x="50" y="96" width="11" height="46" rx="2"/>
-            <rect fill="${c}" opacity=".6" x="65" y="72" width="11" height="70" rx="2"/>
-            <rect fill="${c}" opacity=".6" x="80" y="89" width="11" height="53" rx="2"/>
-            <rect fill="#ef4444" x="95" y="57" width="11" height="85" rx="2"/>
-            <text x="100" y="52" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="900">!</text>
-            <text x="54" y="158" text-anchor="middle" fill="${c}" font-size="7" font-weight="700" opacity=".6">DRIVER EFFICIENCY</text>`,
-
-        road_ahead:`<rect fill="#0a0a14" width="108" height="192"/>
-            <polygon fill="${c}" opacity=".12" points="0,192 108,192 62,72 46,72"/>
-            <line x1="6" y1="192" x2="48" y2="72" stroke="${c}" stroke-width="3" opacity=".5"/>
-            <line x1="102" y1="192" x2="60" y2="72" stroke="${c}" stroke-width="3" opacity=".5"/>
-            <rect fill="${c}" opacity=".45" x="49" y="90" width="10" height="18" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="49" y="116" width="10" height="14" rx="2"/>
-            <rect fill="${c}" opacity=".4" x="49" y="138" width="10" height="14" rx="2"/>
-            <rect fill="${c}" opacity=".35" x="49" y="158" width="10" height="12" rx="2"/>
-            <circle fill="${c}" opacity=".18" cx="54" cy="68" r="24"/>
-            <circle fill="${c}" opacity=".1" cx="54" cy="68" r="36"/>`,
-
-        tyre_track:`<rect fill="#0a0a14" width="108" height="192"/>
-            <rect fill="${c}" opacity=".8" x="8" y="14" width="36" height="14" rx="4"/>
-            <rect fill="rgba(0,0,0,.3)" x="13" y="18" width="26" height="3" rx="1"/>
-            <rect fill="rgba(0,0,0,.3)" x="13" y="23" width="26" height="3" rx="1"/>
-            <rect fill="${c}" opacity=".8" x="52" y="14" width="36" height="14" rx="4"/>
-            <rect fill="rgba(0,0,0,.3)" x="57" y="18" width="26" height="3" rx="1"/>
-            <rect fill="rgba(0,0,0,.3)" x="57" y="23" width="26" height="3" rx="1"/>
-            <rect fill="${c}" opacity=".65" x="20" y="36" width="36" height="14" rx="4"/>
-            <rect fill="rgba(0,0,0,.3)" x="25" y="40" width="26" height="3" rx="1"/>
-            <rect fill="${c}" opacity=".65" x="64" y="36" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".5" x="8" y="58" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".5" x="52" y="58" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".35" x="20" y="80" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".35" x="64" y="80" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".2" x="8" y="102" width="36" height="14" rx="4"/>
-            <rect fill="${c}" opacity=".2" x="52" y="102" width="36" height="14" rx="4"/>`,
-
-        warning_r:`<rect fill="#0a0a14" width="108" height="192"/>
-            <circle fill="${c}" opacity=".08" cx="54" cy="90" r="46"/>
-            <circle fill="${c}" opacity=".05" cx="54" cy="90" r="36"/>
-            <text x="54" y="122" text-anchor="middle" fill="${c}" font-size="88" font-weight="900" opacity=".9">R</text>
-            <polygon fill="${c}" points="54,30 42,52 66,52" opacity=".9"/>
-            <rect fill="#0a0a14" x="50" y="54" width="8" height="18" rx="2"/>
-            <rect fill="${c}" x="50" y="54" width="8" height="16" rx="2" opacity=".9"/>
-            <rect fill="${c}" x="50" y="74" width="8" height="6" rx="2" opacity=".9"/>`,
-
-        sa_routes:`<rect fill="#0a0a14" width="108" height="192"/>
-            <path fill="${c}" opacity=".18" d="M30,46 L78,44 L90,56 L94,72 L88,90 L78,108 L66,122 L54,130 L42,122 L28,106 L18,86 L14,62 Z"/>
-            <line x1="54" y1="100" x2="44" y2="120" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/>
-            <line x1="54" y1="100" x2="72" y2="94" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/>
-            <line x1="54" y1="100" x2="40" y2="74" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/>
-            <line x1="54" y1="100" x2="58" y2="68" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/>
-            <circle fill="${c}" cx="54" cy="100" r="7"/>
-            <circle fill="none" stroke="${c}" stroke-width="2" cx="54" cy="100" r="12" opacity=".5"/>
-            <circle fill="${c}" opacity=".6" cx="44" cy="120" r="4"/>
-            <circle fill="${c}" opacity=".6" cx="72" cy="94" r="4"/>
-            <circle fill="${c}" opacity=".6" cx="40" cy="74" r="4"/>
-            <circle fill="${c}" opacity=".6" cx="58" cy="68" r="4"/>
-            <text x="54" y="96" text-anchor="middle" fill="#0a0a14" font-size="6" font-weight="900">JHB</text>`
+        big_rig:`<rect fill="#0a0a14" width="108" height="192"/><rect fill="${c}" x="6" y="70" width="54" height="28" rx="4"/><rect fill="${c}" opacity=".85" x="60" y="73" width="42" height="25" rx="5"/><rect fill="rgba(255,255,255,.15)" x="64" y="76" width="34" height="14" rx="3"/><rect fill="rgba(255,255,255,.7)" x="62" y="74" width="8" height="6" rx="1"/><rect fill="rgba(255,255,255,.7)" x="88" y="74" width="8" height="6" rx="1"/><circle fill="#0a0a14" cx="18" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="18" cy="101" r="7"/><circle fill="${c}" cx="18" cy="101" r="2"/><circle fill="#0a0a14" cx="36" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="36" cy="101" r="7"/><circle fill="${c}" cx="36" cy="101" r="2"/><circle fill="#0a0a14" cx="76" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="76" cy="101" r="7"/><circle fill="${c}" cx="76" cy="101" r="2"/><circle fill="#0a0a14" cx="93" cy="101" r="9"/><circle fill="none" stroke="${c}" stroke-width="3" cx="93" cy="101" r="7"/><circle fill="${c}" cx="93" cy="101" r="2"/>`,
+        convoy:`<rect fill="#0a0a14" width="108" height="192"/><rect fill="${c}" x="4" y="60" width="56" height="18" rx="3"/><rect fill="${c}" opacity=".8" x="60" y="62" width="28" height="16" rx="3"/><rect fill="rgba(255,255,255,.15)" x="64" y="65" width="18" height="10" rx="2"/><circle fill="#0a0a14" cx="14" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="14" cy="81" r="5.5"/><circle fill="${c}" cx="14" cy="81" r="1.5"/><circle fill="#0a0a14" cx="28" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="28" cy="81" r="5.5"/><circle fill="${c}" cx="28" cy="81" r="1.5"/><circle fill="#0a0a14" cx="72" cy="81" r="7"/><circle fill="none" stroke="${c}" stroke-width="2.5" cx="72" cy="81" r="5.5"/><circle fill="${c}" cx="72" cy="81" r="1.5"/><rect fill="${c}" opacity=".65" x="16" y="96" width="44" height="15" rx="3"/><rect fill="${c}" opacity=".55" x="60" y="98" width="22" height="13" rx="3"/><circle fill="#0a0a14" cx="24" cy="114" r="6"/><circle fill="none" stroke="${c}" stroke-width="2" cx="24" cy="114" r="4.5"/><circle fill="${c}" cx="24" cy="114" r="1.2"/><circle fill="#0a0a14" cx="68" cy="114" r="6"/><circle fill="none" stroke="${c}" stroke-width="2" cx="68" cy="114" r="4.5"/><circle fill="${c}" cx="68" cy="114" r="1.2"/><rect fill="${c}" opacity=".4" x="28" y="128" width="32" height="12" rx="2"/><rect fill="${c}" opacity=".35" x="60" y="130" width="16" height="10" rx="2"/>`,
+        fuel_pump:`<rect fill="#0a0a14" width="108" height="192"/><rect fill="${c}" x="24" y="32" width="56" height="110" rx="8"/><rect fill="rgba(0,0,0,.6)" x="30" y="42" width="44" height="44" rx="5"/><text x="52" y="73" text-anchor="middle" fill="${c}" font-size="22" font-weight="900">R26</text><text x="52" y="84" text-anchor="middle" fill="${c}" font-size="9" opacity=".6">/litre</text><path d="M80 80 Q100 95 90 118" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round"/><rect fill="${c}" x="86" y="116" width="14" height="8" rx="3"/><rect fill="${c}" x="16" y="142" width="72" height="10" rx="4"/><polygon fill="${c}" opacity=".7" points="52,20 42,32 62,32"/>`,
+        driver_wheel:`<rect fill="#0a0a14" width="108" height="192"/><circle fill="${c}" opacity=".2" cx="54" cy="42" r="16"/><circle fill="none" stroke="${c}" stroke-width="6" cx="54" cy="112" r="40"/><line x1="54" y1="86" x2="54" y2="72" stroke="${c}" stroke-width="6" stroke-linecap="round"/><line x1="54" y1="138" x2="54" y2="152" stroke="${c}" stroke-width="6" stroke-linecap="round"/><line x1="28" y1="112" x2="14" y2="112" stroke="${c}" stroke-width="6" stroke-linecap="round"/><circle fill="${c}" cx="54" cy="112" r="10"/><text x="54" y="116" text-anchor="middle" fill="#0a0a14" font-size="7" font-weight="900">DFR</text>`,
+        speed_lines:`<rect fill="#0a0a14" width="108" height="192"/><rect fill="${c}" opacity=".9" x="16" y="64" width="86" height="9" rx="2"/><rect fill="${c}" opacity=".7" x="24" y="80" width="70" height="7" rx="2"/><rect fill="${c}" opacity=".55" x="30" y="93" width="56" height="6" rx="2"/><rect fill="${c}" opacity=".4" x="36" y="104" width="42" height="5" rx="2"/><rect fill="${c}" opacity=".3" x="40" y="113" width="32" height="4" rx="2"/><rect fill="${c}" opacity=".3" x="40" y="121" width="32" height="4" rx="2"/><rect fill="${c}" opacity=".4" x="36" y="129" width="42" height="5" rx="2"/><rect fill="${c}" opacity=".55" x="30" y="138" width="56" height="6" rx="2"/><rect fill="${c}" opacity=".7" x="24" y="150" width="70" height="7" rx="2"/><rect fill="${c}" opacity=".9" x="16" y="163" width="86" height="9" rx="2"/><rect fill="${c}" x="2" y="86" width="12" height="44" rx="3"/>`,
+        data_chart:`<rect fill="#0a0a14" width="108" height="192"/><line x1="16" y1="52" x2="16" y2="142" stroke="${c}" stroke-width="2.5" opacity=".6"/><line x1="16" y1="142" x2="102" y2="142" stroke="${c}" stroke-width="2.5" opacity=".6"/><rect fill="${c}" opacity=".6" x="20" y="102" width="11" height="40" rx="2"/><rect fill="${c}" opacity=".6" x="35" y="82" width="11" height="60" rx="2"/><rect fill="${c}" opacity=".6" x="50" y="96" width="11" height="46" rx="2"/><rect fill="${c}" opacity=".6" x="65" y="72" width="11" height="70" rx="2"/><rect fill="${c}" opacity=".6" x="80" y="89" width="11" height="53" rx="2"/><rect fill="#ef4444" x="95" y="57" width="11" height="85" rx="2"/><text x="100" y="52" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="900">!</text>`,
+        road_ahead:`<rect fill="#0a0a14" width="108" height="192"/><polygon fill="${c}" opacity=".12" points="0,192 108,192 62,72 46,72"/><line x1="6" y1="192" x2="48" y2="72" stroke="${c}" stroke-width="3" opacity=".5"/><line x1="102" y1="192" x2="60" y2="72" stroke="${c}" stroke-width="3" opacity=".5"/><rect fill="${c}" opacity=".45" x="49" y="90" width="10" height="18" rx="2"/><rect fill="${c}" opacity=".4" x="49" y="116" width="10" height="14" rx="2"/><rect fill="${c}" opacity=".35" x="49" y="138" width="10" height="14" rx="2"/><circle fill="${c}" opacity=".18" cx="54" cy="68" r="24"/>`,
+        tyre_track:`<rect fill="#0a0a14" width="108" height="192"/><rect fill="${c}" opacity=".8" x="8" y="14" width="36" height="14" rx="4"/><rect fill="rgba(0,0,0,.3)" x="13" y="18" width="26" height="3" rx="1"/><rect fill="rgba(0,0,0,.3)" x="13" y="23" width="26" height="3" rx="1"/><rect fill="${c}" opacity=".8" x="52" y="14" width="36" height="14" rx="4"/><rect fill="rgba(0,0,0,.3)" x="57" y="18" width="26" height="3" rx="1"/><rect fill="rgba(0,0,0,.3)" x="57" y="23" width="26" height="3" rx="1"/><rect fill="${c}" opacity=".6" x="20" y="36" width="36" height="14" rx="4"/><rect fill="${c}" opacity=".6" x="64" y="36" width="36" height="14" rx="4"/><rect fill="${c}" opacity=".4" x="8" y="58" width="36" height="14" rx="4"/><rect fill="${c}" opacity=".4" x="52" y="58" width="36" height="14" rx="4"/><rect fill="${c}" opacity=".25" x="20" y="80" width="36" height="14" rx="4"/><rect fill="${c}" opacity=".25" x="64" y="80" width="36" height="14" rx="4"/>`,
+        warning_r:`<rect fill="#0a0a14" width="108" height="192"/><circle fill="${c}" opacity=".08" cx="54" cy="90" r="46"/><text x="54" y="122" text-anchor="middle" fill="${c}" font-size="88" font-weight="900" opacity=".9">R</text><polygon fill="${c}" points="54,30 42,52 66,52" opacity=".9"/><rect fill="${c}" x="50" y="54" width="8" height="16" rx="2" opacity=".9"/>`,
+        sa_routes:`<rect fill="#0a0a14" width="108" height="192"/><path fill="${c}" opacity=".18" d="M30,46 L78,44 L90,56 L94,72 L88,90 L78,108 L66,122 L54,130 L42,122 L28,106 L18,86 L14,62 Z"/><line x1="54" y1="100" x2="44" y2="120" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/><line x1="54" y1="100" x2="72" y2="94" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/><line x1="54" y1="100" x2="40" y2="74" stroke="${c}" stroke-width="2" opacity=".5" stroke-dasharray="5,4"/><circle fill="${c}" cx="54" cy="100" r="7"/><circle fill="${c}" opacity=".6" cx="44" cy="120" r="4"/><circle fill="${c}" opacity=".6" cx="72" cy="94" r="4"/><circle fill="${c}" opacity=".6" cx="40" cy="74" r="4"/>`
     };
     return t[id]||`<rect fill="#0a0a14" width="108" height="192"/>`;
 }
 
-// ── DOWNLOAD & COPY ───────────────────────────────────────────────────────────
+// ── Download & copy ────────────────────────────────────────────────────────
 function downloadSlide(){
-    if(!_canvas) return;
-    draw(_activeSlide);
-    const a=document.createElement('a');
-    a.download=`dfr-reel-slide-${_activeSlide+1}.png`;
-    a.href=_canvas.toDataURL('image/png');
-    a.click();
+    if(!_canvas)return;draw(_activeSlide);
+    const a=document.createElement('a');a.download=`dfr-reel-slide-${_activeSlide+1}.png`;a.href=_canvas.toDataURL('image/png');a.click();
     toast(`Slide ${_activeSlide+1} downloaded ✓`,'green');
 }
-
 async function downloadAllSlides(){
-    if(!_canvas||_slides.length===0) return;
-    stopPlay();
-    const overlay=document.getElementById('loadingOverlay');
-    overlay.classList.add('show');
+    if(!_canvas||!_slides.length)return;
+    stopPlay();document.getElementById('loadingOverlay').classList.add('show');
     await new Promise(r=>setTimeout(r,100));
     for(let i=0;i<_slides.length;i++){
-        draw(i); await new Promise(r=>setTimeout(r,150));
-        const a=document.createElement('a');
-        a.download=`dfr-reel-slide-${i+1}-of-${_slides.length}.png`;
-        a.href=_canvas.toDataURL('image/png');
-        a.click();
+        draw(i);await new Promise(r=>setTimeout(r,150));
+        const a=document.createElement('a');a.download=`dfr-reel-slide-${i+1}-of-${_slides.length}.png`;a.href=_canvas.toDataURL('image/png');a.click();
         await new Promise(r=>setTimeout(r,350));
     }
-    draw(_activeSlide);
-    overlay.classList.remove('show');
+    draw(_activeSlide);document.getElementById('loadingOverlay').classList.remove('show');
     toast(`All ${_slides.length} slides downloaded ✓`,'green');
 }
-
 function copyCaption(){
-    const cap=(document.getElementById('captionTA')||{}).value||'';
-    const hash=(document.getElementById('hashtagsInput')||{}).value||'';
-    let full=cap+(hash?'\n\n'+hash:'');
-    if(_partnerLink) full+='\n\n🔗 '+_partnerLink;
-    navigator.clipboard.writeText(full).then(()=>toast(_partnerLink?'Caption + hashtags + your link copied ✓':'Caption + hashtags copied ✓','green'));
+    const cap=gv('captionTA'),hash=gv('hashtagsInput');
+    const link=_partnerCode?'\n\n🔗 '+DISCOVER_URL+'?ref='+_partnerCode:'';
+    const full=cap+(hash?'\n\n'+hash:'')+link;
+    navigator.clipboard.writeText(full).then(()=>toast(link?'Caption + hashtags + your referral link copied ✓':'Caption + hashtags copied ✓','green'));
 }
 
-function gv(id){ return (document.getElementById(id)||{}).value||''; }
-function setEl(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
-function ea(s){ return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+// ── Helpers ────────────────────────────────────────────────────────────────
+function gv(id){return(document.getElementById(id)||{}).value||'';}
+function setEl(id,v){const el=document.getElementById(id);if(el)el.value=v;}
+function ea(s){return String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function toast(msg,color){
-    color=color||'green';
-    const t=document.getElementById('toast');
-    t.textContent=msg;
-    t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.4)';
-    t.classList.add('show');
-    setTimeout(()=>t.classList.remove('show'),3000);
+    color=color||'green';const t=document.getElementById('toast');
+    t.textContent=msg;t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':'rgba(16,185,129,0.4)';
+    t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);
 }
 </script>
 </body>
