@@ -133,7 +133,7 @@
         /* Language toggle */
         .lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:20px;padding:4px;margin-bottom:1.25rem;}
         .lang-btn{padding:5px 14px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
-        .lang-btn.active{background:var(--grn);color:#020617;}
+        .lang-btn.lang-active{background:var(--grn);color:#020617;}
         .lang-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;}
         .badge-en{background:rgba(59,130,246,0.15);color:#60a5fa;}
         .badge-af{background:rgba(16,185,129,0.15);color:var(--grn);}
@@ -193,7 +193,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap;">
             <div class="lang-toggle">
-                <button class="lang-btn active" id="langBtnEn" onclick="setLang('en')">🇬🇧 English</button>
+                <button class="lang-btn lang-active" id="langBtnEn" onclick="setLang('en')">🇬🇧 English</button>
                 <button class="lang-btn" id="langBtnAf" onclick="setLang('af')">Afrikaans</button>
             </div>
         </div>
@@ -525,8 +525,8 @@ function setLang(l){
 }
 
 function applyLangUI(){
-    document.getElementById('langBtnEn').classList.toggle('active', _lang==='en');
-    document.getElementById('langBtnAf').classList.toggle('active', _lang==='af');
+    document.getElementById('langBtnEn').classList.toggle('lang-active', _lang==='en');
+    document.getElementById('langBtnAf').classList.toggle('lang-active', _lang==='af');
 }
 
 async function loadPosts(){
