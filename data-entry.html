@@ -8,103 +8,147 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #020617; color: #e2e8f0; margin: 0; }
-        #sidebar { width: 220px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 1.5rem 0.75rem; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
-        .logo-area { padding: 0 0.5rem 2rem 0.5rem; }
-        .logo-area img { height: 36px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1rem; margin-bottom: 2px; border-radius: 0.6rem; color: #64748b; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
-        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
-        .nav-sep { height: 1px; background: rgba(255,255,255,0.05); margin: 8px 0; }
-        #main { margin-left: 220px; min-height: 100vh; }
-        .top-bar { background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 40; flex-wrap: wrap; }
-        .top-bar h1 { font-size: 22px; font-weight: 900; font-style: italic; text-transform: uppercase; color: white; line-height: 1; }
-        .top-bar p  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #10b981; margin-bottom: 2px; }
-        .content { padding: 1.5rem 2rem; }
-        .client-bar { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-        .client-bar label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
-        .c-sel { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; font-family: 'Outfit',sans-serif; font-weight: 700; font-size: 13px; padding: 8px 12px; cursor: pointer; }
-        .c-sel:focus { outline: none; border-color: #10b981; }
-        .pill { font-size: 10px; font-weight: 700; padding: 5px 11px; border-radius: 20px; }
-        .pill-green  { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #10b981; }
-        .pill-amber  { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; cursor: pointer; }
-        .pill-purple { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: #818cf8; }
-        .stats-row { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-        .stat { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 10px 16px; flex: 1; min-width: 80px; }
-        .stat .lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 3px; }
-        .stat .val { font-size: 18px; font-weight: 900; }
-        .c-blue { color: #60a5fa; } .c-green { color: #10b981; } .c-amber { color: #fbbf24; } .c-red { color: #f87171; } .c-purple { color: #c4b5fd; }
-        .db-alert { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-left: 4px solid #fbbf24; border-radius: 0.75rem; padding: 11px 14px; margin-bottom: 1.25rem; display: none; font-size: 12px; color: #fbbf24; font-weight: 600; }
-        .tbl-wrap { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.25rem; overflow-x: auto; margin-bottom: 1.25rem; }
-        table { width: 100%; border-collapse: collapse; min-width: 1050px; }
-        .ac-drop { position:absolute; top:100%; left:0; min-width:140px; max-height:180px; overflow-y:auto;
-            background:#1e293b; border:1px solid #334155; border-radius:6px; z-index:999;
-            box-shadow:0 8px 24px rgba(0,0,0,0.4); }
-        .ac-item { padding:7px 10px; font-size:11px; font-weight:600; color:#e2e8f0; cursor:pointer; white-space:nowrap; }
-        .ac-item:hover { background:#334155; color:#38bdf8; }
-        thead tr { border-bottom: 2px solid rgba(16,185,129,0.25); }
-        thead th { padding: 9px 8px; font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981; text-align: left; white-space: nowrap; }
-        thead th.th-blue { color: #60a5fa; } thead th.th-amber { color: #fbbf24; }
-        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: rgba(255,255,255,0.02); }
-        td { padding: 6px 7px; vertical-align: middle; }
-        .di { background: rgba(15,23,42,0.8); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 7px; color: white; font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 600; width: 100%; transition: border-color 0.15s; -moz-appearance: textfield; }
-        .di::-webkit-outer-spin-button,.di::-webkit-inner-spin-button { -webkit-appearance:none; }
-        .di:focus { outline: none; border-color: #10b981; background: #0f172a; }
-        .di.af  { border-color: rgba(96,165,250,0.45); color: #93c5fd; }
-        .di.hv  { border-color: rgba(16,185,129,0.45); }
-        .di.unk { border-color: rgba(251,191,36,0.35); color: #fbbf24; }
-        .di.tgt { border-color: rgba(168,85,247,0.45); color: #c4b5fd; }
-        .reg-cell { font-size: 12px; font-weight: 900; color: white; }
-        .btn-sdb { font-size: 9px; font-weight: 900; text-transform: uppercase; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 3px 7px; border-radius: 4px; cursor: pointer; white-space: nowrap; display: none; font-family: 'Outfit',sans-serif; }
-        .btn-sdb:hover { background: rgba(251,191,36,0.2); }
-        .btn-sdb.show { display: inline-block; }
-        .w-badge { font-size: 7px; color: #10b981; font-weight: 700; display: block; letter-spacing: 0.05em; text-transform: uppercase; }
-        .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn { padding: 11px 20px; border-radius: 0.75rem; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; border: none; font-family: 'Outfit',sans-serif; transition: all 0.15s; }
-        .btn-p  { background: #10b981; color: #020617; }
-        .btn-p:hover { background: #059669; }
-        .btn-s  { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
-        .btn-s:hover { background: rgba(255,255,255,0.09); color: white; }
-        .btn-b  { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; }
-        .btn-b:hover { background: rgba(96,165,250,0.18); }
-        .empty-st { text-align: center; padding: 48px; color: #475569; }
-        .empty-st .ico { font-size: 38px; margin-bottom: 10px; }
-        .empty-st .ttl { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 6px; }
-        .empty-st .sub { font-size: 11px; line-height: 1.5; }
-        .prog-bar { background: rgba(15,23,42,0.6); height: 5px; border-radius: 99px; overflow: hidden; margin-bottom: 1rem; }
-        .prog-fill { background: linear-gradient(90deg,#10b981,#34d399); height: 100%; transition: width 0.4s; border-radius: 99px; }
-        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: #10b981; color: #020617; padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 900; transform: translateY(80px); opacity: 0; transition: all 0.3s; pointer-events: none; }
-        #toast.show { transform: translateY(0); opacity: 1; }
-        #toast.err  { background: #ef4444; color: white; }
-
-        /* ── Mobile ── */
-        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;flex-shrink:0;}
+        body{font-family:'Outfit',sans-serif;background:#020617;color:#e2e8f0;margin:0;}
+        #sidebar{width:220px;background:#0f172a;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:1.5rem 0.75rem;position:fixed;top:0;left:0;height:100vh;z-index:50;overflow-y:auto;}
+        .logo-area{padding:0 0.5rem 2rem 0.5rem;}.logo-area img{height:36px;}
+        .nav-item{display:flex;align-items:center;gap:10px;padding:0.75rem 1rem;margin-bottom:2px;border-radius:0.6rem;color:#64748b;font-size:11px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;transition:all 0.2s;}
+        .nav-item:hover{background:rgba(255,255,255,0.05);color:#94a3b8;}
+        .nav-item.active{background:rgba(16,185,129,0.1);color:#10b981;}
+        .nav-sep{height:1px;background:rgba(255,255,255,0.05);margin:8px 0;}
+        #main{margin-left:220px;min-height:100vh;}
+        .top-bar{background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:40;flex-wrap:wrap;}
+        .top-bar h1{font-size:22px;font-weight:900;font-style:italic;text-transform:uppercase;color:white;line-height:1;}
+        .top-bar p{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:#10b981;margin-bottom:2px;}
+        .content{padding:1.5rem 2rem;}
+        /* Client bar */
+        .client-bar{background:rgba(30,41,59,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:1rem;padding:1rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+        .client-bar label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;}
+        .c-sel{background:#0f172a;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;color:white;font-family:'Outfit',sans-serif;font-weight:700;font-size:13px;padding:8px 12px;cursor:pointer;}
+        .c-sel:focus{outline:none;border-color:#10b981;}
+        .pill{font-size:10px;font-weight:700;padding:5px 11px;border-radius:20px;}
+        .pill-green{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10b981;}
+        .pill-amber{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;cursor:pointer;}
+        .pill-purple{background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);color:#818cf8;}
+        /* Stats */
+        .stats-row{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;}
+        .stat{background:rgba(30,41,59,0.4);border:1px solid rgba(255,255,255,0.05);border-radius:0.75rem;padding:10px 16px;flex:1;min-width:80px;}
+        .stat .lbl{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#475569;margin-bottom:3px;}
+        .stat .val{font-size:18px;font-weight:900;}
+        .c-blue{color:#60a5fa;}.c-green{color:#10b981;}.c-amber{color:#fbbf24;}.c-red{color:#f87171;}.c-purple{color:#c4b5fd;}.c-orange{color:#fb923c;}
+        /* Alerts */
+        .db-alert{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-left:4px solid #fbbf24;border-radius:0.75rem;padding:11px 14px;margin-bottom:1.25rem;display:none;font-size:12px;color:#fbbf24;font-weight:600;}
+        .fraud-alert{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-left:4px solid #ef4444;border-radius:0.75rem;padding:11px 14px;margin-bottom:1.25rem;display:none;font-size:12px;color:#f87171;font-weight:600;}
+        /* Filter tabs */
+        .filter-tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+        .ftab{padding:6px 14px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .ftab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
+        .ftab.active{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:#10b981;}
+        .ftab.t-warn{border-color:rgba(251,191,36,0.3);color:#fbbf24;background:rgba(251,191,36,0.05);}
+        .ftab.t-err{border-color:rgba(239,68,68,0.3);color:#f87171;background:rgba(239,68,68,0.05);}
+        /* Vehicle cards */
+        .v-card{background:rgba(15,23,42,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:1rem;margin-bottom:10px;overflow:hidden;transition:border-color 0.2s;}
+        .v-card.flagged{border-color:rgba(239,68,68,0.35);}
+        .v-card.unknown{border-color:rgba(251,191,36,0.25);}
+        /* Card header — summary row */
+        .v-head{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;background:rgba(0,0,0,0.2);flex-wrap:wrap;}
+        .v-head:hover{background:rgba(255,255,255,0.02);}
+        .v-reg{font-size:13px;font-weight:900;text-transform:uppercase;color:white;min-width:100px;}
+        .v-make{font-size:11px;color:#64748b;min-width:140px;}
+        .v-kmbar{flex:1;min-width:80px;height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;}
+        .v-kmfill{height:100%;border-radius:2px;transition:width 0.4s;}
+        .v-kml{font-size:11px;font-weight:700;min-width:72px;text-align:right;}
+        .v-score{font-size:12px;font-weight:900;min-width:30px;text-align:right;}
+        .v-flag{font-size:9px;font-weight:900;text-transform:uppercase;padding:2px 8px;border-radius:10px;}
+        .f-fraud{background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.25);}
+        .f-unk{background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);}
+        .f-ok{background:rgba(16,185,129,0.1);color:#10b981;border:1px solid rgba(16,185,129,0.2);}
+        .v-chevron{font-size:10px;color:#475569;transition:transform 0.2s;margin-left:auto;flex-shrink:0;}
+        .v-chevron.open{transform:rotate(90deg);}
+        /* Card body — sections */
+        .v-body{display:none;padding:12px 16px 16px;border-top:1px solid rgba(255,255,255,0.05);}
+        .v-body.open{display:block;}
+        .sec{margin-bottom:14px;}
+        .sec-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#475569;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,0.04);}
+        .sec-label span{color:#10b981;}
+        .fg{display:grid;gap:8px;}
+        .fg2{grid-template-columns:1fr 1fr;}
+        .fg3{grid-template-columns:1fr 1fr 1fr;}
+        .fg4{grid-template-columns:repeat(4,1fr);}
+        .fg5{grid-template-columns:repeat(5,1fr);}
+        .fld{display:flex;flex-direction:column;gap:4px;}
+        .fld label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#475569;}
+        /* Inputs */
+        .di{background:rgba(15,23,42,0.8);border:1.5px solid rgba(255,255,255,0.08);border-radius:6px;padding:7px 9px;color:white;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;width:100%;transition:border-color 0.15s;-moz-appearance:textfield;}
+        .di::-webkit-outer-spin-button,.di::-webkit-inner-spin-button{-webkit-appearance:none;}
+        .di:focus{outline:none;border-color:#10b981;background:#0f172a;}
+        .di.af{border-color:rgba(96,165,250,0.45);color:#93c5fd;}
+        .di.hv{border-color:rgba(16,185,129,0.45);}
+        .di.unk{border-color:rgba(251,191,36,0.35);color:#fbbf24;}
+        .di.tgt{border-color:rgba(168,85,247,0.45);color:#c4b5fd;}
+        .di.sug{border-color:rgba(16,185,129,0.3);color:#10b981;background:rgba(16,185,129,0.05);}
+        .di.fraud{border-color:rgba(239,68,68,0.5);color:#f87171;}
+        .di[readonly]{cursor:default;opacity:0.85;}
+        /* Autocomplete */
+        .ac-wrap{position:relative;}
+        .ac-drop{position:absolute;top:100%;left:0;min-width:160px;max-height:180px;overflow-y:auto;background:#1e293b;border:1px solid #334155;border-radius:6px;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+        .ac-item{padding:7px 10px;font-size:11px;font-weight:600;color:#e2e8f0;cursor:pointer;white-space:nowrap;}
+        .ac-item:hover{background:#334155;color:#38bdf8;}
+        /* Computed fields */
+        .comp-row{display:flex;gap:8px;align-items:center;padding:8px 10px;background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.1);border-radius:8px;flex-wrap:wrap;}
+        .comp-item{display:flex;flex-direction:column;gap:2px;min-width:90px;}
+        .comp-lbl{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#475569;}
+        .comp-val{font-size:13px;font-weight:900;}
+        /* Save to DB button */
+        .btn-sdb{font-size:9px;font-weight:900;text-transform:uppercase;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;padding:5px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;display:none;font-family:'Outfit',sans-serif;width:100%;margin-top:4px;}
+        .btn-sdb:hover{background:rgba(251,191,36,0.2);}
+        .btn-sdb.show{display:block;}
+        /* Weekly badge */
+        .w-badge{font-size:7px;color:#10b981;font-weight:700;display:block;letter-spacing:0.05em;text-transform:uppercase;}
+        /* Action row */
+        .action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem;}
+        .btn{padding:11px 20px;border-radius:0.75rem;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all 0.15s;}
+        .btn-p{background:#10b981;color:#020617;}.btn-p:hover{background:#059669;}
+        .btn-s{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;}.btn-s:hover{background:rgba(255,255,255,0.09);color:white;}
+        .btn-b{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;}.btn-b:hover{background:rgba(96,165,250,0.18);}
+        .btn-r{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;}.btn-r:hover{background:rgba(239,68,68,0.18);}
+        /* Progress */
+        .prog-bar{background:rgba(15,23,42,0.6);height:5px;border-radius:99px;overflow:hidden;margin-bottom:1rem;}
+        .prog-fill{background:linear-gradient(90deg,#10b981,#34d399);height:100%;transition:width 0.4s;border-radius:99px;}
+        /* Empty state */
+        .empty-st{text-align:center;padding:48px;color:#475569;}
+        .empty-st .ico{font-size:38px;margin-bottom:10px;}
+        .empty-st .ttl{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:6px;}
+        .empty-st .sub{font-size:11px;line-height:1.5;}
+        /* Toast */
+        #toast{position:fixed;bottom:24px;right:24px;z-index:999;background:#10b981;color:#020617;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:900;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;}
+        #toast.show{transform:translateY(0);opacity:1;}
+        #toast.err{background:#ef4444;color:white;}
+        /* Mobile */
+        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;}
         .mob-logo{max-height:32px;}
         .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
         .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
         .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:59;}
         .sidebar-overlay.open{display:block;}
         @media(max-width:768px){
-            #sidebar{left:-260px!important;transition:left 0.25s ease;}
-            #sidebar.open{left:0!important;}
+            #sidebar{display:none;position:fixed;top:0;left:-220px;height:100vh;z-index:100;transition:left 0.25s ease;}
+            #sidebar.open{left:0;display:flex;}
             .mob-topbar{display:flex;}
-            .main-content{margin-left:0!important;padding:1rem!important;}
-            .grid-cols-2,.grid-cols-3,.grid-cols-4{grid-template-columns:1fr!important;}
-            table{display:block;overflow-x:auto;white-space:nowrap;}
+            #main{margin-left:0;}
+            .fg2,.fg3,.fg4,.fg5{grid-template-columns:1fr 1fr;}
+            .content{padding:1rem;}
         }
         @media(min-width:769px){.mob-topbar{display:none!important;}}
     </style>
 </head>
 <body>
-    <div class="mob-topbar">
-        <img src="Logo.png" alt="Logo" class="mob-logo">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-            <span></span><span></span><span></span>
-        </button>
-    </div>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<!-- Mobile topbar -->
+<div class="mob-topbar">
+    <img src="Logo.png" alt="Logo" class="mob-logo">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <div id="sidebar">
     <div class="logo-area"><img src="Logo.png" alt="DFR" onerror="this.style.display='none'"></div>
     <a href="index.html"      class="nav-item">🏠 Dashboard</a>
@@ -117,10 +161,10 @@
     <a href="sla.html"        class="nav-item">📄 SLA</a>
     <a href="invoice.html"    class="nav-item">🧾 Invoice</a>
     <a href="churned.html"    class="nav-item">🔴 Churned</a>
-    <a href="partners.html"  class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html"  class="nav-item">⚙ Settings</a>
-    <a href="marketing.html" class="nav-item">📣 Marketing</a>
+    <a href="partners.html"   class="nav-item">🤝 Referral Partners</a>
+    <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+    <a href="settings.html"   class="nav-item">⚙ Settings</a>
+    <a href="marketing.html"  class="nav-item">📣 Marketing</a>
 </div>
 
 <div id="main">
@@ -130,13 +174,14 @@
             <h1 id="clientTitle">Select a Client</h1>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <span class="pill pill-green" id="periodPill" style="display:none;"></span>
-            <span class="pill pill-amber" id="pendingPill" style="display:none;" onclick="loadPendingWeekly()"></span>
-            <span class="pill pill-purple" id="obPill" style="display:none;">✓ Onboarding Received</span>
+            <span class="pill pill-green"  id="periodPill"  style="display:none;"></span>
+            <span class="pill pill-amber"  id="pendingPill" style="display:none;" onclick="loadPendingWeekly()"></span>
+            <span class="pill pill-purple" id="obPill"      style="display:none;">✓ Onboarding Received</span>
         </div>
     </div>
 
     <div class="content">
+        <!-- Client + period selector -->
         <div class="client-bar">
             <label>Client</label>
             <select id="cSel" class="c-sel" onchange="loadClient(this.value)">
@@ -147,108 +192,329 @@
             <select id="ySel" class="c-sel" style="min-width:80px;"></select>
         </div>
 
-        <div class="db-alert" id="dbAlert">⚠️ <span id="dbMsg"></span> — Use <strong>Save to DB</strong> buttons to add them for future clients.</div>
+        <!-- Alerts -->
+        <div class="db-alert"    id="dbAlert"><span id="dbMsg"></span></div>
+        <div class="fraud-alert" id="fraudAlert"><span id="fraudMsg"></span></div>
 
+        <!-- Stats -->
         <div class="stats-row" id="statsRow" style="display:none;">
-            <div class="stat"><div class="lbl">Vehicles</div><div class="val c-blue" id="sTotal">—</div></div>
-            <div class="stat"><div class="lbl">Mfr Specs</div><div class="val c-green" id="sMfr">—</div></div>
-            <div class="stat"><div class="lbl">Unknown</div><div class="val c-amber" id="sUnk">—</div></div>
+            <div class="stat"><div class="lbl">Vehicles</div><div class="val c-blue"   id="sTotal">—</div></div>
+            <div class="stat"><div class="lbl">DB Match</div><div class="val c-green"  id="sMfr">—</div></div>
+            <div class="stat"><div class="lbl">Unknown</div><div class="val c-amber"   id="sUnk">—</div></div>
             <div class="stat"><div class="lbl">Targets Set</div><div class="val c-purple" id="sTgt">—</div></div>
+            <div class="stat"><div class="lbl">Fraud Flags</div><div class="val c-red"  id="sFraud">—</div></div>
             <div class="stat"><div class="lbl">Ready for Audit</div><div class="val c-green" id="sCmp">—</div></div>
         </div>
 
+        <!-- Progress bar -->
         <div id="progWrap" style="display:none;"><div class="prog-bar"><div class="prog-fill" id="pFill" style="width:0%"></div></div></div>
 
-        <div class="tbl-wrap">
-            <table>
-                <thead><tr>
-                    <th>#</th>
-                    <th style="min-width:110px;">Registration</th>
-                    <th style="min-width:100px;">Make</th>
-                    <th style="min-width:110px;">Model</th>
-                    <th>Yr</th>
-                    <th>Type</th>
-                    <th style="min-width:120px;">Usage</th>
-                    <th style="min-width:140px;">Load Profile</th>
-                    <th style="min-width:150px;">Trailer Type</th>
-                    <th style="min-width:70px;">Interlink</th>
-                    <th style="min-width:120px;">Aerokit</th>
-                    <th class="th-blue">Mfr Min</th>
-                    <th class="th-blue">Mfr Avg</th>
-                    <th></th>
-                    <th class="th-green" style="color:#10b981;">Suggested</th>
-                    <th class="th-amber">Client Target</th>
-                    <th>Odo (km)</th>
-                    <th>Fuel (L)</th>
-                </tr></thead>
-                <tbody id="tBody">
-                    <tr><td colspan="18"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
-                </tbody>
-            </table>
+        <!-- Filter tabs -->
+        <div class="filter-tabs" id="filterTabs" style="display:none;">
+            <div class="ftab active" onclick="setFilter('all',this)">All vehicles <span id="ftAll"></span></div>
+            <div class="ftab t-warn" onclick="setFilter('unknown',this)">Unknown make/model <span id="ftUnk"></span></div>
+            <div class="ftab t-warn" onclick="setFilter('missing',this)">Missing fuel data <span id="ftMiss"></span></div>
+            <div class="ftab t-err"  onclick="setFilter('fraud',this)">Fraud flags <span id="ftFraud"></span></div>
         </div>
 
+        <!-- Vehicle cards -->
+        <div id="fleetCards"></div>
+
+        <!-- Action row -->
         <div class="action-row" id="actRow" style="display:none;">
             <button class="btn btn-p" onclick="saveAndAudit()">💾 Save & Run Audit</button>
-            <button class="btn btn-b" onclick="runLookupAll()">🔍 Re-run Mfr Lookup</button>
+            <button class="btn btn-b" onclick="runLookupAll()">🔍 Re-run DB Lookup</button>
             <button class="btn btn-s" onclick="saveDraft()">💾 Save & Return</button>
             <button class="btn btn-s" onclick="addRow()">＋ Add Vehicle</button>
+            <button class="btn btn-r" onclick="expandAll()">↕ Expand All</button>
         </div>
         <div style="margin-top:10px;font-size:10px;color:#334155;display:none;" id="tips">
-            💡 Tab/Enter navigates odo → fuel → next row · Ctrl+S saves draft · <span style="color:#60a5fa;">Blue</span> = auto-filled from DB · <span style="color:#c4b5fd;">Purple</span> = target set · <span style="color:#fbbf24;">Yellow</span> = unknown make/model
+            💡 <span style="color:#60a5fa;">Blue fields</span> = auto-filled from vehicle DB &nbsp;·&nbsp;
+            <span style="color:#c4b5fd;">Purple</span> = client target set &nbsp;·&nbsp;
+            <span style="color:#fbbf24;">Yellow</span> = unknown make/model &nbsp;·&nbsp;
+            <span style="color:#f87171;">Red</span> = fraud flag
         </div>
     </div>
 </div>
 <div id="toast"></div>
-
 <script>
+// ── Constants ──────────────────────────────────────────────────────────────
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const TYPES=['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
+const TYPES=['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Bus','Other'];
+const USAGE_OPTS=['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
 const LOAD_PROFILE=['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
 const TRAILER_TYPE=['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
 const AEROKIT=['None','Roof Fairing Only','Full Aerokit'];
+const TERRAIN_OPTS=['Flat / Highveld','Mixed / Undulating','Mountainous','Severe Mountain'];
 
-// ── Suggested consumption formula ─────────────────────────────────────────
-function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
-    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
-    let base = parseFloat(mfrMin);
+// Terrain factors — net fuel efficiency multipliers vs flat baseline (SA research-based)
+const TERRAIN_FACTOR={'Flat / Highveld':1.00,'Mixed / Undulating':0.93,'Mountainous':0.84,'Severe Mountain':0.75};
 
-    // Load profile adjustment
-    const loadAdj = {
-        'Fully Loaded':                0,
-        'Loaded Out / Empty Return':   0.18,
-        'Mixed / Variable':            0.10,
-        'Local Stop-Start':           -0.15
-    }[loadProfile] ?? 0;
+// Trailer adjustments
+const TRAILER_ADJ={'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.10,'Rear Tipper':-0.12,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0};
 
-    // Trailer drag adjustment
-    const trailerAdj = {
-        'Tautliner / Curtainsider':   -0.05,
-        'Flatdeck / Lowbed':           0,
-        'Tanker':                      0.03,
-        'Side Tipper':                -0.08,
-        'Rear Tipper':                -0.08,
-        'Livestock / Animal Trailer': -0.06,
-        'Rigid Body (No Trailer)':     0
-    }[trailerType] ?? 0;
+// ── State ──────────────────────────────────────────────────────────────────
+let _cid=null,_client=null,_fleet=[],_vdb={},_filter='all';
 
-    // Interlink adds drag
-    const interlinkAdj = (interlink === true || interlink === 'true' || interlink === 'Yes') ? -0.04 : 0;
+// ── Helpers ────────────────────────────────────────────────────────────────
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+function x(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function toast(msg,isErr){const e=document.getElementById('toast');e.textContent=msg;e.className='show'+(isErr?' err':'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='',2800);}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
 
-    // Aerokit improvement
-    const aerokitAdj = {
-        'None':              0,
-        'Roof Fairing Only': 0.05,
-        'Full Aerokit':      0.10
-    }[aerokit] ?? 0;
-
-    const total = base * (1 + loadAdj + trailerAdj + interlinkAdj + aerokitAdj);
-    return Math.round(total * 100) / 100;
+// ── Calculations ───────────────────────────────────────────────────────────
+function calcSuggested(v){
+    // Use mfr_avg as base (SA real-world average), fall back to mfr_min
+    const mfrBase = parseFloat(v.mfr_avg) || parseFloat(v.mfr_min) || 
+                    (lookupMfr(v.make,v.model)?.mfr_avg) || (lookupMfr(v.make,v.model)?.mfr_min) || null;
+    if(!mfrBase) return null;
+    const loadAdj={'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[v.loadProfile]??0;
+    const trailerAdj=TRAILER_ADJ[v.trailerType]??0;
+    const interlinkAdj=(v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?-0.04:0;
+    const aerokitAdj={'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[v.aerokit]??0;
+    const terrainFactor=TERRAIN_FACTOR[v.terrain]??TERRAIN_FACTOR['Mixed / Undulating'];
+    return Math.round(mfrBase*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*terrainFactor*100)/100;
 }
 
-let _cid=null,_client=null,_fleet=[],_vdb={},_n=0;
+function calcActKmL(v){
+    const odo=parseFloat(v.odo)||0, liters=parseFloat(v.liters)||0;
+    if(!odo||!liters)return null;
+    return Math.round((odo/liters)*100)/100;
+}
 
-function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+function checkFraud(v){
+    const flags=[];
+    const liters=parseFloat(v.liters)||0;
+    const tank=parseFloat(v.fuel_tank)||0;
+    const odo=parseFloat(v.odo)||0;
+    const actKmL=calcActKmL(v);
+    const mfrAvg=parseFloat(v.mfr_avg)||(lookupMfr(v.make,v.model)?.mfr_avg)||0;
+    // Over-fill check: fuel entered > tank × 1.15
+    if(tank>0 && liters>tank*1.15) flags.push('Over-fill: '+liters+'L > '+Math.round(tank*1.15)+'L (115% of '+tank+'L tank)');
+    // Implausibly low km/L: < 40% of mfr_avg = likely data error or major fraud
+    if(actKmL&&mfrAvg&&actKmL<mfrAvg*0.4) flags.push('Implausible consumption: '+actKmL+' km/L < 40% of mfr avg ('+mfrAvg+')');
+    // Odo drift > 15% of GPS distance
+    const gps=parseFloat(v.gps)||0;
+    const drift=odo&&gps?odo-gps:0;
+    if(odo&&gps&&Math.abs(drift)>gps*0.15) flags.push('Odo drift: '+Math.abs(Math.round(drift))+'km (>15% of GPS '+gps+'km)');
+    return flags;
+}
 
+function scoreColor(pct){
+    if(pct>=90)return '#10b981';
+    if(pct>=70)return '#fbbf24';
+    return '#f87171';
+}
+
+// ── Vehicle DB ─────────────────────────────────────────────────────────────
+async function loadVDB(){
+    try{const r=await cloudStorage.getItem('VEHICLE_DB');_vdb=r?JSON.parse(r):{};}catch(e){_vdb={};}
+    // Seed if empty
+    if(!Object.keys(_vdb).length) await seedVDB();
+}
+function dbk(make,model){return(make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase();}
+function lookupMfr(make,model){
+    if(!make)return null;
+    let e=_vdb[dbk(make,model)];if(e)return e;
+    for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|'))return _vdb[k];}
+    return null;
+}
+async function saveVDB(make,model,min,avg,type,gvm,eng,tank){
+    const k=dbk(make,model);
+    _vdb[k]={make,model,mfr_min:parseFloat(min)||null,mfr_avg:parseFloat(avg)||null,type:type||'Heavy',
+              gvm:parseFloat(gvm)||null,engine_litres:parseFloat(eng)||null,fuel_tank:parseFloat(tank)||null};
+    await cloudStorage.setItem('VEHICLE_DB',JSON.stringify(_vdb));
+    toast('Saved to vehicle DB ✓');
+}
+
+// ── VDB Seed ───────────────────────────────────────────────────────────────
+async function seedVDB(){
+    // Format: [make, model, mfr_min, mfr_avg, type, gvm, engine_L, tank_L]
+    const SEED=[
+        // Extra-Heavy Truck Tractors 56t GCM
+        ['Mercedes-Benz','Actros 2652 LS',2.15,1.85,'Heavy',56000,15.6,600],
+        ['Mercedes-Benz','Actros 2645 LS',2.20,1.92,'Heavy',56000,15.6,600],
+        ['Mercedes-Benz','Actros 2640 LS',2.28,1.98,'Heavy',56000,12.8,600],
+        ['Mercedes-Benz','Actros 2632',2.35,2.05,'Heavy',56000,12.8,600],
+        ['MAN','TGX 26.510',2.20,2.06,'Heavy',56000,12.4,600],
+        ['MAN','TGX 26.460',2.28,2.10,'Heavy',56000,12.4,600],
+        ['MAN','TGS 26.480',2.18,2.02,'Heavy',56000,12.4,600],
+        ['MAN','TGS 26.440',2.22,2.05,'Heavy',56000,12.4,600],
+        ['MAN','TGS 27.440',2.20,2.05,'Heavy',56000,12.4,600],
+        ['Volvo','FH 420',2.45,2.22,'Heavy',56000,12.8,600],
+        ['Volvo','FH 460',2.40,2.17,'Heavy',56000,12.8,600],
+        ['Volvo','FH 500',2.35,2.10,'Heavy',56000,12.8,600],
+        ['Volvo','FH 540',2.28,2.05,'Heavy',56000,12.8,600],
+        ['Volvo','FH16 600',2.15,1.92,'Heavy',56000,16.1,600],
+        ['Volvo','FH16 750',2.05,1.82,'Heavy',56000,16.1,600],
+        ['Scania','R450',2.40,2.17,'Heavy',56000,12.7,600],
+        ['Scania','R500',2.30,2.10,'Heavy',56000,12.7,600],
+        ['Scania','R580',2.22,2.00,'Heavy',56000,16.4,600],
+        ['Scania','S500',2.38,2.15,'Heavy',56000,12.7,600],
+        ['Scania','S540',2.32,2.10,'Heavy',56000,12.7,600],
+        ['Scania','R500 Super',2.45,2.22,'Heavy',56000,13.0,600],
+        ['Hino','700 Series 2841',2.10,1.90,'Heavy',40000,13.0,600],
+        ['Hino','700 Series 2845',2.05,1.85,'Heavy',40000,13.0,600],
+        ['UD Trucks','Quon GW26.450',2.18,1.95,'Heavy',56000,12.8,600],
+        ['UD Trucks','Quon GW26.480',2.12,1.90,'Heavy',56000,12.8,600],
+        ['Iveco','S-Way AS440S47',2.15,1.82,'Heavy',56000,12.9,600],
+        ['Iveco','S-Way AT440S43',2.10,1.78,'Heavy',56000,12.9,600],
+        ['FAW','JH6 28.500FT',2.12,1.97,'Heavy',56000,13.0,1000],
+        ['FAW','JH6 28.430FT',2.18,2.02,'Heavy',56000,13.0,1000],
+        ['FAW','CA3310',2.05,1.85,'Heavy',56000,13.0,900],
+        ['Shacman','X3000 500HP',2.08,1.85,'Heavy',56000,12.5,900],
+        ['Shacman','X3000 430HP',2.15,1.92,'Heavy',56000,12.5,900],
+        ['Sinotruk','HOWO 6x4 420HP',2.00,1.78,'Heavy',56000,9.7,800],
+        ['Sinotruk','HOWO-A7 440HP',2.05,1.82,'Heavy',56000,12.5,800],
+        ['Powerstar','2642',2.02,1.80,'Heavy',56000,12.0,800],
+        ['Powerstar','2835',2.08,1.85,'Heavy',56000,12.0,800],
+        ['Dayun','N8H 500HP',2.05,1.82,'Heavy',56000,12.5,900],
+        // Tanker variants
+        ['Mercedes-Benz','Actros 2632 Tanker',2.10,1.82,'Tanker',56000,12.8,600],
+        ['Mercedes-Benz','Actros 2652 Tanker',2.08,1.80,'Tanker',56000,15.6,600],
+        ['MAN','TGS 26.440 Tanker',2.15,1.88,'Tanker',56000,12.4,600],
+        ['Volvo','FH 500 Tanker',2.25,1.97,'Tanker',56000,12.8,600],
+        ['Scania','R500 Tanker',2.22,1.95,'Tanker',56000,12.7,600],
+        ['FAW','JH6 Tanker',2.08,1.82,'Tanker',56000,13.0,1000],
+        // Reefer variants
+        ['Mercedes-Benz','Actros 2652 Reefer',2.00,1.72,'Heavy',56000,15.6,600],
+        ['MAN','TGX 26.460 Reefer',2.08,1.82,'Heavy',56000,12.4,600],
+        ['Volvo','FH 500 Reefer',2.22,1.92,'Heavy',56000,12.8,600],
+        ['Scania','R500 Reefer',2.15,1.88,'Heavy',56000,12.7,600],
+        ['Hino','700 Reefer',1.95,1.72,'Heavy',40000,13.0,600],
+        // Side Tipper tractors
+        ['Mercedes-Benz','Actros 2652 Side Tipper',2.10,1.80,'Tipper',56000,15.6,600],
+        ['MAN','TGS 26.440 Side Tipper',2.15,1.88,'Tipper',56000,12.4,600],
+        ['Volvo','FH 500 Side Tipper',2.25,1.95,'Tipper',56000,12.8,600],
+        ['Scania','R500 Side Tipper',2.22,1.92,'Tipper',56000,12.7,600],
+        ['FAW','JH6 Side Tipper',2.05,1.78,'Tipper',56000,13.0,1000],
+        ['Shacman','X3000 Side Tipper',2.02,1.75,'Tipper',56000,12.5,900],
+        // Heavy Tippers 6x4
+        ['Mercedes-Benz','Arocs 3340',1.92,1.65,'Tipper',33000,15.6,400],
+        ['Mercedes-Benz','Arocs 3335',2.00,1.72,'Tipper',33000,12.8,400],
+        ['Mercedes-Benz','Arocs 2635',2.08,1.80,'Tipper',26000,12.8,300],
+        ['MAN','TGS 33.440 BB',1.98,1.70,'Tipper',33000,12.4,400],
+        ['MAN','TGS 28.440 BB',2.05,1.78,'Tipper',28000,12.4,400],
+        ['MAN','TGS 35.440 BB',1.92,1.65,'Tipper',35000,12.4,400],
+        ['Volvo','FMX 460 6x4',2.00,1.72,'Tipper',32000,12.8,400],
+        ['Volvo','FMX 500 6x4',1.95,1.68,'Tipper',32000,12.8,400],
+        ['Volvo','FM 440 6x4',2.08,1.80,'Tipper',26000,12.8,300],
+        ['Scania','G450 6x4',2.05,1.78,'Tipper',32000,12.7,400],
+        ['Scania','P410 6x4',2.10,1.82,'Tipper',26000,12.7,300],
+        ['Hino','700 Tipper 2841',2.02,1.75,'Tipper',40000,13.0,400],
+        ['Hino','700 Tipper 3241',1.95,1.68,'Tipper',40000,13.0,400],
+        ['FAW','33.340FT Tipper',2.05,1.78,'Tipper',33000,13.0,600],
+        ['FAW','40.350 8x4 Tipper',1.92,1.65,'Tipper',40000,13.0,600],
+        ['Shacman','X3000 Tipper 6x4',2.00,1.72,'Tipper',32000,12.5,600],
+        ['Sinotruk','HOWO Tipper 6x4',1.95,1.68,'Tipper',31000,9.7,600],
+        ['Sinotruk','HOWO Tipper 8x4',1.85,1.58,'Tipper',40000,9.7,600],
+        ['Powerstar','2835 Tipper',1.98,1.70,'Tipper',28000,12.0,500],
+        ['Isuzu','FXZ 1400 Tipper',2.42,2.08,'Tipper',26000,7.8,300],
+        // Medium-Heavy Rigids 12-26t
+        ['Mercedes-Benz','Atego 1523',3.33,2.86,'Rigid',15000,6.4,200],
+        ['Mercedes-Benz','Atego 1624',3.13,2.70,'Rigid',16000,7.7,200],
+        ['Mercedes-Benz','Atego 1827',2.94,2.56,'Rigid',18000,7.7,250],
+        ['MAN','TGM 18.250',3.23,2.78,'Rigid',18000,6.9,300],
+        ['MAN','TGM 15.250',3.45,2.94,'Rigid',15000,6.9,250],
+        ['MAN','TGM 26.340',2.63,2.27,'Rigid',26000,10.5,300],
+        ['Volvo','FL 240',3.33,2.86,'Rigid',18000,7.7,300],
+        ['Volvo','FL 280',3.13,2.70,'Rigid',18000,7.7,300],
+        ['Volvo','FE 320 6x2',2.78,2.38,'Rigid',26000,8.0,300],
+        ['Scania','P320 B4x2NB',3.13,2.70,'Rigid',18000,9.3,300],
+        ['Hino','500 FC 1018',4.17,3.57,'Rigid',10000,4.0,150],
+        ['Hino','500 FG 1626',3.57,3.03,'Rigid',16000,7.7,250],
+        ['Hino','500 GT 2632',2.78,2.38,'Rigid',26000,9.0,300],
+        ['Hino','500 1324',4.44,3.85,'Rigid',13000,5.1,200],
+        ['Isuzu','FRR 550',3.85,3.23,'Rigid',14500,5.2,200],
+        ['Isuzu','FTR 850',3.85,3.33,'Rigid',16500,5.2,200],
+        ['Isuzu','FVZ 1400',3.03,2.56,'Rigid',26000,7.8,300],
+        ['Isuzu','GXZ 3300',2.63,2.22,'Rigid',33000,8.7,350],
+        ['Fuso','Fighter 1627',3.33,2.86,'Rigid',16000,7.5,200],
+        ['Fuso','Fighter 2427',2.78,2.38,'Rigid',24000,7.5,300],
+        ['Fuso','FV51',2.50,2.13,'Rigid',26000,7.5,300],
+        ['FAW','15.180FL',3.33,2.86,'Rigid',15000,6.7,300],
+        ['FAW','28.290FL',2.56,2.17,'Rigid',28000,8.9,400],
+        ['UD Trucks','Croner PKE 280',2.38,2.00,'Rigid',26000,7.7,400],
+        ['UD Trucks','Croner LKE 250',2.94,2.50,'Rigid',18000,7.7,300],
+        ['Tata','LPT 1518',3.13,2.63,'Rigid',15000,5.7,200],
+        ['Tata','LPT 2518',2.63,2.22,'Rigid',25000,5.7,250],
+        ['Foton','Auman GTL 8x4',2.44,2.08,'Rigid',31000,8.9,400],
+        // Medium 5-12t Urban
+        ['Hino','300 Series 714',5.56,4.76,'Medium',7500,4.0,150],
+        ['Hino','300 Series 816',5.26,4.55,'Medium',8000,4.0,150],
+        ['Hino','300 Series 916',5.00,4.35,'Medium',9000,4.0,150],
+        ['Hino','300 Series 1024',4.76,4.00,'Medium',10000,4.0,150],
+        ['Isuzu','NPR 400',5.56,4.76,'Medium',7200,5.2,130],
+        ['Isuzu','NQR 500',5.00,4.35,'Medium',8700,5.2,150],
+        ['Isuzu','NPS 300 4x4',5.88,5.00,'Medium',7000,3.0,100],
+        ['Fuso','Canter FE71',7.14,6.25,'Medium',7000,3.0,100],
+        ['Fuso','Canter FE85',6.67,5.88,'Medium',8500,3.0,120],
+        ['Fuso','Canter FG',5.88,5.26,'Medium',10000,3.9,150],
+        ['Toyota','Dyna 300',5.88,5.00,'Medium',5000,4.0,130],
+        ['Toyota','Dyna 400',5.56,4.76,'Medium',7500,4.0,130],
+        ['VW','Crafter 35 2.0 TDI',8.33,7.14,'Medium',3500,2.0,75],
+        ['VW','Crafter 50 2.0 TDI',7.69,6.67,'Medium',5000,2.0,75],
+        ['Ford','Transit 2.0 TDCi',9.09,7.69,'LDV',3500,2.0,70],
+        ['Ford','Transit Custom 2.0',10.00,8.70,'LDV',2800,2.0,55],
+        ['Mercedes-Benz','Sprinter 316 CDI',8.70,7.69,'LDV',3500,2.2,75],
+        ['Mercedes-Benz','Sprinter 519 CDI',7.69,6.67,'Medium',5500,3.0,100],
+        ['Nissan','Cabstar 35.13',5.88,5.00,'Medium',3500,3.0,80],
+        ['Hyundai','Mighty EX8',4.76,4.17,'Medium',8000,3.9,130],
+        ['Hyundai','H350 2.5 CRDi',9.09,7.87,'LDV',3500,2.5,80],
+        ['Tata','Ace 1.4 TDI',12.50,10.00,'Medium',2000,1.4,60],
+        ['Foton','View C2',10.00,8.70,'LDV',2700,2.0,65],
+        // LDV Bakkies
+        ['Toyota','Hilux 2.8 GD-6 4x4',11.90,10.31,'LDV',3050,2.8,80],
+        ['Toyota','Hilux 2.8 GD-6 4x2',12.50,10.87,'LDV',2780,2.8,80],
+        ['Toyota','Hilux 2.4 GD-6',13.33,11.36,'LDV',2780,2.4,80],
+        ['Toyota','Land Cruiser 79 4.5TD',9.09,7.87,'LDV',3350,4.5,130],
+        ['Toyota','Land Cruiser 76 4.5TD',9.09,8.00,'LDV',3050,4.5,87],
+        ['Toyota','HiAce 2.8 Crew Cab',11.11,9.52,'LDV',2800,2.8,70],
+        ['Ford','Ranger 2.0 BiTurbo 4x4',11.76,10.42,'LDV',3500,2.0,80],
+        ['Ford','Ranger 2.0 SiT 4x2',12.50,10.87,'LDV',3200,2.0,80],
+        ['Ford','Ranger 2.2 TDCi',11.76,10.00,'LDV',3200,2.2,80],
+        ['Ford','Ranger 3.0 V6 TD',10.87,9.43,'LDV',3500,3.0,80],
+        ['Isuzu','KB 250 D-TEQ 4x2',11.11,9.52,'LDV',3000,2.5,76],
+        ['Isuzu','KB 300 LX 4x4',10.53,9.09,'LDV',3200,3.0,76],
+        ['Isuzu','D-Max 1.9 Ddi 4x2',12.50,10.87,'LDV',3500,1.9,76],
+        ['Isuzu','D-Max 3.0 Ddi 4x4',11.11,9.52,'LDV',3500,3.0,76],
+        ['Nissan','NP300 Hardbody 2.5TD',10.53,9.09,'LDV',2800,2.5,70],
+        ['Nissan','Navara 2.5 TD',11.11,9.52,'LDV',3150,2.5,80],
+        ['Nissan','Navara 2.3 BiTurbo',11.76,10.20,'LDV',3150,2.3,80],
+        ['Mitsubishi','Triton 2.4 MIVEC',12.50,10.64,'LDV',3100,2.4,75],
+        ['VW','Amarok 2.0 TDI 4x2',11.76,10.20,'LDV',3500,2.0,80],
+        ['VW','Amarok 3.0 TDI 4x4',10.87,9.43,'LDV',3500,3.0,80],
+        ['Mahindra','Pik Up 2.2 mHawk',10.00,8.70,'LDV',3400,2.2,80],
+        ['GWM','Steed 5 2.0T',10.00,8.70,'LDV',3000,2.0,75],
+        ['GWM','P-Series 2.0T',10.87,9.43,'LDV',3500,2.0,75],
+        // Bus
+        ['Hino','917 Bus',3.33,2.78,'Bus',17000,9.4,200],
+        ['Hino','AK 1726 Coach',2.78,2.38,'Bus',17000,9.4,200],
+        ['Toyota','Quantum 2.7',10.53,9.09,'Bus',3200,2.7,65],
+        ['Toyota','Coaster 4.2D',5.88,5.00,'Bus',8000,4.2,100],
+        ['VW','Crafter 50 Bus',7.14,6.25,'Bus',5000,2.0,80],
+        ['Mercedes-Benz','Sprinter Bus',8.33,7.14,'Bus',3500,2.2,75],
+        ['Mercedes-Benz','Tourismo Coach',2.78,2.38,'Bus',18000,12.8,300],
+        ['Scania','K410 Coach',2.63,2.22,'Bus',19000,12.7,400],
+        ['Volvo','B8R Intercity',2.78,2.38,'Bus',18000,7.7,300],
+        ['Tata','LPO 1512 Bus',3.33,2.78,'Bus',15000,5.7,200],
+        // Specialised
+        ['Mercedes-Benz','Arocs 4x4 3340',1.85,1.58,'Heavy',33000,15.6,400],
+        ['Volvo','FMX 460 6x6',1.92,1.65,'Heavy',32000,12.8,500],
+        ['Scania','G500 8x4',1.78,1.52,'Heavy',40000,12.7,400],
+        ['MAN','TGS 41.480 8x4',1.82,1.55,'Heavy',41000,12.4,500],
+    ];
+    const now=new Date().toISOString();
+    SEED.forEach(([make,model,min,avg,type,gvm,eng,tank])=>{
+        const k=dbk(make,model);
+        _vdb[k]={make,model,mfr_min:min,mfr_avg:avg,type,gvm,engine_litres:eng,fuel_tank:tank,seeded:true,createdAt:now};
+    });
+    await cloudStorage.setItem('VEHICLE_DB',JSON.stringify(_vdb));
+    console.log('Vehicle DB seeded with '+SEED.length+' vehicles');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',async()=>{
     initPeriod();
     await waitFor(()=>typeof cloudStorage!=='undefined');
@@ -256,7 +522,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
     await fillPicker();
     const cid=new URLSearchParams(window.location.search).get('client');
     if(cid){
-        // If the option isn't in the picker yet (e.g. client not active), add it
         const sel=document.getElementById('cSel');
         if(!sel.querySelector('option[value="'+cid+'"]')){
             const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
@@ -276,21 +541,6 @@ function initPeriod(){
 }
 function getPeriod(){const m=parseInt(document.getElementById('mSel').value),y=parseInt(document.getElementById('ySel').value);return{month:m,year:y,label:MONTHS[m]+' '+y};}
 
-async function loadVDB(){try{const r=await cloudStorage.getItem('VEHICLE_DB');_vdb=r?JSON.parse(r):{};}catch(e){_vdb={};}}
-function dbk(make,model){return(make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase();}
-function lookupMfr(make,model){
-    if(!make)return null;
-    let e=_vdb[dbk(make,model)];if(e)return e;
-    for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|'))return _vdb[k];}
-    return null;
-}
-async function saveVDB(make,model,min,avg,type){
-    const k=dbk(make,model);
-    _vdb[k]={make,model,mfr_min:parseFloat(min)||null,mfr_avg:parseFloat(avg)||null,type:type||'Heavy'};
-    await cloudStorage.setItem('VEHICLE_DB',JSON.stringify(_vdb));
-    toast('Saved to vehicle DB ✓');
-}
-
 async function fillPicker(){
     const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
     const sel=document.getElementById('cSel');
@@ -299,14 +549,27 @@ async function fillPicker(){
 }
 
 async function loadClient(cid){
-    if(!cid){_cid=null;_client=null;_fleet=[];document.getElementById('clientTitle').textContent='Select a Client';renderTable();return;}
+    if(!cid){_cid=null;_client=null;_fleet=[];document.getElementById('clientTitle').textContent='Select a Client';renderCards();return;}
     _cid=cid;
     const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
     _client=all.find(c=>c.id===cid);
     if(!_client){toast('Client not found',true);return;}
     document.getElementById('clientTitle').textContent=_client.company.toUpperCase();
     _fleet=(Array.isArray(_client.fleet)?_client.fleet:Object.values(_client.fleet||{})).map(v=>{
-        if(!v.mfr_min&&!v.mfr_avg){const e=lookupMfr(v.make,v.model);if(e)return{...v,mfr_min:e.mfr_min,mfr_avg:e.mfr_avg,_af:true};}
+        const e=lookupMfr(v.make,v.model);
+        if(e){
+            if(!v.mfr_min&&e.mfr_min)v.mfr_min=e.mfr_min;
+            if(!v.mfr_avg&&e.mfr_avg)v.mfr_avg=e.mfr_avg;
+            if(!v.gvm&&e.gvm)v.gvm=e.gvm;
+            if(!v.engine_litres&&e.engine_litres)v.engine_litres=e.engine_litres;
+            if(!v.fuel_tank&&e.fuel_tank)v.fuel_tank=e.fuel_tank;
+            v._af=true;
+        }
+        if(!v.terrain)v.terrain='Mixed / Undulating';
+        if(!v.loadProfile)v.loadProfile='Fully Loaded';
+        if(!v.trailerType)v.trailerType='Tautliner / Curtainsider';
+        if(!v.aerokit)v.aerokit='None';
+        if(!v.usage)v.usage='Long Distance';
         return v;
     });
     checkPending();
@@ -315,7 +578,8 @@ async function loadClient(cid){
     document.getElementById('actRow').style.display='flex';
     document.getElementById('progWrap').style.display='block';
     document.getElementById('tips').style.display='block';
-    renderTable();updateStats();checkUnk();
+    document.getElementById('filterTabs').style.display='flex';
+    renderCards();updateStats();
 }
 
 function checkPending(){
@@ -334,250 +598,477 @@ async function loadPendingWeekly(){
     const subs=_client.weeklySubmissions||[];if(!subs.length){toast('No pending data',true);return;}
     const last=subs[subs.length-1];let loaded=0;
     _fleet=_fleet.map(v=>{const e=(last.entries||[]).find(x=>x.reg===v.reg);if(e){loaded++;return{...v,odo:e.odo,liters:e.liters,_fw:true};}return v;});
-    renderTable();updateStats();toast('Loaded '+loaded+' vehicles from weekly submission ✓');
+    renderCards();updateStats();toast('Loaded '+loaded+' vehicles from weekly submission ✓');
     document.getElementById('pendingPill').style.display='none';
     document.getElementById('mSel').value=last.month;document.getElementById('ySel').value=last.year;
     document.getElementById('periodPill').textContent=last.period;document.getElementById('periodPill').style.display='inline-block';
 }
 
-function renderTable(){
-    _n=_fleet.length;const tb=document.getElementById('tBody');
-    if(!_fleet.length){
-        const msg=_cid?'No vehicles in fleet — client may not have completed onboarding.':'Select an active client above.';
-        tb.innerHTML=`<tr><td colspan="19"><div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div></td></tr>`;
-        return;
-    }
-    const tOpts=TYPES.map(t=>`<option>${t}</option>`).join('');
-
-    tb.innerHTML=_fleet.map((v,i)=>{
-        const e=lookupMfr(v.make,v.model);
-        const mMin=v.mfr_min||(e&&e.mfr_min)||'';
-        const mAvg=v.mfr_avg||(e&&e.mfr_avg)||'';
-        const af=v._af||e;
-        const fw=v._fw;
-        const minCls=af&&mMin?'di af':(!mMin?'di unk':'di');
-        const avgCls=af&&mAvg?'di af':(!mAvg?'di unk':'di');
-        const tgtCls=v.clientTarget?'di tgt':'di';
-        const odoCls=v.odo?'di hv':'di';
-        const fulCls=v.liters?'di hv':'di';
-        const dbShow=(mMin||mAvg||e)?'':'show';
-
-        const selType=(x)=>TYPES.map(t=>`<option${v.type===t?' selected':''}>${t}</option>`).join('');
-        const selUsageC=(x)=>['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'].map(u=>`<option${(v.usage||v.usedFor)===u?' selected':''}>${u}</option>`).join('');
-        const selLoad=(x)=>LOAD_PROFILE.map(u=>`<option${v.loadProfile===u?' selected':''}>${u}</option>`).join('');
-        const selTrailer=(x)=>TRAILER_TYPE.map(u=>`<option${v.trailerType===u?' selected':''}>${u}</option>`).join('');
-        const selAero=(x)=>AEROKIT.map(u=>`<option${v.aerokit===u?' selected':''}>${u}</option>`).join('');
-        const suggested=calcSuggested(v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min),v.loadProfile,v.trailerType,v.interlink,v.aerokit);
-
-        return `<tr id="tr${i}">
-            <td style="width:28px;font-size:11px;font-weight:700;color:#475569;">${i+1}</td>
-            <td>
-                <input class="di reg-cell" style="min-width:110px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
-            </td>
-            <td style="position:relative;">
-                <input class="di" style="width:96px;" id="mk${i}" placeholder="Make" value="${x(v.make)}"
-                    oninput="uf(${i},'make',this.value);acMake(${i})"
-                    onblur="setTimeout(()=>hideDrop('mkd${i}'),200)"
-                    autocomplete="off">
-                <div id="mkd${i}" class="ac-drop" style="display:none;"></div>
-            </td>
-            <td style="position:relative;">
-                <input class="di" style="width:106px;" id="mo${i}" placeholder="Model" value="${x(v.model)}"
-                    oninput="uf(${i},'model',this.value);acModel(${i})"
-                    onblur="setTimeout(()=>hideDrop('mod${i}'),200)"
-                    autocomplete="off">
-                <div id="mod${i}" class="ac-drop" style="display:none;"></div>
-            </td>
-            <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
-            <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
-            <td><select class="di" style="min-width:120px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsageC()}</select></td>
-            <td><select class="di" style="min-width:140px;font-size:10px;" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad()}</select></td>
-            <td><select class="di" style="min-width:150px;font-size:10px;" id="tt${i}" onchange="uf(${i},'trailerType',this.value);updSuggested(${i})">${selTrailer()}</select></td>
-            <td style="text-align:center;">
-                <label style="font-size:10px;color:#94a3b8;cursor:pointer;">
-                    <input type="checkbox" id="il${i}" ${(v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?'checked':''} onchange="uf(${i},'interlink',this.checked);updSuggested(${i})" style="margin-right:4px;">Yes
-                </label>
-            </td>
-            <td><select class="di" style="min-width:120px;font-size:10px;" id="ak${i}" onchange="uf(${i},'aerokit',this.value);updSuggested(${i})">${selAero()}</select></td>
-            <td><input class="${minCls}" style="width:66px;" type="number" step="0.01" id="min${i}" placeholder="—" value="${mMin}" oninput="uf(${i},'mfr_min',this.value);uEdit(${i});updSuggested(${i})"></td>
-            <td><input class="${avgCls}" style="width:66px;" type="number" step="0.01" id="avg${i}" placeholder="—" value="${mAvg}" oninput="uf(${i},'mfr_avg',this.value);uEdit(${i})"></td>
-            <td><button class="btn-sdb ${dbShow}" id="dbb${i}" onclick="sdb(${i})">Save to DB</button></td>
-            <td><input class="di" style="width:66px;background:rgba(16,185,129,0.07);color:#10b981;font-weight:700;" type="number" step="0.01" id="sug${i}" placeholder="—" value="${suggested||''}" readonly title="Suggested target based on Mfr Min + load/trailer/aerokit factors"></td>
-            <td><input class="${tgtCls}" style="width:68px;" type="number" step="0.1" id="tgt${i}" placeholder="Set target" value="${x(v.clientTarget)}" oninput="uf(${i},'clientTarget',this.value)"></td>
-            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
-                ${fw?'<span class="w-badge">weekly</span>':''}
-                <input class="${odoCls}" style="width:86px;" type="number" id="odo${i}" placeholder="km" value="${x(v.odo)}"
-                    oninput="uf(${i},'odo',this.value);updProg()" onfocus="this.select()"
-                    onkeydown="nav(event,${i},'ful')">
-            </td>
-            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
-                ${fw?'<span class="w-badge">weekly</span>':''}
-                <input class="${fulCls}" style="width:86px;" type="number" step="0.1" id="ful${i}" placeholder="L" value="${x(v.liters)}"
-                    oninput="uf(${i},'liters',this.value);updProg()" onfocus="this.select()"
-                    onkeydown="nav(event,${i+1<_n?i+1:i},'odo')">
-            </td>
-        </tr>`;
-    }).join('');
-    updProg();
+// ── Filter ─────────────────────────────────────────────────────────────────
+function setFilter(f,el){
+    _filter=f;
+    document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    renderCards();
 }
 
-// ── Autocomplete helpers ─────────────────────────────────────
-function hideDrop(id){ const d=document.getElementById(id); if(d) d.style.display='none'; }
+function getFiltered(){
+    if(_filter==='all')return _fleet.map((_,i)=>i);
+    if(_filter==='unknown')return _fleet.map((_,i)=>i).filter(i=>!_fleet[i].mfr_avg&&!lookupMfr(_fleet[i].make,_fleet[i].model));
+    if(_filter==='missing')return _fleet.map((_,i)=>i).filter(i=>!_fleet[i].odo||!_fleet[i].liters);
+    if(_filter==='fraud')return _fleet.map((_,i)=>i).filter(i=>checkFraud(_fleet[i]).length>0);
+    return _fleet.map((_,i)=>i);
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function renderCards(){
+    const container=document.getElementById('fleetCards');
+    if(!_fleet.length){
+        const msg=_cid?'No vehicles — client may not have completed onboarding.':'Select an active client above.';
+        container.innerHTML=`<div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div>`;
+        return;
+    }
+    const indices=getFiltered();
+    if(!indices.length){container.innerHTML='<div class="empty-st"><div class="ico">🔍</div><div class="ttl">No vehicles match this filter</div></div>';return;}
+    container.innerHTML=indices.map(i=>buildCard(i)).join('');
+}
+
+function buildCard(i){
+    const v=_fleet[i];
+    const e=lookupMfr(v.make,v.model);
+    const mMin=v.mfr_min||(e?.mfr_min)||'';
+    const mAvg=v.mfr_avg||(e?.mfr_avg)||'';
+    const gvm=v.gvm||(e?.gvm)||'';
+    const engL=v.engine_litres||(e?.engine_litres)||'';
+    const tank=v.fuel_tank||(e?.fuel_tank)||'';
+    const sug=calcSuggested(v);
+    const actKmL=calcActKmL(v);
+    const fraudFlags=checkFraud(v);
+    const hasFraud=fraudFlags.length>0;
+    const hasUnk=v.make&&!e&&!v.mfr_avg;
+    const target=parseFloat(v.clientTarget)||sug||parseFloat(mAvg)||2.0;
+    const pct=actKmL&&target?Math.min(100,Math.round((actKmL/target)*100)):null;
+    const barColor=pct!=null?scoreColor(pct):'#475569';
+    const af=v._af||e;
+    const minCls='di'+(af&&mMin?' af':'')+(hasUnk?' unk':'');
+    const avgCls='di'+(af&&mAvg?' af':'')+(hasUnk?' unk':'');
+    const dbShow=(mMin||mAvg||e)?'':'show';
+    const fw=v._fw;
+
+    // Summary flag label
+    const flagHtml=hasFraud?`<span class="v-flag f-fraud">⚠ Fraud flag</span>`:
+                   hasUnk?`<span class="v-flag f-unk">Unknown</span>`:
+                   (actKmL?`<span class="v-flag f-ok">✓ Data OK</span>`:'');
+
+    const cardCls=`v-card${hasFraud?' flagged':''}${hasUnk?' unknown':''}`;
+
+    // Section selects helpers
+    const sel=(opts,cur,field)=>opts.map(o=>`<option value="${x(o)}"${cur===o?' selected':''}>${o}</option>`).join('');
+    const selType=sel(TYPES,v.type,'type');
+    const selUsage=sel(USAGE_OPTS,v.usage||v.usedFor,'usage');
+    const selLoad=sel(LOAD_PROFILE,v.loadProfile,'loadProfile');
+    const selTrailer=sel(TRAILER_TYPE,v.trailerType,'trailerType');
+    const selAero=sel(AEROKIT,v.aerokit,'aerokit');
+    const selTerrain=sel(TERRAIN_OPTS,v.terrain||'Mixed / Undulating','terrain');
+
+    const fraudHtml=hasFraud?`<div style="margin-top:8px;padding:8px 10px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:6px;font-size:11px;color:#f87171;font-weight:700;">
+        ⚠ ${fraudFlags.join('<br>⚠ ')}
+    </div>`:'';
+
+    return `<div class="${cardCls}" id="vcard${i}">
+    <div class="v-head" onclick="toggleCard(${i})">
+        <div class="v-reg">${x(v.reg||'NO REG')}</div>
+        <div class="v-make">${x(v.make&&v.model?v.make+' '+v.model:v.make||'Unknown make')}</div>
+        <div class="v-kmbar"><div class="v-kmfill" style="width:${pct||0}%;background:${barColor};"></div></div>
+        <div class="v-kml" style="color:${barColor};">${actKmL?actKmL+' km/L':'—'}</div>
+        <div style="font-size:10px;color:#64748b;min-width:60px;">T: ${target?target+' km/L':'—'}</div>
+        ${flagHtml}
+        <div class="v-chevron" id="chev${i}">▶</div>
+    </div>
+    <div class="v-body" id="vbody${i}">
+
+        <!-- Section 1: Identity -->
+        <div class="sec">
+            <div class="sec-label">1 · Vehicle identity <span>— auto-fills from DB on make/model match</span></div>
+            <div class="fg fg4">
+                <div class="fld"><label>Registration</label>
+                    <input class="di" style="text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" 
+                        oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)"></div>
+                <div class="fld"><label>Make</label>
+                    <div class="ac-wrap">
+                        <input class="di ${hasUnk?'unk':''}" id="mk${i}" placeholder="e.g. Volvo" value="${x(v.make)}"
+                            oninput="uf(${i},'make',this.value);acMake(${i})"
+                            onblur="setTimeout(()=>hideDrop('mkd${i}'),200)" autocomplete="off">
+                        <div id="mkd${i}" class="ac-drop" style="display:none;"></div>
+                    </div></div>
+                <div class="fld"><label>Model</label>
+                    <div class="ac-wrap">
+                        <input class="di ${hasUnk?'unk':''}" id="mo${i}" placeholder="e.g. FH 500" value="${x(v.model)}"
+                            oninput="uf(${i},'model',this.value);acModel(${i})"
+                            onblur="setTimeout(()=>hideDrop('mod${i}'),200)" autocomplete="off">
+                        <div id="mod${i}" class="ac-drop" style="display:none;"></div>
+                    </div></div>
+                <div class="fld"><label>Year</label>
+                    <input class="di" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" 
+                        value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></div>
+            </div>
+            <div class="fg fg4" style="margin-top:8px;">
+                <div class="fld"><label>Vehicle type</label>
+                    <select class="di" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType}</select></div>
+                <div class="fld"><label>GVM (kg) <span style="color:#60a5fa;font-size:8px;">auto</span></label>
+                    <input class="di af" id="gvm${i}" type="number" placeholder="56000" value="${x(gvm)}"
+                        oninput="uf(${i},'gvm',this.value)"></div>
+                <div class="fld"><label>Engine (L) <span style="color:#60a5fa;font-size:8px;">auto</span></label>
+                    <input class="di af" id="eng${i}" type="number" step="0.1" placeholder="12.8" value="${x(engL)}"
+                        oninput="uf(${i},'engine_litres',this.value)"></div>
+                <div class="fld"><label>Fuel tank (L) <span style="color:#60a5fa;font-size:8px;">auto</span></label>
+                    <input class="di af" id="tnk${i}" type="number" placeholder="600" value="${x(tank)}"
+                        oninput="uf(${i},'fuel_tank',this.value)"></div>
+            </div>
+        </div>
+
+        <!-- Section 2: Route & Load -->
+        <div class="sec">
+            <div class="sec-label">2 · Route & load profile</div>
+            <div class="fg fg4">
+                <div class="fld"><label>Usage type</label>
+                    <select class="di" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsage}</select></div>
+                <div class="fld"><label>Load profile</label>
+                    <select class="di" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad}</select></div>
+                <div class="fld"><label>Trailer type</label>
+                    <select class="di" id="tt${i}" onchange="uf(${i},'trailerType',this.value);updSuggested(${i})">${selTrailer}</select></div>
+                <div class="fld"><label>Terrain</label>
+                    <select class="di" id="ter${i}" onchange="uf(${i},'terrain',this.value);updSuggested(${i})">${selTerrain}</select></div>
+            </div>
+            <div class="fg fg3" style="margin-top:8px;">
+                <div class="fld"><label>Interlink</label>
+                    <select class="di" id="il${i}" onchange="uf(${i},'interlink',this.value==='Yes');updSuggested(${i})">
+                        <option${!v.interlink||v.interlink==='false'?' selected':''}>No</option>
+                        <option${v.interlink===true||v.interlink==='true'||v.interlink==='Yes'?' selected':''}>Yes</option>
+                    </select></div>
+                <div class="fld"><label>Aerokit</label>
+                    <select class="di" id="ak${i}" onchange="uf(${i},'aerokit',this.value);updSuggested(${i})">${selAero}</select></div>
+                <div class="fld"><label>Typical route <span style="color:#475569;font-size:8px;">optional</span></label>
+                    <input class="di" id="rte${i}" placeholder="e.g. JHB → DBN" value="${x(v.route||'')}"
+                        oninput="uf(${i},'route',this.value)"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Benchmarks -->
+        <div class="sec">
+            <div class="sec-label">3 · Consumption benchmarks</div>
+            <div class="fg fg4">
+                <div class="fld"><label>Mfr min km/L <span style="color:#60a5fa;font-size:8px;">best case</span></label>
+                    <input class="${minCls}" type="number" step="0.01" id="min${i}" placeholder="—" value="${x(mMin)}"
+                        oninput="uf(${i},'mfr_min',this.value);uEdit(${i});updSuggested(${i})"></div>
+                <div class="fld"><label>Mfr avg km/L <span style="color:#60a5fa;font-size:8px;">SA real-world</span></label>
+                    <input class="${avgCls}" type="number" step="0.01" id="avg${i}" placeholder="—" value="${x(mAvg)}"
+                        oninput="uf(${i},'mfr_avg',this.value);uEdit(${i});updSuggested(${i})"></div>
+                <div class="fld"><label>Suggested target <span style="color:#10b981;font-size:8px;">calculated</span></label>
+                    <input class="di sug" type="number" step="0.01" id="sug${i}" placeholder="—" value="${x(sug||'')}" readonly
+                        title="mfr_avg × load × trailer × interlink × aerokit × terrain"></div>
+                <div class="fld"><label>Client target <span style="color:#c4b5fd;font-size:8px;">override</span></label>
+                    <input class="${v.clientTarget?'di tgt':'di'}" type="number" step="0.01" id="tgt${i}" placeholder="—"
+                        value="${x(v.clientTarget)}" oninput="uf(${i},'clientTarget',this.value);updHead(${i})"></div>
+            </div>
+            <button class="btn-sdb ${dbShow}" id="dbb${i}" onclick="sdb(${i})">💾 Save to vehicle DB (makes available for future clients)</button>
+        </div>
+
+        <!-- Section 4: Monthly data -->
+        <div class="sec">
+            <div class="sec-label">4 · Monthly data ${fw?'<span style="color:#10b981;">— weekly submission loaded</span>':''}</div>
+            <div class="fg fg3">
+                <div class="fld"><label>Odometer km ${fw?'<span class="w-badge">weekly</span>':''}</label>
+                    <input class="${v.odo?'di hv':'di'}" type="number" id="odo${i}" placeholder="km" value="${x(v.odo)}"
+                        oninput="uf(${i},'odo',this.value);updProg();updHead(${i})" onfocus="this.select()"
+                        onkeydown="nav(event,${i},'ful')"></div>
+                <div class="fld"><label>Fuel used (L) ${fw?'<span class="w-badge">weekly</span>':''}</label>
+                    <input class="${v.liters?'di hv':'di'}" type="number" step="0.1" id="ful${i}" placeholder="L" value="${x(v.liters)}"
+                        oninput="uf(${i},'liters',this.value);updProg();updHead(${i})"  onfocus="this.select()"
+                        onkeydown="nav(event,${i+1<_fleet.length?i+1:i},'odo')"></div>
+                <div class="fld"><label>GPS km <span style="color:#6366f1;font-size:8px;">from CSV</span></label>
+                    <input class="di" style="border-color:rgba(99,102,241,0.3);color:#818cf8;" type="number" id="gps${i}" 
+                        placeholder="from CSV" value="${x(v.gps)}" readonly></div>
+            </div>
+            <!-- Computed row -->
+            <div class="comp-row" id="comprow${i}" style="margin-top:8px;${(!v.odo&&!v.liters)?'display:none;':''}">
+                <div class="comp-item">
+                    <div class="comp-lbl">Actual km/L</div>
+                    <div class="comp-val" id="comp-kml${i}" style="color:${barColor};">${actKmL||'—'}</div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">vs target</div>
+                    <div class="comp-val" id="comp-pct${i}" style="color:${barColor};">${pct!=null?pct+'%':'—'}</div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">Odo drift</div>
+                    <div class="comp-val" id="comp-drift${i}">${(v.odo&&v.gps)?Math.round(parseFloat(v.odo)-parseFloat(v.gps))+'km':'—'}</div>
+                </div>
+                <div class="comp-item">
+                    <div class="comp-lbl">Tank check</div>
+                    <div class="comp-val" id="comp-tank${i}" style="font-size:10px;">${v.liters&&tank?(parseFloat(v.liters)<=parseFloat(tank)*1.15?'✓ OK':'⚠ Over-fill'):'—'}</div>
+                </div>
+            </div>
+            ${fraudHtml}
+        </div>
+
+    </div>
+</div>`;
+}
+
+// ── Card toggle ────────────────────────────────────────────────────────────
+function toggleCard(i){
+    const body=document.getElementById('vbody'+i);
+    const chev=document.getElementById('chev'+i);
+    const open=body.classList.toggle('open');
+    chev.classList.toggle('open',open);
+}
+function expandAll(){
+    _fleet.forEach((_,i)=>{
+        const body=document.getElementById('vbody'+i);
+        const chev=document.getElementById('chev'+i);
+        if(body&&chev){body.classList.add('open');chev.classList.add('open');}
+    });
+}
+
+// ── Autocomplete ───────────────────────────────────────────────────────────
+function hideDrop(id){const d=document.getElementById(id);if(d)d.style.display='none';}
 
 function acMake(i){
     const val=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
     const drop=document.getElementById('mkd'+i);
-    if(!val){ drop.style.display='none'; return; }
-    // Get unique makes from VDB
+    if(!val){drop.style.display='none';return;}
     const makes=[...new Set(Object.values(_vdb).map(e=>e.make).filter(m=>m&&m.toLowerCase().startsWith(val)))].sort();
-    if(!makes.length){ drop.style.display='none'; return; }
-    drop.innerHTML=makes.map(m=>`<div class="ac-item" onmousedown="pickMake(${i},'${m.replace(/'/g,"\'")})">${m}</div>`).join('');
+    if(!makes.length){drop.style.display='none';return;}
+    drop.innerHTML=makes.map(m=>`<div class="ac-item" onmousedown="pickMake(${i},'${m.replace(/'/g,"\\'")}')">${m}</div>`).join('');
     drop.style.display='block';
 }
 
-function pickMake(i, make){
+function pickMake(i,make){
     uf(i,'make',make);
-    const inp=document.getElementById('mk'+i);
-    if(inp) inp.value=make;
+    const inp=document.getElementById('mk'+i);if(inp)inp.value=make;
     hideDrop('mkd'+i);
-    // Auto-populate model dropdown
     const models=[...new Set(Object.values(_vdb).filter(e=>e.make&&e.make.toLowerCase()===make.toLowerCase()).map(e=>e.model))].sort();
     const modDrop=document.getElementById('mod'+i);
-    if(modDrop && models.length){
-        modDrop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${make.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
+    if(modDrop&&models.length){
+        modDrop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\\'")}')">${m}</div>`).join('');
         modDrop.style.display='block';
     }
-    // Focus model input
-    const modInp=document.getElementById('mo'+i);
-    if(modInp){ modInp.value=''; modInp.focus(); }
+    const modInp=document.getElementById('mo'+i);if(modInp){modInp.value='';modInp.focus();}
 }
 
 function acModel(i){
     const make=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
     const val=(document.getElementById('mo'+i)?.value||'').trim().toLowerCase();
     const drop=document.getElementById('mod'+i);
-    if(!val){ drop.style.display='none'; return; }
-    const models=[...new Set(Object.values(_vdb)
-        .filter(e=>(!make||( e.make&&e.make.toLowerCase()===make))&&e.model&&e.model.toLowerCase().startsWith(val))
-        .map(e=>e.model))].sort();
-    if(!models.length){ drop.style.display='none'; return; }
-    const makeName=document.getElementById('mk'+i)?.value||'';
-    drop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${makeName.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
+    if(!val){drop.style.display='none';return;}
+    const models=[...new Set(Object.values(_vdb).filter(e=>(!make||(e.make&&e.make.toLowerCase()===make))&&e.model&&e.model.toLowerCase().startsWith(val)).map(e=>e.model))].sort();
+    if(!models.length){drop.style.display='none';return;}
+    drop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\\'")}')">${m}</div>`).join('');
     drop.style.display='block';
 }
 
-function pickModel(i, model, make){
+function pickModel(i,model){
     uf(i,'model',model);
-    const inp=document.getElementById('mo'+i);
-    if(inp) inp.value=model;
+    const inp=document.getElementById('mo'+i);if(inp)inp.value=model;
     hideDrop('mod'+i);
-    // Auto-fill mfr data
-    if(make) { uf(i,'make',make); const mk=document.getElementById('mk'+i); if(mk) mk.value=make; }
     lkRow(i);
-    // Focus year
-    const yr=document.getElementById('yr'+i);
-    if(yr){ yr.focus(); yr.select(); }
+    const yr=document.getElementById('yr'+i);if(yr){yr.focus();yr.select();}
 }
-// ─────────────────────────────────────────────────────────────
 
+// ── Field update / lookup ──────────────────────────────────────────────────
 function nav(e,r,f){if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();const t=document.getElementById(f+r);if(t){t.focus();t.select();}}}
-function uf(i,f,v){if(!_fleet[i])return;const numFs=['odo','liters','mfr_min','mfr_avg','clientTarget','year'];_fleet[i][f]=numFs.includes(f)?(v===''?null:parseFloat(v)||v):v;}
-function uEdit(i){_fleet[i]._af=false;const b=document.getElementById('dbb'+i);if(b)b.classList.add('show');}
+
+function uf(i,f,v){
+    if(!_fleet[i])return;
+    const numFs=['odo','liters','mfr_min','mfr_avg','clientTarget','year','gvm','engine_litres','fuel_tank','gps'];
+    _fleet[i][f]=numFs.includes(f)?(v===''||v===null?null:parseFloat(v)||v):v;
+}
+
+function uEdit(i){
+    _fleet[i]._af=false;
+    const b=document.getElementById('dbb'+i);if(b)b.classList.add('show');
+}
 
 function lkRow(i){
     const make=(document.getElementById('mk'+i)?.value||'').trim();
     const model=(document.getElementById('mo'+i)?.value||'').trim();
     if(!make)return;
     const e=lookupMfr(make,model);
-    const minEl=document.getElementById('min'+i),avgEl=document.getElementById('avg'+i),dbBtn=document.getElementById('dbb'+i);
     if(e&&!_fleet[i]?._ue){
-        if(minEl){minEl.value=e.mfr_min||'';minEl.className='di af';_fleet[i].mfr_min=e.mfr_min;}
-        if(avgEl){avgEl.value=e.mfr_avg||'';avgEl.className='di af';_fleet[i].mfr_avg=e.mfr_avg;}
-        if(dbBtn)dbBtn.classList.remove('show');
-    } else if(!e){if(dbBtn)dbBtn.classList.add('show');}
-    updateStats();checkUnk();
+        // Auto-fill all DB fields
+        const fields={min:'mfr_min',avg:'mfr_avg',gvm:'gvm',eng:'engine_litres',tnk:'fuel_tank'};
+        const dbMap={min:e.mfr_min,avg:e.mfr_avg,gvm:e.gvm,eng:e.engine_litres,tnk:e.fuel_tank};
+        Object.entries(fields).forEach(([elId,fld])=>{
+            const el=document.getElementById(elId+i);
+            if(el&&dbMap[elId]){el.value=dbMap[elId];el.className='di af';_fleet[i][fld]=dbMap[elId];}
+        });
+        const db=document.getElementById('dbb'+i);if(db)db.classList.remove('show');
+        _fleet[i]._af=true;
+        updSuggested(i);
+    } else if(!e){
+        const b=document.getElementById('dbb'+i);if(b)b.classList.add('show');
+    }
+    updateStats();checkUnkAlert();
 }
-function runLookupAll(){for(let i=0;i<_fleet.length;i++)lkRow(i);toast('Mfr lookup complete ✓');}
 
+function runLookupAll(){for(let i=0;i<_fleet.length;i++)lkRow(i);toast('DB lookup complete ✓');}
+
+function updSuggested(i){
+    const v=_fleet[i];if(!v)return;
+    // Re-sync route/load fields from DOM
+    ['loadProfile','trailerType','aerokit','terrain'].forEach(f=>{
+        const elMap={loadProfile:'lp',trailerType:'tt',aerokit:'ak',terrain:'ter'};
+        const el=document.getElementById(elMap[f]+i);if(el)v[f]=el.value;
+    });
+    const il=document.getElementById('il'+i);if(il)v.interlink=il.value==='Yes';
+    const sug=calcSuggested(v);
+    const el=document.getElementById('sug'+i);if(el)el.value=sug||'';
+    updHead(i);
+}
+
+function updHead(i){
+    // Recalculate the summary row
+    const v=_fleet[i];
+    const odo=parseFloat(document.getElementById('odo'+i)?.value)||v.odo||0;
+    const liters=parseFloat(document.getElementById('ful'+i)?.value)||v.liters||0;
+    const actKmL=(odo&&liters)?Math.round((odo/liters)*100)/100:null;
+    const sug=calcSuggested(v);
+    const target=parseFloat(v.clientTarget)||sug||parseFloat(v.mfr_avg)||2.0;
+    const pct=actKmL&&target?Math.min(100,Math.round((actKmL/target)*100)):null;
+    const col=pct!=null?scoreColor(pct):'#475569';
+    // Update bar
+    const fill=document.querySelector(`#vcard${i} .v-kmfill`);
+    if(fill){fill.style.width=(pct||0)+'%';fill.style.background=col;}
+    const kmlEl=document.querySelector(`#vcard${i} .v-kml`);
+    if(kmlEl){kmlEl.textContent=actKmL?actKmL+' km/L':'—';kmlEl.style.color=col;}
+    // Update computed row
+    const cr=document.getElementById('comprow'+i);
+    if(cr){
+        cr.style.display=(odo||liters)?'flex':'none';
+        const drift=odo&&v.gps?Math.round(odo-parseFloat(v.gps)):'—';
+        const tank=v.fuel_tank||(lookupMfr(v.make,v.model)?.fuel_tank)||0;
+        const tankOk=liters&&tank?(liters<=tank*1.15?'✓ OK':'⚠ Over-fill'):'—';
+        setTxt('comp-kml'+i,actKmL?actKmL+' km/L':'—',col);
+        setTxt('comp-pct'+i,pct!=null?pct+'%':'—',col);
+        setTxt('comp-drift'+i,typeof drift==='number'?drift+'km':'—');
+        setTxt('comp-tank'+i,tankOk,tankOk.startsWith('⚠')?'#f87171':'#10b981');
+    }
+    // Fraud flags
+    const flags=checkFraud({...v,odo,liters});
+    const fraudDiv=document.querySelector(`#vbody${i} [style*="rgba(239,68,68"]`);
+    const card=document.getElementById('vcard'+i);
+    if(flags.length){
+        card?.classList.add('flagged');
+        if(fraudDiv)fraudDiv.innerHTML='⚠ '+flags.join('<br>⚠ ');
+    } else {
+        card?.classList.remove('flagged');
+    }
+    updateStats();
+}
+
+function setTxt(id,txt,color){const el=document.getElementById(id);if(el){el.textContent=txt;if(color)el.style.color=color;}}
+
+// ── Stats & alerts ─────────────────────────────────────────────────────────
+function updateStats(){
+    const t=_fleet.length;
+    const m=_fleet.filter(v=>v.mfr_avg||v.mfr_min||lookupMfr(v.make,v.model)).length;
+    const unk=_fleet.filter(v=>v.make&&!lookupMfr(v.make,v.model)&&!v.mfr_avg).length;
+    const fraud=_fleet.filter(v=>checkFraud(v).length>0).length;
+    const cmp=_fleet.filter(v=>v.odo&&v.liters).length;
+    setTxt('sTotal',t);setTxt('sMfr',m);setTxt('sUnk',unk);setTxt('sFraud',fraud);setTxt('sCmp',cmp);
+    setTxt('sTgt',_fleet.filter(v=>v.clientTarget).length);
+    // Tab counts
+    setTxt('ftAll','('+t+')');
+    setTxt('ftUnk',unk?'('+unk+')':'');
+    setTxt('ftMiss','('+ _fleet.filter(v=>!v.odo||!v.liters).length+')');
+    setTxt('ftFraud',fraud?'('+fraud+')':'');
+    // Progress
+    const pct=t>0?Math.round(cmp/t*100):0;
+    document.getElementById('pFill').style.width=pct+'%';
+    checkUnkAlert();checkFraudAlert();
+}
+
+function updProg(){updateStats();}
+
+function checkUnkAlert(){
+    const u=_fleet.filter(v=>v.make&&!lookupMfr(v.make,v.model)&&!v.mfr_avg);
+    const al=document.getElementById('dbAlert');
+    if(u.length){
+        document.getElementById('dbMsg').textContent='⚠ '+u.length+' unknown make/model: '+[...new Set(u.map(v=>(v.make+' '+(v.model||'')).trim()))].join(', ')+' — enter Mfr Min/Avg and click Save to DB';
+        al.style.display='block';
+    } else al.style.display='none';
+}
+
+function checkFraudAlert(){
+    const f=_fleet.filter(v=>checkFraud(v).length>0);
+    const al=document.getElementById('fraudAlert');
+    if(f.length){
+        document.getElementById('fraudMsg').textContent='🚨 '+f.length+' vehicle'+(f.length>1?'s':'')+' with fraud/anomaly flags: '+f.map(v=>v.reg).join(', ')+' — review before saving';
+        al.style.display='block';
+    } else al.style.display='none';
+}
+
+// ── Save to DB ─────────────────────────────────────────────────────────────
 async function sdb(i){
     const make=(document.getElementById('mk'+i)?.value||'').trim();
     const model=(document.getElementById('mo'+i)?.value||'').trim();
     const min=document.getElementById('min'+i)?.value;
     const avg=document.getElementById('avg'+i)?.value;
     const type=document.getElementById('typ'+i)?.value||'Heavy';
+    const gvm=document.getElementById('gvm'+i)?.value;
+    const eng=document.getElementById('eng'+i)?.value;
+    const tank=document.getElementById('tnk'+i)?.value;
     if(!make){toast('Enter a make first',true);return;}
     if(!min&&!avg){toast('Enter Mfr Min or Avg first',true);return;}
-    await saveVDB(make,model,min,avg,type);
+    await saveVDB(make,model,min,avg,type,gvm,eng,tank);
     const b=document.getElementById('dbb'+i);if(b)b.classList.remove('show');
-    const me=document.getElementById('min'+i),ae=document.getElementById('avg'+i);
-    if(me)me.className='di af';if(ae)ae.className='di af';
-    updateStats();checkUnk();
-}
-function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,aerokit:'None',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
-
-function updSuggested(i){
-    const v=_fleet[i];if(!v)return;
-    const mfrMin=v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min);
-    const sug=calcSuggested(mfrMin,v.loadProfile,v.trailerType,v.interlink,v.aerokit);
-    const el=document.getElementById('sug'+i);
-    if(el){el.value=sug||'';}
+    ['min','avg','gvm','eng','tnk'].forEach(f=>{const el=document.getElementById(f+i);if(el)el.className='di af';});
+    _fleet[i]._af=true;
+    updateStats();checkUnkAlert();
 }
 
-function updateStats(){
-    const t=_fleet.length;
-    const m=_fleet.filter(v=>v.mfr_min||v.mfr_avg||lookupMfr(v.make,v.model)).length;
-    document.getElementById('sTotal').textContent=t;
-    document.getElementById('sMfr').textContent=m;
-    document.getElementById('sUnk').textContent=t-m;
-    document.getElementById('sTgt').textContent=_fleet.filter(v=>v.clientTarget).length;
-    document.getElementById('sCmp').textContent=_fleet.filter(v=>v.odo&&v.liters).length;
-}
-function updProg(){
-    updateStats();
-    const t=_fleet.length;
-    const c=_fleet.filter((_,i)=>{const o=document.getElementById('odo'+i)?.value,f=document.getElementById('ful'+i)?.value;return o&&parseFloat(o)>0&&f&&parseFloat(f)>0;}).length;
-    document.getElementById('pFill').style.width=(t>0?Math.round(c/t*100):0)+'%';
-}
-function checkUnk(){
-    const u=_fleet.filter(v=>v.make&&!lookupMfr(v.make,v.model)&&!v.mfr_avg);
-    const al=document.getElementById('dbAlert');
-    if(u.length){document.getElementById('dbMsg').textContent=u.length+' unknown: '+[...new Set(u.map(v=>(v.make+' '+(v.model||'')).trim()))].join(', ');al.style.display='block';}
-    else al.style.display='none';
+// ── Add vehicle ────────────────────────────────────────────────────────────
+function addRow(){
+    _fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',
+        loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,
+        aerokit:'None',terrain:'Mixed / Undulating',mfr_min:null,mfr_avg:null,
+        gvm:null,engine_litres:null,fuel_tank:null,clientTarget:null,odo:null,liters:null});
+    renderCards();
+    // Expand and focus new card
+    const i=_fleet.length-1;
+    toggleCard(i);
+    setTimeout(()=>document.getElementById('reg'+i)?.focus(),100);
 }
 
+// ── Sync DOM → _fleet ──────────────────────────────────────────────────────
 function syncDOM(){
     for(let i=0;i<_fleet.length;i++){
         const g=id=>document.getElementById(id+i)?.value;
         const reg=g('reg'),make=(g('mk')||'').trim(),model=(g('mo')||'').trim();
-        const yr=g('yr'),type=g('typ'),usg=g('usg'),lp=g('lp'),tt=g('tt'),ak=g('ak');
-        const min=g('min'),avg=g('avg'),tgt=g('tgt'),odo=g('odo'),ful=g('ful');
         if(reg!==undefined)_fleet[i].reg=reg.toUpperCase();
         if(make!==undefined)_fleet[i].make=make;
         if(model!==undefined)_fleet[i].model=model;
-        if(yr!==undefined)_fleet[i].year=yr?parseInt(yr):null;
-        if(type!==undefined)_fleet[i].type=type;
-        if(usg!==undefined)_fleet[i].usage=usg;
-        if(lp!==undefined)_fleet[i].loadProfile=lp;
-        if(tt!==undefined)_fleet[i].trailerType=tt;
-        if(ak!==undefined)_fleet[i].aerokit=ak;
-        if(min!==undefined)_fleet[i].mfr_min=min?parseFloat(min):null;
-        if(avg!==undefined)_fleet[i].mfr_avg=avg?parseFloat(avg):null;
-        if(tgt!==undefined)_fleet[i].clientTarget=tgt?parseFloat(tgt):null;
-        if(odo!==undefined)_fleet[i].odo=odo?parseFloat(odo):null;
-        if(ful!==undefined)_fleet[i].liters=ful?parseFloat(ful):null;
+        const yr=g('yr');if(yr!==undefined)_fleet[i].year=yr?parseInt(yr):null;
+        const flds={typ:'type',usg:'usage',lp:'loadProfile',tt:'trailerType',ak:'aerokit',ter:'terrain',rte:'route'};
+        Object.entries(flds).forEach(([el,fld])=>{const v=g(el);if(v!==undefined)_fleet[i][fld]=v;});
+        const il=document.getElementById('il'+i);if(il)_fleet[i].interlink=il.value==='Yes';
+        const numFlds={min:'mfr_min',avg:'mfr_avg',gvm:'gvm',eng:'engine_litres',tnk:'fuel_tank',tgt:'clientTarget',odo:'odo',ful:'liters'};
+        Object.entries(numFlds).forEach(([el,fld])=>{const v=g(el);if(v!==undefined)_fleet[i][fld]=v?parseFloat(v):null;});
     }
 }
 
+// ── Save ───────────────────────────────────────────────────────────────────
 async function saveDraft(){
     if(!_cid){toast('No client selected',true);return;}
     syncDOM();
     const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    const i=all.findIndex(c=>c.id===_cid);if(i===-1){toast('Client not found in DB',true);return;}
+    const i=all.findIndex(c=>c.id===_cid);if(i===-1){toast('Client not found',true);return;}
     all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
     _client=all[i];
     toast('Saved — returning to client…');
-    setTimeout(()=>window.location.href='client.html?id='+_cid, 700);
+    setTimeout(()=>window.location.href='client.html?id='+_cid,700);
 }
 
 async function saveAndAudit(){
@@ -591,13 +1082,16 @@ async function saveAndAudit(){
     const draft={clientId:_cid,clientName:_client.company,auditPeriod:period.label,savedAt:new Date().toISOString(),auditData:{}};
     _fleet.forEach(v=>{
         if(!v.reg)return;
-        draft.auditData[v.reg]={reg:v.reg,make:v.make||'',model:v.model||'',year:v.year||'',type:v.type||'Heavy',
-            usage:v.usage||v.usedFor||'Long Distance',
+        draft.auditData[v.reg]={
+            reg:v.reg,make:v.make||'',model:v.model||'',year:v.year||'',type:v.type||'Heavy',
+            usage:v.usage||v.usedFor||'Long Distance',terrain:v.terrain||'Mixed / Undulating',
             loadProfile:v.loadProfile||'Fully Loaded',trailerType:v.trailerType||'Tautliner / Curtainsider',
             interlink:v.interlink||false,aerokit:v.aerokit||'None',
+            gvm:v.gvm||null,engine_litres:v.engine_litres||null,fuel_tank:v.fuel_tank||null,
             mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,
             clientTarget:v.clientTarget||null,targetKmL:v.clientTarget||null,
-            odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null};
+            odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null
+        };
     });
     await cloudStorage.setItem(draftKey,JSON.stringify(draft));
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
@@ -605,624 +1099,6 @@ async function saveAndAudit(){
     toast('Saved — launching audit…');
     setTimeout(()=>window.location.href='audit.html?client='+encodeURIComponent(_client.company)+'&id='+_cid,700);
 }
-
-function toast(msg,isErr){const e=document.getElementById('toast');e.textContent=msg;e.className='show'+(isErr?' err':'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='',2800);}
-function x(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
-</script>
-</body>
-</html>
-        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
-        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
-    </script>ml>
-<html lang="en">
-<head>
-    <script type="module" src="firebase-helper.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Entry | Dynamic Fleet Reporting</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Outfit', sans-serif; background: #020617; color: #e2e8f0; margin: 0; }
-        #sidebar { width: 220px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 1.5rem 0.75rem; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; overflow-y: auto; }
-        .logo-area { padding: 0 0.5rem 2rem 0.5rem; }
-        .logo-area img { height: 36px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 0.75rem 1rem; margin-bottom: 2px; border-radius: 0.6rem; color: #64748b; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: #94a3b8; }
-        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
-        .nav-sep { height: 1px; background: rgba(255,255,255,0.05); margin: 8px 0; }
-        #main { margin-left: 220px; min-height: 100vh; }
-        .top-bar { background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 40; flex-wrap: wrap; }
-        .top-bar h1 { font-size: 22px; font-weight: 900; font-style: italic; text-transform: uppercase; color: white; line-height: 1; }
-        .top-bar p  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: #10b981; margin-bottom: 2px; }
-        .content { padding: 1.5rem 2rem; }
-        .client-bar { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 1rem 1.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-        .client-bar label { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; }
-        .c-sel { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: white; font-family: 'Outfit',sans-serif; font-weight: 700; font-size: 13px; padding: 8px 12px; cursor: pointer; }
-        .c-sel:focus { outline: none; border-color: #10b981; }
-        .pill { font-size: 10px; font-weight: 700; padding: 5px 11px; border-radius: 20px; }
-        .pill-green  { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #10b981; }
-        .pill-amber  { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; cursor: pointer; }
-        .pill-purple { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); color: #818cf8; }
-        .stats-row { display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-        .stat { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.75rem; padding: 10px 16px; flex: 1; min-width: 80px; }
-        .stat .lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #475569; margin-bottom: 3px; }
-        .stat .val { font-size: 18px; font-weight: 900; }
-        .c-blue { color: #60a5fa; } .c-green { color: #10b981; } .c-amber { color: #fbbf24; } .c-red { color: #f87171; } .c-purple { color: #c4b5fd; }
-        .db-alert { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); border-left: 4px solid #fbbf24; border-radius: 0.75rem; padding: 11px 14px; margin-bottom: 1.25rem; display: none; font-size: 12px; color: #fbbf24; font-weight: 600; }
-        .tbl-wrap { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.25rem; overflow-x: auto; margin-bottom: 1.25rem; }
-        table { width: 100%; border-collapse: collapse; min-width: 1050px; }
-        .ac-drop { position:absolute; top:100%; left:0; min-width:140px; max-height:180px; overflow-y:auto;
-            background:#1e293b; border:1px solid #334155; border-radius:6px; z-index:999;
-            box-shadow:0 8px 24px rgba(0,0,0,0.4); }
-        .ac-item { padding:7px 10px; font-size:11px; font-weight:600; color:#e2e8f0; cursor:pointer; white-space:nowrap; }
-        .ac-item:hover { background:#334155; color:#38bdf8; }
-        thead tr { border-bottom: 2px solid rgba(16,185,129,0.25); }
-        thead th { padding: 9px 8px; font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #10b981; text-align: left; white-space: nowrap; }
-        thead th.th-blue { color: #60a5fa; } thead th.th-amber { color: #fbbf24; }
-        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
-        tbody tr:last-child { border-bottom: none; }
-        tbody tr:hover { background: rgba(255,255,255,0.02); }
-        td { padding: 6px 7px; vertical-align: middle; }
-        .di { background: rgba(15,23,42,0.8); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 7px; color: white; font-family: 'Outfit',sans-serif; font-size: 12px; font-weight: 600; width: 100%; transition: border-color 0.15s; -moz-appearance: textfield; }
-        .di::-webkit-outer-spin-button,.di::-webkit-inner-spin-button { -webkit-appearance:none; }
-        .di:focus { outline: none; border-color: #10b981; background: #0f172a; }
-        .di.af  { border-color: rgba(96,165,250,0.45); color: #93c5fd; }
-        .di.hv  { border-color: rgba(16,185,129,0.45); }
-        .di.unk { border-color: rgba(251,191,36,0.35); color: #fbbf24; }
-        .di.tgt { border-color: rgba(168,85,247,0.45); color: #c4b5fd; }
-        .reg-cell { font-size: 12px; font-weight: 900; color: white; }
-        .btn-sdb { font-size: 9px; font-weight: 900; text-transform: uppercase; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; padding: 3px 7px; border-radius: 4px; cursor: pointer; white-space: nowrap; display: none; font-family: 'Outfit',sans-serif; }
-        .btn-sdb:hover { background: rgba(251,191,36,0.2); }
-        .btn-sdb.show { display: inline-block; }
-        .w-badge { font-size: 7px; color: #10b981; font-weight: 700; display: block; letter-spacing: 0.05em; text-transform: uppercase; }
-        .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .btn { padding: 11px 20px; border-radius: 0.75rem; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; border: none; font-family: 'Outfit',sans-serif; transition: all 0.15s; }
-        .btn-p  { background: #10b981; color: #020617; }
-        .btn-p:hover { background: #059669; }
-        .btn-s  { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; }
-        .btn-s:hover { background: rgba(255,255,255,0.09); color: white; }
-        .btn-b  { background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2); color: #60a5fa; }
-        .btn-b:hover { background: rgba(96,165,250,0.18); }
-        .empty-st { text-align: center; padding: 48px; color: #475569; }
-        .empty-st .ico { font-size: 38px; margin-bottom: 10px; }
-        .empty-st .ttl { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; margin-bottom: 6px; }
-        .empty-st .sub { font-size: 11px; line-height: 1.5; }
-        .prog-bar { background: rgba(15,23,42,0.6); height: 5px; border-radius: 99px; overflow: hidden; margin-bottom: 1rem; }
-        .prog-fill { background: linear-gradient(90deg,#10b981,#34d399); height: 100%; transition: width 0.4s; border-radius: 99px; }
-        #toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: #10b981; color: #020617; padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 900; transform: translateY(80px); opacity: 0; transition: all 0.3s; pointer-events: none; }
-        #toast.show { transform: translateY(0); opacity: 1; }
-        #toast.err  { background: #ef4444; color: white; }
-
-        /* ── Mobile ── */
-        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;flex-shrink:0;}
-        .mob-logo{max-height:32px;}
-        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
-        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
-        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:59;}
-        .sidebar-overlay.open{display:block;}
-        @media(max-width:768px){
-            #sidebar{left:-260px!important;transition:left 0.25s ease;}
-            #sidebar.open{left:0!important;}
-            .mob-topbar{display:flex;}
-            .main-content{margin-left:0!important;padding:1rem!important;}
-            .grid-cols-2,.grid-cols-3,.grid-cols-4{grid-template-columns:1fr!important;}
-            table{display:block;overflow-x:auto;white-space:nowrap;}
-        }
-        @media(min-width:769px){.mob-topbar{display:none!important;}}
-    </style>
-</head>
-<body>
-    <div class="mob-topbar">
-        <img src="Logo.png" alt="Logo" class="mob-logo">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-            <span></span><span></span><span></span>
-        </button>
-    </div>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-<div id="sidebar">
-    <div class="logo-area"><img src="Logo.png" alt="DFR" onerror="this.style.display='none'"></div>
-    <a href="index.html"      class="nav-item">🏠 Dashboard</a>
-    <a href="pipeline.html"   class="nav-item">🔭 Pipeline</a>
-    <a href="database.html"   class="nav-item">🗄️ Clients</a>
-    <div class="nav-sep"></div>
-    <a href="data-entry.html" class="nav-item active">📋 Data Entry</a>
-    <a href="audit.html"      class="nav-item">📊 Audit</a>
-    <div class="nav-sep"></div>
-    <a href="sla.html"        class="nav-item">📄 SLA</a>
-    <a href="invoice.html"    class="nav-item">🧾 Invoice</a>
-    <a href="churned.html"    class="nav-item">🔴 Churned</a>
-    <a href="partners.html"  class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html"  class="nav-item">⚙ Settings</a>
-    <a href="marketing.html" class="nav-item">📣 Marketing</a>
-</div>
-
-<div id="main">
-    <div class="top-bar">
-        <div>
-            <p>Fleet Data Entry</p>
-            <h1 id="clientTitle">Select a Client</h1>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <span class="pill pill-green" id="periodPill" style="display:none;"></span>
-            <span class="pill pill-amber" id="pendingPill" style="display:none;" onclick="loadPendingWeekly()"></span>
-            <span class="pill pill-purple" id="obPill" style="display:none;">✓ Onboarding Received</span>
-        </div>
-    </div>
-
-    <div class="content">
-        <div class="client-bar">
-            <label>Client</label>
-            <select id="cSel" class="c-sel" onchange="loadClient(this.value)">
-                <option value="">— Select Active Client —</option>
-            </select>
-            <label>Period</label>
-            <select id="mSel" class="c-sel" style="min-width:110px;"></select>
-            <select id="ySel" class="c-sel" style="min-width:80px;"></select>
-        </div>
-
-        <div class="db-alert" id="dbAlert">⚠️ <span id="dbMsg"></span> — Use <strong>Save to DB</strong> buttons to add them for future clients.</div>
-
-        <div class="stats-row" id="statsRow" style="display:none;">
-            <div class="stat"><div class="lbl">Vehicles</div><div class="val c-blue" id="sTotal">—</div></div>
-            <div class="stat"><div class="lbl">Mfr Specs</div><div class="val c-green" id="sMfr">—</div></div>
-            <div class="stat"><div class="lbl">Unknown</div><div class="val c-amber" id="sUnk">—</div></div>
-            <div class="stat"><div class="lbl">Targets Set</div><div class="val c-purple" id="sTgt">—</div></div>
-            <div class="stat"><div class="lbl">Ready for Audit</div><div class="val c-green" id="sCmp">—</div></div>
-        </div>
-
-        <div id="progWrap" style="display:none;"><div class="prog-bar"><div class="prog-fill" id="pFill" style="width:0%"></div></div></div>
-
-        <div class="tbl-wrap">
-            <table>
-                <thead><tr>
-                    <th>#</th>
-                    <th style="min-width:110px;">Registration</th>
-                    <th style="min-width:100px;">Make</th>
-                    <th style="min-width:110px;">Model</th>
-                    <th>Yr</th>
-                    <th>Type</th>
-                    <th style="min-width:120px;">Usage</th>
-                    <th style="min-width:140px;">Load Profile</th>
-                    <th style="min-width:150px;">Trailer Type</th>
-                    <th style="min-width:70px;">Interlink</th>
-                    <th style="min-width:120px;">Aerokit</th>
-                    <th class="th-blue">Mfr Min</th>
-                    <th class="th-blue">Mfr Avg</th>
-                    <th></th>
-                    <th class="th-green" style="color:#10b981;">Suggested</th>
-                    <th class="th-amber">Client Target</th>
-                    <th>Odo (km)</th>
-                    <th>Fuel (L)</th>
-                </tr></thead>
-                <tbody id="tBody">
-                    <tr><td colspan="18"><div class="empty-st"><div class="ico">📋</div><div class="ttl">No Client Selected</div><div class="sub">Select an active client above.</div></div></td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="action-row" id="actRow" style="display:none;">
-            <button class="btn btn-p" onclick="saveAndAudit()">💾 Save & Run Audit</button>
-            <button class="btn btn-b" onclick="runLookupAll()">🔍 Re-run Mfr Lookup</button>
-            <button class="btn btn-s" onclick="saveDraft()">💾 Save & Return</button>
-            <button class="btn btn-s" onclick="addRow()">＋ Add Vehicle</button>
-        </div>
-        <div style="margin-top:10px;font-size:10px;color:#334155;display:none;" id="tips">
-            💡 Tab/Enter navigates odo → fuel → next row · Ctrl+S saves draft · <span style="color:#60a5fa;">Blue</span> = auto-filled from DB · <span style="color:#c4b5fd;">Purple</span> = target set · <span style="color:#fbbf24;">Yellow</span> = unknown make/model
-        </div>
-    </div>
-</div>
-<div id="toast"></div>
-
-<script>
-const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const TYPES=['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
-const LOAD_PROFILE=['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
-const TRAILER_TYPE=['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
-const AEROKIT=['None','Roof Fairing Only','Full Aerokit'];
-
-// ── Suggested consumption formula ─────────────────────────────────────────
-function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
-    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
-    let base = parseFloat(mfrMin);
-
-    // Load profile adjustment
-    const loadAdj = {
-        'Fully Loaded':                0,
-        'Loaded Out / Empty Return':   0.18,
-        'Mixed / Variable':            0.10,
-        'Local Stop-Start':           -0.15
-    }[loadProfile] ?? 0;
-
-    // Trailer drag adjustment
-    const trailerAdj = {
-        'Tautliner / Curtainsider':   -0.05,
-        'Flatdeck / Lowbed':           0,
-        'Tanker':                      0.03,
-        'Side Tipper':                -0.08,
-        'Rear Tipper':                -0.08,
-        'Livestock / Animal Trailer': -0.06,
-        'Rigid Body (No Trailer)':     0
-    }[trailerType] ?? 0;
-
-    // Interlink adds drag
-    const interlinkAdj = (interlink === true || interlink === 'true' || interlink === 'Yes') ? -0.04 : 0;
-
-    // Aerokit improvement
-    const aerokitAdj = {
-        'None':              0,
-        'Roof Fairing Only': 0.05,
-        'Full Aerokit':      0.10
-    }[aerokit] ?? 0;
-
-    const total = base * (1 + loadAdj + trailerAdj + interlinkAdj + aerokitAdj);
-    return Math.round(total * 100) / 100;
-}
-
-let _cid=null,_client=null,_fleet=[],_vdb={},_n=0;
-
-function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
-
-window.addEventListener('DOMContentLoaded',async()=>{
-    initPeriod();
-    await waitFor(()=>typeof cloudStorage!=='undefined');
-    await loadVDB();
-    await fillPicker();
-    const cid=new URLSearchParams(window.location.search).get('client');
-    if(cid){
-        // If the option isn't in the picker yet (e.g. client not active), add it
-        const sel=document.getElementById('cSel');
-        if(!sel.querySelector('option[value="'+cid+'"]')){
-            const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-            const c=all.find(x=>x.id===cid);
-            if(c){const o=document.createElement('option');o.value=c.id;o.text=c.company;sel.appendChild(o);}
-        }
-        sel.value=cid;
-        await loadClient(cid);
-    }
-    document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveDraft();}});
-});
-
-function initPeriod(){
-    const ms=document.getElementById('mSel'),ys=document.getElementById('ySel'),now=new Date();
-    MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.text=m;if(i===now.getMonth())o.selected=true;ms.appendChild(o);});
-    for(let y=now.getFullYear()-1;y<=now.getFullYear()+1;y++){const o=document.createElement('option');o.value=y;o.text=y;if(y===now.getFullYear())o.selected=true;ys.appendChild(o);}
-}
-function getPeriod(){const m=parseInt(document.getElementById('mSel').value),y=parseInt(document.getElementById('ySel').value);return{month:m,year:y,label:MONTHS[m]+' '+y};}
-
-async function loadVDB(){try{const r=await cloudStorage.getItem('VEHICLE_DB');_vdb=r?JSON.parse(r):{};}catch(e){_vdb={};}}
-function dbk(make,model){return(make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase();}
-function lookupMfr(make,model){
-    if(!make)return null;
-    let e=_vdb[dbk(make,model)];if(e)return e;
-    for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|'))return _vdb[k];}
-    return null;
-}
-async function saveVDB(make,model,min,avg,type){
-    const k=dbk(make,model);
-    _vdb[k]={make,model,mfr_min:parseFloat(min)||null,mfr_avg:parseFloat(avg)||null,type:type||'Heavy'};
-    await cloudStorage.setItem('VEHICLE_DB',JSON.stringify(_vdb));
-    toast('Saved to vehicle DB ✓');
-}
-
-async function fillPicker(){
-    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    const sel=document.getElementById('cSel');
-    sel.innerHTML='<option value="">— Select Active Client —</option>';
-    all.filter(c=>c.status==='active').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.text=c.company;sel.appendChild(o);});
-}
-
-async function loadClient(cid){
-    if(!cid){_cid=null;_client=null;_fleet=[];document.getElementById('clientTitle').textContent='Select a Client';renderTable();return;}
-    _cid=cid;
-    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    _client=all.find(c=>c.id===cid);
-    if(!_client){toast('Client not found',true);return;}
-    document.getElementById('clientTitle').textContent=_client.company.toUpperCase();
-    _fleet=(Array.isArray(_client.fleet)?_client.fleet:Object.values(_client.fleet||{})).map(v=>{
-        if(!v.mfr_min&&!v.mfr_avg){const e=lookupMfr(v.make,v.model);if(e)return{...v,mfr_min:e.mfr_min,mfr_avg:e.mfr_avg,_af:true};}
-        return v;
-    });
-    checkPending();
-    document.getElementById('obPill').style.display=_client.onboardingSubmitted?'inline-block':'none';
-    document.getElementById('statsRow').style.display='flex';
-    document.getElementById('actRow').style.display='flex';
-    document.getElementById('progWrap').style.display='block';
-    document.getElementById('tips').style.display='block';
-    renderTable();updateStats();checkUnk();
-}
-
-function checkPending(){
-    if(!_client)return;
-    const subs=_client.weeklySubmissions||[];
-    const pp=document.getElementById('pendingPill');
-    if(!subs.length){pp.style.display='none';return;}
-    const last=subs[subs.length-1],p=getPeriod();
-    if(last.month===p.month&&last.year===p.year&&!last.processed){
-        pp.style.display='inline-block';pp.textContent='📥 Weekly Data: '+last.period;
-    } else pp.style.display='none';
-}
-
-async function loadPendingWeekly(){
-    if(!_client)return;
-    const subs=_client.weeklySubmissions||[];if(!subs.length){toast('No pending data',true);return;}
-    const last=subs[subs.length-1];let loaded=0;
-    _fleet=_fleet.map(v=>{const e=(last.entries||[]).find(x=>x.reg===v.reg);if(e){loaded++;return{...v,odo:e.odo,liters:e.liters,_fw:true};}return v;});
-    renderTable();updateStats();toast('Loaded '+loaded+' vehicles from weekly submission ✓');
-    document.getElementById('pendingPill').style.display='none';
-    document.getElementById('mSel').value=last.month;document.getElementById('ySel').value=last.year;
-    document.getElementById('periodPill').textContent=last.period;document.getElementById('periodPill').style.display='inline-block';
-}
-
-function renderTable(){
-    _n=_fleet.length;const tb=document.getElementById('tBody');
-    if(!_fleet.length){
-        const msg=_cid?'No vehicles in fleet — client may not have completed onboarding.':'Select an active client above.';
-        tb.innerHTML=`<tr><td colspan="19"><div class="empty-st"><div class="ico">${_cid?'📭':'📋'}</div><div class="ttl">${_cid?'No Vehicles Found':'No Client Selected'}</div><div class="sub">${msg}</div></div></td></tr>`;
-        return;
-    }
-    const tOpts=TYPES.map(t=>`<option>${t}</option>`).join('');
-
-    tb.innerHTML=_fleet.map((v,i)=>{
-        const e=lookupMfr(v.make,v.model);
-        const mMin=v.mfr_min||(e&&e.mfr_min)||'';
-        const mAvg=v.mfr_avg||(e&&e.mfr_avg)||'';
-        const af=v._af||e;
-        const fw=v._fw;
-        const minCls=af&&mMin?'di af':(!mMin?'di unk':'di');
-        const avgCls=af&&mAvg?'di af':(!mAvg?'di unk':'di');
-        const tgtCls=v.clientTarget?'di tgt':'di';
-        const odoCls=v.odo?'di hv':'di';
-        const fulCls=v.liters?'di hv':'di';
-        const dbShow=(mMin||mAvg||e)?'':'show';
-
-        const selType=(x)=>TYPES.map(t=>`<option${v.type===t?' selected':''}>${t}</option>`).join('');
-        const selUsageC=(x)=>['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'].map(u=>`<option${(v.usage||v.usedFor)===u?' selected':''}>${u}</option>`).join('');
-        const selLoad=(x)=>LOAD_PROFILE.map(u=>`<option${v.loadProfile===u?' selected':''}>${u}</option>`).join('');
-        const selTrailer=(x)=>TRAILER_TYPE.map(u=>`<option${v.trailerType===u?' selected':''}>${u}</option>`).join('');
-        const selAero=(x)=>AEROKIT.map(u=>`<option${v.aerokit===u?' selected':''}>${u}</option>`).join('');
-        const suggested=calcSuggested(v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min),v.loadProfile,v.trailerType,v.interlink,v.aerokit);
-
-        return `<tr id="tr${i}">
-            <td style="width:28px;font-size:11px;font-weight:700;color:#475569;">${i+1}</td>
-            <td>
-                <input class="di reg-cell" style="min-width:110px;text-transform:uppercase;" id="reg${i}" value="${x(v.reg)}" oninput="this.value=this.value.toUpperCase();uf(${i},'reg',this.value)">
-            </td>
-            <td style="position:relative;">
-                <input class="di" style="width:96px;" id="mk${i}" placeholder="Make" value="${x(v.make)}"
-                    oninput="uf(${i},'make',this.value);acMake(${i})"
-                    onblur="setTimeout(()=>hideDrop('mkd${i}'),200)"
-                    autocomplete="off">
-                <div id="mkd${i}" class="ac-drop" style="display:none;"></div>
-            </td>
-            <td style="position:relative;">
-                <input class="di" style="width:106px;" id="mo${i}" placeholder="Model" value="${x(v.model)}"
-                    oninput="uf(${i},'model',this.value);acModel(${i})"
-                    onblur="setTimeout(()=>hideDrop('mod${i}'),200)"
-                    autocomplete="off">
-                <div id="mod${i}" class="ac-drop" style="display:none;"></div>
-            </td>
-            <td><input class="di" style="width:50px;" type="number" id="yr${i}" min="1990" max="2030" placeholder="2020" value="${x(v.year)}" oninput="uf(${i},'year',this.value)"></td>
-            <td><select class="di" style="width:76px;" id="typ${i}" onchange="uf(${i},'type',this.value)">${selType()}</select></td>
-            <td><select class="di" style="min-width:120px;font-size:10px;" id="usg${i}" onchange="uf(${i},'usage',this.value)">${selUsageC()}</select></td>
-            <td><select class="di" style="min-width:140px;font-size:10px;" id="lp${i}" onchange="uf(${i},'loadProfile',this.value);updSuggested(${i})">${selLoad()}</select></td>
-            <td><select class="di" style="min-width:150px;font-size:10px;" id="tt${i}" onchange="uf(${i},'trailerType',this.value);updSuggested(${i})">${selTrailer()}</select></td>
-            <td style="text-align:center;">
-                <label style="font-size:10px;color:#94a3b8;cursor:pointer;">
-                    <input type="checkbox" id="il${i}" ${(v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?'checked':''} onchange="uf(${i},'interlink',this.checked);updSuggested(${i})" style="margin-right:4px;">Yes
-                </label>
-            </td>
-            <td><select class="di" style="min-width:120px;font-size:10px;" id="ak${i}" onchange="uf(${i},'aerokit',this.value);updSuggested(${i})">${selAero()}</select></td>
-            <td><input class="${minCls}" style="width:66px;" type="number" step="0.01" id="min${i}" placeholder="—" value="${mMin}" oninput="uf(${i},'mfr_min',this.value);uEdit(${i});updSuggested(${i})"></td>
-            <td><input class="${avgCls}" style="width:66px;" type="number" step="0.01" id="avg${i}" placeholder="—" value="${mAvg}" oninput="uf(${i},'mfr_avg',this.value);uEdit(${i})"></td>
-            <td><button class="btn-sdb ${dbShow}" id="dbb${i}" onclick="sdb(${i})">Save to DB</button></td>
-            <td><input class="di" style="width:66px;background:rgba(16,185,129,0.07);color:#10b981;font-weight:700;" type="number" step="0.01" id="sug${i}" placeholder="—" value="${suggested||''}" readonly title="Suggested target based on Mfr Min + load/trailer/aerokit factors"></td>
-            <td><input class="${tgtCls}" style="width:68px;" type="number" step="0.1" id="tgt${i}" placeholder="Set target" value="${x(v.clientTarget)}" oninput="uf(${i},'clientTarget',this.value)"></td>
-            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
-                ${fw?'<span class="w-badge">weekly</span>':''}
-                <input class="${odoCls}" style="width:86px;" type="number" id="odo${i}" placeholder="km" value="${x(v.odo)}"
-                    oninput="uf(${i},'odo',this.value);updProg()" onfocus="this.select()"
-                    onkeydown="nav(event,${i},'ful')">
-            </td>
-            <td style="${fw?'background:rgba(16,185,129,0.05);':''}">
-                ${fw?'<span class="w-badge">weekly</span>':''}
-                <input class="${fulCls}" style="width:86px;" type="number" step="0.1" id="ful${i}" placeholder="L" value="${x(v.liters)}"
-                    oninput="uf(${i},'liters',this.value);updProg()" onfocus="this.select()"
-                    onkeydown="nav(event,${i+1<_n?i+1:i},'odo')">
-            </td>
-        </tr>`;
-    }).join('');
-    updProg();
-}
-
-// ── Autocomplete helpers ─────────────────────────────────────
-function hideDrop(id){ const d=document.getElementById(id); if(d) d.style.display='none'; }
-
-function acMake(i){
-    const val=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
-    const drop=document.getElementById('mkd'+i);
-    if(!val){ drop.style.display='none'; return; }
-    // Get unique makes from VDB
-    const makes=[...new Set(Object.values(_vdb).map(e=>e.make).filter(m=>m&&m.toLowerCase().startsWith(val)))].sort();
-    if(!makes.length){ drop.style.display='none'; return; }
-    drop.innerHTML=makes.map(m=>`<div class="ac-item" onmousedown="pickMake(${i},'${m.replace(/'/g,"\'")})">${m}</div>`).join('');
-    drop.style.display='block';
-}
-
-function pickMake(i, make){
-    uf(i,'make',make);
-    const inp=document.getElementById('mk'+i);
-    if(inp) inp.value=make;
-    hideDrop('mkd'+i);
-    // Auto-populate model dropdown
-    const models=[...new Set(Object.values(_vdb).filter(e=>e.make&&e.make.toLowerCase()===make.toLowerCase()).map(e=>e.model))].sort();
-    const modDrop=document.getElementById('mod'+i);
-    if(modDrop && models.length){
-        modDrop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${make.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
-        modDrop.style.display='block';
-    }
-    // Focus model input
-    const modInp=document.getElementById('mo'+i);
-    if(modInp){ modInp.value=''; modInp.focus(); }
-}
-
-function acModel(i){
-    const make=(document.getElementById('mk'+i)?.value||'').trim().toLowerCase();
-    const val=(document.getElementById('mo'+i)?.value||'').trim().toLowerCase();
-    const drop=document.getElementById('mod'+i);
-    if(!val){ drop.style.display='none'; return; }
-    const models=[...new Set(Object.values(_vdb)
-        .filter(e=>(!make||( e.make&&e.make.toLowerCase()===make))&&e.model&&e.model.toLowerCase().startsWith(val))
-        .map(e=>e.model))].sort();
-    if(!models.length){ drop.style.display='none'; return; }
-    const makeName=document.getElementById('mk'+i)?.value||'';
-    drop.innerHTML=models.map(m=>`<div class="ac-item" onmousedown="pickModel(${i},'${m.replace(/'/g,"\'")}','${makeName.replace(/'/g,"\'")}')">` +m+`</div>`).join('');
-    drop.style.display='block';
-}
-
-function pickModel(i, model, make){
-    uf(i,'model',model);
-    const inp=document.getElementById('mo'+i);
-    if(inp) inp.value=model;
-    hideDrop('mod'+i);
-    // Auto-fill mfr data
-    if(make) { uf(i,'make',make); const mk=document.getElementById('mk'+i); if(mk) mk.value=make; }
-    lkRow(i);
-    // Focus year
-    const yr=document.getElementById('yr'+i);
-    if(yr){ yr.focus(); yr.select(); }
-}
-// ─────────────────────────────────────────────────────────────
-
-function nav(e,r,f){if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();const t=document.getElementById(f+r);if(t){t.focus();t.select();}}}
-function uf(i,f,v){if(!_fleet[i])return;const numFs=['odo','liters','mfr_min','mfr_avg','clientTarget','year'];_fleet[i][f]=numFs.includes(f)?(v===''?null:parseFloat(v)||v):v;}
-function uEdit(i){_fleet[i]._af=false;const b=document.getElementById('dbb'+i);if(b)b.classList.add('show');}
-
-function lkRow(i){
-    const make=(document.getElementById('mk'+i)?.value||'').trim();
-    const model=(document.getElementById('mo'+i)?.value||'').trim();
-    if(!make)return;
-    const e=lookupMfr(make,model);
-    const minEl=document.getElementById('min'+i),avgEl=document.getElementById('avg'+i),dbBtn=document.getElementById('dbb'+i);
-    if(e&&!_fleet[i]?._ue){
-        if(minEl){minEl.value=e.mfr_min||'';minEl.className='di af';_fleet[i].mfr_min=e.mfr_min;}
-        if(avgEl){avgEl.value=e.mfr_avg||'';avgEl.className='di af';_fleet[i].mfr_avg=e.mfr_avg;}
-        if(dbBtn)dbBtn.classList.remove('show');
-    } else if(!e){if(dbBtn)dbBtn.classList.add('show');}
-    updateStats();checkUnk();
-}
-function runLookupAll(){for(let i=0;i<_fleet.length;i++)lkRow(i);toast('Mfr lookup complete ✓');}
-
-async function sdb(i){
-    const make=(document.getElementById('mk'+i)?.value||'').trim();
-    const model=(document.getElementById('mo'+i)?.value||'').trim();
-    const min=document.getElementById('min'+i)?.value;
-    const avg=document.getElementById('avg'+i)?.value;
-    const type=document.getElementById('typ'+i)?.value||'Heavy';
-    if(!make){toast('Enter a make first',true);return;}
-    if(!min&&!avg){toast('Enter Mfr Min or Avg first',true);return;}
-    await saveVDB(make,model,min,avg,type);
-    const b=document.getElementById('dbb'+i);if(b)b.classList.remove('show');
-    const me=document.getElementById('min'+i),ae=document.getElementById('avg'+i);
-    if(me)me.className='di af';if(ae)ae.className='di af';
-    updateStats();checkUnk();
-}
-function addRow(){_fleet.push({reg:'',make:'',model:'',year:null,type:'Heavy',usage:'Long Distance',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',interlink:false,aerokit:'None',mfr_min:null,mfr_avg:null,clientTarget:null,odo:null,liters:null});renderTable();setTimeout(()=>document.getElementById('reg'+(_fleet.length-1))?.focus(),50);}
-
-function updSuggested(i){
-    const v=_fleet[i];if(!v)return;
-    const mfrMin=v.mfr_min||(lookupMfr(v.make,v.model)?.mfr_min);
-    const sug=calcSuggested(mfrMin,v.loadProfile,v.trailerType,v.interlink,v.aerokit);
-    const el=document.getElementById('sug'+i);
-    if(el){el.value=sug||'';}
-}
-
-function updateStats(){
-    const t=_fleet.length;
-    const m=_fleet.filter(v=>v.mfr_min||v.mfr_avg||lookupMfr(v.make,v.model)).length;
-    document.getElementById('sTotal').textContent=t;
-    document.getElementById('sMfr').textContent=m;
-    document.getElementById('sUnk').textContent=t-m;
-    document.getElementById('sTgt').textContent=_fleet.filter(v=>v.clientTarget).length;
-    document.getElementById('sCmp').textContent=_fleet.filter(v=>v.odo&&v.liters).length;
-}
-function updProg(){
-    updateStats();
-    const t=_fleet.length;
-    const c=_fleet.filter((_,i)=>{const o=document.getElementById('odo'+i)?.value,f=document.getElementById('ful'+i)?.value;return o&&parseFloat(o)>0&&f&&parseFloat(f)>0;}).length;
-    document.getElementById('pFill').style.width=(t>0?Math.round(c/t*100):0)+'%';
-}
-function checkUnk(){
-    const u=_fleet.filter(v=>v.make&&!lookupMfr(v.make,v.model)&&!v.mfr_avg);
-    const al=document.getElementById('dbAlert');
-    if(u.length){document.getElementById('dbMsg').textContent=u.length+' unknown: '+[...new Set(u.map(v=>(v.make+' '+(v.model||'')).trim()))].join(', ');al.style.display='block';}
-    else al.style.display='none';
-}
-
-function syncDOM(){
-    for(let i=0;i<_fleet.length;i++){
-        const g=id=>document.getElementById(id+i)?.value;
-        const reg=g('reg'),make=(g('mk')||'').trim(),model=(g('mo')||'').trim();
-        const yr=g('yr'),type=g('typ'),usg=g('usg'),lp=g('lp'),tt=g('tt'),ak=g('ak');
-        const min=g('min'),avg=g('avg'),tgt=g('tgt'),odo=g('odo'),ful=g('ful');
-        if(reg!==undefined)_fleet[i].reg=reg.toUpperCase();
-        if(make!==undefined)_fleet[i].make=make;
-        if(model!==undefined)_fleet[i].model=model;
-        if(yr!==undefined)_fleet[i].year=yr?parseInt(yr):null;
-        if(type!==undefined)_fleet[i].type=type;
-        if(usg!==undefined)_fleet[i].usage=usg;
-        if(lp!==undefined)_fleet[i].loadProfile=lp;
-        if(tt!==undefined)_fleet[i].trailerType=tt;
-        if(ak!==undefined)_fleet[i].aerokit=ak;
-        if(min!==undefined)_fleet[i].mfr_min=min?parseFloat(min):null;
-        if(avg!==undefined)_fleet[i].mfr_avg=avg?parseFloat(avg):null;
-        if(tgt!==undefined)_fleet[i].clientTarget=tgt?parseFloat(tgt):null;
-        if(odo!==undefined)_fleet[i].odo=odo?parseFloat(odo):null;
-        if(ful!==undefined)_fleet[i].liters=ful?parseFloat(ful):null;
-    }
-}
-
-async function saveDraft(){
-    if(!_cid){toast('No client selected',true);return;}
-    syncDOM();
-    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    const i=all.findIndex(c=>c.id===_cid);if(i===-1){toast('Client not found in DB',true);return;}
-    all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
-    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
-    _client=all[i];
-    toast('Saved — returning to client…');
-    setTimeout(()=>window.location.href='client.html?id='+_cid, 700);
-}
-
-async function saveAndAudit(){
-    if(!_cid){toast('No client selected',true);return;}
-    syncDOM();
-    const period=getPeriod();
-    const all=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    const i=all.findIndex(c=>c.id===_cid);if(i===-1)return;
-    all[i].fleet=_fleet;all[i].fleetSize=_fleet.length;
-    const draftKey='AUDIT_DRAFT_'+_client.company.toUpperCase().replace(/\s+/g,'_');
-    const draft={clientId:_cid,clientName:_client.company,auditPeriod:period.label,savedAt:new Date().toISOString(),auditData:{}};
-    _fleet.forEach(v=>{
-        if(!v.reg)return;
-        draft.auditData[v.reg]={reg:v.reg,make:v.make||'',model:v.model||'',year:v.year||'',type:v.type||'Heavy',
-            usage:v.usage||v.usedFor||'Long Distance',
-            loadProfile:v.loadProfile||'Fully Loaded',trailerType:v.trailerType||'Tautliner / Curtainsider',
-            interlink:v.interlink||false,aerokit:v.aerokit||'None',
-            mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,
-            clientTarget:v.clientTarget||null,targetKmL:v.clientTarget||null,
-            odo:v.odo||null,liters:v.liters||null,gps:v.gps||null,speeds:v.speeds||null};
-    });
-    await cloudStorage.setItem(draftKey,JSON.stringify(draft));
-    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(all));
-    await cloudStorage.setItem('currentAuditClient',_client.company);
-    toast('Saved — launching audit…');
-    setTimeout(()=>window.location.href='audit.html?client='+encodeURIComponent(_client.company)+'&id='+_cid,700);
-}
-
-function toast(msg,isErr){const e=document.getElementById('toast');e.textContent=msg;e.className='show'+(isErr?' err':'');clearTimeout(e._t);e._t=setTimeout(()=>e.className='',2800);}
-function x(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 </script>
 </body>
 </html>
