@@ -196,7 +196,7 @@
 </main>
 
 <script>
-const APPS_SCRIPT_URL= + APPS_URL + ;
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 var _cbCounter=0;
 var _partners=[];
 const urlParams=new URLSearchParams(window.location.search);
@@ -257,6 +257,7 @@ ready().then(async function(){
             window.location.href='pipeline.html';
             return;
         }
+        console.log('Editing prospect:', p.id, p.company, p.contactName, p.email);
         document.getElementById('pageTitle').innerHTML="Edit <span class='text-emerald-400'>Prospect</span>";
         document.getElementById('submitBtn').innerText="Save Changes";
         document.getElementById('company').value=p.company||'';
