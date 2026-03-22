@@ -58,7 +58,8 @@
         .pc-body{padding:1.25rem 1.5rem;}
         .pc-info-row{display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap;}
         .pc-info{font-size:12px;color:#64748b;} .pc-info strong{color:#cbd5e1;display:block;font-size:11px;}
-        .pc-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;}
+        .pc-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:0.75rem;margin-bottom:1rem;}
+        @media(max-width:700px){.pc-metrics{grid-template-columns:repeat(3,1fr);}}
         .pc-metric{background:rgba(255,255,255,0.03);border-radius:8px;padding:0.75rem;text-align:center;}
         .pc-metric-val{font-size:1.2rem;font-weight:900;color:white;}
         .pc-metric-val.green{color:var(--grn);} .pc-metric-val.gold{color:var(--gld);} .pc-metric-val.blue{color:var(--blu);}
@@ -526,13 +527,18 @@ function renderPartners(){
         const code=getRefCode(p);
         const link=getRefLink(p);
         const pc=getPartnerClients(p.id,'active');
+        const pp=getPartnerClients(p.id,'prospect');
+        const allRef=getPartnerClients(p.id);
         const mrr=pc.reduce((s,c)=>s+getRetainer(c),0);
         const comm=mrr*((p.commRate||15)/100);
         const ytd=(p.commissionHistory||[]).filter(h=>new Date(h.date).getFullYear()===new Date().getFullYear()).reduce((s,h)=>s+h.amount,0);
         const owed=(p.commissionHistory||[]).filter(h=>!h.paid).reduce((s,h)=>s+h.amount,0)+((p.bonusHistory||[]).filter(b=>!b.paid).reduce((s,b)=>s+b.amount,0));
         const sc=p.status==='active'?'sa':p.status==='inactive'?'si2':'sp';
         const sl=p.status==='active'?'Active':p.status==='inactive'?'Inactive':'Pending';
-        const pills=pc.length?pc.map(c=>`<span class="client-pill"><span class="dot"></span>${c.company}</span>`).join(''):'<span style="font-size:11px;color:#475569;">No active referred clients yet</span>';
+        // Active client pills
+        const activePills=pc.length?pc.map(c=>`<span class="client-pill"><span class="dot"></span>${c.company}</span>`).join(''):'<span style="font-size:11px;color:#475569;">No active referred clients yet</span>';
+        // Prospect pills
+        const prosPills=pp.length?pp.map(c=>`<span class="client-pill" style="background:rgba(249,115,22,0.08);border-color:rgba(249,115,22,0.25);"><span class="dot" style="background:#f97316;"></span>${c.company}</span>`).join(''):'<span style="font-size:11px;color:#475569;">No prospects in pipeline yet</span>';
         const activateBtn=p.status==='active'
             ?`<button class="btn-sm bsr" onclick="setStatus('${p.id}','inactive')">⏸ Deactivate</button>`
             :`<button class="btn-sm bsgr" onclick="setStatus('${p.id}','active')">▶ Activate</button>`;
@@ -548,7 +554,9 @@ function renderPartners(){
                     <div class="pc-info"><strong>Bank</strong>${p.bank?p.bank+' · '+p.accNum:'—'}</div>
                 </div>
                 <div class="pc-metrics">
+                    <div class="pc-metric"><div class="pc-metric-val" style="color:#f97316;">${pp.length}</div><div class="pc-metric-label">Prospects</div></div>
                     <div class="pc-metric"><div class="pc-metric-val blue">${pc.length}</div><div class="pc-metric-label">Active Clients</div></div>
+                    <div class="pc-metric"><div class="pc-metric-val" style="color:#94a3b8;">${allRef.length}</div><div class="pc-metric-label">Total Referrals</div></div>
                     <div class="pc-metric"><div class="pc-metric-val green">R ${Math.round(comm).toLocaleString('en-ZA')}</div><div class="pc-metric-label">Comm/Month</div></div>
                     <div class="pc-metric"><div class="pc-metric-val gold">R ${owed.toLocaleString('en-ZA')}</div><div class="pc-metric-label">Outstanding</div></div>
                 </div>
@@ -556,8 +564,10 @@ function renderPartners(){
                     <span class="ref-link-text">${link}</span>
                     <button class="btn-copy-link" onclick="copyLink('${link}',this)">📋 Copy</button>
                 </div>
-                <div class="client-list-title">Referred Active Clients</div>
-                <div>${pills}</div>
+                <div class="client-list-title" style="margin-top:12px;">Prospects in Pipeline</div>
+                <div style="margin-bottom:10px;">${prosPills}</div>
+                <div class="client-list-title">Active Referred Clients</div>
+                <div>${activePills}</div>
             </div>
             <div class="pc-footer">
                 <button class="btn-sm bsb"   onclick="editPartner('${p.id}')">✏️ Edit</button>
