@@ -20,7 +20,9 @@
         .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
         .page-title span{color:var(--grn);}
         .page-sub{font-size:13px;color:#64748b;margin-top:0.5rem;font-weight:600;}
-        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:2rem 0;}
+        .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin:2rem 0;}
+        @media(max-width:1100px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);}}
         .stat-card{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:12px;padding:1.25rem;}
         .stat-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:#64748b;margin-bottom:0.5rem;}
         .stat-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
@@ -139,33 +141,6 @@
         .pb-ig{background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.15);}
         .pb-wa{background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);}
         .pb-tt{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
-
-        /* ── Mobile Responsive ── */
-        @media(max-width:1024px){
-            .partners-grid{grid-template-columns:1fr;}
-            .posts-wrap{grid-template-columns:1fr;}
-        }
-        @media(max-width:768px){
-            body{flex-direction:column;}
-            #sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap;padding:0.75rem;gap:0.4rem;border-right:none;border-bottom:1px solid var(--brd);}
-            .nav-item{padding:0.5rem 0.75rem;font-size:10px;}
-            #main{padding:1rem;}
-            .stats-row{grid-template-columns:1fr 1fr;gap:0.75rem;margin:1rem 0;}
-            .toolbar{gap:0.5rem;}
-            .toolbar input{width:100%;}
-            .pending-item{flex-direction:column;align-items:flex-start;gap:0.5rem;}
-            .pi-actions{width:100%;justify-content:flex-end;}
-            .partners-grid{grid-template-columns:1fr;}
-            .pc-info-row{gap:0.75rem;}
-            .pc-metrics{grid-template-columns:1fr 1fr;}
-            .pc-footer{padding:0.75rem 1rem;}
-            .modal-body{padding:1.25rem;}
-            .form-grid{grid-template-columns:1fr;}
-            .modal-footer{flex-direction:column;}
-            .modal-footer button{width:100%;}
-            .section-tabs{gap:4px;flex-wrap:wrap;}
-            .plat-bar{gap:4px;}
-        }
     </style>
 </head>
 <body>
@@ -200,6 +175,8 @@
         <div class="stats-row" id="partners-stats">
             <div class="stat-card"><div class="stat-label">Active Partners</div><div class="stat-val green" id="sActive">0</div></div>
             <div class="stat-card"><div class="stat-label">Pending Approval</div><div class="stat-val gold" id="sPending">0</div></div>
+            <div class="stat-card"><div class="stat-label">Prospects Referred</div><div class="stat-val" style="color:#f97316;" id="sProspects">0</div></div>
+            <div class="stat-card"><div class="stat-label">Active Clients Referred</div><div class="stat-val green" id="sRefActive">0</div></div>
             <div class="stat-card"><div class="stat-label">MRR via Partners</div><div class="stat-val green" id="sMRR">R 0</div></div>
             <div class="stat-card"><div class="stat-label">Comm Due This Month</div><div class="stat-val gold" id="sComm">R 0</div></div>
         </div>
@@ -234,992 +211,99 @@
             <button class="ptab ptab-cs"        onclick="switchMktTab('community',this)">🌟 Community Scripts</button>
         </div>
 
-        <!-- ══ FACEBOOK ══ -->
         <div class="plat-section active" id="mplat-fb">
             <div class="plat-banner pb-fb"><strong style="color:#e2e8f0;">📘 Facebook</strong>&nbsp;·&nbsp;Best times: Tue–Thu · 12pm–2pm · 3–4 posts/week</div>
             <div class="posts-wrap">
-
                 <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">❓ Curiosity Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_1">Quick question for fleet owners 👇
+                    <div class="post-card-head"><span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">💸 Money Shock</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Use this first</span></div>
+                    <div class="post-card-body"><div class="post-preview" id="fb_1">😱 Diesel is about to go up by R5 a litre. Maybe more.
 
-Do you actually know what your fleet is costing you per kilometre — right now, this month?
+April 1st. That's the date every fleet owner in SA needs to circle in red right now.
 
-Most owners have a rough idea. But rough ideas don't stop losses.
+The US-Iran war has pushed Brent Crude to $115 a barrel. The rand is weak. And the government's adding 21c/litre in new fuel taxes on the same day.
 
-We've audited fleets across South Africa and the number one finding is always the same: the money isn't disappearing in big obvious ways — it's leaking quietly. Wrong fuel consumption benchmarks. Drivers with unchecked habits. Vehicles running past their service window.
+Best case: diesel up R5.66/litre.
+Worst case: analysts are saying R8/litre.
 
-R20,000 here. R40,000 there. Every month.
+For a 20-truck fleet doing 10,000km each per month, that's between R150,000 and R250,000 MORE in fuel costs. Every. Single. Month.
 
-Dynamic Fleet Reporting gives you a forensic monthly breakdown of every vehicle, every driver, every litre — so you can stop guessing and start managing.
+The only way to fight back is to know exactly where your fuel is going — which drivers are burning excess, which vehicles are bleeding efficiency, and where the rand leakage is happening.
 
-Comment "INFO" below or WhatsApp us on 083 314 9592 and we'll show you exactly what we do.</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_1',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA</div></div>
+That's what we do at Dynamic Fleet Reporting.
+
+We give you a forensic breakdown of every litre, every vehicle, every month — so you can plug the leaks before April destroys your margins.
+
+📞 083 314 9592
+WhatsApp us today. April is 19 days away.</div></div>
+                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_1',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOptimization #FuelSavings #BusinessOwner #LogisticsSA</div></div>
                 </div>
-
                 <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">💡 Value Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_2">If you run a fleet in South Africa, here are 3 things worth knowing:
+                    <div class="post-card-head"><span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">❓ Curiosity Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span></div>
+                    <div class="post-card-body"><div class="post-preview" id="fb_2">Quick question for fleet owners 👇
 
-1️⃣ The average SA fleet wastes 12–18% of its fuel budget through unmonitored driver behaviour alone.
+Diesel goes up R5+ on April 1st.
 
-2️⃣ Most fleet owners only find out about vehicle abuse after the damage — not before.
+Do you know, right now, which of your drivers are burning 15–20% more than they should be?
 
-3️⃣ A proper monthly forensic report costs a fraction of what those losses add up to.
+Most fleet owners don't. And that was expensive BEFORE this fuel crisis. After April, it could be the difference between a profitable month and a loss.
 
-We're Dynamic Fleet Reporting. We give transport companies a detailed monthly breakdown of every vehicle, every driver, and every rand spent — so you can make decisions based on facts, not gut feel.
+We audit every vehicle in your fleet. We identify exactly where the excess consumption is. We give you a monthly report you can act on.
 
-👉 WhatsApp 083 314 9592 to see a sample report.</div></div>
+For most clients, we find R30,000–R100,000+ in recoverable losses every single month.
+
+Our fee? A fraction of that.
+
+With fuel at R25+ per litre from April, the ROI is going to be even more obvious.
+
+Comment "AUDIT" below and I'll reach out directly. Or WhatsApp me on 083 314 9592.
+
+Time is short. April 1st is coming fast. 🔥</div></div>
                     <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_2',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA</div></div>
                 </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(59,130,246,0.15);color:#60a5fa;">📖 Story Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_3">A fleet owner came to us 6 months ago not sure what to expect.
-
-He had 18 vehicles, a decent operation, and the feeling that something wasn't adding up with his fuel spend — but he couldn't pinpoint it.
-
-After our first monthly report he found two drivers consistently over-consuming by 22%. One vehicle had a slow fuel leak that hadn't triggered any warning lights. And one route was 40km longer than it needed to be — every single day.
-
-Combined losses: over R55,000 a month.
-
-He's been a client ever since.
-
-This is what forensic fleet reporting does. It doesn't just give you data — it shows you where the money is going.
-
-If you've got the same feeling he did, let's talk.
-📞 083 314 9592 · dynamicfleetreports@gmail.com</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_3',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #BusinessOwner #LogisticsSA #FleetAudit</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">📊 Stats Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_4">Some numbers that should matter to every fleet owner in SA:
-
-📍 Average fuel waste per unmonitored vehicle: R3,500–R6,000/month
-📍 Average cost of a single undetected fuel card misuse: R8,000–R15,000
-📍 Percentage of fleets with no formal monthly reporting: over 70%
-📍 Average ROI for DFR clients in month one: 4–6x their monthly fee
-
-We're not selling software. We're not a tracker company.
-
-We are a forensic fleet auditing and reporting service — and we give you a real, human, actionable report every single month.
-
-Interested in what we'd find in your fleet?
-WhatsApp 083 314 9592 or comment below. 👇</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_4',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetOwner #TransportBusiness #SouthAfrica #FuelEfficiency #FleetAudit #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(139,92,246,0.15);color:#c4b5fd;">🎯 Direct Pitch</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_5">Attention transport company owners and fleet managers 👇
-
-If your fleet runs 5 or more vehicles and you don't have a proper monthly forensic report — you are losing money you don't know about.
-
-Not maybe. Not probably. You are.
-
-Dynamic Fleet Reporting specialises in exactly this. We analyse your fleet data, identify every area of inefficiency, and give you a clear, plain-language monthly report with specific recommendations.
-
-No long contracts. No complicated software to learn. Just the facts you need to run a tighter, more profitable operation.
-
-From R1,500/month + R150–R200 per vehicle.
-
-WhatsApp 083 314 9592 today for a free consultation. 📲</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_5',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #BusinessOwner #LogisticsSA #TruckingLife</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">✅ Credibility Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #6</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_6">What makes Dynamic Fleet Reporting different?
-
-We don't sell trackers. We don't sell software subscriptions.
-
-We sell clarity.
-
-Every month, you get a detailed forensic report covering:
-✅ Fuel consumption per vehicle vs benchmark
-✅ Driver behaviour analysis
-✅ Maintenance and service alerts
-✅ Route efficiency breakdown
-✅ Cost per kilometre per vehicle
-✅ Recommendations — specific and actionable
-
-One report. Everything you need to manage your fleet properly.
-
-Run by Pieter Nell — fleet auditing and forensic reporting specialist based in Moorreesburg, serving clients across South Africa.
-
-📞 083 314 9592 · dynamicfleetreports@gmail.com</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_6',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetAudit #LogisticsSA #BusinessOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(239,68,68,0.15);color:#f87171;">🔥 Pain Point</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #7</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_7">Running a fleet is expensive. That's just the reality.
-
-But there's expensive — and then there's unnecessarily expensive.
-
-Most fleet owners we speak to are dealing with at least one of these right now:
-
-🔴 Fuel spend that doesn't match the kilometres on paper
-🔴 A vehicle or two that always seems to need something
-🔴 Drivers they suspect are taking liberties — but can't prove it
-🔴 Month-end numbers that never quite make sense
-
-These aren't just annoyances. They're profit leaks — and they compound every single month.
-
-We identify them. We document them. We give you the report to act on them.
-
-Dynamic Fleet Reporting — forensic monthly fleet audits for SA transport operators.
-
-WhatsApp 083 314 9592 to find out what's leaking in your fleet. 🔍</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_7',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetOwner #Transport #SouthAfrica #FuelEfficiency #FleetManagement #TruckDriver #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">💬 Engagement Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #8</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_8">Fleet owners — honest question:
-
-When last did you sit down with a proper breakdown of what each vehicle in your fleet is actually costing you per kilometre?
-
-Not ballpark. Not gut feel. Actual numbers.
-
-If the answer is "a while ago" or "never" — you're not alone. Most operators are too busy running the day-to-day to do that kind of deep analysis.
-
-That's exactly what we do for you. Every month. Without you having to do anything.
-
-Drop a 🙋 in the comments if you'd like to know more — or WhatsApp us directly on 083 314 9592.</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_8',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #BusinessOwner #LogisticsSA #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(59,130,246,0.15);color:#60a5fa;">🛠 Education Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #9</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_9">What is forensic fleet reporting — and why does it matter?
-
-Most fleet owners track vehicles. That's GPS — where they are, whether they're moving.
-
-Forensic fleet reporting goes deeper. We look at:
-
-🔍 Is the fuel consumption for this vehicle normal, or is something wrong?
-🔍 Is this driver's behaviour consistent — or erratic?
-🔍 Is this vehicle heading for a costly breakdown that preventive maintenance could avoid?
-🔍 Are the kilometres on the road matching what's being claimed?
-
-We take all your existing data — fuel records, mileage, service history, route logs — and turn it into a structured monthly report that tells you exactly what's happening inside your fleet.
-
-Not just that things happened. Why they happened. And what to do about it.
-
-That's the difference.
-
-Dynamic Fleet Reporting · 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_9',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetAudit #BusinessOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(139,92,246,0.15);color:#c4b5fd;">📣 Referral CTA</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #10</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="fb_10">Do you know a transport company or fleet owner who could benefit from proper monthly fleet reporting?
-
-Tag them below 👇 — or share this post with them directly.
-
-Dynamic Fleet Reporting helps SA fleet operators understand exactly what their fleet is costing them and where the losses are hiding.
-
-Monthly forensic reports. Plain language. Actionable insights.
-
-From R1,500/month + R150–R200 per vehicle.
-
-📲 083 314 9592 · dynamicfleetreports@gmail.com
-🌐 Find out more — link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('fb_10',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #BusinessOwner #LogisticsSA #FleetAudit</div></div>
-                </div>
-
             </div>
         </div>
 
-        <!-- ══ LINKEDIN ══ -->
         <div class="plat-section" id="mplat-li">
             <div class="plat-banner pb-li"><strong style="color:#e2e8f0;">💼 LinkedIn</strong>&nbsp;·&nbsp;Best times: Tue–Thu · 8–10am · 2–3 posts/week</div>
             <div class="posts-wrap">
-
                 <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📖 Industry Insight</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_1">Most transport companies in South Africa are making fleet decisions based on incomplete data.
-
-Not because they don't care. Because they don't have the time — or the right process — to turn raw fleet data into actionable insight.
-
-That's the gap we fill at Dynamic Fleet Reporting.
-
-We take your existing fuel records, mileage logs, driver data, and service history — and produce a structured monthly forensic report that tells you:
-
-→ Which vehicles are underperforming and why
-→ Which drivers are costing you more than they should
-→ Where your cost-per-kilometre is trending in the wrong direction
-→ What to fix first, and what it's worth in rand terms
-
-If you manage a fleet of 5 or more vehicles in SA, I'd be happy to show you a sample report.
-
-Drop a comment or connect with me directly.
-
-#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica</div></div>
+                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📖 Story Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1 — Strong opener</span></div>
+                    <div class="post-card-body"><div class="post-preview" id="li_1">Diesel is predicted to increase by R5–R8 per litre on April 1st.</div></div>
                     <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_1',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #TransportIndustry #SupplyChain #SouthAfrica</div></div>
                 </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">💡 Thought Leadership</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_2">Here's a hard truth about fleet management in SA:
-
-Most companies track their vehicles. Very few actually audit them.
-
-Tracking tells you where a vehicle is.
-Auditing tells you what it's costing — and why.
-
-There's a significant difference between knowing that truck #7 drove 4,200km last month and knowing that truck #7 consumed 18% more fuel than the fleet average for that route, has a maintenance item that's been overdue for 6 weeks, and has a driver whose behaviour pattern has changed in the past 30 days.
-
-The second set of information is what actually protects your margins.
-
-That's what forensic fleet reporting delivers. Not GPS data. Business intelligence.
-
-Happy to discuss what this looks like in practice for your operation.
-
-#FleetManagement #Logistics #SouthAfrica #TransportBusiness #BusinessIntelligence</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_2',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportBusiness #BusinessIntelligence</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📊 Data Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_3">A few benchmarks worth knowing if you manage a fleet in South Africa:
-
-📌 A well-managed fleet typically operates within 8–10% variance on fuel benchmarks per vehicle.
-📌 Unmanaged driver behaviour alone accounts for 12–18% of excess fuel consumption in most fleets.
-📌 The average cost of a single undetected fuel card misuse in SA: R8,000–R15,000.
-📌 Preventive maintenance vs reactive repair cost ratio: roughly 1:4.
-
-These aren't dramatic numbers individually. But compounded across 10, 20, or 50 vehicles — month after month — they represent significant margin erosion.
-
-The solution isn't more technology. It's better reporting on the data you already have.
-
-That's what Dynamic Fleet Reporting provides — monthly forensic fleet audits that turn raw data into clear, actionable business decisions.
-
-If any of these numbers hit close to home, let's talk.
-
-#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_3',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🤝 Trust Builder</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_4">What does a good fleet report actually look like?
-
-I get asked this often — so here's what we include in every Dynamic Fleet Reporting monthly audit:
-
-✅ Per-vehicle fuel consumption vs route and load benchmarks
-✅ Driver behaviour scoring with flagged incidents
-✅ Maintenance status and upcoming service windows
-✅ Cost-per-kilometre trend per vehicle
-✅ Fuel card reconciliation and exception flagging
-✅ Route efficiency analysis
-✅ Summary of top 3 priority actions for the month
-
-The report is written in plain language — not a data dump. It's designed to be read by a fleet manager or business owner in under 20 minutes, with clear recommendations they can act on immediately.
-
-If you'd like to see a sample, send me a message.
-
-#FleetManagement #Logistics #SouthAfrica #TransportBusiness</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_4',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportBusiness</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🎯 Direct Offer</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_5">If you're a logistics director, fleet manager, or transport company owner — this is for you.
-
-Dynamic Fleet Reporting provides monthly forensic fleet audits for SA operators running 5+ vehicles.
-
-What you get:
-→ A detailed monthly report — not software, not a dashboard
-→ Human analysis of your fleet data with specific recommendations
-→ Fuel efficiency benchmarking per vehicle and driver
-→ Cost-per-kilometre tracking and variance alerts
-→ Maintenance forecasting to avoid costly reactive repairs
-
-Pricing starts at R1,500/month + R150–R200 per vehicle depending on fleet size.
-
-For most clients, month one savings exceed the annual cost of the service.
-
-If your fleet operation could benefit from this level of visibility, I'm happy to arrange a free introductory consultation.
-
-📩 Message me directly or contact us on 083 314 9592.
-
-#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_5',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">❓ Engagement</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #6</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_6">Question for fleet managers and transport operators:
-
-What is your biggest challenge when it comes to controlling fleet operating costs?
-
-In my experience working with SA fleet operators, the answers typically fall into one of four categories:
-
-1. Fuel spend that's hard to control or verify
-2. Driver behaviour that's difficult to monitor consistently
-3. Maintenance costs that seem higher than they should be
-4. Lack of reliable data to make confident decisions
-
-More often than not, all four connect back to the same root cause: insufficient reporting.
-
-Would be genuinely interested to hear what resonates most with people in this space.
-
-#FleetManagement #Logistics #SouthAfrica #TransportBusiness #SupplyChain</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_6',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportBusiness #SupplyChain</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📌 Positioning</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #7</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_7">There are three types of fleet operators in South Africa:
-
-1. Those who know exactly what their fleet costs them — and manage it accordingly.
-2. Those who have a rough idea — and accept the grey areas as part of the business.
-3. Those who find out what things cost only after something goes wrong.
-
-The difference between group 1 and groups 2 and 3 almost always comes down to one thing: the quality and consistency of their fleet reporting.
-
-Dynamic Fleet Reporting exists to move operators from group 2 and 3 into group 1 — with a structured monthly forensic audit that gives complete visibility into every vehicle, every driver, and every rand.
-
-If you'd like to understand what this looks like in practice for your fleet, feel free to reach out.
-
-#FleetManagement #Logistics #SouthAfrica #TransportIndustry #BusinessStrategy</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_7',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportIndustry #BusinessStrategy</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🔍 Case Study</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #8</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_8">A real example from a recent client audit (details anonymised):
-
-Fleet size: 22 vehicles
-Industry: Long-haul transport
-
-What we found in month one:
-
-→ 3 vehicles consuming 19–24% above benchmark for their assigned routes
-→ 1 driver with a consistent pattern of unauthorised after-hours vehicle use
-→ 4 vehicles with maintenance items overdue by 30–60 days
-→ Fuel card exceptions totalling R23,400 requiring investigation
-
-Total estimated recoverable loss per month: R67,000+
-
-Monthly cost of our reporting service for this fleet: R6,300
-
-This is not unusual. It's what we find in the majority of fleets we audit in the first 90 days.
-
-If you manage a fleet of a similar size and would like to understand what a forensic audit might reveal, I'm happy to have that conversation.
-
-#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_8',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #SupplyChain #TransportIndustry</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">🌍 Market Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #9</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_9">The South African transport and logistics industry operates under unique pressures — fuel price volatility, road infrastructure challenges, and significant competition on margins.
-
-In that context, the fleets that thrive long-term are the ones that run tight operations. Not just operationally — financially.
-
-That means knowing your cost-per-kilometre. Knowing which vehicles are efficient and which are not. Knowing which drivers protect your assets and which ones don't.
-
-That knowledge doesn't come from GPS alone. It comes from consistent, structured forensic reporting.
-
-Dynamic Fleet Reporting provides exactly that — every month, for fleets of all sizes across South Africa.
-
-If this is relevant to your business or someone in your network, feel free to share or reach out directly.
-
-📩 083 314 9592 · dynamicfleetreports@gmail.com
-
-#FleetManagement #Logistics #SouthAfrica #TransportIndustry #SupplyChain</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_9',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportIndustry #SupplyChain</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(0,119,181,0.2);color:#38bdf8;">📣 Referral Ask</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #10</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="li_10">If anyone in your network manages a fleet of vehicles in South Africa — I'd appreciate you passing this along.
-
-Dynamic Fleet Reporting provides monthly forensic fleet audits for transport operators. We help fleet owners and managers understand exactly what their fleet is costing them and where the opportunities to reduce those costs are.
-
-We work with fleets of 5 vehicles and up, across all industries — logistics, mining support, agriculture, construction, passenger transport.
-
-The service pays for itself quickly. The reporting is clear, practical, and built for business owners — not analysts.
-
-Happy to provide a sample report or a no-obligation consultation.
-
-📩 083 314 9592 · dynamicfleetreports@gmail.com
-
-#FleetManagement #Logistics #SouthAfrica #TransportIndustry #Referral</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('li_10',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #Logistics #SouthAfrica #TransportIndustry #Referral</div></div>
-                </div>
-
             </div>
         </div>
 
-        <!-- ══ INSTAGRAM ══ -->
         <div class="plat-section" id="mplat-ig">
             <div class="plat-banner pb-ig"><strong style="color:#e2e8f0;">📸 Instagram</strong>&nbsp;·&nbsp;Best times: Mon/Wed/Fri · 11am–1pm · Daily stories</div>
             <div class="posts-wrap">
-
                 <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🪝 Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_1">Do you actually know what your fleet is costing you? 🚛
-
-Most fleet owners have a rough idea.
-Rough ideas cost money.
-
-We give you the exact numbers — every vehicle, every month.
-
-Dynamic Fleet Reporting · SA's forensic fleet audit specialists
-📞 083 314 9592
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_1',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner #LogisticsSA</div></div>
+                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🪝 Hard Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #1</span></div>
+                    <div class="post-card-body"><div class="post-preview" id="ig_1">⛽ APRIL 1ST WARNING ⛽</div></div>
+                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_1',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SATrucking</div></div>
                 </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">📊 Stat Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_2">12–18% 📉
-
-That's how much of your fuel budget is wasted through unmonitored driver behaviour in the average SA fleet.
-
-On a 20-vehicle fleet, that's R30,000–R60,000 a month.
-Every month.
-Quietly.
-
-Our monthly forensic reports show you exactly where it's going — and how to stop it.
-
-Dynamic Fleet Reporting · 083 314 9592
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_2',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #FuelSavings #SouthAfrica #Transport #TruckingLife #LogisticsSA #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">✅ Service List</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #3</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_3">Every month. Every vehicle. Every rand. 🔍
-
-Here's what your DFR report covers:
-
-✅ Fuel consumption vs benchmark
-✅ Driver behaviour analysis
-✅ Cost per kilometre per vehicle
-✅ Maintenance & service alerts
-✅ Fuel card exception flagging
-✅ Route efficiency breakdown
-✅ Top 3 priority actions
-
-Plain language. No jargon. Ready to act on.
-
-Dynamic Fleet Reporting · SA fleet audit specialists
-📲 083 314 9592 · Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_3',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetAudit #TruckingLife #BusinessOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">💸 Money Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #4</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_4">Your fleet is losing money right now. 💸
-
-Not dramatically. Just quietly — every single month.
-
-A vehicle running 15% over on fuel.
-A driver taking longer routes than necessary.
-A service that's overdue and building toward a breakdown.
-
-We find these things. We document them. We show you exactly what to fix.
-
-That's forensic fleet reporting.
-
-Dynamic Fleet Reporting · 083 314 9592
-🔗 Link in bio — see what we do</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_4',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #FuelEfficiency #Transport #TruckingLife #FleetOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🚚 Industry Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #5</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_5">To every transport company owner in SA 🇿🇦
-
-You work hard to keep that fleet moving.
-We work hard to make sure every kilometre counts.
-
-Monthly forensic fleet reports — fuel, drivers, costs, maintenance — everything in one clear report.
-
-From R1,500/month + R150–R200 per vehicle.
-No long contracts. No complicated software.
-
-Dynamic Fleet Reporting · 083 314 9592
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_5',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #LogisticsSA #BusinessOwner #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">❓ Question Hook</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #6</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_6">Which driver in your fleet uses the most fuel per kilometre? 👇
-
-If you know the answer without hesitation — you've got good reporting.
-
-If you're not sure — that uncertainty is costing you money every month.
-
-We give fleet owners the answer to that question and a hundred others like it — every month, in a clear forensic report.
-
-Dynamic Fleet Reporting · 083 314 9592
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_6',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FuelEfficiency #TruckingLife #FleetOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🔍 Problem/Solution</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #7</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_7">The problem with running a fleet is that the losses don't announce themselves. 🔇
-
-They just slowly eat into your margins — month after month — until you notice the numbers don't add up.
-
-By then, you've usually lost a lot more than you needed to.
-
-The fix is simple: proper monthly reporting.
-
-Fuel. Drivers. Vehicles. Routes. Costs.
-All in one place. All tracked. All analysed.
-
-That's Dynamic Fleet Reporting.
-📞 083 314 9592 · Link in bio 🔗</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_7',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetAudit #TruckingLife #BusinessOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">💡 Quick Tip</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #8</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_8">Fleet tip 💡
-
-The cheapest maintenance is the maintenance you plan for.
-
-When a vehicle hits the road with an overdue service, you're not saving money — you're borrowing trouble.
-
-One unexpected breakdown can cost more than 6 months of proper reporting.
-
-Our monthly reports include maintenance alerts for every vehicle — so you always know what's coming before it costs you.
-
-Dynamic Fleet Reporting · 083 314 9592
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_8',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #Maintenance #TruckingLife #FleetOwner #LogisticsSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">🏆 Credibility</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #9</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_9">Behind every DFR report is Pieter Nell — fleet auditing and forensic reporting specialist with years of hands-on experience in the SA transport industry. 🇿🇦
-
-Not software. Not automation.
-A real expert analysing your real fleet data — every single month.
-
-That's the DFR difference.
-
-Dynamic Fleet Reporting · 083 314 9592
-📍 Moorreesburg · Serving clients across South Africa
-🔗 Link in bio</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_9',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FleetAudit #TruckingLife #LogisticsSA #MadeInSA</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(236,72,153,0.15);color:#f472b6;">📣 Referral CTA</span><span style="font-size:10px;color:#64748b;font-weight:700;">Post #10</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="ig_10">Know a fleet owner or transport company that needs better reporting? 📲
-
-Tag them below 👇 or share this with them.
-
-Dynamic Fleet Reporting · Forensic monthly fleet audits for SA operators.
-
-✅ Fuel · Drivers · Costs · Maintenance
-✅ Plain language · Actionable insights
-✅ From R1,500/month
-
-📞 083 314 9592 · Link in bio 🔗</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('ig_10',this)">📋 Copy Post</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetOwner #LogisticsSA #FleetAudit</div></div>
-                </div>
-
             </div>
         </div>
 
-        <!-- ══ WHATSAPP ══ -->
         <div class="plat-section" id="mplat-wa">
             <div class="plat-banner pb-wa"><strong style="color:#e2e8f0;">💬 WhatsApp</strong>&nbsp;·&nbsp;Status daily · Direct message as needed · Groups 2–3x/week</div>
             <div class="posts-wrap">
-
                 <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Status #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_1">🚛 Fleet owners — do you know what each of your vehicles is costing per kilometre this month?
-
-If not, that's money walking out the door.
-
-Dynamic Fleet Reporting gives you the full picture — every vehicle, every month.
-
-📞 083 314 9592</div></div>
+                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Daily Status #1</span></div>
+                    <div class="post-card-body"><div class="post-preview" id="wa_1">🚨 Fleet Alert — April 1st Fuel Shock</div></div>
                     <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_1',this)">📋 Copy</button><div class="hashtag-wrap">Post as WhatsApp Status</div></div>
                 </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Status #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_2">💡 Did you know: the average SA fleet wastes 12–18% of its fuel budget through unmonitored driver behaviour?
-
-On 15 vehicles, that's R25,000–R50,000 a month.
-
-We find it. We report it. You fix it.
-
-Dynamic Fleet Reporting · 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_2',this)">📋 Copy</button><div class="hashtag-wrap">Post as WhatsApp Status</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Status #3</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_3">🔍 Running a fleet without monthly forensic reporting is like running a business without looking at your bank statements.
-
-You might be fine. Or you might be bleeding out slowly.
-
-Dynamic Fleet Reporting · Monthly fleet audits · 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_3',this)">📋 Copy</button><div class="hashtag-wrap">Post as WhatsApp Status</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Direct Message</span><span style="font-size:10px;color:#64748b;font-weight:700;">DM Template #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_4">Hi [Name] 👋
-
-Hope you're well. I wanted to reach out because I've recently started working with a forensic fleet reporting service called Dynamic Fleet Reporting — and I thought it might be relevant to your business.
-
-They give fleet owners a detailed monthly breakdown of every vehicle — fuel, driver behaviour, costs, maintenance alerts — all in one plain-language report. Most clients find savings that far exceed the cost of the service in the first month.
-
-Would it be worth a quick chat? I can connect you directly with the team.
-
-📞 083 314 9592 · dynamicfleetreports@gmail.com</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_4',this)">📋 Copy</button><div class="hashtag-wrap">Send as direct WhatsApp message</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Direct Message</span><span style="font-size:10px;color:#64748b;font-weight:700;">DM Template #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_5">Hi [Name]
-
-Quick one — do you currently get a monthly report on your fleet's fuel consumption, driver behaviour, and vehicle costs?
-
-I ask because I've come across a specialist service — Dynamic Fleet Reporting — that does exactly this. It's forensic-level detail, written in plain language, at a very reasonable monthly rate.
-
-A lot of fleet owners I've spoken to didn't realise how much they were losing until they saw the first report.
-
-Happy to send you more info or connect you with the team if you're interested.
-
-📲 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_5',this)">📋 Copy</button><div class="hashtag-wrap">Send as direct WhatsApp message</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">👥 Group Message</span><span style="font-size:10px;color:#64748b;font-weight:700;">Group Post #1</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_6">👋 Quick share for anyone running a fleet in SA:
-
-Dynamic Fleet Reporting provides monthly forensic fleet audits — a detailed breakdown of fuel, driver behaviour, vehicle costs, and maintenance status for every vehicle in your fleet.
-
-Most clients recover the cost of the service in the first month through the savings they identify.
-
-Pricing from R1,500/month + R150–R200 per vehicle.
-
-Worth a look if you've ever felt your fleet costs are higher than they should be.
-
-📞 083 314 9592 · dynamicfleetreports@gmail.com</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_6',this)">📋 Copy</button><div class="hashtag-wrap">Post in WhatsApp business/transport groups</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Status #4</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_7">✅ What a DFR monthly report covers:
-
-🚛 Fuel per vehicle vs benchmark
-👤 Driver behaviour scoring
-🔧 Maintenance & service alerts
-📍 Route efficiency
-💰 Cost per kilometre
-🚨 Fuel card exceptions
-
-All in one clear report. Every month.
-
-Dynamic Fleet Reporting · 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_7',this)">📋 Copy</button><div class="hashtag-wrap">Post as WhatsApp Status</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">📊 Status Post</span><span style="font-size:10px;color:#64748b;font-weight:700;">Status #5</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_8">🔧 Fleet fact: Preventive maintenance costs roughly 4x LESS than reactive repairs.
-
-Our monthly reports flag every vehicle with an upcoming service window — so you never get caught out.
-
-Dynamic Fleet Reporting · 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_8',this)">📋 Copy</button><div class="hashtag-wrap">Post as WhatsApp Status</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">💬 Direct Message</span><span style="font-size:10px;color:#64748b;font-weight:700;">DM Template #3</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_9">Hey [Name] 👋
-
-I know you're in transport — thought this might be useful.
-
-There's a local SA service called Dynamic Fleet Reporting that does monthly forensic audits on fleets. Not GPS tracking — actual deep analysis of fuel, drivers, costs, maintenance. All in a clear monthly report.
-
-The guy who runs it — Pieter Nell — really knows his stuff. Based in the Western Cape, works with fleets all over SA.
-
-Might be worth a quick call to see if it's a fit for your operation.
-
-📞 083 314 9592</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_9',this)">📋 Copy</button><div class="hashtag-wrap">Send as direct WhatsApp message</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(37,211,102,0.15);color:#4ade80;">👥 Group Message</span><span style="font-size:10px;color:#64748b;font-weight:700;">Group Post #2</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="wa_10">📋 For fleet owners and transport managers in this group:
-
-If you're not getting a monthly forensic report on your fleet — fuel consumption, driver behaviour, vehicle costs, maintenance status — you're probably leaving money on the table.
-
-Dynamic Fleet Reporting provides this service for SA fleets of all sizes.
-
-No complicated software. No long contracts. Just a clear, actionable monthly report that tells you exactly what's happening in your fleet.
-
-📲 083 314 9592 to find out more.</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('wa_10',this)">📋 Copy</button><div class="hashtag-wrap">Post in WhatsApp business/transport groups</div></div>
-                </div>
-
             </div>
         </div>
 
-        <!-- ══ TIKTOK / REELS ══ -->
         <div class="plat-section" id="mplat-tt">
             <div class="plat-banner pb-tt"><strong style="color:#e2e8f0;">🎵 TikTok / Reels</strong>&nbsp;·&nbsp;Scripts: read naturally to camera under 60 seconds each</div>
             <div class="posts-wrap">
-
                 <div class="post-card">
                     <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #1 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_1">🎬 SCRIPT — "The Question"
-
-[Look at camera]
-"If I asked you right now — what is your most expensive vehicle costing you per kilometre this month — would you know the answer?"
-
-[Pause]
-
-"Most fleet owners in South Africa don't. And that's not a knock on them — it's just that nobody gives them that information in a clear, usable way."
-
-"That's what we do. Every month. For every vehicle in your fleet."
-
-"Dynamic Fleet Reporting. Forensic monthly fleet audits."
-
-[Show phone or link]
-"Link in bio. Or WhatsApp us on 083 314 9592."
-
----
-📱 CAPTION: Do you know what your fleet is really costing you? 🚛 Most SA fleet owners don't — and it's costing them thousands every month. We change that. #FleetManagement #SouthAfrica #Transport #TruckingLife</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_1',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner</div></div>
+                    <div class="post-card-body"><div class="post-preview" id="tt_1">🎬 SCRIPT #1 — "The April Bomb"</div></div>
+                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_1',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SATrucking</div></div>
                 </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #2 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_2">🎬 SCRIPT — "The Leak"
-
-[Look at camera, serious tone]
-"Your fleet is leaking money right now."
-
-"Not dramatically. Just quietly — every single month."
-
-"A vehicle running 15% over on fuel. A driver taking longer routes than necessary. A service that's overdue."
-
-"Individually, each one seems small. Together, they add up to tens of thousands of rands a month — gone before you even notice."
-
-"We find those leaks. We document them. We give you the report to fix them."
-
-"Dynamic Fleet Reporting. Link in bio."
-
----
-📱 CAPTION: The losses in your fleet aren't dramatic — they're quiet. That's what makes them dangerous. 🔍 #FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_2',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #3 — 45 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_3">🎬 SCRIPT — "What We Actually Do"
-
-[Look at camera]
-"People hear 'fleet reporting' and they think GPS tracking. That's not what we do."
-
-"GPS tells you where a vehicle is. We tell you what it's costing — and why."
-
-[Count on fingers]
-"Every month, our clients get a forensic breakdown of:"
-"Fuel consumption per vehicle versus benchmark."
-"Driver behaviour — who's driving well, who isn't."
-"Maintenance status — what's coming up before it becomes a problem."
-"Cost per kilometre. Route efficiency."
-
-"All in one plain-language report. No jargon. No dashboards to learn."
-
-"Just the facts you need to run a tighter operation."
-
-"Dynamic Fleet Reporting. Link in bio — or WhatsApp 083 314 9592."
-
----
-📱 CAPTION: GPS tracking tells you WHERE. Forensic fleet reporting tells you WHY — and what it's costing you. 🚛 #FleetManagement #SouthAfrica #Transport #LogisticsSA</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_3',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #LogisticsSA #TruckingLife #FleetAudit</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #4 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_4">🎬 SCRIPT — "The Numbers"
-
-[Look at camera]
-"Quick stat for fleet owners."
-
-"The average South African fleet wastes between 12 and 18 percent of its fuel budget through unmonitored driver behaviour."
-
-"On a 20-vehicle fleet, that's between R30,000 and R60,000. Every month."
-
-"And that's just the fuel. We haven't even talked about the maintenance, the routes, the fuel card misuse."
-
-"Our monthly forensic reports show you exactly where every rand is going."
-
-"Dynamic Fleet Reporting. Link in bio."
-
----
-📱 CAPTION: 12–18% of your fuel budget. Wasted. Every month. 📉 We show you exactly where — and how to stop it. #FleetManagement #SouthAfrica #FuelSavings #Transport</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_4',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #FuelSavings #Transport #TruckingLife #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #5 — 45 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_5">🎬 SCRIPT — "Real Story"
-
-[Look at camera, conversational]
-"I want to tell you about a fleet owner we started working with last year."
-
-"18 vehicles. Decent operation. But he had this nagging feeling that his fuel spend didn't add up."
-
-"After our first monthly report, we found two drivers over-consuming by more than 20 percent. One vehicle with a slow fuel leak that hadn't triggered any warning lights. And one route that was 40 kilometres longer than it needed to be — every single day."
-
-"Total recoverable losses: over R55,000 a month."
-
-"He's still a client."
-
-"If you've got that same nagging feeling about your fleet — let's talk."
-
-"Dynamic Fleet Reporting. 083 314 9592. Link in bio."
-
----
-📱 CAPTION: He had a feeling his fleet costs didn't add up. First report confirmed R55,000/month in recoverable losses. 👀 #FleetManagement #SouthAfrica #Transport #TruckingLife</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_5',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #6 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_6">🎬 SCRIPT — "Maintenance"
-
-[Look at camera]
-"Here's something most fleet owners don't think about until it's too late."
-
-"Preventive maintenance costs about four times less than reactive repairs."
-
-"Four times."
-
-"But you can only do preventive maintenance if you know which vehicles need it — and when."
-
-"Our monthly fleet reports flag every service window, every overdue item, every vehicle that's heading toward a breakdown — before it happens."
-
-"Dynamic Fleet Reporting. Keep your fleet running. Link in bio."
-
----
-📱 CAPTION: Preventive maintenance costs 4x LESS than reactive repairs. 🔧 But you need the right reporting to stay ahead. #FleetManagement #SouthAfrica #Transport #Maintenance</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_6',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #Maintenance #TruckingLife #FleetOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #7 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_7">🎬 SCRIPT — "The Difference"
-
-[Look at camera]
-"There are two types of fleet owners in South Africa."
-
-"The ones who know exactly what their fleet costs them — per vehicle, per kilometre, every month."
-
-"And the ones who have a rough idea."
-
-[Pause]
-
-"The rough idea people are always paying more than they need to. They just don't know exactly where."
-
-"We help you become the first type."
-
-"Dynamic Fleet Reporting. Monthly forensic fleet audits. Link in bio."
-
----
-📱 CAPTION: Two types of fleet owners in SA. Which one are you? 🚛 #FleetManagement #SouthAfrica #Transport #BusinessOwner #TruckingLife</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_7',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #BusinessOwner #TruckingLife #FleetAudit</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #8 — 45 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_8">🎬 SCRIPT — "What's In The Report"
-
-[Look at camera]
-"People always ask — what exactly do you get in a DFR monthly report?"
-
-"So here's the quick version."
-
-"Fuel consumption for every vehicle — compared to the correct benchmark for that vehicle's route and load."
-"Driver behaviour analysis — scored and flagged."
-"Maintenance status — what's due, what's overdue, what's coming up."
-"Cost per kilometre per vehicle — so you can see which vehicles are profitable and which aren't."
-"Fuel card reconciliation — to catch any exceptions or misuse."
-"And a summary of your top three priority actions for the month."
-
-"All written in plain language. No jargon. Ready to act on."
-
-"Dynamic Fleet Reporting. Link in bio."
-
----
-📱 CAPTION: Here's exactly what you get in a DFR monthly fleet report 📋 #FleetManagement #SouthAfrica #Transport #LogisticsSA #TruckingLife</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_8',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #LogisticsSA #TruckingLife #FleetAudit</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #9 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_9">🎬 SCRIPT — "The Price"
-
-[Look at camera]
-"People assume forensic fleet reporting is expensive. It's not."
-
-"Our service starts at R1,500 a month plus R150 to R200 per vehicle."
-
-"For a 10-vehicle fleet, that's roughly R3,000 to R3,500 a month."
-
-"The average saving we identify in month one? R20,000 to R60,000."
-
-"The maths is pretty simple."
-
-"Dynamic Fleet Reporting. Link in bio — or WhatsApp 083 314 9592."
-
----
-📱 CAPTION: People assume forensic fleet reporting is expensive. Here's what it actually costs — and what it saves. 💰 #FleetManagement #SouthAfrica #Transport #FuelSavings</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_9',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #FuelSavings #TruckingLife #BusinessOwner</div></div>
-                </div>
-
-                <div class="post-card">
-                    <div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.1);color:white;">🎬 Video Script</span><span style="font-size:10px;color:#64748b;font-weight:700;">Script #10 — 30 sec</span></div>
-                    <div class="post-card-body"><div class="post-preview" id="tt_10">🎬 SCRIPT — "Simple CTA"
-
-[Look at camera, relaxed]
-"If you run a fleet in South Africa and you're not getting a proper monthly report on what it's costing you — I want you to do one thing."
-
-"WhatsApp us on 083 314 9592."
-
-"That's it."
-
-"We'll show you a sample report, explain how it works, and give you a no-obligation quote."
-
-"No pressure. No complicated sales process."
-
-"Just a conversation about whether we can help you run a tighter, more profitable fleet."
-
-"Dynamic Fleet Reporting. 083 314 9592."
-
----
-📱 CAPTION: One step. WhatsApp 083 314 9592. We'll take it from there. 📲 #FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit</div></div>
-                    <div class="post-footer"><button class="btn-copy" onclick="copyMktPost('tt_10',this)">📋 Copy Script + Caption</button><div class="hashtag-wrap">#FleetManagement #SouthAfrica #Transport #TruckingLife #FleetAudit #BusinessOwner</div></div>
-                </div>
-
             </div>
         </div>
 
@@ -1354,16 +438,20 @@ function renderAll(){ updateStats(); renderPending(); renderPartners(); }
 function updateStats(){
     const active=_partners.filter(p=>p.status==='active').length;
     const pending=_partners.filter(p=>p.status==='pending').length;
-    let mrr=0,comm=0;
+    // Count all prospects and active clients referred by any partner
+    let totalProspects=0, totalRefActive=0, mrr=0, comm=0;
     _partners.filter(p=>p.status==='active').forEach(p=>{
-        getPartnerClients(p.id,'active').forEach(c=>{
-            const r=getRetainer(c); mrr+=r; comm+=r*((p.commRate||15)/100);
-        });
+        totalProspects += getPartnerClients(p.id,'prospect').length;
+        const ac = getPartnerClients(p.id,'active');
+        totalRefActive += ac.length;
+        ac.forEach(c=>{ const r=getRetainer(c); mrr+=r; comm+=r*((p.commRate||15)/100); });
     });
-    document.getElementById('sActive').textContent=active;
-    document.getElementById('sPending').textContent=pending;
-    document.getElementById('sMRR').textContent='R '+mrr.toLocaleString('en-ZA');
-    document.getElementById('sComm').textContent='R '+Math.round(comm).toLocaleString('en-ZA');
+    document.getElementById('sActive').textContent    = active;
+    document.getElementById('sPending').textContent   = pending;
+    document.getElementById('sProspects').textContent = totalProspects;
+    document.getElementById('sRefActive').textContent = totalRefActive;
+    document.getElementById('sMRR').textContent       = 'R '+mrr.toLocaleString('en-ZA');
+    document.getElementById('sComm').textContent      = 'R '+Math.round(comm).toLocaleString('en-ZA');
 }
 
 function renderPending(){
