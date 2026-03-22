@@ -42,7 +42,9 @@
         /* Portal */
         .portal{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
         .portal.on{display:block;}
-        .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem;}
+        @media(max-width:768px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);}}
         .sc{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:14px;padding:1.25rem;}
         .sc-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.4rem;}
         .sc-val{font-size:2rem;font-weight:900;font-style:italic;color:white;}
@@ -101,36 +103,6 @@
         .pdot.done{background:var(--grn);} .pdot.pend{background:var(--gld);} .pdot.miss{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);}
         .prog-lbl{color:var(--mut);} .prog-lbl.done{color:#a7f3d0;} .prog-lbl.pend{color:#fde68a;}
         .empty-msg{text-align:center;color:var(--mut);font-size:13px;padding:20px;}
-
-        /* ── Mobile Responsive ── */
-        @media(max-width:768px){
-            .topbar{padding:0.75rem 1rem;flex-wrap:wrap;gap:0.5rem;}
-            .tb-brand{font-size:16px;}
-            .portal{padding:1rem;}
-            .stats-row{grid-template-columns:1fr 1fr;gap:0.75rem;}
-            .sc-val{font-size:1.5rem;}
-            .ref-box{padding:1rem;flex-direction:column;gap:0.75rem;}
-            .ref-link-row{flex-direction:column;}
-            .ref-link-val{min-width:unset;width:100%;font-size:11px;}
-            .btn-copy,
-            .ref-box button{width:100%;text-align:center;padding:10px;font-size:12px;}
-            .bonus-track{padding:1rem;}
-            .bt-grid{grid-template-columns:1fr;gap:0.5rem;text-align:left;}
-            .bar-labels{font-size:9px;flex-wrap:wrap;gap:2px;}
-            .bonus-tiers{flex-direction:column;}
-            .bt-tier{min-width:unset;}
-            .earn-grid{grid-template-columns:1fr;}
-            .pt{font-size:11px;}
-            .pt th,.pt td{padding:7px 8px;}
-            /* Make tables scrollable horizontally */
-            .sec-hdr ~ .pt{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-            table.pt{min-width:480px;}
-        }
-        @media(max-width:480px){
-            .stats-row{grid-template-columns:1fr 1fr;}
-            .sc-val{font-size:1.3rem;}
-            .tb-partner{font-size:11px;}
-        }
     </style>
 </head>
 <body>
@@ -166,6 +138,7 @@
 <div class="portal" id="portal">
     <div class="stats-row">
         <div class="sc"><div class="sc-label">Total Referrals</div><div class="sc-val blu" id="sTot">0</div><div class="sc-sub">All time</div></div>
+        <div class="sc"><div class="sc-label">Prospects</div><div class="sc-val" style="color:#f97316;" id="sPros">0</div><div class="sc-sub">Submitted info</div></div>
         <div class="sc"><div class="sc-label">Active Clients</div><div class="sc-val grn" id="sAct">0</div><div class="sc-sub">Paying &amp; live</div></div>
         <div class="sc"><div class="sc-label">Monthly Commission</div><div class="sc-val gld" id="sComm">R 0</div><div class="sc-sub">Current estimate</div></div>
         <div class="sc"><div class="sc-label">Outstanding</div><div class="sc-val" id="sOwed">R 0</div><div class="sc-sub">Not yet paid</div></div>
@@ -321,13 +294,15 @@ function showPortal(){
 }
 
 function renderStats(){
-    var all    = getMyClients();
-    var active = getMyClients('active');
-    var rate   = _partner.commRate || 15;
-    var comm   = active.reduce(function(s,c){ return s + getRetainer(c) * (rate/100); }, 0);
-    var owed   = (_partner.commissionHistory||[]).filter(function(h){ return !h.paid; }).reduce(function(s,h){ return s+h.amount; },0)
+    var all      = getMyClients();
+    var active   = getMyClients('active');
+    var prospects= getMyClients('prospect');
+    var rate     = _partner.commRate || 15;
+    var comm     = active.reduce(function(s,c){ return s + getRetainer(c) * (rate/100); }, 0);
+    var owed     = (_partner.commissionHistory||[]).filter(function(h){ return !h.paid; }).reduce(function(s,h){ return s+h.amount; },0)
                + (_partner.bonusHistory||[]).filter(function(b){ return !b.paid; }).reduce(function(s,b){ return s+b.amount; },0);
     document.getElementById('sTot').textContent  = all.length;
+    document.getElementById('sPros').textContent = prospects.length;
     document.getElementById('sAct').textContent  = active.length;
     document.getElementById('sComm').textContent = 'R ' + Math.round(comm).toLocaleString('en-ZA');
     document.getElementById('sOwed').textContent = 'R ' + owed.toLocaleString('en-ZA');
