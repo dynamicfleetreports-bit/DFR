@@ -3,6 +3,7 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Churned Clients</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
@@ -17,9 +18,40 @@
         .churned-card:hover { border-color: #f97316; transform: translateY(-3px); }
         .badge-churned { background: rgba(249, 115, 22, 0.1); color: #f97316; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(249, 115, 22, 0.2); }
         .badge-city { background: rgba(100, 116, 139, 0.1); color: #64748b; padding: 4px 10px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ── Mobile ── */
+        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;}
+        .mob-logo{max-height:32px;}
+        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
+        .sidebar-overlay.open{display:block;}
+        @media(max-width:768px){
+            body{flex-direction:column;height:auto;overflow:auto;}
+            #sidebar{display:none;position:fixed;top:0;left:-260px;height:100vh;z-index:100;transition:left 0.25s ease;overflow-y:auto;width:260px;}
+            #sidebar.open{left:0;display:flex;}
+            .mob-topbar{display:flex;}
+            .main-wrapper{padding:1.25rem;overflow-y:visible;}
+            header{margin-bottom:1.5rem!important;}
+            header h1{font-size:2rem!important;}
+            .grid.grid-cols-2{grid-template-columns:1fr!important;gap:0.75rem!important;}
+            .grid.grid-cols-3{grid-template-columns:1fr!important;gap:0.75rem!important;}
+            .grid.grid-cols-4{grid-template-columns:1fr 1fr!important;gap:0.75rem!important;}
+            table{display:block;overflow-x:auto;white-space:nowrap;}
+            .card:hover{transform:none;}
+        }
+        @media(min-width:769px){.mob-topbar{display:none!important;}}
     </style>
 </head>
 <body>
+    <!-- Mobile topbar -->
+    <div class="mob-topbar">
+        <img src="Logo.png" alt="Logo" class="mob-logo">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
     <aside id="sidebar">
         <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
         <nav>
@@ -191,7 +223,11 @@
             });
         }
 
-        window.onload = renderChurned;
+
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+
+                window.onload = renderChurned;
     </script>
 </body>
 </html>

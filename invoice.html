@@ -3,6 +3,7 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice | Pieter Nell t/a Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -34,6 +35,14 @@
             .no-print { display: none !important; }
             body { padding: 0; background: white; }
             .invoice-card { box-shadow: none; padding: 1.5rem; }
+        }
+
+        @media(max-width:768px){
+            body{padding:1rem;}
+            .invoice-card{padding:1.5rem;border-radius:0;}
+            .line-table{display:block;overflow-x:auto;white-space:nowrap;}
+            .flex.justify-between{flex-direction:column;gap:1rem;}
+            .grid-cols-2,.grid-cols-3{grid-template-columns:1fr!important;}
         }
     </style>
 </head>
