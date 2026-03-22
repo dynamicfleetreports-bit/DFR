@@ -152,10 +152,9 @@
             <a href="data-entry.html" class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Data Entry</a>
             <a href="audit.html"    class="flex items-center p-3 text-xs font-bold uppercase text-emerald-500 bg-emerald-500/5 rounded-lg">Forensic Audit</a>
             <a href="invoice.html"  class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Invoices</a>
-            <a href="churned.html"  class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Churned</a>
-        
-        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+            <a href="churned.html"     class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Churned</a>
+            <a href="partners.html"    class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">🤝 Referral Partners</a>
+            <a href="loyalty-club.html" class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">🏆 Loyalty Club</a>
 </nav>
     </aside>
 
@@ -164,10 +163,22 @@
             <h1 class="text-3xl font-black italic uppercase text-white leading-none">
                 Efficiency Audit : <span id="client-name" class="text-emerald-500">NO CLIENT SELECTED</span>
             </h1>
-            <div class="flex gap-6 mt-3">
+            <!-- Client selector row -->
+            <div class="flex gap-4 mt-4 items-center flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Client</span>
+                    <select id="audit-client-sel" onchange="switchAuditClient(this.value)"
+                        style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:white;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;padding:6px 12px;cursor:pointer;outline:none;">
+                        <option value="">— Select Client —</option>
+                    </select>
+                </div>
+                <button onclick="clearAudit()" title="Clear current audit and start fresh"
+                    style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-size:10px;font-weight:900;text-transform:uppercase;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;">
+                    ✕ Clear
+                </button>
                 <div class="bg-emerald-500/10 border border-emerald-500/30 px-6 py-3 rounded-xl">
                     <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest opacity-60">Audit Period</p>
-                    <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">JAN 2026</p>
+                    <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">—</p>
                 </div>
                 <div class="bg-orange-500/10 border border-orange-500/30 px-6 py-3 rounded-xl">
                     <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest opacity-60">Status</p>
@@ -446,42 +457,109 @@ async function checkFreeAuditWarning(clientName) {
 }
 
 async function initAudit() {
+    // Populate client selector with all clients
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const sel = document.getElementById('audit-client-sel');
+    if (sel) {
+        sel.innerHTML = '<option value="">— Select Client —</option>';
+        allClients.forEach(c => {
+            const o = document.createElement('option');
+            o.value = c.company;
+            o.text  = c.company + (c.status === 'prospect' ? ' (Prospect)' : '');
+            sel.appendChild(o);
+        });
+    }
+
+    // Resolve client — URL param first
     const urlParams = new URLSearchParams(window.location.search);
     const clientFromUrl = urlParams.get('client');
     let resolvedName = clientFromUrl ? decodeURIComponent(clientFromUrl) : null;
     if (!resolvedName) {
         const clientIdFromUrl = urlParams.get('id');
         if (clientIdFromUrl) {
-            const allForLookup = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const found = allForLookup.find(c => c.id === clientIdFromUrl);
+            const found = allClients.find(c => c.id === clientIdFromUrl);
             if (found) resolvedName = found.company;
         }
     }
-    if (resolvedName) {
-        currentClientName = resolvedName;
-        document.getElementById('client-name').textContent = resolvedName.toUpperCase();
-        await cloudStorage.setItem('currentAuditClient', resolvedName);
-        const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-        const currentClient = allClients.find(c => c.company.toUpperCase() === resolvedName.toUpperCase());
-        if (currentClient) {
-            if (currentClient.speedLimit) document.getElementById('master-speed').value = currentClient.speedLimit;
-            if (currentClient.fuelPrice) {
-                document.getElementById('price-w').value = currentClient.fuelPrice;
-                document.getElementById('price-r').value = parseFloat(currentClient.fuelPrice) + 2.35;
-            }
-            if (currentClient.targetCons) document.getElementById('master-target').value = currentClient.targetCons;
-            loadAuditDraft(resolvedName);
-        }
-        await checkFreeAuditWarning(resolvedName);
-    } else {
+
+    // Fall back to saved — but only if that client still exists
+    if (!resolvedName) {
         const savedCompany = await cloudStorage.getItem('currentAuditClient');
         if (savedCompany) {
-            currentClientName = savedCompany;
-            document.getElementById('client-name').textContent = savedCompany.toUpperCase();
-            loadAuditDraft(savedCompany);
-            await checkFreeAuditWarning(savedCompany);
+            const stillExists = allClients.find(c => c.company.toUpperCase() === savedCompany.toUpperCase());
+            if (stillExists) resolvedName = savedCompany;
+            else await cloudStorage.removeItem('currentAuditClient'); // deleted client — clear it
         }
     }
+
+    if (resolvedName) await loadAuditClient(resolvedName, allClients);
+    // If nothing resolved — page stays blank, selector visible
+}
+
+async function loadAuditClient(name, allClients) {
+    if (!allClients) allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const client = allClients.find(c => c.company.toUpperCase() === name.toUpperCase());
+    if (!client) {
+        await cloudStorage.removeItem('currentAuditClient');
+        document.getElementById('client-name').textContent = 'NO CLIENT SELECTED';
+        const sel = document.getElementById('audit-client-sel');
+        if (sel) sel.value = '';
+        return;
+    }
+    currentClientName = name;
+    document.getElementById('client-name').textContent = name.toUpperCase();
+    const sel = document.getElementById('audit-client-sel');
+    if (sel) sel.value = name;
+    await cloudStorage.setItem('currentAuditClient', name);
+    if (client.speedLimit) document.getElementById('master-speed').value = client.speedLimit;
+    if (client.fuelPrice) {
+        document.getElementById('price-w').value = client.fuelPrice;
+        document.getElementById('price-r').value = parseFloat(client.fuelPrice) + 2.35;
+    }
+    if (client.targetCons) document.getElementById('master-target').value = client.targetCons;
+    await loadAuditDraft(name);
+    await checkFreeAuditWarning(name);
+}
+
+async function switchAuditClient(name) {
+    if (!name) { clearAudit(); return; }
+    if (currentClientName && Object.keys(auditData).length > 0 && name !== currentClientName) {
+        if (!confirm('Switch to ' + name + '?
+The current audit for ' + currentClientName + ' will be auto-saved as a draft.')) {
+            const sel = document.getElementById('audit-client-sel');
+            if (sel) sel.value = currentClientName;
+            return;
+        }
+        await autoSaveAuditDraft();
+    }
+    resetAuditUI();
+    await loadAuditClient(name);
+}
+
+function resetAuditUI() {
+    auditData = {};
+    const gr = document.getElementById('grid-rows'); if (gr) gr.innerHTML = '';
+    ['stat-usage','stat-speed'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerText = '✘'; el.className = 'text-red-500 font-bold mr-2'; }
+    });
+    document.getElementById('audit-period').innerText = '—';
+    document.getElementById('date-label').innerText   = 'DATA PENDING';
+    ['l1-eff','l1-speed','l1-total','l2-eff','l2-speed','l2-total'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.innerText = 'R 0';
+    });
+}
+
+async function clearAudit() {
+    if (Object.keys(auditData).length > 0) {
+        if (!confirm('Clear the current audit? Your draft will still be saved in Firebase.')) return;
+    }
+    resetAuditUI();
+    currentClientName = '';
+    await cloudStorage.removeItem('currentAuditClient');
+    document.getElementById('client-name').textContent = 'NO CLIENT SELECTED';
+    const sel = document.getElementById('audit-client-sel');
+    if (sel) sel.value = '';
 }
 
 async function loadAuditDraft(clientName) {
