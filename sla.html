@@ -3,6 +3,7 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SLA | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -28,6 +29,15 @@
         .tick-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 1px; flex-shrink: 0; accent-color: #2563eb; cursor: pointer; pointer-events: none; }
         .tick-row.checked { background: #eff6ff; border-color: #93c5fd; }
         .pricing-client-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%); color: white; border-radius: 0.75rem; padding: 1.5rem 2rem; margin: 1rem 0; }
+        @media(max-width:768px){
+            body{padding:1rem!important;}
+            .contract-card{padding:1.5rem!important;border-radius:0!important;}
+            .schedule-header{padding:1rem!important;}
+            .no-print.max-w-\[900px\]{flex-direction:column;align-items:flex-start;}
+            .pricing-client-box{padding:1rem!important;}
+            table{display:block;overflow-x:auto;white-space:nowrap;}
+            .grid.grid-cols-2{grid-template-columns:1fr!important;}
+        }
         @media print {
             .no-print { display: none !important; }
             body { padding: 0; background: white; }
