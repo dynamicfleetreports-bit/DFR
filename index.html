@@ -3,81 +3,26 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Executive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; flex-shrink: 0; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
         .logo-area { padding: 0 1rem 3rem 1rem; }
         .nav-item { display: flex; align-items: center; padding: 0.85rem 1rem; margin-bottom: 0.25rem; border-radius: 0.75rem; color: #64748b; text-transform: uppercase; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; transition: all 0.2s ease; text-decoration: none; cursor: pointer; }
-        .nav-item.active { background: rgba(16,185,129,0.1); color: #10b981; }
+        .nav-item.active { background: rgba(16, 185, 129, 0.1); color: #10b981; }
         .main-wrapper { flex: 1; overflow-y: auto; padding: 3rem; background: radial-gradient(circle at top right, #0f172a, #020617); }
-        .card { background: rgba(30,41,59,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 2.5rem; transition: all 0.4s; text-decoration: none; display: block; color: inherit; }
+        .card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 2.5rem; transition: all 0.4s; text-decoration: none; display: block; color: inherit; }
         .card:hover { transform: translateY(-10px); border-color: #10b981; }
         .card-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: #10b981; margin-bottom: 0.75rem; display: block; }
         .card-value { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
         .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
-        .status-tile { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; min-height: 180px; }
+        .status-tile { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; min-height: 180px; }
         .btn-action { background: #10b981; color: #020617; padding: 0.85rem; border-radius: 0.75rem; font-weight: 900; text-transform: uppercase; font-size: 10px; text-align: center; transition: all 0.2s; cursor: pointer; border: none; width: 100%; margin-bottom: 0.5rem; text-decoration: none; display: block; }
-
-        /* ── Mobile hamburger ── */
-        .mob-topbar { display: none; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.85rem 1.25rem; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; flex-shrink: 0; }
-        .mob-logo { max-height: 32px; }
-        .hamburger { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 4px; }
-        .hamburger span { display: block; width: 22px; height: 2px; background: #e2e8f0; border-radius: 2px; transition: all 0.2s; }
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
-        .sidebar-overlay.open { display: block; }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; height: auto; overflow: auto; }
-
-            /* Hide desktop sidebar, show topbar */
-            #sidebar { display: none; position: fixed; top: 0; left: -260px; height: 100vh; z-index: 100; transition: left 0.25s ease; overflow-y: auto; }
-            #sidebar.open { left: 0; display: flex; }
-            .mob-topbar { display: flex; }
-
-            .main-wrapper {
-                padding: 1.25rem;
-                overflow-y: visible;
-                min-height: calc(100vh - 56px);
-            }
-
-            /* Header */
-            header { margin-bottom: 1.5rem !important; }
-            header h1 { font-size: 2rem !important; }
-
-            /* MRR cards — stack */
-            .grid.grid-cols-2 { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-            .card-value { font-size: 2.4rem; }
-
-            /* Count cards — 1 col */
-            .grid.grid-cols-3 { grid-template-columns: 1fr !important; gap: 0.75rem !important; margin-bottom: 1rem !important; }
-
-            /* Bottom grid — stack */
-            .bottom-grid { grid-template-columns: 1fr !important; gap: 0.75rem; margin-top: 1rem; }
-            .status-tile { min-height: auto; }
-
-            .card { padding: 1.5rem; border-radius: 1rem; }
-            .card:hover { transform: none; }
-        }
-
-        @media (min-width: 769px) {
-            .mob-topbar { display: none !important; }
-        }
     </style>
 </head>
 <body>
-    <!-- Mobile topbar -->
-    <div class="mob-topbar">
-        <img src="Logo.png" alt="Logo" class="mob-logo">
-        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-            <span></span><span></span><span></span>
-        </button>
-    </div>
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
     <aside id="sidebar">
         <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
         <nav>
@@ -188,7 +133,7 @@
                     if (!companyName || companyName.toLowerCase() === 'company name') return;
 
                     // Col J (index 9) = status in sheet
-                    const sheetStatus = c[11] && c[11].v ? String(c[11].v).trim().toLowerCase() : '';
+                    const sheetStatus = c[12] && c[12].v ? String(c[12].v).trim().toLowerCase() : '';
 
                     // Skip rows already marked Active or Deleted in sheet
                     if (sheetStatus === 'active' || sheetStatus === 'deleted') {
@@ -204,21 +149,25 @@
                     addedCount++;
 
                     existingClients.push({
-                        id:           'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
-                        company:      companyName.toUpperCase(),
-                        contactName:  c[2] && c[2].v ? String(c[2].v).trim() : 'NO CONTACT',
-                        email:        c[3] && c[3].v ? String(c[3].v).trim() : '',
-                        contactTel:   c[9]  && c[9].v  ? String(c[9].v).trim()  : '',
-                        driveFolderUrl: c[10] && c[10].v ? String(c[10].v).trim() : '',
-                        fleetSize:    c[4] && c[4].v ? parseInt(c[4].v) : 0,
-                        vehicleTypes: c[5] && c[5].v ? String(c[5].v) : 'Unknown',
-                        city:         'NATIONAL',
-                        fuelPrice:    22.50,
-                        speedLimit:   80,
-                        currentCons:  '',
-                        targetCons:   2.3,
-                        status:       'prospect',
-                        auditStatus:  'not-started'
+                        id:               'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
+                        company:          companyName.toUpperCase(),
+                        contactName:      c[2]  && c[2].v  ? String(c[2].v).trim()  : 'NO CONTACT',
+                        email:            c[3]  && c[3].v  ? String(c[3].v).trim()  : '',
+                        fleetSize:        c[4]  && c[4].v  ? parseInt(c[4].v)        : 0,
+                        vehicleTypes:     c[5]  && c[5].v  ? String(c[5].v)          : 'Unknown',
+                        speedCsvUrl:      c[6]  && c[6].v  ? String(c[6].v).trim()  : '',
+                        usageCsvUrl:      c[7]  && c[7].v  ? String(c[7].v).trim()  : '',
+                        manualDataNote:   c[8]  && c[8].v  ? String(c[8].v).trim()  : '',
+                        contactTel:       c[9]  && c[9].v  ? String(c[9].v).trim()  : '',
+                        referredByClient: c[10] && c[10].v ? String(c[10].v).trim() : null,
+                        driveFolderUrl:   c[11] && c[11].v ? String(c[11].v).trim() : '',
+                        city:             'NATIONAL',
+                        fuelPrice:        22.50,
+                        speedLimit:       80,
+                        targetCons:       2.3,
+                        status:           'prospect',
+                        auditStatus:      'not-started',
+                        source:           'sheet-import'
                     });
 
                     // Mark new entry in sheet as Prospect
@@ -314,15 +263,6 @@
         }
 
         window.onload = updateDisplay;
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('open');
-        }
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.remove('open');
-        }
     </script>
 </body>
 </html>
