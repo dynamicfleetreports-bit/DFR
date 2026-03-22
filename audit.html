@@ -281,635 +281,657 @@
     </div>
 
     <script>
-        let auditData = {};
-        let _vdb = {};
-        (async function loadVDB(){
-            try {
-                await new Promise(res=>{const t=setInterval(()=>{if(typeof cloudStorage!=='undefined'){clearInterval(t);res();}},60);});
-                const r = await cloudStorage.getItem('VEHICLE_DB');
-                _vdb = r ? JSON.parse(r) : {};
-            } catch(e){ _vdb={}; }
-        })();
-        function _dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
-        function _lookupMfr(make,model){
-            if(!make) return null;
-            const e=_vdb[_dbk(make,model)]; if(e) return e;
-            for(const k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
-            return null;
-        }
-        function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
-            if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
-            let base = parseFloat(mfrMin);
-            const loadAdj = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[loadProfile]??0;
-            const trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.08,'Rear Tipper':-0.08,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[trailerType]??0;
-            const interlinkAdj = (interlink===true||interlink==='true'||interlink==='Yes') ? -0.04 : 0;
-            const aerokitAdj = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[aerokit]??0;
-            return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
-        }
-        let activeRows = [];
-        let activeMode = '';
-        let currentClientName = '';
-        let lastUploadTimestamp = { usage: 0, speed: 0 };
+// ══════════════════════════════════════════════════════════════════════════════
+// DFR CALCULATION ENGINE — inline copy (matches dfr-calc.js exactly)
+// Single source of truth. renderGrid(), saveAuditResults() and generateReport()
+// ALL call calcVehicle() / calcFleet(). No duplicate formulas anywhere.
+// ══════════════════════════════════════════════════════════════════════════════
+const DFR_TERRAIN_FACTOR = {'Flat / Highveld':1.00,'Mixed / Undulating':0.93,'Mountainous':0.84,'Severe Mountain':0.75};
+const DFR_AERO_DRAG = {'Long Distance':0.42,'Mixed':0.32,'Local Distribution':0.22,'Construction / Mining':0.18,'Agricultural':0.18};
+const DFR_LOAD_ADJ = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15};
+const DFR_TRAILER_ADJ = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.10,'Rear Tipper':-0.12,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0};
+const DFR_AEROKIT_ADJ = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10};
+const DFR_FRAUD = {LOW_EFF_FACTOR:0.40, DRIFT_PCT:0.15};
 
-        function normaliseKey(raw) {
-            return String(raw).trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(-7);
-        }
+function calcSuggested(v) {
+    const base = parseFloat(v.mfr_avg) || parseFloat(v.mfr_min) || null;
+    if (!base) return null;
+    const terrain = DFR_TERRAIN_FACTOR[v.terrain] ?? DFR_TERRAIN_FACTOR['Mixed / Undulating'];
+    return Math.round(base *
+        (1 + (DFR_LOAD_ADJ[v.loadProfile]??0) + (DFR_TRAILER_ADJ[v.trailerType]??0) +
+        ((v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?-0.04:0) +
+        (DFR_AEROKIT_ADJ[v.aerokit]??0)) * terrain * 100) / 100;
+}
 
-        // ── Free audit warning check ──────────────────────────────────────────
-        // Shows a warning (not a hard block) if a prospect has already had a
-        // completed audit. Active clients are never warned — unlimited audits.
-        async function checkFreeAuditWarning(clientName) {
-            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            var client = allClients.find(function(c) {
-                return c.company && c.company.toUpperCase().trim() === clientName.toUpperCase().trim();
-            });
-            if (!client) return;
-            if (client.status !== 'prospect') return;       // active clients: no warning
-            if (client.auditStatus !== 'complete') return;  // first audit: no warning
-            var dateStr = client.lastAuditDate ? ' on <strong>' + client.lastAuditDate + '</strong>' : '';
-            document.getElementById('free-audit-warning-text').innerHTML =
-                '<strong style="color:#f97316;">' + client.company + '</strong> already received their complimentary audit' + dateStr + '.<br><br>' +
-                'Running another audit without an active SLA means unpaid work for you.';
-            document.getElementById('free-audit-modal').style.display = 'flex';
-        }
-
-	    async function initAudit() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const clientFromUrl = urlParams.get('client');
-
-            // Resolve company name — prefer ?client= name, fall back to ?id= lookup
-            let resolvedName = clientFromUrl ? decodeURIComponent(clientFromUrl) : null;
-            if (!resolvedName) {
-                const clientIdFromUrl = urlParams.get('id');
-                if (clientIdFromUrl) {
-                    const allForLookup = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                    const found = allForLookup.find(c => c.id === clientIdFromUrl);
-                    if (found) resolvedName = found.company;
-                }
-            }
-
-            if (resolvedName) {
-                const decodedClient = resolvedName;
-                currentClientName = decodedClient;
-                document.getElementById('client-name').textContent = decodedClient.toUpperCase();
-                await cloudStorage.setItem('currentAuditClient', decodedClient);
-
-                const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                const currentClient = allClients.find(c => c.company.toUpperCase() === decodedClient.toUpperCase());
-
-                if (currentClient) {
-                    if (currentClient.speedLimit) document.getElementById('master-speed').value = currentClient.speedLimit;
-                    if (currentClient.fuelPrice) {
-                        document.getElementById('price-w').value = currentClient.fuelPrice;
-                        document.getElementById('price-r').value = parseFloat(currentClient.fuelPrice) + 2.35;
-                    }
-                    if (currentClient.targetCons) document.getElementById('master-target').value = currentClient.targetCons;
-                    loadAuditDraft(decodedClient);
-                }
-
-                // ── Free audit warning (prospects only) ──────────────────────
-                await checkFreeAuditWarning(decodedClient);
-
-            } else {
-                const savedCompany = await cloudStorage.getItem('currentAuditClient');
-
-                if (savedCompany) {
-                    currentClientName = savedCompany;
-                    document.getElementById('client-name').textContent = savedCompany.toUpperCase();
-                    loadAuditDraft(savedCompany);
-                    await checkFreeAuditWarning(savedCompany);
-
-                } else {
-                    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                    const clientsWithDrafts = [];
-                    for (const c of allClients) {
-                        const draftKey = 'AUDIT_DRAFT_' + c.company.toUpperCase().replace(/\s+/g, '_');
-                        const draft = await cloudStorage.getItem(draftKey);
-                        if (draft !== null) clientsWithDrafts.push(c);
-                    }
-
-                    if (clientsWithDrafts.length > 0) {
-                        currentClientName = clientsWithDrafts[0].company;
-                        document.getElementById('client-name').textContent = currentClientName.toUpperCase();
-                        await cloudStorage.setItem('currentAuditClient', currentClientName);
-                        loadAuditDraft(currentClientName);
-                        await checkFreeAuditWarning(currentClientName);
-                    }
-                }
-            }
-        }
-
-        async function loadAuditDraft(clientName) {
-            const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g, '_');
-            const savedDraft = await cloudStorage.getItem(draftKey);
-            if (savedDraft) {
-                try {
-                    const draft = JSON.parse(savedDraft);
-                    auditData = draft.auditData || {};
-                    if (Object.keys(auditData).length > 0) {
-                        document.getElementById('stat-usage').innerText = '✓';
-                        document.getElementById('stat-usage').classList.replace('text-red-500', 'text-emerald-500');
-                        document.getElementById('stat-speed').innerText = '✓';
-                        document.getElementById('stat-speed').classList.replace('text-red-500', 'text-emerald-500');
-                    }
-                    if (draft.speedLimit) document.getElementById('master-speed').value = draft.speedLimit;
-                    if (draft.priceW) document.getElementById('price-w').value = draft.priceW;
-                    if (draft.priceR) document.getElementById('price-r').value = draft.priceR;
-                    if (draft.target) document.getElementById('master-target').value = draft.target;
-                    if (draft.auditDate) document.getElementById('date-label').innerText = draft.auditDate;
-                    if (draft.auditPeriod) document.getElementById('audit-period').innerText = draft.auditPeriod;
-                    if (Object.keys(auditData).length > 0) {
-                        renderGrid();
-                        showDraftStatus('Draft Loaded - ' + new Date(draft.savedAt).toLocaleString());
-                    }
-                } catch(e) { console.error('Error loading draft:', e); }
-            }
-        }
-
-        async function autoSaveAuditDraft() {
-            if (!currentClientName) return;
-            const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-            const draft = {
-                auditData, speedLimit: document.getElementById('master-speed').value,
-                priceW: document.getElementById('price-w').value,
-                priceR: document.getElementById('price-r').value,
-                target: document.getElementById('master-target').value,
-                auditDate: document.getElementById('date-label').innerText,
-                auditPeriod: document.getElementById('audit-period').innerText,
-                savedAt: new Date().toISOString()
-            };
-            await cloudStorage.setItem(draftKey, JSON.stringify(draft));
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-            if (clientIndex === -1 || allClients[clientIndex].auditStatus !== 'complete') {
-                updateClientAuditStatus('in-progress');
-            }
-            showDraftStatus('Draft Auto-Saved');
-        }
-
-        function showDraftStatus(message) {
-            const statusEl = document.getElementById('date-label');
-            const originalText = statusEl.innerText;
-            statusEl.innerText = '💾 ' + message;
-            statusEl.style.color = '#10b981';
-            setTimeout(() => { statusEl.innerText = originalText; statusEl.style.color = ''; }, 2000);
-        }
-
-        async function updateClientAuditStatus(status) {
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-            if (clientIndex !== -1) {
-                allClients[clientIndex].auditStatus = status;
-                allClients[clientIndex].lastEditedDate = new Date().toISOString();
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-            }
-        }
-
-        async function launchMapper(input, mode) {
-            if (!input.files || !input.files[0]) return;
-            activeMode = mode;
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const text = e.target.result;
-                const delim = text.includes(';') ? ';' : ',';
-                activeRows = text.split(/\r?\n/).filter(l => l.trim()).map(r => r.split(delim));
-                if (activeRows.length === 0) { alert('CSV file is empty'); return; }
-                const headers = activeRows[0];
-                const opts = headers.map((h, i) => '<option value="' + i + '">' + h + '</option>').join('');
-                const mappingKey = 'CSV_MAPPING_' + currentClientName.toUpperCase().replace(/\s+/g, '_') + '_' + mode;
-                const savedMapping = await cloudStorage.getItem(mappingKey);
-                let regIdx = 0, valIdx = 1, dateIdx = -1, durationIdx = -1, maxSpeedIdx = -1;
-                if (savedMapping) {
-                    const mapping = JSON.parse(savedMapping);
-                    regIdx = mapping.reg; valIdx = mapping.val; dateIdx = mapping.date;
-                    if (mapping.duration !== undefined) durationIdx = mapping.duration;
-                    if (mapping.maxSpeed !== undefined) maxSpeedIdx = mapping.maxSpeed;
-                } else {
-                    headers.forEach((h, i) => {
-                        const lower = h.toLowerCase().trim();
-                        if (lower.includes('reg') || lower.includes('vehicle') || lower.includes('unit') || lower.includes('asset')) regIdx = i;
-                        if (mode === 'usage' && (lower.includes('km') || lower.includes('distance') || lower.includes('odometer'))) valIdx = i;
-                        if (mode === 'speed' && (lower.includes('speed') || lower.includes('km/h') || lower.includes('kmh'))) valIdx = i;
-                        if (lower.includes('date') || lower.includes('time')) dateIdx = i;
-                        if (mode === 'usage' && (lower.includes('over speed duration') || lower.includes('overspeed duration'))) durationIdx = i;
-                        if (mode === 'usage' && lower.includes('max speed') && !lower.includes('duration')) maxSpeedIdx = i;
-                    });
-                }
-                document.getElementById('map-reg').innerHTML = opts;
-                document.getElementById('map-val').innerHTML = opts;
-                document.getElementById('map-date').innerHTML = '<option value="-1">None</option>' + opts;
-                document.getElementById('map-reg').value = regIdx;
-                document.getElementById('map-val').value = valIdx;
-                document.getElementById('map-date').value = dateIdx;
-                if (mode === 'usage') {
-                    document.getElementById('usage-extra-fields').style.display = 'block';
-                    document.getElementById('map-duration').innerHTML = '<option value="-1">None / Not Available</option>' + opts;
-                    document.getElementById('map-maxspeed').innerHTML = '<option value="-1">None</option>' + opts;
-                    document.getElementById('map-duration').value = durationIdx;
-                    document.getElementById('map-maxspeed').value = maxSpeedIdx;
-                } else {
-                    document.getElementById('usage-extra-fields').style.display = 'none';
-                }
-                document.getElementById('logic-selector-box').style.display = (mode === 'usage') ? 'block' : 'none';
-                document.getElementById('mapper-modal').style.display = 'flex';
-                updateMappingPreview();
-            };
-            reader.readAsText(input.files[0]);
-        }
-
-        function updateMappingPreview() {
-            const rIdx = parseInt(document.getElementById('map-reg').value);
-            const vIdx = parseInt(document.getElementById('map-val').value);
-            const previewBox = document.getElementById('mapping-preview');
-            const previewRows = document.getElementById('preview-rows');
-            if (!activeRows || activeRows.length < 2) return;
-            const samples = activeRows.slice(1, 4);
-            let html = '';
-            samples.forEach(row => {
-                const reg = row[rIdx] || '—';
-                const val = row[vIdx] || '—';
-                html += `<div class="flex gap-4 py-1 border-b border-white/5"><span class="text-white/60 w-24 truncate">Reg: <span class="text-white font-bold">${reg.trim()}</span></span><span class="text-white/60">Value: <span class="text-emerald-400 font-bold">${val.trim()}</span></span></div>`;
-            });
-            previewRows.innerHTML = html;
-            previewBox.classList.remove('hidden');
-        }
-
-        document.addEventListener('change', (e) => {
-            if (e.target.id === 'map-reg' || e.target.id === 'map-val') updateMappingPreview();
+function calcSpeedLoss(v, limit, target, wPrice, rPrice) {
+    const aeroDrag = DFR_AERO_DRAG[v.usage] ?? DFR_AERO_DRAG['Mixed'];
+    let litres = 0;
+    if (v.speeds && v.speeds.length > 0) {
+        const over = v.speeds.filter(s => s > limit);
+        if (!over.length) return {litres:0,lossW:0,lossR:0};
+        const totalHrs = v.duration > 0 ? v.duration/3600 : over.length*5/60;
+        const perHrs = Math.max(5/60, totalHrs/over.length);
+        over.forEach(spd => {
+            const penalty = aeroDrag * ((spd/limit)**2 - 1);
+            litres += (spd*0.9*perHrs/target) * penalty;
         });
+    } else if (v.violations > 0) {
+        const assumed = limit+15;
+        litres = v.violations * (assumed*0.9*(5/60)/target) * aeroDrag*((assumed/limit)**2-1);
+    }
+    litres = Math.max(0,litres);
+    return {litres:Math.round(litres*100)/100, lossW:Math.round(litres*wPrice*100)/100, lossR:Math.round(litres*rPrice*100)/100};
+}
 
-        async function commitMapping() {
-            const now = Date.now();
-            if (now - lastUploadTimestamp[activeMode] < 2000) return;
-            lastUploadTimestamp[activeMode] = now;
-            const rIdx = parseInt(document.getElementById('map-reg').value);
-            const vIdx = parseInt(document.getElementById('map-val').value);
-            const dIdx = parseInt(document.getElementById('map-date').value);
-            const logic = document.getElementById('map-logic') ? document.getElementById('map-logic').value : 'sum';
-            let durIdx = -1, maxSpdIdx = -1;
-            if (activeMode === 'usage') {
-                durIdx = parseInt(document.getElementById('map-duration').value);
-                maxSpdIdx = parseInt(document.getElementById('map-maxspeed').value);
-            }
-            const mappingKey = 'CSV_MAPPING_' + currentClientName.toUpperCase().replace(/\s+/g, '_') + '_' + activeMode;
-            await cloudStorage.setItem(mappingKey, JSON.stringify({ reg: rIdx, val: vIdx, date: dIdx, logic, duration: durIdx, maxSpeed: maxSpdIdx }));
-            const currentMapping = { reg: rIdx, val: vIdx, date: dIdx, duration: durIdx, maxSpeed: maxSpdIdx };
-            let newData = {};
-            Object.keys(auditData).forEach(k => {
-                newData[k] = {
-                    reg: auditData[k].reg, type: auditData[k].type || 'Heavy',
-                    make: auditData[k].make || '', model: auditData[k].model || '',
-                    year: auditData[k].year || '',
-                    usage: auditData[k].usage || auditData[k].usedFor || 'Long Distance',
-                    loadProfile: auditData[k].loadProfile || 'Fully Loaded',
-                    trailerType: auditData[k].trailerType || 'Tautliner / Curtainsider',
-                    interlink: auditData[k].interlink || false,
-                    aerokit: auditData[k].aerokit || 'None',
-                    mfr_min: auditData[k].mfr_min || null,
-                    mfr_avg: auditData[k].mfr_avg || null,
-                    clientTarget: auditData[k].clientTarget || null,
-                    targetKmL: auditData[k].targetKmL || auditData[k].clientTarget || '2.3',
-                    gps: activeMode === 'usage' ? 0 : (auditData[k].gps || 0),
-                    odo: auditData[k].odo || '', liters: auditData[k].liters || '',
-                    speeds: activeMode === 'speed' ? [] : (auditData[k].speeds || []),
-                    duration: activeMode === 'usage' ? 0 : (auditData[k].duration || 0),
-                    maxSpeed: activeMode === 'usage' ? 0 : (auditData[k].maxSpeed || 0)
-                };
-            });
-            let processedCount = 0, firstDate = null, lastDate = null;
-            activeRows.slice(1).forEach(row => {
-                if (!row[currentMapping.reg]) return;
-                const key = normaliseKey(row[currentMapping.reg]);
-                if (!key) return;
-                if (dIdx !== -1 && row[currentMapping.date]) {
-                    const dateStr = row[currentMapping.date].trim();
-                    const datePart = dateStr.split(' ')[0].split('T')[0];
-                    let dateObj;
-                    if (datePart.includes('/')) {
-                        const parts = datePart.split('/');
-                        dateObj = parts[0].length === 4 ? new Date(parts[0], parts[1]-1, parts[2]) : new Date(parts[2], parts[1]-1, parts[0]);
-                    } else if (datePart.includes('-')) {
-                        const parts = datePart.split('-');
-                        dateObj = parts[0].length === 4 ? new Date(parts[0], parts[1]-1, parts[2]) : new Date(parts[2], parts[1]-1, parts[0]);
-                    } else { dateObj = new Date(datePart); }
-                    if (!isNaN(dateObj)) {
-                        if (!firstDate || dateObj < firstDate) firstDate = dateObj;
-                        if (!lastDate || dateObj > lastDate) lastDate = dateObj;
-                    }
-                }
-                if (!newData[key]) {
-                    newData[key] = {
-                        reg: row[currentMapping.reg].trim(),
-                        type: auditData[key]?.type || 'Heavy', make: auditData[key]?.make || '',
-                        model: auditData[key]?.model || '', year: auditData[key]?.year || '',
-                        usage: auditData[key]?.usage || auditData[key]?.usedFor || 'Long Distance',
-                        loadProfile: auditData[key]?.loadProfile || 'Fully Loaded',
-                        trailerType: auditData[key]?.trailerType || 'Tautliner / Curtainsider',
-                        interlink: auditData[key]?.interlink || false,
-                        aerokit: auditData[key]?.aerokit || 'None',
-                        mfr_min: auditData[key]?.mfr_min || null,
-                        mfr_avg: auditData[key]?.mfr_avg || null,
-                        clientTarget: auditData[key]?.clientTarget || null,
-                        targetKmL: auditData[key]?.targetKmL || auditData[key]?.clientTarget || '2.3',
-                        gps: 0, odo: auditData[key]?.odo || '', liters: auditData[key]?.liters || '',
-                        speeds: [], duration: 0, maxSpeed: 0
-                    };
-                }
-                const val = parseFloat(row[currentMapping.val]) || 0;
-                if (activeMode === 'usage') {
-                    if (logic === 'sum') newData[key].gps += val;
-                    else if (val > newData[key].gps) newData[key].gps = val;
-                    if (currentMapping.duration >= 0 && row[currentMapping.duration]) newData[key].duration += parseFloat(row[currentMapping.duration]) || 0;
-                    if (currentMapping.maxSpeed >= 0 && row[currentMapping.maxSpeed]) { const sv = parseFloat(row[currentMapping.maxSpeed]) || 0; if (sv > newData[key].maxSpeed) newData[key].maxSpeed = sv; }
-                    processedCount++;
-                } else if (activeMode === 'speed') {
-                    if (val > 0) { newData[key].speeds.push(val); processedCount++; }
-                }
-            });
-            auditData = newData;
-            if (firstDate && lastDate) {
-                const fmt = (d) => { const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"]; return String(d.getDate()).padStart(2,'0') + ' ' + months[d.getMonth()] + ' ' + d.getFullYear(); };
-                const from = fmt(firstDate), to = fmt(lastDate);
-                document.getElementById('audit-period').innerText = from === to ? from : from + ' - ' + to;
-                document.getElementById('date-label').innerText = 'DRAFT AUTO-SAVED';
-            }
-            document.getElementById('stat-' + activeMode).innerText = '✓';
-            document.getElementById('stat-' + activeMode).classList.replace('text-red-500', 'text-emerald-500');
-            document.getElementById('mapper-modal').style.display = 'none';
-            if (activeMode === 'usage') document.getElementById('csv-usage').value = '';
-            else document.getElementById('csv-speed').value = '';
-            autoSaveAuditDraft();
-            setTimeout(() => {
-                const usageDone = document.getElementById('stat-usage').innerText === '✓';
-                const speedDone = document.getElementById('stat-speed').innerText === '✓';
-                if (usageDone && speedDone) window.location.href = 'data-entry.html?client=' + encodeURIComponent(currentClientName);
-                else renderGrid();
-            }, 100);
+function calcScore(v, limit, target) {
+    let score = 100;
+    if (v.actKmL > 0 && v.actKmL < target)
+        score -= Math.min(40, (((target-v.actKmL)/target)*100/100)*40);
+    const events = (v.speeds&&v.speeds.length>0) ? v.speeds.filter(s=>s>limit).length : (v.violations||0);
+    if (events > 0) score -= Math.min(30, events*0.3);
+    const peak = (v.speeds&&v.speeds.length>0) ? Math.max(...v.speeds) : (v.maxSpeed||0);
+    if (v.duration > 300 && peak > limit+1) score -= Math.min(20, (v.duration/60/30)*20);
+    if (peak > limit+20) score -= Math.min(10, (peak-(limit+20))*0.5);
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function calcFraudFlags(v) {
+    const flags = [];
+    const litres = parseFloat(v.mL)||parseFloat(v.liters)||0;
+    const distKm = parseFloat(v.mK)||parseFloat(v.odo)||0;
+    const gps    = parseFloat(v.gpsDist)||parseFloat(v.gps)||0;
+    const mfrAvg = parseFloat(v.mfr_avg)||0;
+    const minKmL = mfrAvg>0 ? mfrAvg*DFR_FRAUD.LOW_EFF_FACTOR : 0.8;
+    const maxL   = distKm>0&&minKmL>0 ? Math.round(distKm/minKmL) : 0;
+    if (maxL>0 && litres>maxL)
+        flags.push(`Excess fuel: ${litres}L for ${distKm}km (${(distKm/litres).toFixed(2)}km/L) — below minimum plausible`);
+    if (v.actKmL>0 && mfrAvg>0 && v.actKmL < mfrAvg*DFR_FRAUD.LOW_EFF_FACTOR)
+        flags.push(`Implausible: ${v.actKmL}km/L < 40% of mfr avg (${mfrAvg})`);
+    if (distKm>0 && gps>0) {
+        const drift = Math.abs(distKm-gps);
+        if (drift > gps*DFR_FRAUD.DRIFT_PCT)
+            flags.push(`Odo drift: ${Math.round(drift)}km vs GPS (${Math.round(drift/gps*100)}%)`);
+    }
+    return flags;
+}
+
+function calcVehicle(v, limit, wPrice, rPrice, globalTarget) {
+    const odoKm  = parseFloat(v.mK)||parseFloat(v.odo)||0;
+    const gpsKm  = parseFloat(v.gpsDist)||parseFloat(v.gps)||0;
+    const litres = parseFloat(v.mL)||parseFloat(v.liters)||0;
+    const distKm = odoKm || gpsKm;
+    const driftKm  = (odoKm>0&&gpsKm>0) ? Math.round(odoKm-gpsKm) : null;
+    const driftPct = (driftKm!==null&&gpsKm>0) ? Math.round(Math.abs(driftKm)/gpsKm*1000)/10 : null;
+    const suggested = calcSuggested(v);
+    const target = parseFloat(v.clientTarget)||parseFloat(v.targetKmL)||suggested||globalTarget||2.3;
+    const actKmL = (litres>0&&distKm>0) ? Math.round(distKm/litres*100)/100 : null;
+    const wastedL = (litres>0&&distKm>0&&actKmL!==null&&actKmL<target)
+        ? Math.round((litres-distKm/target)*100)/100 : 0;
+    const effLoss_w = Math.round(Math.max(0,wastedL)*wPrice*100)/100;
+    const effLoss_r = Math.round(Math.max(0,wastedL)*rPrice*100)/100;
+    const spd = calcSpeedLoss(v, limit, target, wPrice, rPrice);
+    const totalLoss_w = Math.round((effLoss_w+spd.lossW)*100)/100;
+    const totalLoss_r = Math.round((effLoss_r+spd.lossR)*100)/100;
+    const violations = (v.speeds&&v.speeds.length>0) ? v.speeds.filter(s=>s>limit).length : (v.violations||0);
+    const maxSpeed = (v.speeds&&v.speeds.length>0) ? Math.max(...v.speeds) : (v.maxSpeed||0);
+    const vScore = {...v, actKmL, violations, maxSpeed};
+    const score = calcScore(vScore, limit, target);
+    const fraudFlags = calcFraudFlags({...v, mK:odoKm, mL:litres, actKmL});
+    return { ...v,
+        mK:odoKm||v.mK, mL:litres||v.mL, gpsDist:gpsKm||v.gpsDist,
+        suggestedTarget:suggested, activeTarget:target,
+        actKmL, wastedL, driftKm, driftPct,
+        violations, maxSpeed,
+        effLoss_w, effLoss_r,
+        speedLitres:spd.litres, speedLoss_w:spd.lossW, speedLoss_r:spd.lossR,
+        totalLoss_w, totalLoss_r,
+        score, fraudFlags
+    };
+}
+
+function calcFleet(vehicles, settings) {
+    const {limit,wPrice,rPrice,globalTarget} = settings;
+    const processed = vehicles.map(v => calcVehicle(v,limit,wPrice,rPrice,globalTarget));
+    const totals = processed.reduce((a,v)=>({
+        totalKM:     a.totalKM     + (v.mK||0),
+        totalLitres: a.totalLitres + (v.mL||0),
+        totalWastedL:a.totalWastedL+ (v.wastedL||0),
+        effLoss_w:   a.effLoss_w   + v.effLoss_w,
+        effLoss_r:   a.effLoss_r   + v.effLoss_r,
+        speedLitres: a.speedLitres + v.speedLitres,
+        speedLoss_w: a.speedLoss_w + v.speedLoss_w,
+        speedLoss_r: a.speedLoss_r + v.speedLoss_r,
+        totalLoss_w: a.totalLoss_w + v.totalLoss_w,
+        totalLoss_r: a.totalLoss_r + v.totalLoss_r,
+        totalScore:  a.totalScore  + v.score,
+        violations:  a.violations  + v.violations
+    }), {totalKM:0,totalLitres:0,totalWastedL:0,effLoss_w:0,effLoss_r:0,
+         speedLitres:0,speedLoss_w:0,speedLoss_r:0,totalLoss_w:0,totalLoss_r:0,
+         totalScore:0,violations:0});
+    Object.keys(totals).forEach(k => { totals[k] = Math.round(totals[k]*100)/100; });
+    totals.fleetScore    = processed.length ? Math.round(totals.totalScore/processed.length) : 0;
+    totals.avgKmL        = totals.totalLitres>0 ? Math.round(totals.totalKM/totals.totalLitres*100)/100 : 0;
+    totals.vehicleCount  = processed.length;
+    const elite=processed.filter(v=>v.score>=95).length, high=processed.filter(v=>v.score>=90&&v.score<95).length,
+          good=processed.filter(v=>v.score>=80&&v.score<90).length, poor=processed.filter(v=>v.score<80).length;
+    const bonusPayout = (elite*500)+(high*300)+(good*150);
+    const bonusSavings = processed.filter(v=>v.score>=80).reduce((s,v)=>s+v.totalLoss_w,0);
+    totals.bonus = {elite,high,good,poor,payout:bonusPayout,savings:Math.round(bonusSavings),roi:Math.round(bonusSavings-bonusPayout)};
+    return {vehicles:processed, totals};
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let auditData = {};
+let _vdb = {};
+let activeRows = [], activeMode = '';
+let currentClientName = '';
+let lastUploadTimestamp = {usage:0, speed:0};
+
+(async function loadVDB(){
+    try { await new Promise(res=>{const t=setInterval(()=>{if(typeof cloudStorage!=='undefined'){clearInterval(t);res();}},60);}); const r=await cloudStorage.getItem('VEHICLE_DB'); _vdb=r?JSON.parse(r):{}; } catch(e){_vdb={};}
+})();
+function _dbk(m,mo){return((m||'').trim().toLowerCase()+'|'+(mo||'').trim().toLowerCase());}
+function _lookupMfr(make,model){if(!make)return null;const e=_vdb[_dbk(make,model)];if(e)return e;for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|'))return _vdb[k];}return null;}
+
+function normaliseKey(raw){return String(raw).trim().replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(-7);}
+
+async function checkFreeAuditWarning(clientName) {
+    var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    var client = allClients.find(function(c){ return c.company && c.company.toUpperCase().trim() === clientName.toUpperCase().trim(); });
+    if (!client||client.status!=='prospect'||client.auditStatus!=='complete') return;
+    var dateStr = client.lastAuditDate ? ' on <strong>' + client.lastAuditDate + '</strong>' : '';
+    document.getElementById('free-audit-warning-text').innerHTML =
+        '<strong style="color:#f97316;">' + client.company + '</strong> already received their complimentary audit' + dateStr + '.<br><br>Running another audit without an active SLA means unpaid work for you.';
+    document.getElementById('free-audit-modal').style.display = 'flex';
+}
+
+async function initAudit() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientFromUrl = urlParams.get('client');
+    let resolvedName = clientFromUrl ? decodeURIComponent(clientFromUrl) : null;
+    if (!resolvedName) {
+        const clientIdFromUrl = urlParams.get('id');
+        if (clientIdFromUrl) {
+            const allForLookup = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const found = allForLookup.find(c => c.id === clientIdFromUrl);
+            if (found) resolvedName = found.company;
         }
-
-        function renderGrid() {
-            const container = document.getElementById('grid-rows');
-            container.innerHTML = '';
-            const wPrice = parseFloat(document.getElementById('price-w').value) || 0;
-            const rPrice = parseFloat(document.getElementById('price-r').value) || 0;
-            const globalTarget = parseFloat(document.getElementById('master-target').value) || 2.3;
-            const limit = parseFloat(document.getElementById('master-speed').value) || 80;
-            let sEffW = 0, sSpeedW = 0, sEffR = 0, sSpeedR = 0;
-            let eliteCount = 0, highCount = 0, goodCount = 0, poorCount = 0, totalBonusSavings = 0;
-            Object.keys(auditData).forEach(k => {
-                const v = auditData[k];
-                const odoVal = parseFloat(v.odo) || v.gps || 0;
-                const isUsingGps = !parseFloat(v.odo) && v.gps > 0;
-                const manualL = parseFloat(v.liters) || 0;
-                const dbEntry   = _lookupMfr(v.make, v.model);
-                const mfrMin    = parseFloat(v.mfr_min) || (dbEntry?.mfr_min) || null;
-                const suggested = calcSuggested(mfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
-                const target    = parseFloat(v.clientTarget) || parseFloat(v.targetKmL) || suggested || globalTarget;
-                const actKmL = (manualL > 0 && odoVal > 0) ? (odoVal / manualL) : 0;
-                const wastedL = (manualL > 0 && odoVal > 0 && actKmL < target) ? (manualL - (odoVal / target)) : 0;
-                const drift = (parseFloat(v.odo) > 0 && v.gps > 0) ? (parseFloat(v.odo) - v.gps) : 0;
-                const events = v.speeds && v.speeds.length > 0 ? v.speeds.filter(s => s > limit).length : 0;
-                const penalty = (v.type === 'Heavy' ? 1.5 : 1.1);
-                let speedLoss = 0;
-                if (v.speeds && v.speeds.length > 0) {
-                    v.speeds.forEach(speed => {
-                        if (speed > limit) {
-                            const speedOver = speed - limit;
-                            const eventDurationHours = 5 / 60;
-                            const eventSpeed = speed * 0.9;
-                            const eventDistance = eventSpeed * eventDurationHours;
-                            const speedPenaltyFactor = 1 + (speedOver / 100);
-                            const baseRate = 1 / target;
-                            const normalFuel = eventDistance * baseRate;
-                            const actualFuel = normalFuel * speedPenaltyFactor;
-                            speedLoss += (actualFuel - normalFuel) * wPrice;
-                        }
-                    });
-                } else { speedLoss = events * penalty * wPrice; }
-                let score = 100;
-                if (actKmL > 0 && actKmL < target) { const d = ((target - actKmL) / target) * 100; score -= Math.min(40, (d / 100) * 40); }
-                if (events > 0) score -= Math.min(30, events * 0.3);
-                const actualMaxSpeed = (v.speeds && v.speeds.length > 0) ? Math.max(...v.speeds) : v.maxSpeed;
-                if (v.duration > 300 && actualMaxSpeed > limit + 1) { const dm = v.duration / 60; score -= Math.min(20, (dm / 30) * 20); }
-                if (v.maxSpeed > limit + 20) score -= Math.min(10, (v.maxSpeed - (limit + 20)) * 0.5);
-                score = Math.max(0, Math.min(100, Math.round(score)));
-                const effLoss = wastedL * wPrice;
-                const totalLoss = effLoss + speedLoss;
-                sEffW += effLoss; sSpeedW += speedLoss;
-                sEffR += (wastedL * rPrice); sSpeedR += (events * penalty * rPrice);
-                if (score >= 95) { eliteCount++; totalBonusSavings += totalLoss; }
-                else if (score >= 90) { highCount++; totalBonusSavings += totalLoss; }
-                else if (score >= 80) { goodCount++; totalBonusSavings += totalLoss; }
-                else { poorCount++; }
-                const odoDisplay = isUsingGps
-                    ? `<input type="number" placeholder="km" value="" data-key="${k}" data-field="odo" onchange="auditData['${k}'].odo=this.value; renderGrid(); autoSaveAuditDraft();" class="manual-input" style="border-color:rgba(99,102,241,0.5);" title="Using GPS km as fallback">`
-                    : `<input type="number" placeholder="km" value="${v.odo || ''}" data-key="${k}" data-field="odo" onchange="auditData['${k}'].odo=this.value; renderGrid(); autoSaveAuditDraft();" class="manual-input">`;
-                container.innerHTML += `
-                    <div class="vehicle-row">
-                        <div class="col-reg font-medium text-[12px] truncate">${v.reg}${isUsingGps ? ' <span title="Using GPS km" style="color:#6366f1;font-size:9px;">GPS</span>' : ''}</div>
-                        <div class="col-type" style="font-size:10px;">
-                            <div style="font-weight:700;color:white;">${v.type||'Heavy'}</div>
-                            <div style="color:#64748b;font-size:9px;">${v.usage||v.usedFor||'—'}</div>
-                        </div>
-                        <div class="col-data text-[11px]" style="color:#60a5fa;">${mfrMin ? mfrMin.toFixed(2) : '<span style="opacity:0.3">—</span>'}</div>
-                        <div class="col-data text-[11px]" style="color:#10b981;">${suggested ? suggested.toFixed(2) : '<span style="opacity:0.3">—</span>'}</div>
-                        <div class="col-data text-[11px]" style="color:#fbbf24;font-weight:700;">${target.toFixed(2)}</div>
-                        <div class="col-data text-[11px] opacity-40">${v.gps.toFixed(0)}</div>
-                        <div class="col-data">${odoDisplay}</div>
-                        <div class="col-drift text-[11px] ${Math.abs(drift) > 50 ? 'text-red-400 font-bold' : 'text-slate-500'}">${drift !== 0 ? drift.toFixed(0) : '—'}</div>
-                        <div class="col-money text-orange-400">R ${effLoss.toFixed(0)}</div>
-                        <div class="col-data"><input type="number" placeholder="L" value="${v.liters || ''}" data-key="${k}" data-field="liters" onchange="auditData['${k}'].liters=this.value; renderGrid(); autoSaveAuditDraft();" class="manual-input"></div>
-                        <div class="col-perf text-[12px] text-orange-400">${wastedL.toFixed(0)} L</div>
-                        <div class="col-perf text-[12px] font-black ${actKmL > 0 && actKmL < target ? 'text-red-400' : 'text-emerald-400'}">${actKmL > 0 ? actKmL.toFixed(2) : '-'}</div>
-                        <div class="col-events text-[12px] ${events > 0 ? 'text-red-500 font-bold' : 'text-slate-500'}">${events}</div>
-                        <div class="col-money text-orange-500 font-bold">R ${speedLoss.toFixed(0)}</div>
-                        <div class="col-money text-red-500 font-black">R ${totalLoss.toFixed(0)}</div>
-                        <div class="col-score text-[12px] ${score < 70 ? 'text-red-500' : score < 80 ? 'text-orange-400' : score < 90 ? 'text-blue-400' : score < 95 ? 'text-emerald-400' : 'text-yellow-400'}">${actKmL > 0 ? score.toFixed(0) + '%' : '-'}${score >= 95 ? ' 🏆' : score >= 90 ? ' ⭐' : ''}</div>
-                    </div>`;
-            });
-            document.getElementById('l1-eff').innerText = 'R ' + sEffW.toLocaleString();
-            document.getElementById('l1-speed').innerText = 'R ' + sSpeedW.toLocaleString();
-            document.getElementById('l1-total').innerText = 'R ' + (sEffW + sSpeedW).toLocaleString();
-            document.getElementById('l2-eff').innerText = 'R ' + sEffR.toLocaleString();
-            document.getElementById('l2-speed').innerText = 'R ' + sSpeedR.toLocaleString();
-            document.getElementById('l2-total').innerText = 'R ' + (sEffR + sSpeedR).toLocaleString();
-            document.getElementById('bonus-elite-count').innerText = eliteCount;
-            document.getElementById('bonus-high-count').innerText = highCount;
-            document.getElementById('bonus-good-count').innerText = goodCount;
-            document.getElementById('bonus-poor-count').innerText = poorCount;
-            const totalBonus = (eliteCount * 500) + (highCount * 300) + (goodCount * 150);
-            const netROI = totalBonusSavings - totalBonus;
-            document.getElementById('bonus-total').innerText = 'R ' + totalBonus.toLocaleString();
-            document.getElementById('bonus-savings').innerText = 'R ' + Math.round(totalBonusSavings).toLocaleString();
-            document.getElementById('bonus-roi').innerText = 'R ' + Math.round(netROI).toLocaleString();
-            if (Object.keys(auditData).length > 0) autoSaveAuditDraft();
-        }
-
-        async function saveAuditResults() {
-            const companyName = await cloudStorage.getItem('currentAuditClient');
-            if (!companyName) { alert('No client selected for this audit'); return; }
-            const wPrice = parseFloat(document.getElementById('price-w').value) || 0;
-            const rPrice = parseFloat(document.getElementById('price-r').value) || 0;
-            const target = parseFloat(document.getElementById('master-target').value) || 2.3;
-            const limit = parseFloat(document.getElementById('master-speed').value) || 80;
-            let sEffW = 0, sSpeedW = 0, sEffR = 0, sSpeedR = 0;
-            let actualFleetSize = Object.keys(auditData).length;
-            let vehicleBreakdown = [];
-            Object.keys(auditData).forEach(k => {
-                const v = auditData[k];
-                const odoVal = parseFloat(v.odo) || v.gps || 0;
-                const manualL = parseFloat(v.liters) || 0;
-                const targetKmL = parseFloat(v.targetKmL) || target;
-                const actKmL = (manualL > 0 && odoVal > 0) ? (odoVal / manualL) : 0;
-                const wastedL = (manualL > 0 && odoVal > 0 && actKmL < targetKmL) ? (manualL - (odoVal / targetKmL)) : 0;
-                const events = v.speeds ? v.speeds.filter(s => s > limit).length : 0;
-                const penalty = (v.type === 'Heavy' ? 1.5 : 1.1);
-                let speedLoss = 0;
-                if (v.speeds && v.speeds.length > 0) {
-                    v.speeds.forEach(speed => {
-                        if (speed > limit) {
-                            const speedOver = speed - limit, eventDurationHours = 5/60;
-                            const eventSpeed = speed * 0.9, eventDistance = eventSpeed * eventDurationHours;
-                            const speedPenaltyFactor = 1 + (speedOver / 100), baseRate = 1 / targetKmL;
-                            const normalFuel = eventDistance * baseRate, actualFuel = normalFuel * speedPenaltyFactor;
-                            speedLoss += (actualFuel - normalFuel) * wPrice;
-                        }
-                    });
-                } else { speedLoss = events * penalty * wPrice; }
-                const effLoss = wastedL * wPrice;
-                const tLoss = effLoss + speedLoss;
-                vehicleBreakdown.push({ reg: v.reg, eLoss: effLoss, sLoss: speedLoss, tLoss });
-                sEffW += effLoss; sSpeedW += speedLoss;
-                sEffR += (wastedL * rPrice); sSpeedR += (speedLoss / (wPrice || 1)) * rPrice;
-            });
-            let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === companyName.toUpperCase());
-            if (clientIndex !== -1) {
-                allClients[clientIndex].fleetSize = actualFleetSize;
-                allClients[clientIndex].fleetSizeConfirmed = true;
-                allClients[clientIndex].speedLimit = limit;
-                allClients[clientIndex].fuelPrice = wPrice;
-                allClients[clientIndex].targetCons = target;
-                allClients[clientIndex].lastAuditDate = new Date().toLocaleDateString('en-ZA');
-                allClients[clientIndex].auditStatus = 'complete';
-                const displayedEffW  = parseFloat(document.getElementById('l1-eff').innerText.replace('R','').replace(/,/g,'').trim());
-                const displayedSpeedW = parseFloat(document.getElementById('l1-speed').innerText.replace('R','').replace(/,/g,'').trim());
-                const displayedTotalW = parseFloat(document.getElementById('l1-total').innerText.replace('R','').replace(/,/g,'').trim());
-                allClients[clientIndex].auditResults = {
-                    totalKM: Math.round(Object.keys(auditData).reduce((s,k) => s + (parseFloat(auditData[k].odo) || auditData[k].gps || 0), 0)),
-                    totalLiters: Math.round(Object.keys(auditData).reduce((s,k) => s + (parseFloat(auditData[k].liters) || 0), 0)),
-                    fleetEfficiency: "84%",
-                    wholesaleEffLoss: Math.round(displayedEffW), wholesaleSpeedLoss: Math.round(displayedSpeedW),
-                    wholesaleTotalLoss: Math.round(displayedTotalW),
-                    retailEffLoss: Math.round(sEffR), retailSpeedLoss: Math.round(sSpeedR),
-                    retailTotalLoss: Math.round(sEffR + sSpeedR),
-                    vehicleCount: actualFleetSize, auditDate: new Date().toISOString(),
-                    vehicles: vehicleBreakdown
-                };
-                const historyKey = `AUDIT_HISTORY_${allClients[clientIndex].id}`;
-                let history = JSON.parse(await cloudStorage.getItem(historyKey)) || [];
-                const session = JSON.parse(await cloudStorage.getItem('AUDIT_FINAL'));
-                const auditPeriod = session?.month || '';
-                let auditEndDate = new Date();
-                if (auditPeriod.includes(' - ')) {
-                    const endDateStr = auditPeriod.split(' - ')[1].trim();
-                    const parts = endDateStr.split(' ');
-                    if (parts.length === 3) {
-                        const monthMap = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
-                        auditEndDate = new Date(parseInt(parts[2]), monthMap[parts[1]], parseInt(parts[0]));
-                    }
-                }
-                const weekLabel = auditEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const existingIndex = history.findIndex(h => h.week === weekLabel);
-                const newEntry = {
-                    week: weekLabel, date: auditEndDate.toISOString(),
-                    fuelLoss: Math.round(displayedTotalW),
-                    distance: Math.round(Object.keys(auditData).reduce((s,k) => s + (parseFloat(auditData[k].odo) || auditData[k].gps || 0), 0)),
-                    fuelConsumed: Math.round(Object.keys(auditData).reduce((s,k) => s + (parseFloat(auditData[k].liters) || 0), 0))
-                };
-                if (existingIndex >= 0) history[existingIndex] = newEntry;
-                else history.push(newEntry);
-                await cloudStorage.setItem(historyKey, JSON.stringify(history));
-                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-                autoSaveAuditDraft();
-                const toastType = allClients[clientIndex].status === 'active' ? 'active' : 'prospect';
-                const finalMessage = allClients[clientIndex].status === 'active'
-                    ? 'Active client — audit results saved successfully.'
-                    : 'Prospect audit saved. Generate SLA from the pipeline when ready.';
-                showAuditToast(toastType, 'Audit Saved!',
-                    `Fleet: ${actualFleetSize} vehicles · Wholesale Loss: R ${(sEffW + sSpeedW).toLocaleString()}\n${finalMessage}`);
-            } else {
-                showAuditToast('prospect', 'Client Not Found', 'The selected client does not exist in the system.');
+    }
+    if (resolvedName) {
+        currentClientName = resolvedName;
+        document.getElementById('client-name').textContent = resolvedName.toUpperCase();
+        await cloudStorage.setItem('currentAuditClient', resolvedName);
+        const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        const currentClient = allClients.find(c => c.company.toUpperCase() === resolvedName.toUpperCase());
+        if (currentClient) {
+            if (currentClient.speedLimit) document.getElementById('master-speed').value = currentClient.speedLimit;
+            if (currentClient.fuelPrice) {
+                document.getElementById('price-w').value = currentClient.fuelPrice;
+                document.getElementById('price-r').value = parseFloat(currentClient.fuelPrice) + 2.35;
             }
+            if (currentClient.targetCons) document.getElementById('master-target').value = currentClient.targetCons;
+            loadAuditDraft(resolvedName);
         }
-
-        async function generateReport() {
-            const companyName = currentClientName || "Unknown Client";
-            const fleetSize = Object.keys(auditData).length;
-            if (fleetSize === 0) { alert('⚠️ No audit data to generate report. Please upload CSV files first.'); return; }
-            const auditDateLabel = document.getElementById('audit-period').innerText.replace("AUDIT DATE: ", "");
-            const target = parseFloat(document.getElementById('master-target').value) || 2.3;
-            const limit = parseFloat(document.getElementById('master-speed').value) || 80;
-            const fleet = Object.keys(auditData).map(k => {
-                const v = auditData[k];
-                const odoVal = parseFloat(v.odo) || v.gps || 0;
-                const manualL = parseFloat(v.liters) || 0;
-                const events = v.speeds ? v.speeds.filter(s => s > limit).length : 0;
-                const penalty = (v.type === 'Heavy' ? 1.5 : 1.1);
-                let speedWasteL = 0;
-                if (v.duration > 0 && v.maxSpeed > limit) {
-                    const durationHours = v.duration / 3600;
-                    const speedOver = v.maxSpeed - limit;
-                    const speedFactor = 1 + Math.pow(speedOver / 20, 1.6);
-                    const baseRate = 1 / target;
-                    const distanceAtSpeed = (v.maxSpeed * 0.85) * durationHours;
-                    speedWasteL = baseRate * (speedFactor - 1) * distanceAtSpeed;
-                } else { speedWasteL = events * penalty; }
-                return { reg: v.reg, type: v.type, gpsDist: v.gps, mK: odoVal, mL: manualL, violations: events, speedWasteL, duration: v.duration || 0, maxSpeed: v.maxSpeed || 0 };
-            });
-            const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-            const currentClient = allClients.find(c => c.company.toUpperCase() === companyName.toUpperCase());
-            const reportPayload = {
-                client: { company: companyName, town: currentClient?.city || "Cape Town", target },
-                month: auditDateLabel, fleet, speedLimit: limit,
-                isActive: currentClient?.status === 'active' || false
-            };
-            await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(reportPayload));
-            const isActive = reportPayload.isActive;
-            const reportFile = isActive ? 'report-active.html' : 'report-prospect.html';
-            const reportWindow = window.open(reportFile, '_blank');
-            if (!reportWindow || reportWindow.closed || typeof reportWindow.closed == 'undefined') {
-                alert('⚠️ Pop-up blocked! Please allow pop-ups for this site.\n\nOr open ' + reportFile + ' manually in a new tab.');
-            }
+        await checkFreeAuditWarning(resolvedName);
+    } else {
+        const savedCompany = await cloudStorage.getItem('currentAuditClient');
+        if (savedCompany) {
+            currentClientName = savedCompany;
+            document.getElementById('client-name').textContent = savedCompany.toUpperCase();
+            loadAuditDraft(savedCompany);
+            await checkFreeAuditWarning(savedCompany);
         }
+    }
+}
 
-        setInterval(async () => {
+async function loadAuditDraft(clientName) {
+    const draftKey = 'AUDIT_DRAFT_' + clientName.toUpperCase().replace(/\s+/g,'_');
+    const savedDraft = await cloudStorage.getItem(draftKey);
+    if (savedDraft) {
+        try {
+            const draft = JSON.parse(savedDraft);
+            auditData = draft.auditData || {};
             if (Object.keys(auditData).length > 0) {
-                const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g, '_');
-                const draft = { auditData, speedLimit: document.getElementById('master-speed').value, priceW: document.getElementById('price-w').value, priceR: document.getElementById('price-r').value, target: document.getElementById('master-target').value, auditDate: document.getElementById('date-label').innerText, auditPeriod: document.getElementById('audit-period').innerText, savedAt: new Date().toISOString() };
-                await cloudStorage.setItem(draftKey, JSON.stringify(draft));
-                let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-                const clientIndex = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
-                if (clientIndex !== -1 && allClients[clientIndex].auditStatus !== 'complete') updateClientAuditStatus('in-progress');
-                showDraftStatus('Draft Auto-Saved');
+                ['usage','speed'].forEach(m => {
+                    document.getElementById('stat-'+m).innerText = '✓';
+                    document.getElementById('stat-'+m).classList.replace('text-red-500','text-emerald-500');
+                });
             }
-        }, 30000);
+            if (draft.speedLimit) document.getElementById('master-speed').value = draft.speedLimit;
+            if (draft.priceW)     document.getElementById('price-w').value = draft.priceW;
+            if (draft.priceR)     document.getElementById('price-r').value = draft.priceR;
+            if (draft.target)     document.getElementById('master-target').value = draft.target;
+            if (draft.auditDate)  document.getElementById('date-label').innerText = draft.auditDate;
+            if (draft.auditPeriod)document.getElementById('audit-period').innerText = draft.auditPeriod;
+            if (Object.keys(auditData).length > 0) { renderGrid(); showDraftStatus('Draft Loaded — ' + new Date(draft.savedAt).toLocaleString()); }
+        } catch(e) { console.error('Error loading draft:', e); }
+    }
+}
 
-        function showAuditToast(type, title, message) {
-            const toast = document.getElementById('audit-toast');
-            const inner = document.getElementById('audit-toast-inner');
-            inner.className = "px-6 py-4 rounded-xl shadow-xl border text-white";
-            if (type === 'active') inner.classList.add("bg-emerald-600", "border-emerald-400/40");
-            else if (type === 'prospect') inner.classList.add("bg-orange-600", "border-orange-400/40");
-            document.getElementById('audit-toast-title').textContent = title;
-            document.getElementById('audit-toast-body').textContent = message;
-            toast.classList.remove("hidden");
-            setTimeout(() => toast.classList.remove("translate-x-full"), 10);
-            setTimeout(() => { toast.classList.add("translate-x-full"); setTimeout(() => toast.classList.add("hidden"), 500); }, 6000);
+async function autoSaveAuditDraft() {
+    if (!currentClientName) return;
+    const draftKey = 'AUDIT_DRAFT_' + currentClientName.toUpperCase().replace(/\s+/g,'_');
+    const draft = { auditData, speedLimit:document.getElementById('master-speed').value,
+        priceW:document.getElementById('price-w').value, priceR:document.getElementById('price-r').value,
+        target:document.getElementById('master-target').value,
+        auditDate:document.getElementById('date-label').innerText,
+        auditPeriod:document.getElementById('audit-period').innerText,
+        savedAt:new Date().toISOString() };
+    await cloudStorage.setItem(draftKey, JSON.stringify(draft));
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const ci = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
+    if (ci !== -1 && allClients[ci].auditStatus !== 'complete') updateClientAuditStatus('in-progress');
+    showDraftStatus('Draft Auto-Saved');
+}
+
+function showDraftStatus(message) {
+    const el = document.getElementById('date-label');
+    const orig = el.innerText;
+    el.innerText = '💾 ' + message;
+    el.style.color = '#10b981';
+    setTimeout(() => { el.innerText = orig; el.style.color = ''; }, 2000);
+}
+
+async function updateClientAuditStatus(status) {
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    const ci = allClients.findIndex(c => c.company.toUpperCase() === currentClientName.toUpperCase());
+    if (ci !== -1) { allClients[ci].auditStatus = status; allClients[ci].lastEditedDate = new Date().toISOString(); await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients)); }
+}
+
+// ── CSV Mapping ────────────────────────────────────────────────────────────
+async function launchMapper(input, mode) {
+    if (!input.files || !input.files[0]) return;
+    activeMode = mode;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const text = e.target.result;
+        const delim = text.includes(';') ? ';' : ',';
+        activeRows = text.split(/\r?\n/).filter(l => l.trim()).map(r => r.split(delim));
+        if (!activeRows.length) { alert('CSV file is empty'); return; }
+        const headers = activeRows[0];
+        const opts = headers.map((h,i) => '<option value="'+i+'">'+h+'</option>').join('');
+        const mappingKey = 'CSV_MAPPING_'+currentClientName.toUpperCase().replace(/\s+/g,'_')+'_'+mode;
+        const savedMapping = await cloudStorage.getItem(mappingKey);
+        let regIdx=0, valIdx=1, dateIdx=-1, durIdx=-1, maxSpdIdx=-1;
+        if (savedMapping) {
+            const m = JSON.parse(savedMapping);
+            regIdx=m.reg; valIdx=m.val; dateIdx=m.date;
+            if (m.duration!==undefined) durIdx=m.duration;
+            if (m.maxSpeed!==undefined) maxSpdIdx=m.maxSpeed;
+        } else {
+            headers.forEach((h,i) => {
+                const lower = h.toLowerCase().trim();
+                if (lower.includes('reg')||lower.includes('vehicle')||lower.includes('unit')||lower.includes('asset')) regIdx=i;
+                if (mode==='usage'&&(lower.includes('km')||lower.includes('distance')||lower.includes('odometer'))) valIdx=i;
+                if (mode==='speed'&&(lower.includes('speed')||lower.includes('km/h')||lower.includes('kmh'))) valIdx=i;
+                if (lower.includes('date')||lower.includes('time')) dateIdx=i;
+                if (mode==='usage'&&(lower.includes('over speed duration')||lower.includes('overspeed duration'))) durIdx=i;
+                if (mode==='usage'&&lower.includes('max speed')&&!lower.includes('duration')) maxSpdIdx=i;
+            });
         }
+        ['map-reg','map-val'].forEach(id => document.getElementById(id).innerHTML = opts);
+        document.getElementById('map-date').innerHTML = '<option value="-1">None</option>'+opts;
+        document.getElementById('map-reg').value = regIdx;
+        document.getElementById('map-val').value = valIdx;
+        document.getElementById('map-date').value = dateIdx;
+        if (mode === 'usage') {
+            document.getElementById('usage-extra-fields').style.display = 'block';
+            document.getElementById('map-duration').innerHTML = '<option value="-1">None / Not Available</option>'+opts;
+            document.getElementById('map-maxspeed').innerHTML = '<option value="-1">None</option>'+opts;
+            document.getElementById('map-duration').value = durIdx;
+            document.getElementById('map-maxspeed').value = maxSpdIdx;
+        } else { document.getElementById('usage-extra-fields').style.display = 'none'; }
+        document.getElementById('logic-selector-box').style.display = (mode==='usage') ? 'block' : 'none';
+        document.getElementById('mapper-modal').style.display = 'flex';
+        updateMappingPreview();
+    };
+    reader.readAsText(input.files[0]);
+}
 
-        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
-        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+function updateMappingPreview() {
+    const rIdx = parseInt(document.getElementById('map-reg').value);
+    const vIdx = parseInt(document.getElementById('map-val').value);
+    const previewRows = document.getElementById('preview-rows');
+    if (!activeRows||activeRows.length<2) return;
+    previewRows.innerHTML = activeRows.slice(1,4).map(row => {
+        const reg=row[rIdx]||'—', val=row[vIdx]||'—';
+        return `<div class="flex gap-4 py-1 border-b border-white/5"><span class="text-white/60 w-24 truncate">Reg: <span class="text-white font-bold">${reg.trim()}</span></span><span class="text-white/60">Value: <span class="text-emerald-400 font-bold">${val.trim()}</span></span></div>`;
+    }).join('');
+    document.getElementById('mapping-preview').classList.remove('hidden');
+}
+
+document.addEventListener('change', e => { if (e.target.id==='map-reg'||e.target.id==='map-val') updateMappingPreview(); });
+
+async function commitMapping() {
+    const now = Date.now();
+    if (now - lastUploadTimestamp[activeMode] < 2000) return;
+    lastUploadTimestamp[activeMode] = now;
+    const rIdx = parseInt(document.getElementById('map-reg').value);
+    const vIdx = parseInt(document.getElementById('map-val').value);
+    const dIdx = parseInt(document.getElementById('map-date').value);
+    const logic = document.getElementById('map-logic') ? document.getElementById('map-logic').value : 'sum';
+    let durIdx=-1, maxSpdIdx=-1;
+    if (activeMode==='usage') {
+        durIdx    = parseInt(document.getElementById('map-duration').value);
+        maxSpdIdx = parseInt(document.getElementById('map-maxspeed').value);
+    }
+    const mappingKey = 'CSV_MAPPING_'+currentClientName.toUpperCase().replace(/\s+/g,'_')+'_'+activeMode;
+    await cloudStorage.setItem(mappingKey, JSON.stringify({reg:rIdx,val:vIdx,date:dIdx,logic,duration:durIdx,maxSpeed:maxSpdIdx}));
+
+    let newData = {};
+    Object.keys(auditData).forEach(k => {
+        const v = auditData[k];
+        newData[k] = { reg:v.reg, type:v.type||'Heavy', make:v.make||'', model:v.model||'',
+            year:v.year||'', usage:v.usage||v.usedFor||'Long Distance', terrain:v.terrain||'Mixed / Undulating',
+            loadProfile:v.loadProfile||'Fully Loaded', trailerType:v.trailerType||'Tautliner / Curtainsider',
+            interlink:v.interlink||false, aerokit:v.aerokit||'None',
+            mfr_min:v.mfr_min||null, mfr_avg:v.mfr_avg||null, fuel_tank:v.fuel_tank||null,
+            clientTarget:v.clientTarget||null, targetKmL:v.targetKmL||null,
+            gps:activeMode==='usage'?0:(v.gps||0), gpsDist:activeMode==='usage'?0:(v.gpsDist||0),
+            mK:v.mK||v.odo||null, mL:v.mL||v.liters||null,
+            speeds:activeMode==='speed'?[]:(v.speeds||[]),
+            duration:activeMode==='usage'?0:(v.duration||0), maxSpeed:activeMode==='usage'?0:(v.maxSpeed||0),
+            violations:activeMode==='usage'?0:(v.violations||0)
+        };
+    });
+
+    let firstDate=null, lastDate=null;
+    activeRows.slice(1).forEach(row => {
+        if (!row[rIdx]) return;
+        const key = normaliseKey(row[rIdx]);
+        if (!key) return;
+        if (dIdx !== -1 && row[dIdx]) {
+            const dp = row[dIdx].trim().split(' ')[0].split('T')[0];
+            let d;
+            if (dp.includes('/')) { const p=dp.split('/'); d=p[0].length===4?new Date(p[0],p[1]-1,p[2]):new Date(p[2],p[1]-1,p[0]); }
+            else { const p=dp.split('-'); d=p[0].length===4?new Date(p[0],p[1]-1,p[2]):new Date(p[2],p[1]-1,p[0]); }
+            if (!isNaN(d)) { if (!firstDate||d<firstDate) firstDate=d; if (!lastDate||d>lastDate) lastDate=d; }
+        }
+        if (!newData[key]) {
+            const av = auditData[key]||{};
+            newData[key] = { reg:row[rIdx].trim(), type:av.type||'Heavy', make:av.make||'', model:av.model||'',
+                year:av.year||'', usage:av.usage||av.usedFor||'Long Distance', terrain:av.terrain||'Mixed / Undulating',
+                loadProfile:av.loadProfile||'Fully Loaded', trailerType:av.trailerType||'Tautliner / Curtainsider',
+                interlink:av.interlink||false, aerokit:av.aerokit||'None',
+                mfr_min:av.mfr_min||null, mfr_avg:av.mfr_avg||null, fuel_tank:av.fuel_tank||null,
+                clientTarget:av.clientTarget||null, targetKmL:av.targetKmL||null,
+                gps:0, gpsDist:0, mK:av.mK||av.odo||null, mL:av.mL||av.liters||null,
+                speeds:[], duration:0, maxSpeed:0, violations:0 };
+        }
+        const val = parseFloat(row[vIdx])||0;
+        if (activeMode==='usage') {
+            if (logic==='sum') newData[key].gps+=val; else if (val>newData[key].gps) newData[key].gps=val;
+            newData[key].gpsDist = newData[key].gps;
+            if (durIdx>=0&&row[durIdx]) newData[key].duration += parseFloat(row[durIdx])||0;
+            if (maxSpdIdx>=0&&row[maxSpdIdx]) { const sv=parseFloat(row[maxSpdIdx])||0; if(sv>newData[key].maxSpeed) newData[key].maxSpeed=sv; }
+        } else if (activeMode==='speed') {
+            if (val>0) { newData[key].speeds.push(val); newData[key].violations=(newData[key].violations||0)+1; }
+        }
+    });
+
+    auditData = newData;
+    if (firstDate&&lastDate) {
+        const fmt=d=>String(d.getDate()).padStart(2,'0')+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+' '+d.getFullYear();
+        const from=fmt(firstDate),to=fmt(lastDate);
+        document.getElementById('audit-period').innerText = from===to?from:from+' - '+to;
+    }
+    ['stat-'+activeMode].forEach(id => { const el=document.getElementById(id); if(el){el.innerText='✓';el.classList.replace('text-red-500','text-emerald-500');} });
+    document.getElementById('mapper-modal').style.display = 'none';
+    if (activeMode==='usage') document.getElementById('csv-usage').value='';
+    else document.getElementById('csv-speed').value='';
+    autoSaveAuditDraft();
+    setTimeout(() => {
+        const ud=document.getElementById('stat-usage').innerText==='✓';
+        const sd=document.getElementById('stat-speed').innerText==='✓';
+        if (ud&&sd) window.location.href='data-entry.html?client='+encodeURIComponent(currentClientName);
+        else renderGrid();
+    }, 100);
+}
+
+// ── Render Grid ────────────────────────────────────────────────────────────
+// Uses calcVehicle() — single source of truth, no duplicate formula
+function renderGrid() {
+    const container = document.getElementById('grid-rows');
+    container.innerHTML = '';
+    const wPrice = parseFloat(document.getElementById('price-w').value)||0;
+    const rPrice = parseFloat(document.getElementById('price-r').value)||0;
+    const globalTarget = parseFloat(document.getElementById('master-target').value)||2.3;
+    const limit = parseFloat(document.getElementById('master-speed').value)||80;
+    let sEffW=0, sSpeedW=0, sEffR=0, sSpeedR=0;
+    let eliteCount=0, highCount=0, goodCount=0, poorCount=0, totalBonusSavings=0;
+
+    Object.keys(auditData).forEach(k => {
+        const raw = auditData[k];
+        // Enrich with DB lookup
+        const dbEntry = _lookupMfr(raw.make, raw.model);
+        const vEnriched = {
+            ...raw,
+            mfr_avg: raw.mfr_avg || dbEntry?.mfr_avg || null,
+            mfr_min: raw.mfr_min || dbEntry?.mfr_min || null,
+            fuel_tank: raw.fuel_tank || dbEntry?.fuel_tank || null,
+        };
+        const v = calcVehicle(vEnriched, limit, wPrice, rPrice, globalTarget);
+
+        sEffW  += v.effLoss_w;   sSpeedW += v.speedLoss_w;
+        sEffR  += v.effLoss_r;   sSpeedR += v.speedLoss_r;
+
+        if      (v.score>=95){eliteCount++;totalBonusSavings+=v.totalLoss_w;}
+        else if (v.score>=90){highCount++; totalBonusSavings+=v.totalLoss_w;}
+        else if (v.score>=80){goodCount++; totalBonusSavings+=v.totalLoss_w;}
+        else { poorCount++; }
+
+        const hasFraud = v.fraudFlags&&v.fraudFlags.length>0;
+        const fraudBadge = hasFraud ? `<span style="font-size:9px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:2px 6px;margin-left:4px;" title="${v.fraudFlags.join(' | ')}">⚠ FLAG</span>` : '';
+        const isGps = !parseFloat(raw.mK||raw.odo) && (raw.gps||raw.gpsDist)>0;
+
+        const odoInput = `<input type="number" placeholder="km" value="${v.mK||''}" data-key="${k}" data-field="mK"
+            onchange="auditData['${k}'].mK=parseFloat(this.value)||0;auditData['${k}'].odo=parseFloat(this.value)||0;renderGrid();autoSaveAuditDraft();"
+            class="manual-input" ${isGps?'style="border-color:rgba(99,102,241,0.5);" title="Using GPS as fallback"':''}>`;
+        const litInput = `<input type="number" placeholder="L" value="${v.mL||''}" step="0.1" data-key="${k}" data-field="mL"
+            onchange="auditData['${k}'].mL=parseFloat(this.value)||0;auditData['${k}'].liters=parseFloat(this.value)||0;renderGrid();autoSaveAuditDraft();"
+            class="manual-input">`;
+
+        const scoreCol = v.actKmL
+            ? `<span class="${v.score<70?'text-red-500':v.score<80?'text-orange-400':v.score<90?'text-blue-400':v.score<95?'text-emerald-400':'text-yellow-400'}">${v.score}%${v.score>=95?' 🏆':v.score>=90?' ⭐':''}</span>`
+            : '<span class="opacity-30">—</span>';
+
+        container.innerHTML += `
+            <div class="vehicle-row${hasFraud?' border-red-900/40':''}">
+                <div class="col-reg text-[12px] truncate">${v.reg}${isGps?'<span style="color:#6366f1;font-size:9px;"> GPS</span>':''}${fraudBadge}</div>
+                <div class="col-type" style="font-size:10px;">
+                    <div style="font-weight:700;color:white;">${v.type||'Heavy'}</div>
+                    <div style="color:#64748b;font-size:9px;">${v.usage||'—'} · ${v.terrain||'—'}</div>
+                </div>
+                <div class="col-data text-[11px]" style="color:#60a5fa;">${v.mfr_avg?parseFloat(v.mfr_avg).toFixed(2):'<span style="opacity:0.3">—</span>'}</div>
+                <div class="col-data text-[11px]" style="color:#10b981;">${v.suggestedTarget?v.suggestedTarget.toFixed(2):'<span style="opacity:0.3">—</span>'}</div>
+                <div class="col-data text-[11px]" style="color:#fbbf24;font-weight:700;">${v.activeTarget.toFixed(2)}</div>
+                <div class="col-data text-[11px] opacity-40">${(v.gpsDist||0).toFixed(0)}</div>
+                <div class="col-data">${odoInput}</div>
+                <div class="col-drift text-[11px] ${v.driftKm&&Math.abs(v.driftKm)>50?'text-red-400 font-bold':'text-slate-500'}">${v.driftKm!==null?v.driftKm+'km':'—'}</div>
+                <div class="col-data">${litInput}</div>
+                <div class="col-perf text-[12px] ${(v.wastedL||0)>0?'text-orange-400':'text-slate-500'}">${(v.wastedL||0).toFixed(1)}L</div>
+                <div class="col-perf text-[12px] font-black ${v.actKmL&&v.actKmL<v.activeTarget?'text-red-400':'text-emerald-400'}">${v.actKmL?v.actKmL.toFixed(2):'—'}</div>
+                <div class="col-events text-[12px] ${(v.violations||0)>0?'text-red-500 font-bold':'text-slate-500'}">${v.violations||0}</div>
+                <div class="col-money text-orange-400">R ${v.effLoss_w.toFixed(0)}</div>
+                <div class="col-money text-orange-500">R ${v.speedLoss_w.toFixed(0)}</div>
+                <div class="col-money text-red-500 font-black">R ${v.totalLoss_w.toFixed(0)}</div>
+                <div class="col-score text-[12px]">${scoreCol}</div>
+            </div>`;
+    });
+
+    // Totals — rounded from summed vehicle values
+    const totW = Math.round(sEffW+sSpeedW), totR = Math.round(sEffR+sSpeedR);
+    document.getElementById('l1-eff').innerText   = 'R ' + Math.round(sEffW).toLocaleString();
+    document.getElementById('l1-speed').innerText = 'R ' + Math.round(sSpeedW).toLocaleString();
+    document.getElementById('l1-total').innerText = 'R ' + totW.toLocaleString();
+    document.getElementById('l2-eff').innerText   = 'R ' + Math.round(sEffR).toLocaleString();
+    document.getElementById('l2-speed').innerText = 'R ' + Math.round(sSpeedR).toLocaleString();
+    document.getElementById('l2-total').innerText = 'R ' + totR.toLocaleString();
+    document.getElementById('bonus-elite-count').innerText = eliteCount;
+    document.getElementById('bonus-high-count').innerText  = highCount;
+    document.getElementById('bonus-good-count').innerText  = goodCount;
+    document.getElementById('bonus-poor-count').innerText  = poorCount;
+    const bonusPayout = (eliteCount*500)+(highCount*300)+(goodCount*150);
+    document.getElementById('bonus-total').innerText   = 'R ' + bonusPayout.toLocaleString();
+    document.getElementById('bonus-savings').innerText = 'R ' + Math.round(totalBonusSavings).toLocaleString();
+    document.getElementById('bonus-roi').innerText     = 'R ' + Math.round(totalBonusSavings-bonusPayout).toLocaleString();
+    if (Object.keys(auditData).length > 0) autoSaveAuditDraft();
+}
+
+// ── Save & Generate ────────────────────────────────────────────────────────
+// Uses calcFleet() — same engine as renderGrid, guaranteed identical figures
+async function saveAuditResults() {
+    const companyName = await cloudStorage.getItem('currentAuditClient');
+    if (!companyName) { alert('No client selected'); return; }
+    const settings = {
+        limit:        parseFloat(document.getElementById('master-speed').value)||80,
+        wPrice:       parseFloat(document.getElementById('price-w').value)||0,
+        rPrice:       parseFloat(document.getElementById('price-r').value)||0,
+        globalTarget: parseFloat(document.getElementById('master-target').value)||2.3
+    };
+    // Enrich with DB lookups
+    const rawVehicles = Object.values(auditData).map(v => {
+        const db = _lookupMfr(v.make, v.model);
+        return { ...v, mfr_avg:v.mfr_avg||db?.mfr_avg||null, mfr_min:v.mfr_min||db?.mfr_min||null, fuel_tank:v.fuel_tank||db?.fuel_tank||null };
+    });
+    const {vehicles:processed, totals} = calcFleet(rawVehicles, settings);
+
+    let allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const ci = allClients.findIndex(c => c.company.toUpperCase() === companyName.toUpperCase());
+    if (ci === -1) { showAuditToast('prospect','Client Not Found','The selected client does not exist.'); return; }
+
+    allClients[ci].fleetSize = processed.length;
+    allClients[ci].fleetSizeConfirmed = true;
+    allClients[ci].speedLimit = settings.limit;
+    allClients[ci].fuelPrice  = settings.wPrice;
+    allClients[ci].rPrice     = settings.rPrice;
+    allClients[ci].targetCons = settings.globalTarget;
+    allClients[ci].lastAuditDate = new Date().toLocaleDateString('en-ZA');
+    allClients[ci].auditStatus = 'complete';
+
+    // auditResults — stored on client record, also saved in AUDIT_FINAL
+    allClients[ci].auditResults = {
+        totalKM:          Math.round(totals.totalKM),
+        totalLiters:      Math.round(totals.totalLitres),
+        avgKmL:           totals.avgKmL,
+        fleetScore:       totals.fleetScore,
+        wholesaleEffLoss:   Math.round(totals.effLoss_w),
+        wholesaleSpeedLoss: Math.round(totals.speedLoss_w),
+        wholesaleTotalLoss: Math.round(totals.totalLoss_w),
+        retailEffLoss:      Math.round(totals.effLoss_r),
+        retailSpeedLoss:    Math.round(totals.speedLoss_r),
+        retailTotalLoss:    Math.round(totals.totalLoss_r),
+        vehicleCount: processed.length,
+        auditDate: new Date().toISOString(),
+        bonus: totals.bonus,
+        vehicles: processed.map(v=>({
+            reg:v.reg, score:v.score,
+            effLoss_w:v.effLoss_w,  speedLoss_w:v.speedLoss_w,  totalLoss_w:v.totalLoss_w,
+            effLoss_r:v.effLoss_r,  speedLoss_r:v.speedLoss_r,  totalLoss_r:v.totalLoss_r,
+            // Legacy field names for backward compat with existing reports
+            eLoss:v.effLoss_w, sLoss:v.speedLoss_w, tLoss:v.totalLoss_w
+        }))
+    };
+
+    // History
+    const historyKey = `AUDIT_HISTORY_${allClients[ci].id}`;
+    let history = JSON.parse(await cloudStorage.getItem(historyKey))||[];
+    const auditPeriod = document.getElementById('audit-period').innerText;
+    let auditEndDate = new Date();
+    if (auditPeriod.includes(' - ')) {
+        const endStr = auditPeriod.split(' - ')[1].trim().split(' ');
+        if (endStr.length===3) {
+            const mm={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+            auditEndDate = new Date(parseInt(endStr[2]), mm[endStr[1]], parseInt(endStr[0]));
+        }
+    }
+    const weekLabel = auditEndDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const newEntry = { week:weekLabel, date:auditEndDate.toISOString(),
+        fuelLoss:Math.round(totals.totalLoss_w),
+        distance:Math.round(totals.totalKM), fuelConsumed:Math.round(totals.totalLitres) };
+    const ei = history.findIndex(h=>h.week===weekLabel);
+    if (ei>=0) history[ei]=newEntry; else history.push(newEntry);
+    await cloudStorage.setItem(historyKey, JSON.stringify(history));
+    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+    autoSaveAuditDraft();
+
+    const isActive = allClients[ci].status === 'active';
+    showAuditToast(isActive?'active':'prospect','Audit Saved!',
+        `${processed.length} vehicles · Wholesale: R ${Math.round(totals.totalLoss_w).toLocaleString()} · Retail: R ${Math.round(totals.totalLoss_r).toLocaleString()}`);
+}
+
+async function generateReport() {
+    const companyName = currentClientName || 'Unknown Client';
+    if (!Object.keys(auditData).length) { alert('No audit data. Upload CSV files first.'); return; }
+    const settings = {
+        limit:        parseFloat(document.getElementById('master-speed').value)||80,
+        wPrice:       parseFloat(document.getElementById('price-w').value)||0,
+        rPrice:       parseFloat(document.getElementById('price-r').value)||0,
+        globalTarget: parseFloat(document.getElementById('master-target').value)||2.3
+    };
+    const rawVehicles = Object.values(auditData).map(v => {
+        const db = _lookupMfr(v.make, v.model);
+        return { ...v, mfr_avg:v.mfr_avg||db?.mfr_avg||null, mfr_min:v.mfr_min||db?.mfr_min||null, fuel_tank:v.fuel_tank||db?.fuel_tank||null };
+    });
+    const {vehicles:processed, totals} = calcFleet(rawVehicles, settings);
+
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const currentClient = allClients.find(c=>c.company.toUpperCase()===companyName.toUpperCase());
+
+    // Build AUDIT_FINAL — all pre-calculated values, reports read these directly
+    const auditFinal = {
+        client: { company:companyName, town:currentClient?.city||'', target:settings.globalTarget, id:currentClient?.id||'' },
+        month:      document.getElementById('audit-period').innerText,
+        speedLimit: settings.limit,
+        fuelPrice:  settings.wPrice,   // wholesale
+        rPrice:     settings.rPrice,   // retail
+        isActive:   currentClient?.status === 'active' || false,
+        // Fleet-level totals — reports use these directly
+        totals,
+        // Legacy auditResults for backward compat
+        auditResults: {
+            wholesaleEffLoss:   Math.round(totals.effLoss_w),
+            wholesaleSpeedLoss: Math.round(totals.speedLoss_w),
+            wholesaleTotalLoss: Math.round(totals.totalLoss_w),
+            retailEffLoss:      Math.round(totals.effLoss_r),
+            retailSpeedLoss:    Math.round(totals.speedLoss_r),
+            retailTotalLoss:    Math.round(totals.totalLoss_r),
+            totalKM:            Math.round(totals.totalKM),
+            totalLiters:        Math.round(totals.totalLitres),
+            vehicles: processed.map(v=>({reg:v.reg,eLoss:v.effLoss_w,sLoss:v.speedLoss_w,tLoss:v.totalLoss_w}))
+        },
+        // Per-vehicle enriched data — ALL calculated fields included
+        fleet: Object.fromEntries(processed.map(v => [v.reg, v]))
+    };
+
+    await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
+    const reportFile = auditFinal.isActive ? 'report-active.html' : 'report-prospect.html';
+    const win = window.open(reportFile, '_blank');
+    if (!win||win.closed||typeof win.closed==='undefined') {
+        alert('Pop-up blocked. Please allow pop-ups, or open '+reportFile+' manually.');
+    }
+}
+
+// Auto-save every 30s
+setInterval(async () => {
+    if (Object.keys(auditData).length > 0) autoSaveAuditDraft();
+}, 30000);
+
+function showAuditToast(type, title, message) {
+    const toast = document.getElementById('audit-toast');
+    const inner = document.getElementById('audit-toast-inner');
+    inner.className = 'px-6 py-4 rounded-xl shadow-xl border text-white';
+    if (type==='active') inner.classList.add('bg-emerald-600','border-emerald-400/40');
+    else inner.classList.add('bg-orange-600','border-orange-400/40');
+    document.getElementById('audit-toast-title').textContent = title;
+    document.getElementById('audit-toast-body').textContent  = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+    setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(()=>toast.classList.add('hidden'),500); }, 6000);
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
     </script>
 </body>
 </html>
