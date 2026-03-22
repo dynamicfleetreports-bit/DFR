@@ -40,9 +40,51 @@
         .card-value { font-size: 1.4rem; font-weight: 900; display: block; margin-top: 4px; }
         #mapper-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center; }
         .modal-box { background: #0f172a; border: 1px solid #10b981; border-radius: 2rem; padding: 2.5rem; width: 420px; }
+
+        /* ── Mobile ── */
+        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;}
+        .mob-logo{max-height:32px;}
+        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:49;}
+        .sidebar-overlay.open{display:block;}
+        @media(max-width:768px){
+            body{flex-direction:column;height:auto;overflow:auto;}
+            #sidebar{display:none;position:fixed;top:0;left:-260px;height:100vh;z-index:100;transition:left 0.25s ease;overflow-y:auto;width:260px;}
+            #sidebar.open{left:0;display:flex;}
+            .mob-topbar{display:flex;}
+            .main-wrapper{padding:1rem;overflow-y:visible;}
+            /* Control bar stacks vertically */
+            .control-bar{flex-direction:column;align-items:stretch;gap:0.75rem;}
+            .upload-tile{flex:none;}
+            .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
+            /* Grid scrolls horizontally */
+            .grid-header{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+            #grid-rows{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+            .vehicle-row{min-width:900px;}
+            /* Summary grids stack */
+            .summary-grid{grid-template-columns:1fr!important;gap:0.75rem;}
+            .grid.grid-cols-4{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
+            .grid.grid-cols-3{grid-template-columns:1fr!important;}
+            .grid.grid-cols-2{grid-template-columns:1fr!important;}
+            /* Header */
+            h1.text-3xl{font-size:1.4rem!important;}
+            .flex.gap-6.mt-3{flex-wrap:wrap;gap:0.5rem;}
+            /* Modals full width on mobile */
+            .modal-box{width:90vw!important;}
+        }
+        @media(min-width:769px){.mob-topbar{display:none!important;}}
     </style>
 </head>
 <body onload="initAudit()">
+    <!-- Mobile topbar -->
+    <div class="mob-topbar">
+        <img src="Logo.png" alt="Logo" class="mob-logo">
+        <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
     <!-- ── Free Audit Warning Modal ──────────────────────────────────────────── -->
     <div id="free-audit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);z-index:3000;align-items:center;justify-content:center;">
@@ -865,6 +907,9 @@
             setTimeout(() => toast.classList.remove("translate-x-full"), 10);
             setTimeout(() => { toast.classList.add("translate-x-full"); setTimeout(() => toast.classList.add("hidden"), 500); }, 6000);
         }
+
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
     </script>
 </body>
 </html>
