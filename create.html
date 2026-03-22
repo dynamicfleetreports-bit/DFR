@@ -4,28 +4,49 @@
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Intake | Dynamic Fleet Reporting</title>
+    <title>Client | Dynamic Fleet Reporting</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        body{font-family:'Outfit',sans-serif;background-color:#020617;color:#e2e8f0;margin:0;display:flex;height:100vh;overflow:hidden;}
-        #sidebar{width:260px;background:#0f172a;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;}
-        .logo-area{padding:0 1rem 3rem 1rem;}
-        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;transition:all 0.2s ease;text-decoration:none;cursor:pointer;}
-        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
-        .nav-item.active{background:rgba(16,185,129,0.1);color:#10b981;}
-        .main-wrapper{flex:1;overflow-y:auto;padding:3rem;background:radial-gradient(circle at top right,#0f172a,#020617);}
-        .form-section{background:rgba(30,41,59,0.4);border:1px solid rgba(255,255,255,0.05);border-radius:1.5rem;padding:2rem 2.5rem;margin-bottom:1.5rem;}
-        .section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#10b981;margin-bottom:1.5rem;display:block;font-style:italic;}
-        label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;display:block;margin-bottom:0.35rem;}
-        input,select,textarea{width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.75rem;color:white;font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
-        input:focus,select:focus,textarea:focus{border-color:#10b981;}
-        input::placeholder{color:rgba(255,255,255,0.2);}
-        select option{background:#0f172a;color:white;}
-        textarea{min-height:80px;resize:vertical;}
-        /* Referral highlight */
-        .ref-detected{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#a7f3d0;display:none;}
-        .ref-detected.show{display:block;}
+        body { font-family:'Outfit',sans-serif; background:#020617; color:#e2e8f0; margin:0; display:flex; height:100vh; overflow:hidden; }
+        #sidebar { width:260px; background:#0f172a; border-right:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; padding:2rem 1rem; flex-shrink:0; }
+        .logo-area { padding:0 1rem 3rem 1rem; }
+        .nav-item { display:flex; align-items:center; padding:0.85rem 1rem; margin-bottom:0.25rem; border-radius:0.75rem; color:#64748b; text-transform:uppercase; font-size:11px; font-weight:900; letter-spacing:0.1em; transition:all 0.2s; text-decoration:none; }
+        .nav-item:hover { color:#e2e8f0; background:rgba(255,255,255,0.03); }
+        .nav-item.active { background:rgba(16,185,129,0.1); color:#10b981; }
+        .main-wrapper { flex:1; overflow-y:auto; padding:3rem; background:radial-gradient(circle at top right,#0f172a,#020617); }
+        .section { background:rgba(30,41,59,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:1.5rem; padding:1.75rem 2rem; margin-bottom:1.5rem; }
+        .section-title { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-bottom:1.25rem; }
+        .kv-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+        .kv { }
+        .kv-label { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.25); margin-bottom:3px; }
+        .kv-val { font-size:13px; font-weight:700; color:white; }
+        .action-btn { padding:9px 14px; border-radius:10px; font-size:9px; font-weight:900; text-transform:uppercase; cursor:pointer; transition:all 0.2s; text-align:center; border:none; }
+        .btn-emerald { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:#10b981; }
+        .btn-blue    { background:rgba(96,165,250,0.12);  border:1px solid rgba(96,165,250,0.25);  color:#60a5fa; }
+        .btn-yellow  { background:rgba(251,191,36,0.12);  border:1px solid rgba(251,191,36,0.25);  color:#fbbf24; }
+        .btn-red     { background:rgba(239,68,68,0.1);    border:1px solid rgba(239,68,68,0.2);    color:#ef4444; }
+        .btn-solid-emerald { background:#10b981; color:#020617; }
+        .btn-solid-blue    { background:#2563eb; color:white; }
+        .pill { display:inline-block; padding:3px 9px; border-radius:20px; font-size:8px; font-weight:900; text-transform:uppercase; }
+        .pill-green  { background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.2); }
+        .pill-red    { background:rgba(239,68,68,0.12);  color:#ef4444;  border:1px solid rgba(239,68,68,0.2); }
+        .pill-yellow { background:rgba(251,191,36,0.12); color:#fbbf24;  border:1px solid rgba(251,191,36,0.2); }
+        .pill-grey   { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.08); }
+        .inv-row { display:grid; grid-template-columns:1fr 1fr 1fr 1fr 80px; gap:0; padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:12px; }
+        .inv-row:last-child { border-bottom:none; }
+        .inv-head { font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.2); }
+        .fleet-row { display:grid; grid-template-columns:28px 95px 100px 100px 52px 72px 120px 140px 155px 110px 58px 68px 70px 46px; gap:4px; padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; font-size:11px; }
+        .fleet-tbl-wrap { overflow-x:auto; }
+        .fleet-sug { background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.2); border-radius:6px; padding:4px 8px; font-size:10px; font-weight:900; text-align:center; }
+        .fleet-row:last-child { border-bottom:none; }
+        input, select { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:7px 10px; color:white; font-size:12px; font-family:Outfit,sans-serif; outline:none; width:100%; box-sizing:border-box; }
+        input:focus, select:focus { border-color:#10b981; }
+        input::placeholder { color:rgba(255,255,255,0.2); }
+        select option { background:#0f172a; }
+        #toast { position:fixed; bottom:2rem; right:2rem; z-index:9999; transform:translateY(80px); opacity:0; transition:all 0.35s; pointer-events:none; }
+        #toast.show { transform:translateY(0); opacity:1; }
+        .link-btn { display:block; padding:9px 14px; border-radius:10px; font-size:9px; font-weight:900; text-transform:uppercase; text-decoration:none; text-align:center; transition:all 0.2s; }
 
         /* ── Mobile ── */
         .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;}
@@ -58,7 +79,7 @@
     <nav>
         <a href="index.html"    class="nav-item">Dashboard</a>
         <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
-        <a href="database.html" class="nav-item">Active Database</a>
+        <a href="database.html" class="nav-item active">Active Database</a>
         <a href="audit.html"    class="nav-item">Forensic Audit</a>
         <a href="churned.html"  class="nav-item">Churned Clients</a>
         <a href="invoice.html"  class="nav-item">Invoices</a>
@@ -70,627 +91,595 @@
 </aside>
 
 <main class="main-wrapper">
-    <header class="flex justify-between items-center mb-8">
+    <!-- Back + header -->
+    <div class="flex justify-between items-start mb-8">
         <div>
-            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Client Intake</p>
-            <h1 id="pageTitle" class="text-5xl font-black italic uppercase tracking-tighter text-white">New <span class="text-emerald-400">Prospect</span></h1>
+            <button onclick="window.location.href='database.html'" class="text-[9px] font-black uppercase text-white/30 hover:text-white tracking-widest transition mb-3 block">← Back to Database</button>
+            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-1">Active Client</p>
+            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">Loading...</h1>
+            <p id="clientSub" class="text-[10px] font-black uppercase text-white/30 tracking-widest mt-1"></p>
         </div>
-        <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-white/30 hover:text-white tracking-widest transition">← Cancel</button>
-    </header>
-
-    <!-- Referral auto-detected banner -->
-    <div class="ref-detected" id="refDetected">🤝 <span id="refDetectedText">This prospect was referred.</span></div>
-
-    <form id="intakeForm">
-
-        <div class="form-section">
-            <span class="section-label">01 — Company &amp; Location</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Company Name *</label><input type="text" id="company" required placeholder="Registered trading name"></div>
-                <div><label>Town / City</label><input type="text" id="city" placeholder="Base of operations"></div>
-            </div>
+        <div class="flex gap-3 mt-2 flex-wrap justify-end">
+            <button onclick="openEdit()" class="action-btn btn-blue">⚙️ Edit Details</button>
+            <button onclick="window.location.href='invoice.html?clientId='+_clientId" class="action-btn btn-emerald">🧾 Invoice</button>
+            <button onclick="confirmChurn()" class="action-btn btn-red">🔴 Churn Client</button>
         </div>
+    </div>
 
-        <div class="form-section">
-            <span class="section-label">02 — Contact Information</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Contact Name</label><input type="text" id="contactName" placeholder="Primary contact person"></div>
-                <div><label>Mobile Number</label><input type="tel" id="contactTel" placeholder="083 000 0000"></div>
-            </div>
-            <div><label>Email Address</label><input type="email" id="email" placeholder="name@company.co.za"></div>
-        </div>
+    <div id="clientBody" style="display:none;">
 
-        <div class="form-section">
-            <span class="section-label">03 — Billing Address</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Street / Physical Address</label><input type="text" id="billingStreet" placeholder="123 Main Street"></div>
-                <div><label>Suburb</label><input type="text" id="billingSuburb" placeholder="Suburb"></div>
+        <!-- Summary cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:1.5rem;">
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Monthly Retainer</div>
+                <div id="s-retainer" style="font-size:1.6rem;font-weight:900;color:#10b981;margin-top:4px;">R 0</div>
             </div>
-            <div class="grid grid-cols-3 gap-5">
-                <div><label>City</label><input type="text" id="billingCity" placeholder="City"></div>
-                <div><label>Province</label>
-                    <select id="billingProvince">
-                        <option value="">— Select —</option>
-                        <option>Western Cape</option><option>Eastern Cape</option><option>Northern Cape</option>
-                        <option>North West</option><option>Free State</option><option>Gauteng</option>
-                        <option>Limpopo</option><option>Mpumalanga</option><option>KwaZulu-Natal</option>
-                    </select>
-                </div>
-                <div><label>Postal Code</label><input type="text" id="billingPostal" placeholder="0000"></div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Fleet Size</div>
+                <div id="s-fleet" style="font-size:1.6rem;font-weight:900;color:white;margin-top:4px;">0</div>
+            </div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Next Report Due</div>
+                <div id="s-due" style="font-size:1rem;font-weight:900;color:#fbbf24;margin-top:6px;">—</div>
+            </div>
+            <div class="section" style="padding:1.25rem;text-align:center;">
+                <div class="kv-label">Invoice Status</div>
+                <div id="s-inv" style="margin-top:6px;">—</div>
             </div>
         </div>
 
-        <div class="form-section">
-            <span class="section-label">04 — Fleet &amp; Performance</span>
-            <div class="grid grid-cols-3 gap-5 mb-5">
-                <div><label>Fleet Size (Units) *</label><input type="number" id="fleetSize" required value="1" min="1"></div>
-                <div><label>Fuel Price (R/L)</label><input type="number" id="fuelPrice" step="0.01" value="22.50"></div>
-                <div><label>Speed Limit (km/h)</label><input type="number" id="speedLimit" value="80"></div>
+        <!-- Drive & SLA links -->
+        <div class="section">
+            <div class="section-title">Documents &amp; Drive</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;" id="linksGrid"></div>
+        </div>
+
+        <!-- Client details -->
+        <div class="section">
+            <div class="section-title">Client Information</div>
+            <div class="kv-grid" id="detailsGrid"></div>
+        </div>
+
+        <!-- Billing address -->
+        <div class="section" id="billingSection" style="display:none;">
+            <div class="section-title">Billing Address</div>
+            <div id="billingGrid" class="kv-grid"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="section">
+            <div class="section-title">Actions</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+                <button onclick="sendOnboardingForm()" class="action-btn btn-blue">📲 Send Onboarding Form</button>
+                <button onclick="genWeeklyForm()" class="action-btn btn-solid-emerald">📋 Send Weekly Form</button>
+                <button onclick="window.location.href='data-entry.html?client='+_clientId" class="action-btn btn-solid-blue">📋 Open Data Entry</button>
+                <button onclick="window.location.href='audit.html?client='+encodeURIComponent(_client.company)+'&id='+_clientId" class="action-btn btn-solid-blue">📊 Run Audit</button>
             </div>
-            <div class="grid grid-cols-2 gap-5">
-                <div><label>Current Consumption (km/L)</label><input type="number" id="currentCons" step="0.1" placeholder="Actual reported"></div>
-                <div><label>Target Consumption (km/L)</label><input type="number" id="targetCons" step="0.1" value="2.3"></div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-top:0.75rem;">
+                <button onclick="sendReminder()" class="action-btn btn-yellow">✉️ Send Data Reminder</button>
+                <button onclick="syncFromAudit()" class="action-btn btn-blue">📥 Sync Fleet from Audit</button>
             </div>
         </div>
 
-        <div class="form-section">
-            <span class="section-label">05 — Service Setup</span>
-            <div class="grid grid-cols-2 gap-5">
-                <div><label>Report Schedule</label>
-                    <select id="reportSchedule"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
-                </div>
-                <div><label>VAT Number (if applicable)</label><input type="text" id="vatNumber" placeholder="Leave blank if not VAT registered"></div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-label">06 — Referral Source</span>
-            <div class="grid grid-cols-2 gap-5">
-                <div>
-                    <label>Referred by Partner</label>
-                    <select id="referralPartnerId" onchange="onPartnerChange()">
-                        <option value="">— No Partner —</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Partner Referral Code</label>
-                    <input type="text" id="referralCode" placeholder="Auto-filled from partner selection" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
+        <!-- Fleet management -->
+        <div class="section">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <div class="section-title" style="margin-bottom:0;">Fleet Register</div>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="addVehicleRow()" class="action-btn btn-blue" style="font-size:8px;">+ Add Vehicle</button>
+                    <button onclick="saveFleet()" class="action-btn btn-solid-emerald" style="font-size:8px;">💾 Save Fleet</button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-5" style="margin-top:1rem;">
-                <div>
-                    <label>Referred by Existing Client (Loyalty Club)</label>
-                    <select id="referredByClient">
-                        <option value="">— No Client Referral —</option>
-                    </select>
-                </div>
-                <div>
-                    <label>How They Heard About DFR</label>
-                    <select id="leadSource">
-                        <option value="direct">Direct contact</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="whatsapp">WhatsApp</option>
-                        <option value="referral_client">Existing client referral</option>
-                        <option value="referral_partner">Referral partner</option>
-                        <option value="google">Google search</option>
-                        <option value="other">Other</option>
-                    </select>
+            <div style="background:rgba(15,23,42,0.5);border-radius:1rem;overflow:hidden;">
+                <div class="fleet-tbl-wrap">
+                    <div class="fleet-row" style="background:rgba(15,23,42,0.8);">
+                        <div class="inv-head">#</div>
+                        <div class="inv-head">Reg</div>
+                        <div class="inv-head">Make</div>
+                        <div class="inv-head">Model</div>
+                        <div class="inv-head">Year</div>
+                        <div class="inv-head">Type</div>
+                        <div class="inv-head">Usage</div>
+                        <div class="inv-head">Load Profile</div>
+                        <div class="inv-head">Trailer Type</div>
+                        <div class="inv-head">Aerokit</div>
+                        <div class="inv-head">Interlink</div>
+                        <div class="inv-head" style="color:#10b981;">Suggested</div>
+                        <div class="inv-head" style="color:#fbbf24;">Target</div>
+                        <div class="inv-head">Remove</div>
+                    </div>
+                    <div id="fleetTable"></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex gap-4 mt-6">
-            <button type="button" onclick="window.location.href='pipeline.html'"
-                style="flex:1;padding:1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1rem;color:rgba(255,255,255,0.5);font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
-                Cancel
-            </button>
-            <button type="submit" id="submitBtn"
-                style="flex:3;padding:1rem;background:#10b981;border:none;border-radius:1rem;color:#020617;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:0.15em;cursor:pointer;transition:background 0.2s;"
-                onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                Save Prospect
-            </button>
+        <!-- Notes -->
+        <div class="section">
+            <div class="section-title">Notes</div>
+            <textarea id="notesField" placeholder="Client notes, special instructions, preferences..." style="width:100%;min-height:90px;resize:vertical;"></textarea>
+            <button onclick="saveNotes()" class="action-btn btn-emerald mt-3" style="margin-top:10px;">Save Notes</button>
         </div>
 
-    </form>
+        <!-- Invoice history -->
+        <div class="section">
+            <div class="section-title">Invoice History</div>
+            <div id="invoiceHistory"></div>
+        </div>
+
+        <!-- Report history -->
+        <div class="section" id="reportHistSection" style="display:none;">
+            <div class="section-title">Report History</div>
+            <div id="reportHistory"></div>
+        </div>
+
+    </div><!-- end clientBody -->
 </main>
 
-<script>
-const APPS_SCRIPT_URL= + APPS_URL + ;
-var _cbCounter=0;
-var _partners=[];
-const urlParams=new URLSearchParams(window.location.search);
-const editId=urlParams.get('editId');
-
-function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
-async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
-
-ready().then(async function(){
-    // Load partners into dropdown
-    try{
-        _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
-        var sel=document.getElementById('referralPartnerId');
-        _partners.filter(p=>p.status==='active').forEach(function(p){
-            var o=document.createElement('option');
-            o.value=p.id;
-            o.textContent=p.name+' ('+( p.commRate||15)+'%)';
-            sel.appendChild(o);
-        });
-    }catch(e){}
-
-    // Load existing active clients into referred-by dropdown (Loyalty Club)
-    try {
-        var activeClients = (_clients||[]).filter(function(c){return c.status==='active';});
-        // Also load from firebase if not already loaded
-        if(!activeClients.length){
-            var allC = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-            activeClients = allC.filter(function(c){return c.status==='active';});
-        }
-        var rSel2 = document.getElementById('referredByClient');
-        activeClients.forEach(function(c){
-            var o=document.createElement('option'); o.value=c.id; o.textContent=c.company; rSel2.appendChild(o);
-        });
-    } catch(e) {}
-
-    // Check URL for ?ref= auto-assign from referral link click
-    var refParam=urlParams.get('ref');
-    if(refParam){
-        // Find matching partner
-        var match=_partners.find(function(p){
-            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            return code===refParam||p.id===refParam;
-        });
-        if(match){
-            document.getElementById('referralPartnerId').value=match.id;
-            onPartnerChange();
-            document.getElementById('refDetectedText').textContent='🤝 Automatically linked to '+match.name+' (Referral Partner)';
-            document.getElementById('refDetected').classList.add('show');
-        }
-    }
-
-    // Edit mode
-    if(editId){
-        var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-        var p=clients.find(function(c){return c.id==editId;});
-        if(!p) return;
-        document.getElementById('pageTitle').innerHTML="Edit <span class='text-emerald-400'>Prospect</span>";
-        document.getElementById('submitBtn').innerText="Save Changes";
-        document.getElementById('company').value=p.company||'';
-        document.getElementById('city').value=p.city||'';
-        document.getElementById('contactName').value=p.contactName||'';
-        document.getElementById('contactTel').value=p.contactTel||'';
-        document.getElementById('email').value=p.email||'';
-        document.getElementById('billingStreet').value=p.billingStreet||'';
-        document.getElementById('billingSuburb').value=p.billingSuburb||'';
-        document.getElementById('billingCity').value=p.billingCity||'';
-        document.getElementById('billingProvince').value=p.billingProvince||'';
-        document.getElementById('billingPostal').value=p.billingPostal||'';
-        document.getElementById('fleetSize').value=p.fleetSize||1;
-        document.getElementById('fuelPrice').value=p.fuelPrice||22.50;
-        document.getElementById('speedLimit').value=p.speedLimit||80;
-        document.getElementById('currentCons').value=p.currentCons||'';
-        document.getElementById('targetCons').value=p.targetCons||2.3;
-        document.getElementById('reportSchedule').value=p.reportSchedule||'weekly';
-        document.getElementById('vatNumber').value=p.vatNumber||'';
-        if(p.referralPartnerId){
-            document.getElementById('referralPartnerId').value=p.referralPartnerId;
-            onPartnerChange();
-        }
-    }
-});
-
-function onPartnerChange(){
-    var sel=document.getElementById('referralPartnerId');
-    if(sel.value){
-        var p=_partners.find(function(x){return x.id===sel.value;});
-        if(p){
-            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            document.getElementById('referralCode').value=code;
-        }
-    }else{
-        document.getElementById('referralCode').value='';
-    }
-}
-
-document.getElementById('intakeForm').onsubmit=async function(e){
-    e.preventDefault();
-    var btn=document.getElementById('submitBtn');
-    btn.innerText='Saving...'; btn.disabled=true;
-    var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    var updates={
-        company:        document.getElementById('company').value.trim().toUpperCase(),
-        city:           document.getElementById('city').value.trim().toUpperCase(),
-        contactName:    document.getElementById('contactName').value.trim(),
-        contactTel:     document.getElementById('contactTel').value.trim(),
-        email:          document.getElementById('email').value.trim(),
-        billingStreet:  document.getElementById('billingStreet').value.trim(),
-        billingSuburb:  document.getElementById('billingSuburb').value.trim(),
-        billingCity:    document.getElementById('billingCity').value.trim(),
-        billingProvince:document.getElementById('billingProvince').value,
-        billingPostal:  document.getElementById('billingPostal').value.trim(),
-        fleetSize:      parseInt(document.getElementById('fleetSize').value)||1,
-        fuelPrice:      parseFloat(document.getElementById('fuelPrice').value)||22.50,
-        speedLimit:     parseInt(document.getElementById('speedLimit').value)||80,
-        currentCons:    document.getElementById('currentCons').value,
-        targetCons:     parseFloat(document.getElementById('targetCons').value)||2.3,
-        reportSchedule: document.getElementById('reportSchedule').value,
-        vatNumber:      document.getElementById('vatNumber').value.trim(),
-        referralPartnerId: document.getElementById('referralPartnerId').value||null,
-        referralCode:   document.getElementById('referralCode').value.trim()||null,
-    };
-    if(editId){
-        var idx=clients.findIndex(function(c){return c.id==editId;});
-        if(idx!==-1) clients[idx]=Object.assign({},clients[idx],updates);
-    }else{
-        var newClient=Object.assign({id:Date.now(),status:'prospect',auditStatus:'not-started',reportHistory:[],invoiceHistory:[]},updates);
-        clients.push(newClient);
-        syncToSheet(updates.company,'Prospect').catch(function(err){console.warn('Sheet sync failed:',err);});
-    }
-    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(clients));
-    window.location.href='pipeline.html';
-};
-
-function syncToSheet(companyName,status){
-    return new Promise(function(resolve,reject){
-        var cbName='sheetCB_'+Date.now()+'_'+(++_cbCounter);
-        var tid=setTimeout(function(){delete window[cbName];reject('Timeout');},10000);
-        window[cbName]=function(data){clearTimeout(tid);delete window[cbName];var s=document.getElementById(cbName);if(s)s.remove();resolve(data);};
-        var script=document.createElement('script');
-        script.id=cbName;
-        script.onerror=function(){clearTimeout(tid);delete window[cbName];reject('Error');};
-        script.src=APPS_SCRIPT_URL+'?action=update&company='+encodeURIComponent(companyName)+'&status='+encodeURIComponent(status)+'&callback='+cbName;
-        document.body.appendChild(script);
-    });
-}
-</script>
-</body>
-</html
-        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
-        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
-    </script>ml>
-<html lang="en">
-<head>
-    <script type="module" src="firebase-helper.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Intake | Dynamic Fleet Reporting</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
-    <style>
-        body{font-family:'Outfit',sans-serif;background-color:#020617;color:#e2e8f0;margin:0;display:flex;height:100vh;overflow:hidden;}
-        #sidebar{width:260px;background:#0f172a;border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;}
-        .logo-area{padding:0 1rem 3rem 1rem;}
-        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;transition:all 0.2s ease;text-decoration:none;cursor:pointer;}
-        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
-        .nav-item.active{background:rgba(16,185,129,0.1);color:#10b981;}
-        .main-wrapper{flex:1;overflow-y:auto;padding:3rem;background:radial-gradient(circle at top right,#0f172a,#020617);}
-        .form-section{background:rgba(30,41,59,0.4);border:1px solid rgba(255,255,255,0.05);border-radius:1.5rem;padding:2rem 2.5rem;margin-bottom:1.5rem;}
-        .section-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#10b981;margin-bottom:1.5rem;display:block;font-style:italic;}
-        label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;display:block;margin-bottom:0.35rem;}
-        input,select,textarea{width:100%;padding:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:0.75rem;color:white;font-size:13px;font-family:'Outfit',sans-serif;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
-        input:focus,select:focus,textarea:focus{border-color:#10b981;}
-        input::placeholder{color:rgba(255,255,255,0.2);}
-        select option{background:#0f172a;color:white;}
-        textarea{min-height:80px;resize:vertical;}
-        /* Referral highlight */
-        .ref-detected{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#a7f3d0;display:none;}
-        .ref-detected.show{display:block;}
-
-        /* ── Mobile ── */
-        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0;}
-        .mob-logo{max-height:32px;}
-        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
-        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
-        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99;}
-        .sidebar-overlay.open{display:block;}
-        @media(max-width:768px){
-            body{flex-direction:column;height:auto;overflow:auto;}
-            #sidebar{display:none;position:fixed;top:0;left:-260px;height:100vh;z-index:100;transition:left 0.25s ease;overflow-y:auto;width:260px;}
-            #sidebar.open{left:0;display:flex;}
-            .mob-topbar{display:flex;}
-            .main-wrapper{padding:1.25rem;overflow-y:visible;}
-            header{margin-bottom:1.5rem!important;}
-            header h1{font-size:2rem!important;}
-            .grid.grid-cols-2{grid-template-columns:1fr!important;gap:0.75rem!important;}
-            .grid.grid-cols-3{grid-template-columns:1fr!important;gap:0.75rem!important;}
-            .grid.grid-cols-4{grid-template-columns:1fr 1fr!important;gap:0.75rem!important;}
-            table{display:block;overflow-x:auto;white-space:nowrap;}
-            .card:hover{transform:none;}
-        }
-        @media(min-width:769px){.mob-topbar{display:none!important;}}
-    </style>
-</head>
-<body>
-
-<aside id="sidebar">
-    <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
-    <nav>
-        <a href="index.html"    class="nav-item">Dashboard</a>
-        <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
-        <a href="database.html" class="nav-item">Active Database</a>
-        <a href="audit.html"    class="nav-item">Forensic Audit</a>
-        <a href="churned.html"  class="nav-item">Churned Clients</a>
-        <a href="invoice.html"  class="nav-item">Invoices</a>
-        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html" class="nav-item">⚙ Settings</a>
-        <a href="marketing.html" class="nav-item">📣 Marketing</a>
-    </nav>
-</aside>
-
-<main class="main-wrapper">
-    <header class="flex justify-between items-center mb-8">
-        <div>
-            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 mb-2">Client Intake</p>
-            <h1 id="pageTitle" class="text-5xl font-black italic uppercase tracking-tighter text-white">New <span class="text-emerald-400">Prospect</span></h1>
+<!-- Edit modal -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.95);backdrop-filter:blur(10px);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto;">
+    <div style="background:#0f172a;border:2px solid #60a5fa;border-radius:2rem;width:100%;max-width:600px;padding:2.5rem;margin:auto;">
+        <h2 style="font-size:1.4rem;font-weight:900;color:white;text-transform:uppercase;font-style:italic;margin-bottom:1.5rem;">Edit <span style="color:#60a5fa;">Client</span></h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Company</label><input type="text" id="eCompany"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">City</label><input type="text" id="eCity"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Contact Name</label><input type="text" id="eContact"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Email</label><input type="email" id="eEmail"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Mobile</label><input type="tel" id="eTel"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Speed Limit</label><input type="number" id="eSpeed"></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Report Schedule</label>
+                <select id="eSchedule"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+            <div><label style="font-size:9px;font-weight:900;text-transform:uppercase;color:#64748b;display:block;margin-bottom:4px;">Fuel Price (R/L)</label><input type="number" id="eFuel" step="0.01"></div>
         </div>
-        <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-white/30 hover:text-white tracking-widest transition">← Cancel</button>
-    </header>
-
-    <!-- Referral auto-detected banner -->
-    <div class="ref-detected" id="refDetected">🤝 <span id="refDetectedText">This prospect was referred.</span></div>
-
-    <form id="intakeForm">
-
-        <div class="form-section">
-            <span class="section-label">01 — Company &amp; Location</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Company Name *</label><input type="text" id="company" required placeholder="Registered trading name"></div>
-                <div><label>Town / City</label><input type="text" id="city" placeholder="Base of operations"></div>
-            </div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+            <button onclick="closeEdit()" class="action-btn btn-grey" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;">Cancel</button>
+            <button onclick="saveEdit()" class="action-btn btn-solid-emerald" style="flex:2;">Save Changes</button>
         </div>
+    </div>
+</div>
 
-        <div class="form-section">
-            <span class="section-label">02 — Contact Information</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Contact Name</label><input type="text" id="contactName" placeholder="Primary contact person"></div>
-                <div><label>Mobile Number</label><input type="tel" id="contactTel" placeholder="083 000 0000"></div>
-            </div>
-            <div><label>Email Address</label><input type="email" id="email" placeholder="name@company.co.za"></div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-label">03 — Billing Address</span>
-            <div class="grid grid-cols-2 gap-5 mb-5">
-                <div><label>Street / Physical Address</label><input type="text" id="billingStreet" placeholder="123 Main Street"></div>
-                <div><label>Suburb</label><input type="text" id="billingSuburb" placeholder="Suburb"></div>
-            </div>
-            <div class="grid grid-cols-3 gap-5">
-                <div><label>City</label><input type="text" id="billingCity" placeholder="City"></div>
-                <div><label>Province</label>
-                    <select id="billingProvince">
-                        <option value="">— Select —</option>
-                        <option>Western Cape</option><option>Eastern Cape</option><option>Northern Cape</option>
-                        <option>North West</option><option>Free State</option><option>Gauteng</option>
-                        <option>Limpopo</option><option>Mpumalanga</option><option>KwaZulu-Natal</option>
-                    </select>
-                </div>
-                <div><label>Postal Code</label><input type="text" id="billingPostal" placeholder="0000"></div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-label">04 — Fleet &amp; Performance</span>
-            <div class="grid grid-cols-3 gap-5 mb-5">
-                <div><label>Fleet Size (Units) *</label><input type="number" id="fleetSize" required value="1" min="1"></div>
-                <div><label>Fuel Price (R/L)</label><input type="number" id="fuelPrice" step="0.01" value="22.50"></div>
-                <div><label>Speed Limit (km/h)</label><input type="number" id="speedLimit" value="80"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-5">
-                <div><label>Current Consumption (km/L)</label><input type="number" id="currentCons" step="0.1" placeholder="Actual reported"></div>
-                <div><label>Target Consumption (km/L)</label><input type="number" id="targetCons" step="0.1" value="2.3"></div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-label">05 — Service Setup</span>
-            <div class="grid grid-cols-2 gap-5">
-                <div><label>Report Schedule</label>
-                    <select id="reportSchedule"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
-                </div>
-                <div><label>VAT Number (if applicable)</label><input type="text" id="vatNumber" placeholder="Leave blank if not VAT registered"></div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <span class="section-label">06 — Referral Source</span>
-            <div class="grid grid-cols-2 gap-5">
-                <div>
-                    <label>Referred by Partner</label>
-                    <select id="referralPartnerId" onchange="onPartnerChange()">
-                        <option value="">— No Partner —</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Partner Referral Code</label>
-                    <input type="text" id="referralCode" placeholder="Auto-filled from partner selection" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
-                </div>
-            </div>
-            <div class="grid grid-cols-2 gap-5" style="margin-top:1rem;">
-                <div>
-                    <label>Referred by Existing Client (Loyalty Club)</label>
-                    <select id="referredByClient">
-                        <option value="">— No Client Referral —</option>
-                    </select>
-                </div>
-                <div>
-                    <label>How They Heard About DFR</label>
-                    <select id="leadSource">
-                        <option value="direct">Direct contact</option>
-                        <option value="facebook">Facebook</option>
-                        <option value="linkedin">LinkedIn</option>
-                        <option value="whatsapp">WhatsApp</option>
-                        <option value="referral_client">Existing client referral</option>
-                        <option value="referral_partner">Referral partner</option>
-                        <option value="google">Google search</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex gap-4 mt-6">
-            <button type="button" onclick="window.location.href='pipeline.html'"
-                style="flex:1;padding:1rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:1rem;color:rgba(255,255,255,0.5);font-weight:900;font-size:11px;text-transform:uppercase;cursor:pointer;">
-                Cancel
-            </button>
-            <button type="submit" id="submitBtn"
-                style="flex:3;padding:1rem;background:#10b981;border:none;border-radius:1rem;color:#020617;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:0.15em;cursor:pointer;transition:background 0.2s;"
-                onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                Save Prospect
-            </button>
-        </div>
-
-    </form>
-</main>
+<div id="toast"><div id="toast-inner" style="padding:10px 20px;border-radius:12px;font-size:13px;font-weight:700;"></div></div>
 
 <script>
-const APPS_SCRIPT_URL= + APPS_URL + ;
-var _cbCounter=0;
-var _partners=[];
-const urlParams=new URLSearchParams(window.location.search);
-const editId=urlParams.get('editId');
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+    var _cbCounter = 0;
+    var _clientId  = null;
+    var _client    = null;
+    var _fleetData = [];
 
-function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
-async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
+    // ── Helpers ───────────────────────────────────────────────
+    function toast(msg, color) {
+        var t = document.getElementById('toast'), i = document.getElementById('toast-inner');
+        var c = {green:'background:#064e3b;color:#10b981;border:1px solid rgba(16,185,129,0.3)',
+                 blue: 'background:#1e3a5f;color:#60a5fa;border:1px solid rgba(96,165,250,0.3)',
+                 red:  'background:#3d0000;color:#f87171;border:1px solid rgba(248,113,113,0.3)',
+                 yellow:'background:#3d2e00;color:#fbbf24;border:1px solid rgba(251,191,36,0.3)'};
+        i.style.cssText = c[color]||c.blue; i.innerText = msg;
+        t.classList.add('show'); setTimeout(function(){t.classList.remove('show');}, 3000);
+    }
 
-ready().then(async function(){
-    // Load partners into dropdown
-    try{
-        _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
-        var sel=document.getElementById('referralPartnerId');
-        _partners.filter(p=>p.status==='active').forEach(function(p){
-            var o=document.createElement('option');
-            o.value=p.id;
-            o.textContent=p.name+' ('+( p.commRate||15)+'%)';
-            sel.appendChild(o);
-        });
-    }catch(e){}
+    function getTier(f) { return f<=15?{rate:200,label:'Tier 1'}:f<=30?{rate:175,label:'Tier 2'}:{rate:150,label:'Tier 3'}; }
+    function getMonthly(c) { var f=c.fleet?c.fleet.length:(c.fleetSize||0); var t=getTier(f); return 1500+(f*t.rate); }
+    function getNextDue(c) { var d=c.lastReportSent?new Date(c.lastReportSent):new Date(); if(c.reportSchedule==='weekly')d.setDate(d.getDate()+7); else d.setMonth(d.getMonth()+1); return d; }
+    function getDaysUntilDue(c) { return Math.ceil((getNextDue(c)-new Date())/86400000); }
 
-    // Load existing active clients into referred-by dropdown (Loyalty Club)
-    try {
-        var activeClients = (_clients||[]).filter(function(c){return c.status==='active';});
-        // Also load from firebase if not already loaded
-        if(!activeClients.length){
-            var allC = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-            activeClients = allC.filter(function(c){return c.status==='active';});
+    function getInvStatus(c) {
+        var hist=c.invoiceHistory||[]; if(hist.length===0) return {label:'No Invoice',cls:'pill-grey',paid:null};
+        var last=hist[hist.length-1];
+        if(last.paid) return {label:'✓ Paid',cls:'pill-green',paid:true};
+        var due=new Date(last.dueDate||(new Date().getTime()+7*86400000));
+        var days=Math.ceil((new Date()-due)/86400000);
+        if(days>0) return {label:'⚠ '+days+'d Overdue',cls:'pill-red',paid:false};
+        return {label:'Unpaid',cls:'pill-yellow',paid:false};
+    }
+
+    async function reloadClient() {
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        _client = all.find(function(c) { return String(c.id) === String(_clientId); });
+        return _client;
+    }
+
+    async function saveClient(updates) {
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = all.findIndex(function(c) { return String(c.id) === String(_clientId); });
+        if (idx === -1) return;
+        all[idx] = Object.assign({}, all[idx], updates);
+        _client  = all[idx];
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+    }
+
+    // ── Render page ───────────────────────────────────────────
+    function renderPage() {
+        var c = _client;
+        document.getElementById('clientTitle').innerText = c.company;
+        document.getElementById('clientSub').innerText   = (c.contactName||'') + (c.city ? ' · ' + c.city : '');
+        document.getElementById('clientBody').style.display = 'block';
+
+        var fleet    = c.fleet ? c.fleet.length : (c.fleetSize||0);
+        var monthly  = getMonthly(c);
+        var tier     = getTier(fleet);
+        var daysUntil= getDaysUntilDue(c);
+        var dueText  = daysUntil<0 ? 'Overdue '+Math.abs(daysUntil)+'d' : daysUntil===0 ? 'Due Today' : 'In '+daysUntil+' days';
+        var dueColor = daysUntil<0 ? '#ef4444' : daysUntil<=2 ? '#fbbf24' : '#10b981';
+        var inv      = getInvStatus(c);
+
+        document.getElementById('s-retainer').innerText = 'R ' + monthly.toLocaleString('en-ZA');
+        document.getElementById('s-fleet').innerText    = fleet + ' units';
+        document.getElementById('s-due').innerHTML      = '<span style="color:'+dueColor+'">'+dueText+'</span>';
+        document.getElementById('s-inv').innerHTML      = '<span class="pill '+inv.cls+'">'+inv.label+'</span>';
+
+        // Links
+        var linksHtml = '';
+        if (c.driveFolderUrl) {
+            linksHtml += '<a href="'+c.driveFolderUrl+'" target="_blank" class="link-btn" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:white;text-decoration:none;">📁 Open Drive Folder</a>';
+        } else {
+            linksHtml += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:10px 12px;">'
+                + '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;">📁 Drive Folder Link</p>'
+                + '<input type="text" id="drivePaste" placeholder="Paste Drive folder link here" onpaste="pasteLink(\'driveFolderUrl\',event)" oninput="if(this.value.startsWith(\'http\'))pasteLink(\'driveFolderUrl\',null,this.value)">'
+                + '</div>';
         }
-        var rSel2 = document.getElementById('referredByClient');
-        activeClients.forEach(function(c){
-            var o=document.createElement('option'); o.value=c.id; o.textContent=c.company; rSel2.appendChild(o);
-        });
-    } catch(e) {}
+        if (c.slaFileUrl) {
+            linksHtml += '<a href="'+c.slaFileUrl+'" target="_blank" class="link-btn" style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.25);color:#93c5fd;text-decoration:none;">📄 View Signed SLA</a>';
+        } else {
+            linksHtml += '<div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:10px;padding:10px 12px;">'
+                + '<p style="font-size:8px;font-weight:900;text-transform:uppercase;color:rgba(147,197,253,0.5);margin-bottom:6px;">📄 Signed SLA Link</p>'
+                + '<input type="text" id="slaPaste" placeholder="Paste signed SLA Drive link here" onpaste="pasteLink(\'slaFileUrl\',event)" oninput="if(this.value.startsWith(\'http\'))pasteLink(\'slaFileUrl\',null,this.value)">'
+                + '</div>';
+        }
+        document.getElementById('linksGrid').innerHTML = linksHtml;
 
-    // Check URL for ?ref= auto-assign from referral link click
-    var refParam=urlParams.get('ref');
-    if(refParam){
-        // Find matching partner
-        var match=_partners.find(function(p){
-            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            return code===refParam||p.id===refParam;
-        });
-        if(match){
-            document.getElementById('referralPartnerId').value=match.id;
-            onPartnerChange();
-            document.getElementById('refDetectedText').textContent='🤝 Automatically linked to '+match.name+' (Referral Partner)';
-            document.getElementById('refDetected').classList.add('show');
+        // Details
+        document.getElementById('detailsGrid').innerHTML =
+            kv('Email', c.email||'—') +
+            kv('Mobile', c.contactTel||'—') +
+            kv('Report Schedule', (c.reportSchedule||'monthly').charAt(0).toUpperCase()+(c.reportSchedule||'monthly').slice(1)) +
+            kv('Pricing Tier', tier.label+' (R'+tier.rate+'/unit)') +
+            kv('On-Demand Pool', fleet+' reports/month') +
+            kv('Activation Date', c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA') : '—') +
+            kv('SLA Reference', c.slaRef||'—') +
+            kv('Speed Limit', (c.speedLimit||80)+' km/h') +
+            kv('Fuel Price', 'R '+(c.fuelPrice||22.50)+'/L');
+
+        // Billing address
+        var hasBilling = c.billingStreet||c.billingCity||c.billingProvince;
+        if (hasBilling) {
+            document.getElementById('billingSection').style.display = 'block';
+            document.getElementById('billingGrid').innerHTML =
+                kv('Street', c.billingStreet||'—') +
+                kv('Suburb', c.billingSuburb||'—') +
+                kv('City', c.billingCity||'—') +
+                kv('Province', c.billingProvince||'—') +
+                kv('Postal Code', c.billingPostal||'—');
+        }
+
+        // Fleet table
+        _fleetData = c.fleet ? JSON.parse(JSON.stringify(c.fleet)) : [];
+        renderFleetTable();
+
+        // Notes
+        document.getElementById('notesField').value = c.notes||'';
+
+        // Invoice history
+        renderInvoiceHistory(c);
+
+        // Report history
+        var rh = c.reportHistory||[];
+        if (rh.length > 0) {
+            document.getElementById('reportHistSection').style.display = 'block';
+            document.getElementById('reportHistory').innerHTML = rh.map(function(h) {
+                return '<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;font-size:12px;">'
+                    + '<span style="font-weight:700;">'+new Date(h.date).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})+'</span>'
+                    + '<span style="color:rgba(255,255,255,0.4);">'+(h.type||'Report')+' · '+(h.vehicles||0)+' vehicles</span>'
+                    + '</div>';
+            }).join('');
         }
     }
 
-    // Edit mode
-    if(editId){
-        var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-        var p=clients.find(function(c){return c.id==editId;});
-        if(!p) return;
-        document.getElementById('pageTitle').innerHTML="Edit <span class='text-emerald-400'>Prospect</span>";
-        document.getElementById('submitBtn').innerText="Save Changes";
-        document.getElementById('company').value=p.company||'';
-        document.getElementById('city').value=p.city||'';
-        document.getElementById('contactName').value=p.contactName||'';
-        document.getElementById('contactTel').value=p.contactTel||'';
-        document.getElementById('email').value=p.email||'';
-        document.getElementById('billingStreet').value=p.billingStreet||'';
-        document.getElementById('billingSuburb').value=p.billingSuburb||'';
-        document.getElementById('billingCity').value=p.billingCity||'';
-        document.getElementById('billingProvince').value=p.billingProvince||'';
-        document.getElementById('billingPostal').value=p.billingPostal||'';
-        document.getElementById('fleetSize').value=p.fleetSize||1;
-        document.getElementById('fuelPrice').value=p.fuelPrice||22.50;
-        document.getElementById('speedLimit').value=p.speedLimit||80;
-        document.getElementById('currentCons').value=p.currentCons||'';
-        document.getElementById('targetCons').value=p.targetCons||2.3;
-        document.getElementById('reportSchedule').value=p.reportSchedule||'weekly';
-        document.getElementById('vatNumber').value=p.vatNumber||'';
-        if(p.referralPartnerId){
-            document.getElementById('referralPartnerId').value=p.referralPartnerId;
-            onPartnerChange();
-        }
+    function kv(label, val) {
+        return '<div class="kv"><div class="kv-label">'+label+'</div><div class="kv-val">'+val+'</div></div>';
     }
-});
 
-function onPartnerChange(){
-    var sel=document.getElementById('referralPartnerId');
-    if(sel.value){
-        var p=_partners.find(function(x){return x.id===sel.value;});
-        if(p){
-            var code='ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-            document.getElementById('referralCode').value=code;
+    function renderInvoiceHistory(c) {
+        var hist = (c.invoiceHistory||[]).slice().reverse();
+        var container = document.getElementById('invoiceHistory');
+        if (hist.length === 0) {
+            container.innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,0.2);padding:1rem 0;">No invoices generated yet. <a href="invoice.html?clientId='+_clientId+'" style="color:#10b981;">Generate first invoice →</a></p>';
+            return;
         }
-    }else{
-        document.getElementById('referralCode').value='';
+        container.innerHTML =
+            '<div style="background:rgba(15,23,42,0.5);border-radius:1rem;overflow:hidden;">'
+            + '<div class="inv-row" style="background:rgba(15,23,42,0.8);">'
+            +   '<div class="inv-head">Invoice #</div><div class="inv-head">Period</div>'
+            +   '<div class="inv-head">Amount</div><div class="inv-head">Status</div>'
+            +   '<div class="inv-head">Action</div>'
+            + '</div>'
+            + hist.map(function(h) {
+                var isPaid   = h.paid;
+                var isOvd    = false;
+                if (!isPaid && h.dueDate) { isOvd = new Date() > new Date(h.dueDate); }
+                var statusHtml = isPaid
+                    ? '<span class="pill pill-green">✓ Paid</span>'
+                    : isOvd
+                        ? '<span class="pill pill-red">Overdue</span>'
+                        : '<span class="pill pill-yellow">Unpaid</span>';
+                var actionHtml = !isPaid
+                    ? '<button onclick="markPaid(\''+h.invNumber+'\')" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:3px 10px;border-radius:6px;font-size:8px;font-weight:900;cursor:pointer;text-transform:uppercase;">Mark Paid</button>'
+                    : '<span style="font-size:9px;color:rgba(255,255,255,0.2);">'+( h.paidDate||'')+'</span>';
+                return '<div class="inv-row">'
+                    + '<div style="font-weight:700;font-size:11px;">'+h.invNumber+'</div>'
+                    + '<div style="color:rgba(255,255,255,0.5);font-size:11px;">'+h.period+'</div>'
+                    + '<div style="font-weight:900;color:white;">R '+(h.total||0).toLocaleString('en-ZA',{minimumFractionDigits:2})+'</div>'
+                    + '<div>'+statusHtml+'</div>'
+                    + '<div>'+actionHtml+'</div>'
+                    + '</div>';
+            }).join('')
+            + '</div>';
     }
-}
 
-document.getElementById('intakeForm').onsubmit=async function(e){
-    e.preventDefault();
-    var btn=document.getElementById('submitBtn');
-    btn.innerText='Saving...'; btn.disabled=true;
-    var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
-    var updates={
-        company:        document.getElementById('company').value.trim().toUpperCase(),
-        city:           document.getElementById('city').value.trim().toUpperCase(),
-        contactName:    document.getElementById('contactName').value.trim(),
-        contactTel:     document.getElementById('contactTel').value.trim(),
-        email:          document.getElementById('email').value.trim(),
-        billingStreet:  document.getElementById('billingStreet').value.trim(),
-        billingSuburb:  document.getElementById('billingSuburb').value.trim(),
-        billingCity:    document.getElementById('billingCity').value.trim(),
-        billingProvince:document.getElementById('billingProvince').value,
-        billingPostal:  document.getElementById('billingPostal').value.trim(),
-        fleetSize:      parseInt(document.getElementById('fleetSize').value)||1,
-        fuelPrice:      parseFloat(document.getElementById('fuelPrice').value)||22.50,
-        speedLimit:     parseInt(document.getElementById('speedLimit').value)||80,
-        currentCons:    document.getElementById('currentCons').value,
-        targetCons:     parseFloat(document.getElementById('targetCons').value)||2.3,
-        reportSchedule: document.getElementById('reportSchedule').value,
-        vatNumber:      document.getElementById('vatNumber').value.trim(),
-        referralPartnerId: document.getElementById('referralPartnerId').value||null,
-        referralCode:   document.getElementById('referralCode').value.trim()||null,
+    // ── Mark invoice paid from history ────────────────────────
+    async function markPaid(invNumber) {
+        if (!confirm('Mark invoice '+invNumber+' as paid?')) return;
+        var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = all.findIndex(function(c) { return String(c.id)===String(_clientId); });
+        if (idx===-1) return;
+        var hist = all[idx].invoiceHistory||[];
+        var inv  = hist.find(function(h) { return h.invNumber===invNumber; });
+        if (inv) { inv.paid=true; inv.paidDate=new Date().toLocaleDateString('en-ZA'); }
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(all));
+        _client = all[idx];
+        renderInvoiceHistory(_client);
+        document.getElementById('s-inv').innerHTML = '<span class="pill pill-green">✓ Paid</span>';
+        toast('✓ Invoice marked as paid', 'green');
+    }
+
+    // ── Paste Drive / SLA links ───────────────────────────────
+    async function pasteLink(field, pasteEvent, directValue) {
+        var url = directValue||'';
+        if (pasteEvent) { pasteEvent.preventDefault(); url=(pasteEvent.clipboardData||window.clipboardData).getData('text').trim(); }
+        if (!url||!url.startsWith('http')) return;
+        await saveClient({ [field]: url });
+        toast('✓ Link saved', 'green');
+        setTimeout(function(){ renderPage(); }, 400);
+    }
+
+    // ── Fleet table ───────────────────────────────────────────
+    var _vdb = {};
+    function _waitForCS(){ return new Promise(function(res){ var t=setInterval(function(){ if(typeof cloudStorage!=='undefined'){ clearInterval(t); res(); } },60); }); }
+    (async function loadVDB(){
+        try {
+            await _waitForCS();
+            var r = await cloudStorage.getItem('VEHICLE_DB');
+            _vdb = r ? JSON.parse(r) : {};
+        } catch(e){ _vdb={}; }
+        // Re-render fleet table now that DB is loaded
+        if(typeof _fleetData !== 'undefined' && _fleetData.length > 0) renderFleetTable();
+    })();
+
+    function dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
+    function lookupMfr(make,model){
+        if(!make) return null;
+        var e=_vdb[dbk(make,model)]; if(e) return e;
+        for(var k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
+        return null;
+    }
+
+    var USAGE_C        = ['Long Distance','Local Distribution','Mixed','Construction / Mining','Agricultural'];
+    var LOAD_PROFILE_C = ['Fully Loaded','Loaded Out / Empty Return','Mixed / Variable','Local Stop-Start'];
+    var TRAILER_TYPE_C = ['Tautliner / Curtainsider','Flatdeck / Lowbed','Tanker','Side Tipper','Rear Tipper','Livestock / Animal Trailer','Rigid Body (No Trailer)'];
+    var AEROKIT_C      = ['None','Roof Fairing Only','Full Aerokit'];
+    var VEHICLE_TYPES  = ['Heavy','Medium','LDV','Rigid','Tipper','Tanker','Other'];
+
+    function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
+        if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
+        var base = parseFloat(mfrMin);
+        var loadAdj = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[loadProfile]||0;
+        var trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.08,'Rear Tipper':-0.08,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[trailerType]||0;
+        var interlinkAdj = (interlink===true||interlink==='true'||interlink==='Yes') ? -0.04 : 0;
+        var aerokitAdj = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[aerokit]||0;
+        return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+    }
+
+    function selOpts(arr, val) {
+        return arr.map(function(o){ return '<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>'; }).join('');
+    }
+
+    function renderFleetTable() {
+        var t = document.getElementById('fleetTable');
+        if (_fleetData.length===0) {
+            t.innerHTML='<div style="padding:2rem;text-align:center;color:rgba(255,255,255,0.2);font-size:11px;font-weight:900;text-transform:uppercase;">No vehicles — add below</div>';
+            return;
+        }
+        t.innerHTML = _fleetData.map(function(v,i) {
+            var mfrMin = v.mfr_min || (lookupMfr(v.make, v.model) && lookupMfr(v.make, v.model).mfr_min);
+            var sug = calcSuggested(mfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
+            var tgt = v.clientTarget || v.targetKmL || '';
+            var ilChk = (v.interlink===true||v.interlink==='true'||v.interlink==='Yes') ? 'checked' : '';
+            return '<div class="fleet-row">'
+                + '<div style="color:rgba(255,255,255,0.3);font-weight:900;">'+(i+1)+'</div>'
+                + '<div><input type="text" value="'+(v.reg||'')+'" onchange="updateFleet('+i+',\'reg\',this.value)" placeholder="ABC123GP" style="text-transform:uppercase;"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'make\',this.value);refreshFleetModels('+i+')">'+selMakes(v.make||'')+'</select></div>'                + '<div><select onchange="updateFleet('+i+',\'model\',this.value);updateFleetMfr('+i+')">'+selModels(v.make||'',v.model||'')+'</select></div>'
+                + '<div><input type="number" value="'+(v.year||'')+'" onchange="updateFleet('+i+',\'year\',this.value)" placeholder="2020" min="1990" max="2030"></div>'
+                + '<div><select onchange="updateFleet('+i+',\'type\',this.value)">'+selOpts(VEHICLE_TYPES,v.type||'Heavy')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'usage\',this.value)">'+selOpts(USAGE_C,v.usage||v.usedFor||'Long Distance')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'loadProfile\',this.value);renderFleetTable()">'+selOpts(LOAD_PROFILE_C,v.loadProfile||'Fully Loaded')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'trailerType\',this.value);renderFleetTable()">'+selOpts(TRAILER_TYPE_C,v.trailerType||'Tautliner / Curtainsider')+'</select></div>'
+                + '<div><select onchange="updateFleet('+i+',\'aerokit\',this.value);renderFleetTable()">'+selOpts(AEROKIT_C,v.aerokit||'None')+'</select></div>'
+                + '<div style="text-align:center;"><label style="font-size:10px;color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;"><input type="checkbox" '+ilChk+' onchange="updateFleet('+i+',\'interlink\',this.checked);renderFleetTable()" style="width:14px;height:14px;accent-color:#2563eb;"> Yes</label></div>'
+                + '<div>'+(sug ? '<span class="fleet-sug">'+sug+'</span>' : '<span style="color:rgba(255,255,255,0.15);font-size:10px;">—</span>')+'</div>'
+                + '<div><input type="number" value="'+tgt+'" step="0.1" onchange="updateFleet('+i+',\'clientTarget\',this.value)" placeholder="Set" style="color:#fbbf24;font-weight:700;"></div>'
+                + '<div><button onclick="removeVehicle('+i+')" style="background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:900;cursor:pointer;">✕</button></div>'
+                + '</div>';
+        }).join('');
+    }
+
+    function updateFleet(i,field,val) { if(_fleetData[i]) _fleetData[i][field]=val; }
+    function selMakes(cur) {
+        var makes = [''].concat(Object.values(_vdb).map(function(e){return e.make;}).filter(function(m,i,a){return m&&a.indexOf(m)===i;}).sort()).concat(['Other']);
+        return makes.map(function(m){return '<option value="'+m+'"'+(m===cur?' selected':'')+'>'+( m||'— Make —')+'</option>';}).join('');
+    }
+    function selModels(make, cur) {
+        var models = make ? Object.values(_vdb).filter(function(e){return e.make&&e.make.toLowerCase()===make.toLowerCase();}).map(function(e){return e.model;}).filter(Boolean).sort() : [];
+        var opts = [''].concat(models);
+        if(cur && opts.indexOf(cur)===-1) opts.push(cur);
+        opts.push('Other');
+        return opts.map(function(m){return '<option value="'+m+'"'+(m===cur?' selected':'')+'>'+( m||'— Model —')+'</option>';}).join('');
+    }
+    function refreshFleetModels(i) {
+        var make = _fleetData[i]&&_fleetData[i].make||'';
+        var row  = document.querySelectorAll('.fleet-row:not([style*="background:rgba(15"])')[i];
+        if(!row) return renderFleetTable();
+        var moSel = row.querySelectorAll('select')[1];
+        if(!moSel) return;
+        moSel.innerHTML = selModels(make,'');
+    }
+    function updateFleetMfr(i) {
+        var v = _fleetData[i]; if(!v) return;
+        var entry = lookupMfr(v.make, v.model);
+        if(entry && !v.mfr_min) { _fleetData[i].mfr_min = entry.mfr_min; _fleetData[i].mfr_avg = entry.mfr_avg; renderFleetTable(); }
+    }
+    function addVehicleRow() { _fleetData.push({reg:'',type:'Heavy',usage:'Long Distance',make:'',model:'',year:'',loadProfile:'Fully Loaded',trailerType:'Tautliner / Curtainsider',aerokit:'None',interlink:false,clientTarget:null,mfr_min:null,mfr_avg:null}); renderFleetTable(); }
+    function removeVehicle(i) { if(confirm('Remove vehicle?')){ _fleetData.splice(i,1); renderFleetTable(); } }
+
+
+    async function saveFleet() {
+        var valid = _fleetData.filter(function(v){ return v.reg&&v.reg.trim(); });
+        if (valid.length===0) { alert('Add at least one vehicle with a registration.'); return; }
+        await saveClient({ fleet:valid, fleetSize:valid.length });
+        renderPage();
+        toast('✓ Fleet saved — '+valid.length+' vehicles', 'green');
+    }
+
+    // ── Notes ─────────────────────────────────────────────────
+    async function saveNotes() {
+        await saveClient({ notes: document.getElementById('notesField').value });
+        toast('✓ Notes saved', 'green');
+    }
+
+    // ── Edit modal ────────────────────────────────────────────
+    function openEdit() {
+        var c = _client;
+        document.getElementById('eCompany').value  = c.company||'';
+        document.getElementById('eCity').value     = c.city||'';
+        document.getElementById('eContact').value  = c.contactName||'';
+        document.getElementById('eEmail').value    = c.email||'';
+        document.getElementById('eTel').value      = c.contactTel||'';
+        document.getElementById('eSpeed').value    = c.speedLimit||80;
+        document.getElementById('eSchedule').value = c.reportSchedule||'weekly';
+        document.getElementById('eFuel').value     = c.fuelPrice||22.50;
+        document.getElementById('editModal').style.display='flex';
+    }
+    function closeEdit() { document.getElementById('editModal').style.display='none'; }
+    async function saveEdit() {
+        await saveClient({
+            company:        document.getElementById('eCompany').value.trim().toUpperCase(),
+            city:           document.getElementById('eCity').value.trim(),
+            contactName:    document.getElementById('eContact').value.trim(),
+            email:          document.getElementById('eEmail').value.trim(),
+            contactTel:     document.getElementById('eTel').value.trim(),
+            speedLimit:     parseInt(document.getElementById('eSpeed').value)||80,
+            reportSchedule: document.getElementById('eSchedule').value,
+            fuelPrice:      parseFloat(document.getElementById('eFuel').value)||22.50,
+        });
+        closeEdit(); renderPage(); toast('✓ Details saved', 'green');
+    }
+
+    // ── Churn ─────────────────────────────────────────────────
+    async function confirmChurn() {
+        var reason = prompt('Reason for churning '+_client.company+'?\n(Optional)');
+        if (reason===null) return;
+        await saveClient({ status:'churned', churnDate:new Date().toLocaleDateString('en-ZA'), churnReason:reason, churnedFrom:'active' });
+        sheetRequest('update', _client.company, 'Churned').catch(function(){});
+        window.location.href = 'database.html';
+    }
+
+    // ── Send onboarding form via WhatsApp ─────────────────────
+    function sendOnboardingForm() {
+        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/onboarding.html?client=' + _clientId;
+        var phone   = (_client.contactTel || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+        var name    = _client.contactName ? _client.contactName.split(' ')[0] : 'there';
+        var message = encodeURIComponent(
+            'Hi ' + name + ', please use the link below to register your fleet with Dynamic Fleet Reporting.\n\n' +
+            'Just open it in your browser, add your vehicles and tap Submit — it only takes a few minutes.\n\n' +
+            link + '\n\n' +
+            'You can use the same link at any time to add or update vehicles.'
+        );
+        var waUrl = phone
+            ? 'https://wa.me/' + phone + '?text=' + message
+            : 'https://wa.me/?text=' + message;
+        window.open(waUrl, '_blank');
+        toast('Opening WhatsApp…', 'green');
+    }
+
+    // ── Send weekly form via WhatsApp ─────────────────────────
+    async function genWeeklyForm() {
+        var fleet = Array.isArray(_client.fleet) ? _client.fleet : Object.values(_client.fleet || {});
+        if (fleet.length === 0) {
+            toast('No fleet registered yet — send onboarding form first.', 'red');
+            return;
+        }
+        var link    = 'https://dynamicfleetreports-bit.github.io/DFR/client-weekly-data-form.html?client=' + _clientId;
+        var phone   = (_client.contactTel || '').replace(/\D/g, '');
+        if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+        var name    = _client.contactName ? _client.contactName.split(' ')[0] : 'there';
+        var message = encodeURIComponent(
+            'Hi ' + name + ', your weekly fleet data submission is due.\n\n' +
+            'Please open the link below, enter your odometer and fuel readings for each vehicle, and tap Submit.\n\n' +
+            link
+        );
+        var waUrl = phone
+            ? 'https://wa.me/' + phone + '?text=' + message
+            : 'https://wa.me/?text=' + message;
+        window.open(waUrl, '_blank');
+        toast('Opening WhatsApp…', 'green');
+    }
+
+    // ── Sync fleet from audit ─────────────────────────────────
+    async function syncFromAudit() {
+        var draftKey = 'AUDIT_DRAFT_' + _client.company.toUpperCase().replace(/\s+/g,'_');
+        var raw = await cloudStorage.getItem(draftKey);
+        if (!raw) { alert('No audit data found. Run an audit first.'); return; }
+        var draft = JSON.parse(raw);
+        var fleet = Object.values(draft.auditData||{}).map(function(v) {
+            return { reg:v.reg||'', type:v.type||'Heavy', make:v.make||'', model:v.model||'', year:v.year||'', usedFor:v.usedFor||'Long Distance', targetKmL:v.targetKmL||'2.3' };
+        });
+        if (fleet.length===0) { alert('No vehicles in audit data.'); return; }
+        await saveClient({ fleet:fleet, fleetSize:fleet.length });
+        _fleetData = fleet;
+        renderFleetTable();
+        renderPage();
+        toast('✓ Fleet synced — '+fleet.length+' vehicles from audit', 'green');
+    }
+
+    // ── Send reminder ─────────────────────────────────────────
+    function sendReminder() {
+        var c = _client;
+        var subj = encodeURIComponent((c.reportSchedule==='weekly'?'Weekly':'Monthly')+' Fleet Data Required — '+c.company);
+        var body = encodeURIComponent('Hi '+(c.contactName||'there')+',\n\nYour '+(c.reportSchedule||'weekly')+' fleet data submission is due.\n\nPlease submit your fuel and odometer readings by Tuesday 09:00.\n\nThank you,\nDynamic Fleet Reporting');
+        window.location.href = 'mailto:'+(c.email||'')+'?subject='+subj+'&body='+body;
+    }
+
+    // ── Sheet helper ──────────────────────────────────────────
+    function sheetRequest(action, company, status) {
+        return new Promise(function(resolve,reject) {
+            var cb='sheetCB_'+Date.now()+'_'+(++_cbCounter);
+            var tid=setTimeout(function(){delete window[cb];reject('Timeout');},10000);
+            window[cb]=function(data){clearTimeout(tid);delete window[cb];var s=document.getElementById(cb);if(s)s.remove();resolve(data);};
+            var script=document.createElement('script'); script.id=cb;
+            script.onerror=function(){clearTimeout(tid);delete window[cb];reject('Error');};
+            script.src=APPS_SCRIPT_URL+'?action='+encodeURIComponent(action)+'&company='+encodeURIComponent(company)+'&status='+encodeURIComponent(status||'')+'&callback='+cb;
+            document.body.appendChild(script);
+        });
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    window.onload = async function() {
+        var params = new URLSearchParams(window.location.search);
+        _clientId  = params.get('id');
+        if (!_clientId) { window.location.href='database.html'; return; }
+        await reloadClient();
+        if (!_client) { window.location.href='database.html'; return; }
+        renderPage();
     };
-    if(editId){
-        var idx=clients.findIndex(function(c){return c.id==editId;});
-        if(idx!==-1) clients[idx]=Object.assign({},clients[idx],updates);
-    }else{
-        var newClient=Object.assign({id:Date.now(),status:'prospect',auditStatus:'not-started',reportHistory:[],invoiceHistory:[]},updates);
-        clients.push(newClient);
-        syncToSheet(updates.company,'Prospect').catch(function(err){console.warn('Sheet sync failed:',err);});
-    }
-    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(clients));
-    window.location.href='pipeline.html';
-};
-
-function syncToSheet(companyName,status){
-    return new Promise(function(resolve,reject){
-        var cbName='sheetCB_'+Date.now()+'_'+(++_cbCounter);
-        var tid=setTimeout(function(){delete window[cbName];reject('Timeout');},10000);
-        window[cbName]=function(data){clearTimeout(tid);delete window[cbName];var s=document.getElementById(cbName);if(s)s.remove();resolve(data);};
-        var script=document.createElement('script');
-        script.id=cbName;
-        script.onerror=function(){clearTimeout(tid);delete window[cbName];reject('Error');};
-        script.src=APPS_SCRIPT_URL+'?action=update&company='+encodeURIComponent(companyName)+'&status='+encodeURIComponent(status)+'&callback='+cbName;
-        document.body.appendChild(script);
-    });
-}
 </script>
 </body>
 </html>
