@@ -356,6 +356,8 @@ function renderCard(v, i, wrap){
                 <div class="field"><label>Trailer Type</label><select id="cfg-tt-${i}" onchange="markCfg(${i})">${sel(TRAILER_TYPES,v.trailerType||TRAILER_TYPES[0])}</select></div>
                 <div class="field"><label>Load Profile</label><select id="cfg-lp-${i}" onchange="markCfg(${i})">${sel(LOAD_PROFILES,v.loadProfile||LOAD_PROFILES[0])}</select></div>
                 <div class="field"><label>Aerokit</label><select id="cfg-ak-${i}" onchange="markCfg(${i})">${sel(AEROKIT_OPTS,v.aerokit||AEROKIT_OPTS[0])}</select></div>
+                <div class="field"><label>Terrain</label><select id="cfg-ter-${i}" onchange="markCfg(${i})">${sel(['Flat / Highveld','Mixed / Undulating','Mountainous','Severe Mountain'],v.terrain||'Mixed / Undulating')}</select></div>
+                <div class="field"><label>Fuel Tank (L)</label><input type="number" id="cfg-tank-${i}" placeholder="e.g. 600" value="${v.fuel_tank||''}" oninput="markCfg(${i})"></div>
                 <div class="field" style="grid-column:span 2;padding-top:4px;">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;">
                         <input type="checkbox" id="cfg-il-${i}" ${(v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?'checked':''} onchange="markCfg(${i})" style="width:15px;height:15px;accent-color:#2563eb;">
@@ -533,6 +535,9 @@ async function submitData(){
             cfgUpdate.loadProfile =document.getElementById('cfg-lp-'+i)?.value||v.loadProfile;
             cfgUpdate.aerokit     =document.getElementById('cfg-ak-'+i)?.value||v.aerokit;
             cfgUpdate.interlink   =document.getElementById('cfg-il-'+i)?.checked||false;
+            cfgUpdate.terrain     =document.getElementById('cfg-ter-'+i)?.value||v.terrain||'Mixed / Undulating';
+            const tankVal=document.getElementById('cfg-tank-'+i)?.value;
+            if(tankVal&&parseFloat(tankVal)>0) cfgUpdate.fuel_tank=parseFloat(tankVal);
             configChanges.push({reg:v.reg,...cfgUpdate});
         }
         entries.push({reg:v.reg, odo:parseFloat(odo), liters:parseFloat(fuel), note:note||null, ...cfgUpdate});
