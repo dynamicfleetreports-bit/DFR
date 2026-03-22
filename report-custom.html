@@ -238,17 +238,83 @@ function _lookupMfr(make,model){
     for(var i=0;i<keys.length;i++){ if(keys[i].startsWith(pfx)) return _vdb[keys[i]]; }
     return null;
 }
-function calcSuggested(mfrMin, loadProfile, trailerType, interlink, aerokit) {
-    if (!mfrMin || isNaN(parseFloat(mfrMin))) return null;
-    var base = parseFloat(mfrMin);
-    var loadMap    = {"Fully Loaded":0,"Loaded Out / Empty Return":0.18,"Mixed / Variable":0.10,"Local Stop-Start":-0.15};
-    var trailerMap = {"Tautliner / Curtainsider":-0.05,"Flatdeck / Lowbed":0,"Tanker":0.03,"Side Tipper":-0.08,"Rear Tipper":-0.08,"Livestock / Animal Trailer":-0.06,"Rigid Body (No Trailer)":0};
-    var aerokitMap = {"None":0,"Roof Fairing Only":0.05,"Full Aerokit":0.10};
-    var loadAdj    = loadMap[loadProfile]    !== undefined ? loadMap[loadProfile]    : 0;
-    var trailerAdj = trailerMap[trailerType] !== undefined ? trailerMap[trailerType] : 0;
-    var interlinkAdj = (interlink===true||interlink==="true"||interlink==="Yes") ? -0.04 : 0;
-    var aerokitAdj = aerokitMap[aerokit]    !== undefined ? aerokitMap[aerokit]    : 0;
-    return Math.round(base*(1+loadAdj+trailerAdj+interlinkAdj+aerokitAdj)*100)/100;
+
+// ── REPORT READS PRE-CALCULATED VALUES FROM AUDIT_FINAL ──────────────────
+// The audit page (audit.html) runs calcVehicle() for every vehicle and saves
+// all results into AUDIT_FINAL.fleet[reg]. Reports read those stored values
+// directly — no recalculation here. This guarantees audit and report figures
+// are always identical.
+//
+// Legacy field support: if pre-calculated fields are missing (older audit),
+// falls back to on-the-fly calculation using the same formulas.
+
+const DFR_TERRAIN_FACTOR = {'Flat / Highveld':1.00,'Mixed / Undulating':0.93,'Mountainous':0.84,'Severe Mountain':0.75};
+const DFR_AERO_DRAG = {'Long Distance':0.42,'Mixed':0.32,'Local Distribution':0.22,'Construction / Mining':0.18,'Agricultural':0.18};
+
+function calcSuggested(v) {
+    // Uses mfr_avg as base (SA real-world), falls back to mfr_min
+    const base = parseFloat(v.mfr_avg) || parseFloat(v.mfr_min) || null;
+    if (!base) return null;
+    const loadAdj    = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[v.loadProfile]??0;
+    const trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.10,'Rear Tipper':-0.12,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[v.trailerType]??0;
+    const intAdj     = (v.interlink===true||v.interlink==='true'||v.interlink==='Yes') ? -0.04 : 0;
+    const aeroAdj    = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[v.aerokit]??0;
+    const terrain    = DFR_TERRAIN_FACTOR[v.terrain] ?? DFR_TERRAIN_FACTOR['Mixed / Undulating'];
+    return Math.round(base*(1+loadAdj+trailerAdj+intAdj+aeroAdj)*terrain*100)/100;
+}
+
+// resolveVehicle — get calculated fields, preferring pre-calculated from audit
+function resolveVehicle(v, wPrice, rPrice, globalTarget, speedLimit) {
+    // Pre-calculated fields from audit engine — use directly if present
+    if (v.effLoss_w != null && v.speedLoss_w != null) {
+        return {
+            ...v,
+            km:        parseFloat(v.mK||v.gpsDist||0),
+            lit:       parseFloat(v.mL||0),
+            actEff:    v.actKmL || 0,
+            eWaste:    v.wastedL || 0,
+            eLoss:     v.effLoss_w,   eLoss_r: v.effLoss_r,
+            sLoss:     v.speedLoss_w, sLoss_r: v.speedLoss_r,
+            tLoss:     v.totalLoss_w, tLoss_r: v.totalLoss_r,
+            vSuggested:v.suggestedTarget || calcSuggested(v),
+            vTarget:   v.activeTarget || globalTarget,
+            score:     v.score || 0
+        };
+    }
+    // Fallback: legacy audit data — calculate on the fly
+    const km    = (v.mK&&v.mK>0) ? parseFloat(v.mK) : parseFloat(v.gpsDist||0);
+    const lit   = parseFloat(v.mL||0);
+    const dbEntry   = _lookupMfr(v.make, v.model);
+    const vMfrAvg   = parseFloat(v.mfr_avg)||dbEntry?.mfr_avg||null;
+    const vMfrMin   = parseFloat(v.mfr_min)||dbEntry?.mfr_min||null;
+    const vSuggested= calcSuggested({...v, mfr_avg:vMfrAvg, mfr_min:vMfrMin});
+    const vTarget   = parseFloat(v.clientTarget)||parseFloat(v.targetKmL)||vSuggested||globalTarget;
+    const actEff    = (lit>0&&km>0) ? km/lit : 0;
+    const eWaste    = (lit>0&&km>0&&actEff<vTarget) ? (lit-km/vTarget) : 0;
+    const aeroDrag  = DFR_AERO_DRAG[v.usage] ?? DFR_AERO_DRAG['Mixed'];
+    const events    = v.violations||0;
+    let sLitres = 0;
+    if (v.speeds&&v.speeds.length>0) {
+        const over=v.speeds.filter(s=>s>speedLimit);
+        const totalHrs=v.duration>0?v.duration/3600:over.length*5/60;
+        const perHrs=Math.max(5/60,over.length>0?totalHrs/over.length:5/60);
+        over.forEach(spd=>{ sLitres+=(spd*0.9*perHrs/vTarget)*aeroDrag*((spd/speedLimit)**2-1); });
+    } else if (events>0) {
+        const assumed=speedLimit+15;
+        sLitres=events*(assumed*0.9*(5/60)/vTarget)*aeroDrag*((assumed/speedLimit)**2-1);
+    }
+    sLitres=Math.max(0,sLitres);
+    const eLoss=eWaste*wPrice, sLoss=sLitres*wPrice;
+    let score=100;
+    if(actEff>0&&actEff<vTarget) score-=Math.min(40,(((vTarget-actEff)/vTarget)*100/100)*40);
+    if(events>0) score-=Math.min(30,events*0.3);
+    const peak=(v.speeds&&v.speeds.length>0)?Math.max(...v.speeds):(v.maxSpeed||0);
+    if(v.duration>300&&peak>speedLimit+1) score-=Math.min(20,(v.duration/60/30)*20);
+    if(peak>speedLimit+20) score-=Math.min(10,(peak-(speedLimit+20))*0.5);
+    score=Math.max(0,Math.min(100,Math.round(score)));
+    return { ...v, km, lit, actEff, eWaste, eLoss, eLoss_r:eWaste*rPrice,
+        sLoss, sLoss_r:sLitres*rPrice, tLoss:eLoss+sLoss, tLoss_r:(eWaste*rPrice)+(sLitres*rPrice),
+        vSuggested, vTarget, score };
 }
 
 waitForCloudStorage(async function() {
@@ -256,15 +322,21 @@ waitForCloudStorage(async function() {
     if (!raw) { alert("No report data found. Please generate from the audit page."); return; }
 
     var data         = JSON.parse(raw);
-    var fleet        = Object.values(data.fleet || {});
-    var client       = data.client;
+    var client       = data.client || {};
     var globalTarget = parseFloat(client.target) || 2.3;
     var speedLimit   = data.speedLimit || 80;
-    var customReport = data.customReport || {};
-    var focus        = customReport.focus || "combined";
-    var wPrice       = data.fuelPrice || 21.50;
-
-    var now = new Date();
+    var wPrice       = data.fuelPrice  || 21.50;
+    var now          = new Date();
+    var rPriceC      = data.rPrice || (wPrice + 2.35);
+    var fleet        = Object.values(data.fleet || {});
+    var tC           = data.totals || {};
+    var processed    = fleet.map(function(v){ return resolveVehicle(v, wPrice, rPriceC, globalTarget, speedLimit); });
+    var totalKM      = tC.totalKM      != null ? tC.totalKM      : processed.reduce(function(s,v){return s+(v.km||0);},0);
+    var totalLiters  = tC.totalLitres  != null ? tC.totalLitres  : processed.reduce(function(s,v){return s+(v.lit||0);},0);
+    var totalLossW   = tC.totalLoss_w  != null ? tC.totalLoss_w  : processed.reduce(function(s,v){return s+v.tLoss;},0);
+    var totalEffLossW= tC.effLoss_w    != null ? tC.effLoss_w    : processed.reduce(function(s,v){return s+v.eLoss;},0);
+    var totalSpdLossW= tC.speedLoss_w  != null ? tC.speedLoss_w  : processed.reduce(function(s,v){return s+v.sLoss;},0);
+    var avgKmL       = totalLiters>0 ? (totalKM/totalLiters) : 0;
     function fmtDate(d) { return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase(); }
     function fmtFull(d) { return d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).toUpperCase(); }
 
@@ -290,33 +362,12 @@ waitForCloudStorage(async function() {
     var totalEvents=0, totalDuration=0, highestMaxSpeed=0, totalWasted=0;
 
     var processed = fleet.map(function(v) {
-        var km     = (v.mK && v.mK > 0) ? parseFloat(v.mK) : parseFloat(v.gpsDist) || 0;
-        var lit    = parseFloat(v.mL) || 0;
-        var actEff = (lit > 0 && km > 0) ? (km / lit) : 0;
-
-        var dbEntry    = _lookupMfr(v.make, v.model);
-        var vMfrMin    = parseFloat(v.mfr_min) || (dbEntry && dbEntry.mfr_min) || null;
-        var vSuggested = calcSuggested(vMfrMin, v.loadProfile, v.trailerType, v.interlink, v.aerokit);
-        var vTarget    = parseFloat(v.clientTarget) || parseFloat(v.targetKmL) || vSuggested || globalTarget;
-
-        var wastedL = (lit > 0 && km > 0 && actEff < vTarget) ? (lit - km / vTarget) : 0;
-        var effLoss = wastedL * wPrice;
-        var events  = v.violations || 0;
-        var spdLoss = 0;
-        if (v.speeds && v.speeds.length > 0) {
-            v.speeds.forEach(function(speed) {
-                if (speed > speedLimit) {
-                    var over = speed - speedLimit;
-                    var dist = speed * 0.9 * (5 / 60);
-                    spdLoss += (dist / vTarget) * (over / 100) * wPrice;
-                }
-            });
-        } else {
-            spdLoss = events * (v.type === "Heavy" ? 1.5 : 1.1) * wPrice;
-        }
-        var tLoss    = effLoss + spdLoss;
-        var duration = v.duration || 0;
-        var maxSpeed = v.maxSpeed || 0;
+        // resolveVehicle() already calculated everything — read directly
+        var km=v.km||0, lit=v.lit||0, actEff=v.actEff||0;
+        var vSuggested=v.vSuggested||null, vTarget=v.vTarget||globalTarget;
+        var wastedL=v.eWaste||0, events=v.violations||0;
+        var effLoss=v.eLoss||0, spdLoss=v.sLoss||0, tLoss=v.tLoss||0;
+        var duration=v.duration||0, maxSpeed=v.maxSpeed||0;
         totalKM       += km;
         totalLiters   += lit;
         totalEffLoss  += effLoss;
@@ -328,7 +379,7 @@ waitForCloudStorage(async function() {
         if (maxSpeed > highestMaxSpeed) highestMaxSpeed = maxSpeed;
         return Object.assign({}, v, {km:km, lit:lit, actEff:actEff, wastedL:wastedL,
             effLoss:effLoss, spdLoss:spdLoss, tLoss:tLoss, events:events,
-            duration:duration, maxSpeed:maxSpeed, vTarget:vTarget, vMfrMin:vMfrMin, vSuggested:vSuggested});
+            duration:duration, maxSpeed:maxSpeed, vTarget:vTarget, vSuggested:vSuggested});
     });
 
     var avgKmL = totalLiters > 0 ? (totalKM / totalLiters) : 0;
