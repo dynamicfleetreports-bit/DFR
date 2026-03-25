@@ -136,12 +136,90 @@
         .site-footer { background: var(--navy); color: rgba(255,255,255,0.5); text-align: center; padding: 2rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0; }
         .site-footer span { color: rgba(255,255,255,0.9); }
 
-        /* ── Print ── */
+                /* ── Print ── */
         @media print {
             .nav-bar, .no-print { display: none !important; }
-            body { background: white; }
-            .hero { padding: 2rem; }
-            .section-gap { page-break-inside: avoid; }
+
+            @page { size: A4; margin: 10mm 12mm; }
+            html, body { background: white !important; font-size: 9pt; }
+
+            /* Hero — single compact band */
+            .hero { padding: 1rem 1.5rem !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-inner { gap: 1rem !important; }
+            .hero img { height: 60px !important; margin-bottom: 0 !important; border-radius: 10px !important; }
+            .hero h1 { font-size: 1.35rem !important; }
+            .hero p { font-size: 0.72rem !important; margin-top: 0.3rem !important; max-width: 100% !important; margin-left: 0 !important; }
+            .hero-meta { margin-top: 0.5rem !important; font-size: 7px !important; padding: 0.25rem 0.75rem !important; }
+
+            /* Page wrapper */
+            .page { padding: 0.75rem 0 !important; max-width: 100% !important; }
+            .section-gap { padding: 0.85rem 0 !important; page-break-inside: avoid; }
+            .section-eyebrow { font-size: 7px !important; margin-bottom: 0.2rem !important; }
+            .section-title { font-size: 1.05rem !important; margin-bottom: 0.3rem !important; }
+            .section-divider { margin-bottom: 0.6rem !important; height: 2px !important; }
+            .section-body { font-size: 0.74rem !important; line-height: 1.5 !important; }
+
+            /* Stat strip — horizontal, very compact */
+            .stat-strip { padding: 0.7rem 1rem !important; gap: 0.5rem !important; margin: 0.75rem 0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .stat-num { font-size: 1.2rem !important; }
+            .stat-label { font-size: 6px !important; }
+
+            /* About grid — 2 cols, tight */
+            .about-grid { gap: 0.4rem !important; margin-top: 0.6rem !important; }
+            .about-card { padding: 0.65rem !important; page-break-inside: avoid; }
+            .about-card-icon { font-size: 1rem !important; margin-bottom: 0.2rem !important; }
+            .about-card h3 { font-size: 0.68rem !important; }
+            .about-card p { font-size: 0.68rem !important; line-height: 1.4 !important; }
+
+            /* Service cards — very compact */
+            .service-card { page-break-inside: avoid; margin-bottom: 0.4rem !important; }
+            .service-header { padding: 0.45rem 0.75rem !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .service-header h3 { font-size: 8px !important; }
+            .service-header .badge { font-size: 7px !important; padding: 2px 6px !important; }
+            .service-body { padding: 0.55rem 0.75rem !important; }
+            .service-body p { font-size: 0.68rem !important; margin-bottom: 0.3rem !important; line-height: 1.4 !important; }
+            .feature-list li { font-size: 0.66rem !important; padding: 0.08rem 0 !important; line-height: 1.35 !important; }
+
+            /* Pricing — compact */
+            .pricing-grid { margin: 0.5rem 0 !important; page-break-inside: avoid; }
+            .pricing-col { padding: 0.65rem !important; }
+            .pricing-tier { font-size: 7px !important; }
+            .pricing-amount { font-size: 1.15rem !important; }
+            .pricing-unit { font-size: 8px !important; }
+            .pricing-range { font-size: 7px !important; }
+            .fee-row { padding: 0.35rem 0.75rem !important; }
+            .fee-label { font-size: 9px !important; }
+            .fee-sub { font-size: 7px !important; }
+            .fee-amount { font-size: 10px !important; }
+
+            /* Terms — very tight */
+            .term-block { page-break-inside: avoid; padding: 0.6rem 0.75rem !important; margin-bottom: 0.35rem !important; }
+            .term-block h3 { font-size: 8px !important; margin-bottom: 0.25rem !important; padding-bottom: 0.25rem !important; }
+            .term-block p, .term-block ul li { font-size: 0.68rem !important; line-height: 1.45 !important; }
+            .term-block ul { margin-top: 0.25rem !important; }
+            .term-block ul li { padding: 0.1rem 0 0.1rem 0.85rem !important; }
+
+            /* Warning box */
+            .warning-box { font-size: 0.68rem !important; padding: 0.5rem 0.7rem !important; page-break-inside: avoid; margin: 0.5rem 0 !important; }
+
+            /* Contact */
+            .contact-grid { gap: 0.4rem !important; margin-top: 0.6rem !important; page-break-inside: avoid; }
+            .contact-card { padding: 0.65rem !important; page-break-inside: avoid; }
+            .contact-card-icon { font-size: 1rem !important; margin-bottom: 0.2rem !important; }
+            .contact-card h3 { font-size: 7px !important; }
+            .contact-card p { font-size: 0.7rem !important; }
+            .contact-card span { font-size: 7px !important; }
+
+            /* CTA banner */
+            .cta-banner { padding: 1rem 1.25rem !important; margin-top: 0.9rem !important; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cta-banner h2 { font-size: 0.9rem !important; margin-bottom: 0.25rem !important; }
+            .cta-banner p { font-size: 0.7rem !important; margin-bottom: 0.6rem !important; }
+            .cta-btn { font-size: 8px !important; padding: 0.4rem 1rem !important; }
+
+            /* Footer */
+            .site-footer { padding: 0.65rem !important; font-size: 7px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            /* NO forced page breaks — let content flow and fill pages naturally */
         }
 
         /* ── Mobile ── */
