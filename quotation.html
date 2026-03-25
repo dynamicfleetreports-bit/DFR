@@ -457,14 +457,37 @@
         document.getElementById('quoteDate').innerText  = dateStr;
         document.getElementById('validUntil').innerText = validStr;
 
-        // Load client from pipeline audit data
-        var auditRaw = await cloudStorage.getItem('AUDIT_FINAL');
+        // ── Session token check ──────────────────────────────────────────────
+        // Pipeline writes QUOTE_SESSION_TOKEN (timestamp) just before opening this
+        // page. We only accept AUDIT_FINAL if the token is fresh (< 60 seconds).
+        // Token is immediately cleared so page refresh also shows the blank state.
+        var sessionToken = await cloudStorage.getItem('QUOTE_SESSION_TOKEN');
+        var tokenAge     = sessionToken ? (Date.now() - parseInt(sessionToken)) : Infinity;
+        var sessionValid = tokenAge < 60000;
+        await cloudStorage.setItem('QUOTE_SESSION_TOKEN', '0');
+
+        var auditRaw = sessionValid ? await cloudStorage.getItem('AUDIT_FINAL') : null;
         var data     = auditRaw ? JSON.parse(auditRaw) : null;
 
         if (!data || !data.client) {
-            document.getElementById('clientName').innerText = '[No client loaded]';
-            document.getElementById('feeTableBody').innerHTML = '<tr><td colspan="3" class="text-center text-red-400 text-xs italic py-6">No client data found. Please open this quotation from the pipeline.</td></tr>';
-            document.getElementById('poolSection').innerHTML = '<p class="text-red-400 italic text-xs">No client data found.</p>';
+            document.getElementById('clientName').innerText       = '\u2014 No Client Loaded \u2014';
+            document.getElementById('clientNameInline').innerText = '[Client]';
+            document.getElementById('sigClientName').innerText    = '\u2014';
+            document.getElementById('feeTableBody').innerHTML =
+                '<tr><td colspan="3" style="text-align:center;padding:2.5rem 1rem;">' +
+                '<div style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;border-radius:0.75rem;padding:1.25rem 1.75rem;max-width:420px;">' +
+                '<p style="font-size:13px;font-weight:900;color:#9a3412;margin-bottom:0.4rem;">\u26a0\ufe0f No client loaded</p>' +
+                '<p style="font-size:11px;color:#c2410c;line-height:1.6;">Please return to the <strong>Prospect Pipeline</strong> and click <strong>\ud83d\udccb Generate Quotation</strong> on the prospect card.</p>' +
+                '<a href="pipeline.html" style="display:inline-block;margin-top:0.85rem;background:#1e3a5f;color:white;padding:8px 20px;border-radius:9999px;font-size:10px;font-weight:900;text-transform:uppercase;text-decoration:none;letter-spacing:0.08em;">\u2190 Back to Pipeline</a>' +
+                '</div></td></tr>';
+            document.getElementById('poolSection').innerHTML =
+                '<p style="font-size:11px;color:#94a3b8;font-style:italic;">No client data \u2014 open from pipeline.</p>';
+            document.getElementById('sendEmailBtn').disabled = true;
+            document.getElementById('sendEmailBtn').style.opacity = '0.4';
+            document.getElementById('sendEmailBtn').style.cursor  = 'not-allowed';
+            document.getElementById('acceptBtn').disabled = true;
+            document.getElementById('acceptBtn').style.opacity = '0.4';
+            document.getElementById('acceptBtn').style.cursor  = 'not-allowed';
             return;
         }
 
