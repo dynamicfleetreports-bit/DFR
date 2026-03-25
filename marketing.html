@@ -196,6 +196,21 @@
         <a href="reel-builder.html" class="btn-reel" target="_blank">🎬 Open Reel Builder →</a>
     </div>
 
+    <!-- Info Pack Banner -->
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(30,58,95,0.1));border:1.5px solid rgba(37,99,235,0.35);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+            <div style="font-size:2rem;">📦</div>
+            <div>
+                <div style="font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">Client Information Pack</div>
+                <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;max-width:480px;">Your top-of-funnel prospecting document. Send the link to a cold prospect or save as PDF to attach to an email. Covers services, pricing, terms &amp; contact.</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
+            <a href="infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
+        </div>
+    </div>
+
     <!-- Section Tabs -->
     <div class="section-tabs">
         <button class="stab active"   onclick="switchSection('view',this)">📣 View Posts</button>
@@ -756,6 +771,7 @@ function switchSection(id,el){ document.querySelectorAll('.tab-section').forEach
 function switchPlat(id,el){ document.querySelectorAll('.plat-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('plat-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); const btn=document.getElementById('openPlatBtn'); if(btn){ btn.textContent='🚀 Open '+PLAT_NAMES[id]; btn.onclick=()=>openPlat(id); } }
 function openPlat(id){ window.open(PLAT_OPEN[id],'_blank'); }
 function copyPost(id,btn){ const el=document.getElementById(id); if(!el) return; navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); },2000); }); }
+function copyInfoPackLink(btn){ navigator.clipboard.writeText(window.location.origin + window.location.pathname.replace('marketing.html','') + 'infopack.html').then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; setTimeout(()=>{ btn.textContent=o; },2000); }); }
 function copyBioLink(btn){ navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.style.background='#6366f1'; setTimeout(()=>{ btn.textContent=o; btn.style.background='var(--grn)'; },2000); }); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function toast(msg,color){ color=color||'green'; const t=document.getElementById('toast'); t.textContent=msg; t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':color==='gold'?'rgba(245,158,11,0.4)':'rgba(16,185,129,0.4)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
