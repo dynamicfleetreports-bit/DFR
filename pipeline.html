@@ -312,6 +312,9 @@
         }
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
 
+        // Write session token so quotation.html knows it was opened legitimately
+        await cloudStorage.setItem('QUOTE_SESSION_TOKEN', String(Date.now()));
+
         showToast('📋 Opening Quotation for ' + client.company + '...', 'blue');
         setTimeout(function() { window.open('quotation.html', '_blank'); renderPipeline(); }, 400);
     }
