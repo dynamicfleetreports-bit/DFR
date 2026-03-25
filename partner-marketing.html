@@ -214,7 +214,7 @@
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
-            <a href="infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
+            <a id="infoPackOpenBtn" href="https://dynamicfleetreports-bit.github.io/DFR/infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
         </div>
     </div>
 
@@ -389,6 +389,8 @@ function showHub() {
     // Set reel builder link with partner's ref code
     var reelBtn = document.getElementById('reelBuilderBtn');
     if (reelBtn) reelBtn.href = 'reel-builder.html?ref=' + _partnerCode;
+    var infoBtn = document.getElementById('infoPackOpenBtn');
+    if (infoBtn) infoBtn.href = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html?ref=' + _partnerCode;
     injectLinks();
     applyLangUI();
     loadAndRenderPosts();
@@ -537,7 +539,9 @@ function copyPartnerPost(id, btn) {
 }
 
 function copyInfoPackLink(btn) {
-    navigator.clipboard.writeText(window.location.origin + window.location.pathname.replace('partner-marketing.html','') + 'infopack.html').then(() => {
+    var base = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html';
+    var link = _partnerCode ? base + '?ref=' + _partnerCode : base;
+    navigator.clipboard.writeText(link).then(() => {
         const o = btn.textContent; btn.textContent = '✅ Copied!';
         setTimeout(() => { btn.textContent = o; }, 2000);
     });
