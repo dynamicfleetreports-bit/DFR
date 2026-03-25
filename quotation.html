@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Playfair+Display:ital@1&display=swap');
+        body { font-family: 'Outfit', sans-serif; padding: 40px; background: #f1f5f9; color: #1e293b; line-height: 1.7; }
+        .quote-card { background: white; max-width: 900px; margin: 0 auto; padding: 4rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #94a3b8; }
+        .section-title { font-weight: 900; text-transform: uppercase; font-size: 0.75rem; color: #1e40af; letter-spacing: 0.1em; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 0.75rem; margin-top: 1.75rem; }
+        .line-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .line-table th { background: #1e3a5f; color: white; padding: 0.6rem 0.9rem; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; text-align: left; }
+        .line-table th:last-child { text-align: right; }
+        .line-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: top; }
+        .line-table td:last-child { text-align: right; font-weight: 700; white-space: nowrap; }
+        .line-table tr:last-child td { border-bottom: none; }
+        .line-table tr:hover td { background: #f8fafc; }
+        .total-row td { border-top: 2px solid #1e3a5f !important; font-weight: 900; font-size: 0.9rem; background: #f8fafc; }
+        .highlight-row td { background: #eff6ff; font-weight: 900; color: #1e40af; }
+        .validity-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #9a3412; line-height: 1.6; }
+        .info-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #1e40af; line-height: 1.6; }
+        .success-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #14532d; line-height: 1.6; }
+        .tier-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .tier-1 { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .tier-2 { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .tier-3 { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+        .status-accepted { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-expired  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .feature-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.4rem 0; font-size: 0.82rem; color: #475569; }
+        .feature-row::before { content: "✓"; color: #2563eb; font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+            .quote-card { box-shadow: none; border: none; width: 100%; padding: 1.5rem; }
+        }
+        @media(max-width:768px) {
+            body { padding: 1rem !important; }
+            .quote-card { padding: 1.5rem !important; border-radius: 0 !important; }
+            .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+            .line-table { display: block; overflow-x: auto; white-space: nowrap; }
+            .no-print.max-w-\[900px\] { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Top action bar (no-print) ── -->
+<div class="no-print max-w-[900px] mx-auto mb-6 flex justify-between items-center flex-wrap gap-3">
+    <div class="flex gap-2 flex-wrap">
+        <button onclick="window.location.href='index.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🏠 Dashboard</button>
+        <button onclick="window.location.href='pipeline.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🔭 Pipeline</button>
+        <button onclick="window.location.href='database.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🗄️ Clients</button>
+        <button onclick="window.location.href='sla.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">📄 SLA</button>
+        <button onclick="window.location.href='invoice.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🧾 Invoice</button>
+        <button onclick="window.location.href='partners.html'" class="text-[10px] font-black uppercase text-slate-400 hover:text-blue-600 transition">🤝 Partners</button>
+    </div>
+    <div class="flex gap-3 flex-wrap">
+        <button onclick="sendViaEmail()" id="sendEmailBtn"
+            style="background:#0f766e;color:white;padding:8px 20px;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;cursor:pointer;letter-spacing:0.08em;"
+            onmouseover="this.style.background='#0d9488'" onmouseout="this.style.background='#0f766e'">
+            📧 Send to Client
+        </button>
+        <button onclick="window.print()"
+            style="border:1px solid #cbd5e1;padding:8px 20px;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;background:white;cursor:pointer;"
+            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+            🖨 Print / Save PDF
+        </button>
+        <button onclick="markAccepted()" id="acceptBtn"
+            style="background:#2563eb;color:white;padding:8px 24px;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;cursor:pointer;letter-spacing:0.08em;"
+            onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+            ✓ Mark Accepted
+        </button>
+    </div>
+</div>
+
+<div class="quote-card">
+
+    <!-- HEADER -->
+    <header class="flex justify-between items-start mb-10">
+        <div class="flex items-center gap-6">
+            <img src="Logo.png" alt="Logo" class="h-20 w-auto">
+            <div>
+                <h1 class="text-3xl font-black uppercase italic tracking-tighter leading-none">
+                    Service <span class="text-blue-600">Quotation</span>
+                </h1>
+                <p class="text-[9px] font-black text-slate-400 tracking-[0.2em] mt-1 uppercase">Pieter Nell t/a Dynamic Fleet Reporting</p>
+                <p class="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Moorreesburg, Western Cape</p>
+            </div>
+        </div>
+        <div class="text-right p-3 bg-slate-50 rounded border border-slate-100 space-y-1 min-w-[160px]">
+            <div>
+                <p class="label">Quotation Number</p>
+                <p id="quoteNumber" class="text-lg font-black text-slate-800 font-mono">QT-2026-0001</p>
+            </div>
+            <div class="mt-2">
+                <p class="label">Date Issued</p>
+                <p id="quoteDate" class="text-[10px] font-bold text-slate-600">--</p>
+            </div>
+            <div class="mt-2">
+                <p class="label">Valid Until</p>
+                <p id="validUntil" class="text-[10px] font-bold text-red-500">--</p>
+            </div>
+            <div class="mt-2">
+                <span id="statusBadge" class="status-badge status-pending">Pending</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- FROM / TO -->
+    <div class="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-slate-100">
+        <div>
+            <p class="label mb-2">From</p>
+            <p class="font-black text-slate-900 text-sm">Pieter Nell t/a Dynamic Fleet Reporting</p>
+            <p class="text-slate-500 text-xs mt-1">Spitskop Farm, Moorreesburg, Western Cape</p>
+            <p class="text-slate-500 text-xs">083 314 9592</p>
+            <p class="text-slate-500 text-xs">dynamicfleetreports&#64;gmail&#46;com</p>
+        </div>
+        <div>
+            <p class="label mb-2">Prepared For</p>
+            <p id="clientName" class="font-black text-slate-900 text-sm">—</p>
+            <p id="clientContact" class="text-slate-500 text-xs mt-1"></p>
+            <p id="clientEmail" class="text-slate-500 text-xs"></p>
+            <p id="clientAddress" class="text-slate-500 text-xs mt-1"></p>
+            <div class="mt-2">
+                <span id="tierBadge" class="tier-badge tier-1 hidden"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTRO -->
+    <p class="text-sm text-slate-600 leading-relaxed mb-2">
+        Thank you for your interest in Dynamic Fleet Reporting. This quotation outlines the proposed service package for <span id="clientNameInline" class="font-bold text-slate-800">[Client]</span>'s fleet intelligence subscription, including all applicable fees, deliverables, and terms.
+    </p>
+    <div class="validity-box">
+        <strong>⏱ Quotation Validity:</strong> This quotation is valid for <strong>30 days</strong> from the date of issue. Pricing is subject to change upon expiry. To proceed, please contact us to have a Master Service Agreement prepared for signature.
+    </div>
+
+    <!-- PRICING TABLE -->
+    <h3 class="section-title">Fee Breakdown</h3>
+    <table class="line-table mb-4">
+        <thead>
+            <tr>
+                <th style="width:40%">Description</th>
+                <th>Detail</th>
+                <th style="text-align:right">Amount</th>
+            </tr>
+        </thead>
+        <tbody id="feeTableBody">
+            <tr>
+                <td colspan="3" class="text-center text-slate-400 text-xs italic py-6">Loading client data...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- TOTAL SUMMARY CARD -->
+    <div id="totalCard" class="hidden" style="border:2px solid #e2e8f0;border-radius:0.75rem;overflow:hidden;margin:1.25rem 0 1.5rem 0;">
+        <div style="background:#1e3a5f;padding:0.9rem 1.25rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <p style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);margin-bottom:2px;">Cost Summary</p>
+                <p id="totalCardClient" style="font-size:13px;font-weight:900;color:white;"></p>
+            </div>
+            <div id="totalCardTier" style="background:rgba(255,255,255,0.1);padding:5px 12px;border-radius:6px;font-size:8px;font-weight:900;color:#86efac;text-transform:uppercase;letter-spacing:0.1em;"></div>
+        </div>
+        <div style="background:white;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:#1e293b;">Implementation / Setup Fee</p>
+                    <p style="font-size:10px;color:#94a3b8;margin-top:1px;">Once-off · due before onboarding begins</p>
+                </div>
+                <p style="font-size:16px;font-weight:900;color:#1e293b;">R 2,500</p>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:#1e293b;">Monthly Administration Fee</p>
+                    <p style="font-size:10px;color:#94a3b8;margin-top:1px;">Fixed · covers account management, data processing &amp; support</p>
+                </div>
+                <p style="font-size:16px;font-weight:900;color:#1e293b;">R 1,500 <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>
+            </div>
+            <div id="fleetFeeRow" style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f1f5f9;">
+                <div>
+                    <p style="font-size:12px;font-weight:700;color:#1e293b;">Fleet Monitoring Fee</p>
+                    <p id="fleetFeeDetail" style="font-size:10px;color:#94a3b8;margin-top:1px;"></p>
+                </div>
+                <p id="fleetFeeAmt" style="font-size:16px;font-weight:900;color:#2563eb;"></p>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:2px solid #e2e8f0;background:#f8fafc;">
+                <div>
+                    <p style="font-size:12px;font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:0.05em;">Total Monthly Retainer</p>
+                    <p id="monthlyNote" style="font-size:10px;color:#94a3b8;margin-top:1px;"></p>
+                </div>
+                <p id="monthlyTotal" style="font-size:20px;font-weight:900;color:#059669;"></p>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;background:#eff6ff;">
+                <div>
+                    <p style="font-size:12px;font-weight:900;color:#1e40af;">Estimated First Invoice</p>
+                    <p id="firstMonthNote" style="font-size:10px;color:#3b82f6;margin-top:1px;"></p>
+                </div>
+                <p id="firstMonthTotal" style="font-size:20px;font-weight:900;color:#1e40af;"></p>
+            </div>
+        </div>
+        <div style="background:#f8fafc;padding:0.6rem 1.25rem;text-align:center;">
+            <p style="font-size:9px;color:#94a3b8;">All amounts exclude VAT · Billed in advance on the 25th of each month · On-demand reports beyond pool: R 150/report</p>
+        </div>
+    </div>
+
+    <!-- ON-DEMAND POOL -->
+    <h3 class="section-title">On-Demand Report Pool</h3>
+    <div id="poolSection" class="bg-blue-50 border border-blue-200 rounded p-4 mb-2 text-sm">
+        <p class="text-slate-400 italic text-xs">Loading pool details...</p>
+    </div>
+
+    <!-- WHAT'S INCLUDED -->
+    <h3 class="section-title">What's Included in Your Subscription</h3>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="border border-slate-200 rounded p-4">
+            <p class="text-[10px] font-black uppercase text-blue-700 tracking-widest mb-2">Weekly / Monthly Fleet Report</p>
+            <div class="feature-row">Fleet summary — distance, fuel, efficiency</div>
+            <div class="feature-row">Per-vehicle efficiency vs benchmark</div>
+            <div class="feature-row">GPS vs odometer reconciliation</div>
+            <div class="feature-row">Speed violations &amp; driver behaviour</div>
+            <div class="feature-row">Consumption anomaly flags</div>
+            <div class="feature-row">Driver performance scoring (0–100)</div>
+            <div class="feature-row">Incentive &amp; bonus modelling</div>
+            <div class="feature-row">ROI calculation on fuel savings</div>
+        </div>
+        <div class="border border-slate-200 rounded p-4">
+            <p class="text-[10px] font-black uppercase text-emerald-700 tracking-widest mb-2">On-Demand Reports (Pool)</p>
+            <div class="feature-row">Custom date-range efficiency reports</div>
+            <div class="feature-row">Per-vehicle speed violation reports</div>
+            <div class="feature-row">Comparison to fleet average</div>
+            <div class="feature-row">Driver risk rating for period</div>
+            <div class="feature-row">Any vehicle, any available date range</div>
+            <p class="text-[10px] font-black uppercase text-orange-600 tracking-widest mt-3 mb-2">Account Inclusions</p>
+            <div class="feature-row">Dedicated client email channel</div>
+            <div class="feature-row">Anomaly monitoring &amp; alerts</div>
+            <div class="feature-row">Ongoing account support</div>
+        </div>
+    </div>
+
+    <!-- SETUP PROCESS -->
+    <h3 class="section-title">Onboarding Process</h3>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:1rem;text-align:center;">
+            <p style="font-size:1.5rem;margin-bottom:0.4rem;">📋</p>
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;color:#1e40af;margin-bottom:0.3rem;">Step 1</p>
+            <p style="font-size:11px;font-weight:700;color:#1e293b;">Sign Agreement</p>
+            <p style="font-size:10px;color:#94a3b8;margin-top:0.2rem;">SLA reviewed &amp; executed digitally or manually</p>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:1rem;text-align:center;">
+            <p style="font-size:1.5rem;margin-bottom:0.4rem;">⚙️</p>
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;color:#1e40af;margin-bottom:0.3rem;">Step 2</p>
+            <p style="font-size:11px;font-weight:700;color:#1e293b;">Fleet Setup</p>
+            <p style="font-size:10px;color:#94a3b8;margin-top:0.2rem;">Vehicle benchmarks researched &amp; configured</p>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:1rem;text-align:center;">
+            <p style="font-size:1.5rem;margin-bottom:0.4rem;">📊</p>
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;color:#1e40af;margin-bottom:0.3rem;">Step 3</p>
+            <p style="font-size:11px;font-weight:700;color:#1e293b;">First Report</p>
+            <p style="font-size:10px;color:#94a3b8;margin-top:0.2rem;">Data submitted → report delivered within 24–48hrs</p>
+        </div>
+    </div>
+
+    <!-- PRICING TIERS -->
+    <h3 class="section-title">Pricing Tiers</h3>
+    <div class="grid grid-cols-3 gap-0 border border-slate-200 rounded overflow-hidden mb-4 text-center">
+        <div id="tierCard1" class="p-4 border-r border-slate-200">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 1</p>
+            <p class="text-2xl font-black text-blue-700">R 200</p>
+            <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
+            <p class="text-[9px] text-slate-400 mt-1">1 – 15 vehicles</p>
+        </div>
+        <div id="tierCard2" class="p-4 border-r border-slate-200">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 2</p>
+            <p class="text-2xl font-black text-blue-700">R 175</p>
+            <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
+            <p class="text-[9px] text-slate-400 mt-1">16 – 30 vehicles</p>
+        </div>
+        <div id="tierCard3" class="p-4">
+            <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 3</p>
+            <p class="text-2xl font-black text-blue-700">R 150</p>
+            <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
+            <p class="text-[9px] text-slate-400 mt-1">31+ vehicles</p>
+        </div>
+    </div>
+
+    <!-- TERMS -->
+    <h3 class="section-title">Key Terms &amp; Conditions</h3>
+    <div class="info-box">
+        <strong>Billing:</strong> Monthly retainer billed in advance on the 25th of each month. The first invoice includes the once-off setup fee. All amounts exclude VAT.
+    </div>
+    <div class="success-box">
+        <strong>Cancellation:</strong> Either party may terminate the agreement with 30 days' written notice. No long-term contract lock-in.
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.85rem 1.1rem;margin:0.85rem 0;font-size:0.82rem;color:#475569;line-height:1.6;">
+        <strong class="text-slate-700">Data Responsibility:</strong> Reports are generated from data supplied by the client. The Consultant does not guarantee specific monetary savings — outcomes depend on acting on recommendations provided. Anomaly flags are informational only.
+    </div>
+
+    <!-- ACCEPTANCE / NEXT STEPS -->
+    <h3 class="section-title">How to Accept This Quotation</h3>
+    <p class="text-sm text-slate-600 mb-4">To accept this quotation and proceed with onboarding, please contact us using any of the methods below. A Master Service Agreement will be issued for digital or manual signature.</p>
+    <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="text-center p-3 bg-slate-50 border border-slate-200 rounded">
+            <p style="font-size:1.3rem;">📧</p>
+            <p class="text-[9px] font-black uppercase text-slate-400 mt-1">Email</p>
+            <p class="text-xs font-bold text-slate-700">dynamicfleetreports&#64;gmail&#46;com</p>
+        </div>
+        <div class="text-center p-3 bg-slate-50 border border-slate-200 rounded">
+            <p style="font-size:1.3rem;">📞</p>
+            <p class="text-[9px] font-black uppercase text-slate-400 mt-1">Phone / WhatsApp</p>
+            <p class="text-xs font-bold text-slate-700">083 314 9592</p>
+        </div>
+        <div class="text-center p-3 bg-slate-50 border border-slate-200 rounded">
+            <p style="font-size:1.3rem;">📍</p>
+            <p class="text-[9px] font-black uppercase text-slate-400 mt-1">Address</p>
+            <p class="text-xs font-bold text-slate-700">Spitskop Farm, Moorreesburg</p>
+        </div>
+    </div>
+
+    <!-- SIGNATURE BLOCK -->
+    <div class="border border-slate-200 rounded p-4 bg-slate-50 mt-6">
+        <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3">Authorisation (for office use)</p>
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Prepared by</p>
+                <p class="text-sm font-black text-slate-700">Pieter Nell</p>
+                <p class="text-[10px] text-slate-400">Dynamic Fleet Reporting</p>
+                <div class="border-t border-dashed border-slate-300 mt-3 pt-1">
+                    <p class="text-[8px] text-slate-400">Signature &amp; Date</p>
+                </div>
+            </div>
+            <div>
+                <p class="text-[9px] text-slate-400 uppercase font-bold mb-1">Accepted by</p>
+                <p id="sigClientName" class="text-sm font-black text-slate-700">—</p>
+                <p class="text-[10px] text-slate-400">Authorised Representative</p>
+                <div class="border-t border-dashed border-slate-300 mt-3 pt-1">
+                    <p class="text-[8px] text-slate-400">Signature &amp; Date</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-10 text-center border-t border-slate-100 pt-6">
+        <p class="text-[8px] text-slate-400 uppercase tracking-[0.2em]">Dynamic Fleet Reporting &nbsp;|&nbsp; Moorreesburg, Western Cape &nbsp;|&nbsp; dynamicfleetreports&#64;gmail&#46;com &nbsp;|&nbsp; 083 314 9592</p>
+        <p class="text-[8px] text-slate-300 mt-1">Ref: <span id="quoteRefFooter">QT-2026-0001</span> &nbsp;|&nbsp; This quotation is not a legally binding agreement. A signed SLA is required to commence services.</p>
+    </footer>
+
+</div><!-- end quote-card -->
+
+<script>
+    // ── Pricing helpers ───────────────────────────────────────────────────────
+    function getTieredRate(fleetSize) {
+        if (fleetSize <= 15) return { rate: 200, tier: 1, label: 'Tier 1 (1–15 vehicles)' };
+        if (fleetSize <= 30) return { rate: 175, tier: 2, label: 'Tier 2 (16–30 vehicles)' };
+        return { rate: 150, tier: 3, label: 'Tier 3 (31+ vehicles)' };
+    }
+
+    function fmt(n) { return 'R ' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    // ── Highlight active tier ─────────────────────────────────────────────────
+    function highlightTier(tier) {
+        [1,2,3].forEach(function(t) {
+            var card = document.getElementById('tierCard' + t);
+            if (t === tier) {
+                card.style.background = '#eff6ff';
+                card.style.borderBottom = '3px solid #2563eb';
+            }
+        });
+    }
+
+    // ── Status badge ──────────────────────────────────────────────────────────
+    function setStatusBadge(status) {
+        var badge = document.getElementById('statusBadge');
+        badge.className = 'status-badge status-' + status;
+        badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+    }
+
+    // ── Mark accepted ─────────────────────────────────────────────────────────
+    async function markAccepted() {
+        if (!_currentClientId) { alert('No client loaded.'); return; }
+        setStatusBadge('accepted');
+        document.getElementById('acceptBtn').innerText = '✓ Accepted';
+        document.getElementById('acceptBtn').style.background = '#059669';
+
+        // Optionally save acceptance note to Firebase
+        try {
+            var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            var idx = allClients.findIndex(function(c) { return c.id === _currentClientId; });
+            if (idx !== -1) {
+                allClients[idx].quotationAccepted = true;
+                allClients[idx].quotationAcceptedDate = new Date().toISOString();
+                allClients[idx].quotationRef = _quoteNumber;
+                await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+            }
+        } catch(e) { console.warn('Could not save acceptance to Firebase:', e); }
+    }
+
+    // ── Send via email ────────────────────────────────────────────────────────
+    function sendViaEmail() {
+        if (!_currentClient) { alert('No client loaded. Please open this quotation from the pipeline.'); return; }
+        var c = _currentClient;
+        var subject = encodeURIComponent('Service Quotation — ' + _quoteNumber + ' — Dynamic Fleet Reporting');
+        var body = encodeURIComponent(
+            'Dear ' + (_contactName || c.company) + ',\n\n' +
+            'Thank you for your interest in Dynamic Fleet Reporting.\n\n' +
+            'Please find your personalised service quotation below.\n\n' +
+            '── QUOTATION DETAILS ──────────────────────────\n' +
+            'Quotation Number: ' + _quoteNumber + '\n' +
+            'Date Issued:      ' + document.getElementById('quoteDate').innerText + '\n' +
+            'Valid Until:      ' + document.getElementById('validUntil').innerText + '\n\n' +
+            '── PROPOSED FEES ───────────────────────────────\n' +
+            'Implementation / Setup Fee:   R 2,500.00 (once-off)\n' +
+            'Monthly Administration Fee:   R 1,500.00/month\n' +
+            'Fleet Monitoring Fee:         R ' + _fleetFeeAmt.toLocaleString('en-ZA') + '/month (' + _fleet + ' vehicles × R' + _tiered.rate + ')\n' +
+            'Total Monthly Retainer:       R ' + _monthly.toLocaleString('en-ZA') + '/month (excl. VAT)\n' +
+            'Estimated First Invoice:      R ' + (2500 + _monthly).toLocaleString('en-ZA') + ' (excl. VAT)\n\n' +
+            '── TO ACCEPT ───────────────────────────────────\n' +
+            'Simply reply to this email or contact us on 083 314 9592.\n' +
+            'A Master Service Agreement will be prepared for your signature.\n\n' +
+            'This quotation is valid for 30 days from the date of issue.\n\n' +
+            'Kind regards,\n' +
+            'Pieter Nell\n' +
+            'Dynamic Fleet Reporting\n' +
+            'dynamicfleetreports@gmail.com | 083 314 9592'
+        );
+        window.location.href = 'mailto:' + (c.email || '') + '?subject=' + subject + '&body=' + body;
+    }
+
+    // ── State ─────────────────────────────────────────────────────────────────
+    var _currentClient   = null;
+    var _currentClientId = null;
+    var _contactName     = '';
+    var _fleet           = 0;
+    var _tiered          = {};
+    var _monthly         = 0;
+    var _fleetFeeAmt     = 0;
+    var _quoteNumber     = '';
+
+    // ── Page load ─────────────────────────────────────────────────────────────
+    window.onload = async function() {
+        var now = new Date();
+
+        // Generate quote number and dates
+        var counter = parseInt(await cloudStorage.getItem('QUOTE_COUNTER') || '0') + 1;
+        _quoteNumber = 'QT-' + now.getFullYear() + '-' + String(counter).padStart(4, '0');
+        document.getElementById('quoteNumber').innerText    = _quoteNumber;
+        document.getElementById('quoteRefFooter').innerText = _quoteNumber;
+
+        var dateStr   = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+        var validDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        var validStr  = validDate.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('quoteDate').innerText  = dateStr;
+        document.getElementById('validUntil').innerText = validStr;
+
+        // Load client from pipeline audit data
+        var auditRaw = await cloudStorage.getItem('AUDIT_FINAL');
+        var data     = auditRaw ? JSON.parse(auditRaw) : null;
+
+        if (!data || !data.client) {
+            document.getElementById('clientName').innerText = '[No client loaded]';
+            document.getElementById('feeTableBody').innerHTML = '<tr><td colspan="3" class="text-center text-red-400 text-xs italic py-6">No client data found. Please open this quotation from the pipeline.</td></tr>';
+            document.getElementById('poolSection').innerHTML = '<p class="text-red-400 italic text-xs">No client data found.</p>';
+            return;
+        }
+
+        var clientInfo = data.client;
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var fullClient = allClients.find(function(c) {
+            return c.company && clientInfo.company &&
+                   c.company.toLowerCase().trim() === clientInfo.company.toLowerCase().trim();
+        });
+
+        _currentClient   = fullClient || clientInfo;
+        _currentClientId = fullClient ? fullClient.id : null;
+        _contactName     = (fullClient && fullClient.contactName) || clientInfo.contactName || clientInfo.contact || '';
+
+        // Resolve fleet size
+        var fleetSize = 0;
+        if (fullClient) {
+            if (fullClient.fleet && fullClient.fleet.length > 0) fleetSize = fullClient.fleet.length;
+            else if (fullClient.fleetSize > 0) fleetSize = fullClient.fleetSize;
+        }
+        if (fleetSize === 0 && data.fleet && data.fleet.length > 0) fleetSize = data.fleet.length;
+        if (fleetSize === 0) fleetSize = clientInfo.fleetSize || 5;
+
+        _fleet        = fleetSize;
+        _tiered       = getTieredRate(fleetSize);
+        _fleetFeeAmt  = fleetSize * _tiered.rate;
+        _monthly      = 1500 + _fleetFeeAmt;
+        var firstMonth = 2500 + _monthly;
+
+        // Save counter
+        await cloudStorage.setItem('QUOTE_COUNTER', String(counter));
+
+        // Populate header
+        document.getElementById('clientName').innerText       = clientInfo.company || '—';
+        document.getElementById('clientNameInline').innerText = clientInfo.company || '[Client]';
+        document.getElementById('sigClientName').innerText    = clientInfo.company || '—';
+        if (_contactName) document.getElementById('clientContact').innerText = _contactName;
+        if (fullClient && fullClient.email) document.getElementById('clientEmail').innerText = fullClient.email;
+        if (fullClient && fullClient.address) document.getElementById('clientAddress').innerText = fullClient.address;
+
+        // Tier badge
+        var tierBadge = document.getElementById('tierBadge');
+        tierBadge.className = 'tier-badge tier-' + _tiered.tier;
+        tierBadge.innerText = _tiered.label;
+        tierBadge.classList.remove('hidden');
+
+        // Highlight active tier card
+        highlightTier(_tiered.tier);
+
+        // Fee table
+        document.getElementById('feeTableBody').innerHTML =
+            '<tr>' +
+                '<td><strong>Implementation / Setup Fee</strong><br><span style="font-size:10px;color:#94a3b8;">Once-off · payable before onboarding begins</span></td>' +
+                '<td style="color:#94a3b8;font-size:11px;">Once-off</td>' +
+                '<td style="text-align:right;font-weight:900;">R 2,500.00</td>' +
+            '</tr>' +
+            '<tr>' +
+                '<td><strong>Monthly Administration Fee</strong><br><span style="font-size:10px;color:#94a3b8;">Account management, data processing &amp; support</span></td>' +
+                '<td style="color:#94a3b8;font-size:11px;">Per month</td>' +
+                '<td style="text-align:right;font-weight:900;">R 1,500.00</td>' +
+            '</tr>' +
+            '<tr>' +
+                '<td><strong>Fleet Monitoring Fee</strong><br><span style="font-size:10px;color:#94a3b8;">' + fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label + '</span></td>' +
+                '<td style="color:#94a3b8;font-size:11px;">Per month</td>' +
+                '<td style="text-align:right;font-weight:900;color:#2563eb;">R ' + _fleetFeeAmt.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>' +
+            '</tr>' +
+            '<tr>' +
+                '<td><strong>On-Demand Report Overage</strong><br><span style="font-size:10px;color:#94a3b8;">Pool of ' + fleetSize + ' reports/month included · overage only if exceeded</span></td>' +
+                '<td style="color:#94a3b8;font-size:11px;">Per report (overage)</td>' +
+                '<td style="text-align:right;font-weight:700;color:#94a3b8;">R 150.00</td>' +
+            '</tr>' +
+            '<tr class="highlight-row">' +
+                '<td colspan="2"><strong>Total Monthly Retainer</strong> <span style="font-size:10px;font-weight:600;color:#3b82f6;">(from Month 2 · excl. VAT)</span></td>' +
+                '<td style="text-align:right;font-size:1rem;color:#059669;">R ' + _monthly.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>' +
+            '</tr>' +
+            '<tr class="highlight-row">' +
+                '<td colspan="2"><strong>Estimated First Invoice</strong> <span style="font-size:10px;font-weight:600;color:#3b82f6;">(Setup R2,500 + Month 1 · excl. VAT)</span></td>' +
+                '<td style="text-align:right;font-size:1rem;color:#1e40af;">R ' + firstMonth.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>' +
+            '</tr>';
+
+        // Total card
+        document.getElementById('totalCardClient').innerText = clientInfo.company;
+        document.getElementById('totalCardTier').innerText   = _tiered.label + ' · ' + fleetSize + ' vehicles';
+        document.getElementById('fleetFeeDetail').innerText  = fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label;
+        document.getElementById('fleetFeeAmt').innerHTML     = 'R ' + _fleetFeeAmt.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span>';
+        document.getElementById('monthlyNote').innerText     = 'Admin R1,500 + Fleet R' + _fleetFeeAmt.toLocaleString('en-ZA') + ' · excl. VAT · from Month 2';
+        document.getElementById('monthlyTotal').innerHTML    = 'R ' + _monthly.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span>';
+        document.getElementById('firstMonthNote').innerText  = 'Setup R2,500 + Monthly R' + _monthly.toLocaleString('en-ZA') + ' · excl. VAT';
+        document.getElementById('firstMonthTotal').innerText = 'R ' + firstMonth.toLocaleString('en-ZA');
+        document.getElementById('totalCard').classList.remove('hidden');
+
+        // Pool section
+        document.getElementById('poolSection').innerHTML =
+            '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">' +
+                '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Monthly Pool</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">' + fleetSize + '</p><p style="font-size:9px;color:#94a3b8;">reports included</p></div>' +
+                '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Overage Rate</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">R 150</p><p style="font-size:9px;color:#94a3b8;">per additional report</p></div>' +
+                '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Billing Day</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">25th</p><p style="font-size:9px;color:#94a3b8;">of each month</p></div>' +
+            '</div>';
+    };
+</script>
+</body>
+</html>

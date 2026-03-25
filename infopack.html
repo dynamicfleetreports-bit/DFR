@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Pack | Dynamic Fleet Reporting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap');
+
+        :root {
+            --navy: #1e3a5f;
+            --blue: #2563eb;
+            --blue-light: #3b82f6;
+            --slate: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--slate); line-height: 1.7; }
+
+        /* ── Hero ── */
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 60%, #2563eb 100%);
+            padding: 5rem 2rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.07) 0%, transparent 60%),
+                        radial-gradient(ellipse at 20% 80%, rgba(37,99,235,0.3) 0%, transparent 50%);
+        }
+        .hero-inner { position: relative; max-width: 720px; margin: 0 auto; }
+        .hero img { height: 80px; width: auto; margin-bottom: 1.75rem; filter: brightness(0) invert(1); }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; color: white; line-height: 1.1; }
+        .hero h1 span { color: #93c5fd; font-style: italic; font-family: 'Playfair Display', serif; }
+        .hero p { color: rgba(255,255,255,0.75); font-size: 1rem; margin-top: 1rem; max-width: 520px; margin-left: auto; margin-right: auto; }
+        .hero-meta { display: inline-flex; gap: 1.5rem; margin-top: 2rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 9999px; padding: 0.5rem 1.5rem; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); }
+        .hero-meta span { color: rgba(255,255,255,0.9); }
+
+        /* ── Nav dots ── */
+        .nav-bar { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; }
+        .nav-bar a { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+        .nav-bar a:hover { color: var(--blue); }
+
+        /* ── Page wrapper ── */
+        .page { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+
+        /* ── Section headers ── */
+        .section-eyebrow { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.18em; color: var(--blue); margin-bottom: 0.4rem; }
+        .section-title { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 900; color: var(--navy); line-height: 1.2; margin-bottom: 0.75rem; }
+        .section-title em { font-style: italic; font-family: 'Playfair Display', serif; color: var(--blue); }
+        .section-divider { width: 48px; height: 3px; background: var(--blue); border-radius: 2px; margin-bottom: 1.5rem; }
+        .section-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+
+        .section-gap { padding: 4rem 0; border-top: 1px solid var(--border); }
+
+        /* ── About cards ── */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.75rem; }
+        .about-card { background: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; transition: box-shadow 0.2s; }
+        .about-card:hover { box-shadow: 0 4px 16px rgba(30,58,95,0.08); }
+        .about-card-icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
+        .about-card h3 { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--navy); margin-bottom: 0.4rem; }
+        .about-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+        /* ── Stat strip ── */
+        .stat-strip { background: linear-gradient(135deg, #1e3a5f, #1e40af); border-radius: 0.75rem; padding: 2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center; margin: 2rem 0; }
+        .stat-num { font-size: 2.2rem; font-weight: 900; color: white; line-height: 1; }
+        .stat-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.55); margin-top: 0.3rem; }
+
+        /* ── Services ── */
+        .service-card { background: white; border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; margin-bottom: 1rem; }
+        .service-header { background: var(--navy); color: white; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+        .service-header h3 { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; }
+        .service-header .badge { background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 9999px; font-size: 9px; font-weight: 900; text-transform: uppercase; color: #86efac; }
+        .service-body { padding: 1.25rem; }
+        .service-body p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.75rem; }
+        .feature-list { list-style: none; }
+        .feature-list li { font-size: 0.8rem; color: #475569; padding: 0.3rem 0; display: flex; gap: 0.5rem; align-items: flex-start; border-bottom: 1px solid #f8fafc; }
+        .feature-list li:last-child { border-bottom: none; }
+        .feature-list li::before { content: "→"; color: var(--blue); font-weight: 900; flex-shrink: 0; margin-top: 1px; }
+
+        /* ── Pricing ── */
+        .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; margin: 1.5rem 0; }
+        .pricing-col { padding: 1.5rem; text-align: center; border-right: 1px solid var(--border); }
+        .pricing-col:last-child { border-right: none; }
+        .pricing-col.active { background: #eff6ff; }
+        .pricing-tier { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.4rem; }
+        .pricing-amount { font-size: 2rem; font-weight: 900; color: var(--blue); line-height: 1; }
+        .pricing-unit { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 0.2rem; }
+        .pricing-range { font-size: 10px; color: #94a3b8; margin-top: 0.5rem; }
+
+        .fee-row { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 1.25rem; border-bottom: 1px solid #f8fafc; }
+        .fee-row:last-child { border-bottom: none; }
+        .fee-label { font-size: 12px; font-weight: 700; color: var(--slate); }
+        .fee-sub { font-size: 10px; color: #94a3b8; margin-top: 1px; }
+        .fee-amount { font-size: 15px; font-weight: 900; color: var(--slate); }
+        .fee-amount.highlight { color: #059669; }
+        .fee-amount.blue { color: var(--blue); }
+
+        /* ── Terms ── */
+        .term-block { background: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; }
+        .term-block h3 { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: var(--navy); margin-bottom: 0.6rem; padding-bottom: 0.4rem; border-bottom: 2px solid var(--border); }
+        .term-block p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+        .term-block ul { list-style: none; margin-top: 0.5rem; }
+        .term-block ul li { font-size: 0.82rem; color: var(--muted); padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+        .term-block ul li::before { content: "·"; position: absolute; left: 0; color: var(--blue); font-weight: 900; }
+
+        /* ── Contact ── */
+        .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+        .contact-card { background: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; text-align: center; transition: box-shadow 0.2s; }
+        .contact-card:hover { box-shadow: 0 4px 16px rgba(30,58,95,0.08); }
+        .contact-card-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .contact-card h3 { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.3rem; }
+        .contact-card p { font-size: 0.82rem; font-weight: 700; color: var(--navy); }
+        .contact-card span { font-size: 10px; color: var(--muted); }
+
+        /* ── CTA ── */
+        .cta-banner { background: linear-gradient(135deg, #1e3a5f, #2563eb); border-radius: 0.75rem; padding: 2.5rem; text-align: center; margin-top: 2.5rem; }
+        .cta-banner h2 { font-size: 1.5rem; font-weight: 900; color: white; margin-bottom: 0.5rem; }
+        .cta-banner p { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-bottom: 1.25rem; }
+        .cta-btn { display: inline-block; background: white; color: var(--navy); font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.75rem 2rem; border-radius: 9999px; text-decoration: none; transition: all 0.2s; }
+        .cta-btn:hover { background: #eff6ff; }
+
+        /* ── Info / highlight boxes ── */
+        .info-box { background: #eff6ff; border-left: 4px solid var(--blue); padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #1e40af; line-height: 1.6; }
+        .success-box { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #14532d; line-height: 1.6; }
+        .warning-box { background: #fff7ed; border-left: 4px solid #f97316; padding: 0.85rem 1.1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; font-size: 0.82rem; color: #9a3412; line-height: 1.6; }
+
+        /* ── Footer ── */
+        .site-footer { background: var(--navy); color: rgba(255,255,255,0.5); text-align: center; padding: 2rem; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; margin-top: 0; }
+        .site-footer span { color: rgba(255,255,255,0.9); }
+
+        /* ── Print ── */
+        @media print {
+            .nav-bar, .no-print { display: none !important; }
+            body { background: white; }
+            .hero { padding: 2rem; }
+            .section-gap { page-break-inside: avoid; }
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .about-grid, .stat-strip, .pricing-grid, .contact-grid { grid-template-columns: 1fr !important; }
+            .pricing-grid { border-radius: 0; }
+            .pricing-col { border-right: none; border-bottom: 1px solid var(--border); }
+            .pricing-col:last-child { border-bottom: none; }
+            .hero { padding: 3rem 1.25rem 2.5rem; }
+            .page { padding: 2.5rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── No-print print button ── -->
+<div class="no-print" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:200;">
+    <button onclick="window.print()"
+        style="background:#1e3a5f;color:white;padding:10px 20px;border-radius:9999px;font-weight:900;font-size:10px;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 4px 14px rgba(30,58,95,0.3);letter-spacing:0.08em;"
+        onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#1e3a5f'">
+        🖨 Save as PDF
+    </button>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+    <div class="hero-inner">
+        <img src="Logo.png" alt="Dynamic Fleet Reporting">
+        <h1>Fleet Intelligence<br><span>Information Pack</span></h1>
+        <p>Everything you need to know about our managed fleet auditing and reporting service — services, pricing, terms, and how to get started.</p>
+        <div class="hero-meta">
+            <span>Dynamic Fleet Reporting</span> &nbsp;·&nbsp;
+            <span>Moorreesburg, Western Cape</span> &nbsp;·&nbsp;
+            <span id="packDate">2026</span>
+        </div>
+    </div>
+</div>
+
+<!-- ── STICKY NAV ── -->
+<nav class="nav-bar no-print">
+    <a href="#about">About Us</a>
+    <a href="#services">Services</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#terms">Terms</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<div class="page">
+
+    <!-- ════════════════════════════════════════════════════
+         ABOUT
+    ════════════════════════════════════════════════════ -->
+    <section id="about">
+        <p class="section-eyebrow">Who We Are</p>
+        <h2 class="section-title">About <em>Dynamic Fleet Reporting</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-body">
+            Dynamic Fleet Reporting is a specialist fleet intelligence and auditing consultancy based in Moorreesburg, Western Cape. We partner with businesses that operate vehicle fleets — helping them understand exactly where fuel is being lost, how drivers are performing, and what it's costing them every month.
+        </p>
+        <p class="section-body" style="margin-top:0.75rem;">
+            We provide data-driven, independently produced fleet performance reports — delivered electronically, on a regular cycle. Our work is built on a single principle: you can only improve what you can measure. We give fleet managers and business owners the numbers they need to make confident decisions.
+        </p>
+
+        <div class="stat-strip">
+            <div>
+                <div class="stat-num">3</div>
+                <div class="stat-label">Reports per cycle</div>
+            </div>
+            <div>
+                <div class="stat-num">24h</div>
+                <div class="stat-label">Delivery turnaround</div>
+            </div>
+            <div>
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Data transparency</div>
+            </div>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-card-icon">📊</div>
+                <h3>Data-Driven Analysis</h3>
+                <p>Every report is built from your actual fleet data — odometer readings, fuel logs, GPS records, and telematics. No estimates or guesswork.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-card-icon">🎯</div>
+                <h3>Benchmarked Performance</h3>
+                <p>Each vehicle is measured against its manufacturer-recommended fuel consumption target — giving you a fair, model-specific standard to assess performance against.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-card-icon">🔍</div>
+                <h3>Independent Reporting</h3>
+                <p>We produce your reports independently, giving you an objective view of fleet performance that isn't filtered through internal reporting bias.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-card-icon">🤝</div>
+                <h3>Dedicated Account Support</h3>
+                <p>Each client gets a dedicated email channel and ongoing support. We don't disappear after setup — we're a long-term partner in your fleet cost reduction.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         SERVICES
+    ════════════════════════════════════════════════════ -->
+    <section id="services" class="section-gap">
+        <p class="section-eyebrow">What We Do</p>
+        <h2 class="section-title">Our <em>Services</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-body" style="margin-bottom:1.5rem;">Every subscription includes a core weekly/monthly fleet intelligence report, a pool of on-demand reports, and full account support. Here's exactly what you get.</p>
+
+        <div class="service-card">
+            <div class="service-header">
+                <h3>Weekly / Monthly Fleet Intelligence Report</h3>
+                <span class="badge">Included</span>
+            </div>
+            <div class="service-body">
+                <p>Your core deliverable — a comprehensive report covering your entire active fleet. Delivered electronically within 24–48 hours of receiving all required data inputs.</p>
+                <ul class="feature-list">
+                    <li>Total fleet distance travelled (GPS-recorded &amp; odometer-reconciled)</li>
+                    <li>Total fuel consumed across all active vehicles</li>
+                    <li>Fleet-wide actual vs benchmark fuel consumption</li>
+                    <li>Estimated total fuel loss in litres and Rand (wholesale &amp; retail price)</li>
+                    <li>Per-vehicle efficiency analysis vs manufacturer-set target</li>
+                    <li>GPS vs odometer reconciliation — drift flagged where applicable</li>
+                    <li>Speed violation events, max speed, and over-speed duration per vehicle</li>
+                    <li>Estimated financial impact of speed violations</li>
+                    <li>Consumption anomaly flags (informational — for Subscriber's investigation)</li>
+                    <li>Driver performance score per vehicle (0–100 composite)</li>
+                    <li>Performance tier classification: Elite / High Performer / Good Driver / Needs Improvement</li>
+                    <li>Bonus incentive modelling and net ROI on driver incentive programme</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <div class="service-header" style="background:#0f766e;">
+                <h3>On-Demand Vehicle Efficiency Report</h3>
+                <span class="badge">Pool Included</span>
+            </div>
+            <div class="service-body">
+                <p>Request a focused efficiency report for any vehicle for any date range for which data is available. Ideal for investigating anomalies or reviewing a specific vehicle's history.</p>
+                <ul class="feature-list">
+                    <li>Specified vehicle registration and fleet details</li>
+                    <li>Custom date range as requested</li>
+                    <li>Actual km/L achieved vs vehicle-specific benchmark</li>
+                    <li>Total kilometres driven and litres consumed for the period</li>
+                    <li>Estimated fuel waste and financial impact at wholesale &amp; retail price</li>
+                    <li>Comparison against fleet average for the same period (where data is available)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <div class="service-header" style="background:#c2410c;">
+                <h3>On-Demand Speed Violation Report</h3>
+                <span class="badge">Pool Included</span>
+            </div>
+            <div class="service-body">
+                <p>A targeted report on driver behaviour for any specific vehicle and time period. Useful for disciplinary processes, insurance matters, or driver improvement tracking.</p>
+                <ul class="feature-list">
+                    <li>Total speed violation events for the specified period</li>
+                    <li>Maximum speed recorded and over-speed duration (where available from telematics)</li>
+                    <li>Estimated financial impact of violations</li>
+                    <li>Driver risk rating based on violation frequency and severity</li>
+                    <li>Comparison against the vehicle's own historical pattern (where prior data is available)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>How the On-Demand Pool works:</strong> Your monthly pool equals the number of active vehicles in your fleet. Pool reports may be used for any combination of efficiency or speed reports. Unused pool reports expire at month-end. Reports beyond the pool are billed at <strong>R 150 per report</strong> at month-end.
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         PRICING
+    ════════════════════════════════════════════════════ -->
+    <section id="pricing" class="section-gap">
+        <p class="section-eyebrow">Investment</p>
+        <h2 class="section-title">Transparent <em>Pricing</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-body" style="margin-bottom:1.5rem;">We believe in complete pricing transparency. There are no hidden fees, no lock-in contracts, and no surprises on your invoice. The structure is simple: a once-off setup fee, a fixed monthly administration fee, and a per-vehicle monitoring fee based on your fleet size.</p>
+
+        <!-- Fee cards -->
+        <div style="background:white;border:1px solid var(--border);border-radius:0.75rem;overflow:hidden;margin-bottom:1rem;">
+            <div style="background:var(--navy);padding:0.9rem 1.25rem;">
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);">Fee 1 of 3</p>
+                <p style="font-size:13px;font-weight:900;color:white;margin-top:2px;">Implementation / Setup Fee</p>
+            </div>
+            <div class="fee-row">
+                <div>
+                    <p class="fee-label">Once-Off Setup &amp; Onboarding</p>
+                    <p class="fee-sub">Due before onboarding begins — not charged monthly</p>
+                </div>
+                <p class="fee-amount">R 2,500</p>
+            </div>
+            <div style="padding:0.75rem 1.25rem;background:#f8fafc;font-size:11px;color:var(--muted);">
+                Covers the one-time work of researching each vehicle's make, model, and year to establish its manufacturer-recommended fuel consumption benchmark. This target is then used for all future performance measurement. You may request benchmark adjustments at any time at no cost.
+            </div>
+        </div>
+
+        <div style="background:white;border:1px solid var(--border);border-radius:0.75rem;overflow:hidden;margin-bottom:1rem;">
+            <div style="background:var(--navy);padding:0.9rem 1.25rem;">
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);">Fee 2 of 3</p>
+                <p style="font-size:13px;font-weight:900;color:white;margin-top:2px;">Monthly Administration Fee</p>
+            </div>
+            <div class="fee-row">
+                <div>
+                    <p class="fee-label">Fixed Monthly Account Fee</p>
+                    <p class="fee-sub">Regardless of fleet size — covers all account operations</p>
+                </div>
+                <p class="fee-amount">R 1,500 <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>
+            </div>
+            <div style="padding:0.75rem 1.25rem;background:#f8fafc;font-size:11px;color:var(--muted);">
+                Covers weekly data collection and reconciliation, report generation and delivery, dedicated client email channel management, anomaly monitoring, ongoing system maintenance, and general account support.
+            </div>
+        </div>
+
+        <div style="background:white;border:1px solid var(--border);border-radius:0.75rem;overflow:hidden;margin-bottom:1.5rem;">
+            <div style="background:#1e40af;padding:0.9rem 1.25rem;">
+                <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:rgba(255,255,255,0.5);">Fee 3 of 3</p>
+                <p style="font-size:13px;font-weight:900;color:white;margin-top:2px;">Per-Vehicle Monitoring Fee — Tiered</p>
+            </div>
+            <p style="padding:0.75rem 1.25rem 0;font-size:11px;color:var(--muted);">Charged per active vehicle per month. Larger fleets benefit from a lower rate per unit. Your tier is determined by your total active vehicles at the time of invoicing.</p>
+            <div class="pricing-grid" style="border-radius:0;border:none;border-top:1px solid var(--border);margin:0.75rem 0 0 0;">
+                <div class="pricing-col">
+                    <div class="pricing-tier">Tier 1</div>
+                    <div class="pricing-amount">R 200</div>
+                    <div class="pricing-unit">per vehicle / month</div>
+                    <div class="pricing-range">1 – 15 vehicles</div>
+                </div>
+                <div class="pricing-col active">
+                    <div class="pricing-tier">Tier 2</div>
+                    <div class="pricing-amount">R 175</div>
+                    <div class="pricing-unit">per vehicle / month</div>
+                    <div class="pricing-range">16 – 30 vehicles</div>
+                </div>
+                <div class="pricing-col">
+                    <div class="pricing-tier">Tier 3</div>
+                    <div class="pricing-amount">R 150</div>
+                    <div class="pricing-unit">per vehicle / month</div>
+                    <div class="pricing-range">31+ vehicles</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example calc -->
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:0.75rem;padding:1.25rem 1.5rem;margin-bottom:1rem;">
+            <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:#1e40af;margin-bottom:0.75rem;">Example — 10 Vehicle Fleet (Tier 1)</p>
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #bfdbfe;font-size:12px;color:#1e40af;">
+                <span>Setup Fee (once-off)</span><strong>R 2,500</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #bfdbfe;font-size:12px;color:#1e40af;">
+                <span>Monthly Admin</span><strong>R 1,500</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #bfdbfe;font-size:12px;color:#1e40af;">
+                <span>Fleet Fee (10 × R200)</span><strong>R 2,000</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.5rem 0 0;font-size:13px;font-weight:900;color:#1e40af;">
+                <span>Monthly Retainer (from Month 2)</span><strong>R 3,500 / month</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0 0;font-size:11px;color:#3b82f6;">
+                <span>First Invoice (Setup + Month 1)</span><strong>R 6,000</strong>
+            </div>
+            <p style="font-size:9px;color:#93c5fd;margin-top:0.5rem;">All amounts exclude VAT · Billed in advance on the 25th of each month</p>
+        </div>
+
+        <div class="success-box">
+            <strong>On-Demand Pool:</strong> Your monthly pool of on-demand reports equals your fleet size. So a 10-vehicle fleet gets 10 on-demand reports per month at no extra cost. Additional reports beyond the pool are charged at <strong>R 150 per report</strong>.
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         TERMS
+    ════════════════════════════════════════════════════ -->
+    <section id="terms" class="section-gap">
+        <p class="section-eyebrow">Conditions of Service</p>
+        <h2 class="section-title">Terms &amp; <em>Conditions</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-body" style="margin-bottom:1.5rem;">A full Master Service Agreement is provided before services commence and must be signed before onboarding begins. The key terms are summarised here for reference.</p>
+
+        <div class="term-block">
+            <h3>Billing &amp; Payment</h3>
+            <ul>
+                <li>Monthly retainer is billed in advance on the 25th of each month.</li>
+                <li>The first invoice includes the once-off setup fee plus Month 1's retainer.</li>
+                <li>Payment is due within 7 days of invoice date.</li>
+                <li>All amounts exclude VAT. Dynamic Fleet Reporting is not currently VAT registered.</li>
+                <li>On-demand report overages are billed at the end of the calendar month in which they were requested.</li>
+            </ul>
+        </div>
+
+        <div class="term-block">
+            <h3>Service Delivery</h3>
+            <ul>
+                <li>Reports are delivered electronically via email within 24–48 hours of receipt of all required data inputs.</li>
+                <li>The Subscriber is responsible for submitting complete and accurate data timeously.</li>
+                <li>Reports are generated from data supplied by the client — accuracy depends on data quality.</li>
+                <li>No guarantee of specific monetary savings is made. Outcomes depend on the Subscriber acting on recommendations.</li>
+            </ul>
+        </div>
+
+        <div class="term-block">
+            <h3>Anomaly Detection &amp; Limitations</h3>
+            <p>Where unusual or unexpected fuel consumption patterns are identified, Dynamic Fleet Reporting will flag these in the relevant report. <strong>The Consultant makes no determination as to the cause of any anomaly.</strong> Anomaly flags are informational only. It is the sole responsibility of the Subscriber to investigate, verify, and take appropriate action.</p>
+        </div>
+
+        <div class="term-block">
+            <h3>Cancellation &amp; Notice</h3>
+            <ul>
+                <li>Either party may terminate the agreement with 30 days' written notice.</li>
+                <li>There is no long-term contract lock-in.</li>
+                <li>Should fleet size cross a tier threshold, the new rate applies to the full fleet from the following billing cycle, with 30 days' written notice.</li>
+            </ul>
+        </div>
+
+        <div class="term-block">
+            <h3>Confidentiality</h3>
+            <p>All fleet data, reports, and client information are treated as strictly confidential. Dynamic Fleet Reporting will not disclose or share any client data with third parties without the Subscriber's prior written consent, except where required by law.</p>
+        </div>
+
+        <div class="term-block">
+            <h3>Data Submission Obligations</h3>
+            <ul>
+                <li>The Subscriber is responsible for providing accurate odometer readings, fuel logs, and GPS/telematics data per reporting cycle.</li>
+                <li>Late or incomplete submissions will delay report delivery — the 24–48 hour window begins on receipt of complete data.</li>
+                <li>A dedicated client email channel is provided for all data submissions and communications.</li>
+            </ul>
+        </div>
+
+        <div class="warning-box">
+            <strong>Important:</strong> This information pack is a summary only and does not constitute a legal agreement. The full Master Service Agreement governs the relationship between Dynamic Fleet Reporting and its clients. A copy of the SLA will be provided before onboarding begins.
+        </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════
+         CONTACT
+    ════════════════════════════════════════════════════ -->
+    <section id="contact" class="section-gap">
+        <p class="section-eyebrow">Get in Touch</p>
+        <h2 class="section-title">Contact <em>Us</em></h2>
+        <div class="section-divider"></div>
+        <p class="section-body" style="margin-bottom:0;">Ready to start measuring your fleet's performance? Have questions before committing? We're happy to chat — no obligation.</p>
+
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-card-icon">📧</div>
+                <h3>Email</h3>
+                <p>dynamicfleetreports&#64;gmail&#46;com</p>
+                <span>Best for detailed queries</span>
+            </div>
+            <div class="contact-card">
+                <div class="contact-card-icon">📞</div>
+                <h3>Phone / WhatsApp</h3>
+                <p>083 314 9592</p>
+                <span>Pieter Nell</span>
+            </div>
+            <div class="contact-card">
+                <div class="contact-card-icon">📍</div>
+                <h3>Location</h3>
+                <p>Moorreesburg</p>
+                <span>Western Cape, South Africa</span>
+            </div>
+        </div>
+
+        <div class="cta-banner">
+            <h2>Ready to reduce your fleet costs?</h2>
+            <p>Contact us to request a personalised quotation or to have a Master Service Agreement prepared for your fleet.</p>
+            <a href="mailto:dynamicfleetreports@gmail.com?subject=Fleet Reporting Enquiry" class="cta-btn">📧 Get a Quotation</a>
+        </div>
+    </section>
+
+</div><!-- end page -->
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+    <span>Dynamic Fleet Reporting</span> &nbsp;·&nbsp; Moorreesburg, Western Cape &nbsp;·&nbsp;
+    dynamicfleetreports&#64;gmail&#46;com &nbsp;·&nbsp; 083 314 9592
+    <br><span style="color:rgba(255,255,255,0.3);font-size:9px;margin-top:0.5rem;display:block;">Information correct as at <span id="footerDate"></span> · Subject to change without notice</span>
+</footer>
+
+<script>
+    // Set current year/date
+    var now = new Date();
+    document.getElementById('packDate').innerText = now.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+    document.getElementById('footerDate').innerText = now.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    // Smooth scroll for nav
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            e.preventDefault();
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+
+</body>
+</html>

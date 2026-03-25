@@ -63,6 +63,7 @@
         <a href="audit.html"    class="nav-item">Forensic Audit</a>
         <a href="invoice.html"  class="nav-item">Invoices</a>
         <a href="sla.html"      class="nav-item">SLA</a>
+        <a href="quotation.html" class="nav-item">📋 Quotation</a>
         <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
         <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
         <a href="settings.html" class="nav-item">⚙ Settings</a>
@@ -92,11 +93,13 @@
         <span class="text-[9px] font-black uppercase text-white/20 tracking-widest">Workflow:</span>
         <span class="text-[9px] font-black uppercase text-white/40">① Run Audit</span>
         <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-blue-400/60">② Generate &amp; Send SLA</span>
+        <span class="text-[9px] font-black uppercase text-emerald-400/60">② Generate Quotation</span>
         <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-yellow-400/60">③ Mark SLA Received</span>
+        <span class="text-[9px] font-black uppercase text-blue-400/60">③ Generate &amp; Send SLA</span>
         <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-emerald-400/60">④ Activate</span>
+        <span class="text-[9px] font-black uppercase text-yellow-400/60">④ Mark SLA Received</span>
+        <span class="text-white/15 text-xs">→</span>
+        <span class="text-[9px] font-black uppercase text-emerald-400/60">⑤ Activate</span>
     </div>
 
     <div id="pipeline-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -144,6 +147,12 @@
 
         // Audit button — always present
         html += '<button onclick="runAudit(\'' + co + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\'">' + auditLabel + '</button>';
+
+        // Quotation button — visible once audit is complete
+        if (auditDone) {
+            var qtLabel = p.quotationFirstSentDate ? '📋 Re-open Quotation' : '📋 Generate Quotation';
+            html += '<button onclick="generateQuotation(\'' + id + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#6ee7b7;" onmouseover="this.style.background=\'rgba(16,185,129,0.2)\'" onmouseout="this.style.background=\'rgba(16,185,129,0.1)\'">' + qtLabel + '</button>';
+        }
 
         // SLA flow buttons
         if (slaStatus === 'none') {
@@ -264,6 +273,47 @@
 
         showToast('📄 Opening SLA for ' + client.company + '...', 'blue');
         setTimeout(function() { window.open('sla.html', '_blank'); renderPipeline(); }, 400);
+    }
+
+    // ── Generate Quotation ────────────────────────────────────────────────────
+    async function generateQuotation(id) {
+        var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+        var idx = allClients.findIndex(function(c) { return c.id == id; });
+        if (idx === -1) return;
+        var client = allClients[idx];
+
+        // Load audit draft for fleet data (same as SLA)
+        var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
+        var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
+        var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
+        var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
+
+        // Populate AUDIT_FINAL so quotation.html can read client details
+        var auditFinal = {
+            client: {
+                company:     client.company,
+                id:          client.id,
+                contactName: client.contactName || '',
+                contact:     client.contactName || '',
+                email:       client.email || '',
+                address:     client.address || client.city || '',
+                fleetSize:   fleetSize,
+                city:        client.city || ''
+            },
+            fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [],
+            month: auditDraft ? (auditDraft.auditPeriod || '') : ''
+        };
+        await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
+
+        // Record quotation sent timestamp
+        allClients[idx].quotationLastOpenedDate = new Date().toISOString();
+        if (!allClients[idx].quotationFirstSentDate) {
+            allClients[idx].quotationFirstSentDate = new Date().toISOString();
+        }
+        await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
+
+        showToast('📋 Opening Quotation for ' + client.company + '...', 'blue');
+        setTimeout(function() { window.open('quotation.html', '_blank'); renderPipeline(); }, 400);
     }
 
     // ── Mark SLA received ─────────────────────────────────────────────────────
