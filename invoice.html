@@ -37,7 +37,7 @@
             .invoice-card { box-shadow: none; padding: 1.5rem; }
         }
 
-        @media(max-width:768px){
+        @media(max-width:768px){body{padding:0.5rem!important;}
             body{padding:1rem;}
             .invoice-card{padding:1.5rem;border-radius:0;}
             .line-table{display:block;overflow-x:auto;white-space:nowrap;}
@@ -606,7 +606,7 @@
             'Dynamic Fleet Reporting\n' +
             'dynamicfleetreports@gmail.com | 083 314 9592'
         );
-        window.location.href = 'mailto:' + (client.email || '') + '?subject=' + subject + ''&body=' + body;
+        window.location.href = 'mailto:' + (client.email || '') + '?subject=' + subject + '&body=' + body;
     }
 
 </script>

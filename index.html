@@ -3,6 +3,7 @@
 <head>
     <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Executive Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
@@ -20,9 +21,32 @@
         .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
         .status-tile { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 1.5rem; padding: 1.5rem; display: flex; flex-direction: column; justify-content: center; min-height: 180px; }
         .btn-action { background: #10b981; color: #020617; padding: 0.85rem; border-radius: 0.75rem; font-weight: 900; text-transform: uppercase; font-size: 10px; text-align: center; transition: all 0.2s; cursor: pointer; border: none; width: 100%; margin-bottom: 0.5rem; text-decoration: none; display: block; }
+
+        /* ── Mobile ── */
+        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;flex-shrink:0;}
+        .mob-logo{max-height:32px;}
+        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:59;}
+        .sidebar-overlay.open{display:block;}
+        @media(max-width:768px){
+            body{flex-direction:column;height:auto;overflow:auto;}
+            #sidebar{display:none;position:fixed;top:0;left:0;height:100vh;width:260px;z-index:60;overflow-y:auto;}
+            #sidebar.open{display:flex;}
+            .mob-topbar{display:flex;}
+            .main-wrapper{padding:1.25rem;}
+            .bottom-grid{grid-template-columns:1fr!important;}
+        }
+        @media(min-width:769px){.mob-topbar{display:none!important;}}
     </style>
 </head>
 <body>
+<div class="mob-topbar">
+    <img src="Logo.png" alt="Logo" class="mob-logo" onerror="this.style.display='none'">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
     <aside id="sidebar">
         <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width: 140px;"></div>
         <nav>
@@ -263,6 +287,9 @@
         }
 
         window.onload = updateDisplay;
+    
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
     </script>
 </body>
 </html>

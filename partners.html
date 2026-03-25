@@ -142,9 +142,34 @@
         .pb-ig{background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.15);}
         .pb-wa{background:rgba(37,211,102,0.06);border:1px solid rgba(37,211,102,0.15);}
         .pb-tt{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);}
+
+        /* ── Mobile ── */
+        .mob-topbar{display:none;background:#0f172a;border-bottom:1px solid rgba(255,255,255,0.05);padding:0.85rem 1.25rem;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;flex-shrink:0;}
+        .mob-logo{max-height:32px;}
+        .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px;padding:4px;}
+        .hamburger span{display:block;width:22px;height:2px;background:#e2e8f0;border-radius:2px;}
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:59;}
+        .sidebar-overlay.open{display:block;}
+        @media(max-width:768px){
+            body{flex-direction:column;height:auto;overflow:auto;}
+            #sidebar{display:none;position:fixed;top:0;left:0;height:100vh;width:260px;z-index:60;overflow-y:auto;}
+            #sidebar.open{display:flex;}
+            .mob-topbar{display:flex;}
+            .main{padding:1.25rem;}
+            .partners-grid{grid-template-columns:1fr!important;}
+            .stats-row{grid-template-columns:repeat(2,1fr)!important;}
+            .pc-metrics{grid-template-columns:repeat(3,1fr)!important;}
+        }
+        @media(min-width:769px){.mob-topbar{display:none!important;}}
     </style>
 </head>
 <body>
+<div class="mob-topbar">
+    <img src="Logo.png" alt="Logo" class="mob-logo" onerror="this.style.display='none'">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 
 <aside id="sidebar">
     <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
@@ -1049,6 +1074,9 @@ function renderCommunityScriptsMgmt(scripts){
 }
 
 function escHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+        function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
 </script>
 </body>
 </html>
