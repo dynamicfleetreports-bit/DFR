@@ -139,9 +139,114 @@
         /* ── Print ── */
         @media print {
             .nav-bar, .no-print { display: none !important; }
-            body { background: white; }
-            .hero { padding: 2rem; }
-            .section-gap { page-break-inside: avoid; }
+
+            @page { size: A4; margin: 10mm 12mm; }
+            html, body { background: white !important; font-size: 9pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            /* ── Hero ── */
+            .hero { padding: 0.9rem 1.25rem !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .hero-inner { gap: 1rem !important; flex-wrap: nowrap !important; }
+            .hero img { height: 55px !important; margin-bottom: 0 !important; border-radius: 8px !important; }
+            .hero h1 { font-size: 1.2rem !important; }
+            .hero p { font-size: 0.68rem !important; margin-top: 0.2rem !important; }
+            .hero-meta { margin-top: 0.4rem !important; font-size: 7px !important; padding: 0.2rem 0.65rem !important; }
+
+            /* ── Page & sections ── */
+            .page { padding: 0.6rem 0 !important; max-width: 100% !important; }
+            .section-gap { padding: 0.7rem 0 !important; border-top: 1px solid var(--border); break-inside: avoid; }
+            .section-eyebrow { font-size: 7px !important; margin-bottom: 0.15rem !important; }
+            .section-title { font-size: 0.95rem !important; margin-bottom: 0.25rem !important; }
+            .section-divider { margin-bottom: 0.5rem !important; height: 2px !important; }
+            .section-body { font-size: 0.7rem !important; line-height: 1.45 !important; }
+
+            /* ── Stat strip — force 3 columns ── */
+            .stat-strip {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                padding: 0.6rem 0.75rem !important;
+                gap: 0.5rem !important;
+                margin: 0.6rem 0 !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            .stat-num { font-size: 1.1rem !important; }
+            .stat-label { font-size: 6px !important; }
+
+            /* ── About grid — force 2 columns ── */
+            .about-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.35rem !important;
+                margin-top: 0.5rem !important;
+            }
+            .about-card { padding: 0.55rem 0.7rem !important; break-inside: avoid; }
+            .about-card-icon { font-size: 0.9rem !important; margin-bottom: 0.15rem !important; }
+            .about-card h3 { font-size: 0.62rem !important; margin-bottom: 0.15rem !important; }
+            .about-card p { font-size: 0.62rem !important; line-height: 1.35 !important; }
+
+            /* ── Service cards ── */
+            .service-card { break-inside: avoid; margin-bottom: 0.35rem !important; }
+            .service-header { padding: 0.4rem 0.7rem !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .service-header h3 { font-size: 7.5px !important; }
+            .service-header .badge { font-size: 6.5px !important; padding: 1px 5px !important; }
+            .service-body { padding: 0.45rem 0.7rem !important; }
+            .service-body p { font-size: 0.64rem !important; margin-bottom: 0.25rem !important; line-height: 1.35 !important; }
+            .feature-list li { font-size: 0.62rem !important; padding: 0.06rem 0 !important; line-height: 1.3 !important; }
+
+            /* ── Info box ── */
+            .info-box, .success-box, .warning-box {
+                font-size: 0.65rem !important;
+                padding: 0.45rem 0.65rem !important;
+                margin: 0.4rem 0 !important;
+                break-inside: avoid;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+
+            /* ── Pricing ── */
+            .pricing-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                margin: 0.4rem 0 !important;
+                break-inside: avoid;
+            }
+            .pricing-col { padding: 0.55rem !important; }
+            .pricing-tier { font-size: 6.5px !important; }
+            .pricing-amount { font-size: 1rem !important; }
+            .pricing-unit { font-size: 7.5px !important; }
+            .pricing-range { font-size: 6.5px !important; }
+            .fee-row { padding: 0.3rem 0.7rem !important; }
+            .fee-label { font-size: 8.5px !important; }
+            .fee-sub { font-size: 6.5px !important; }
+            .fee-amount { font-size: 9.5px !important; }
+
+            /* ── Terms ── */
+            .term-block { padding: 0.5rem 0.7rem !important; margin-bottom: 0.3rem !important; break-inside: avoid; }
+            .term-block h3 { font-size: 7.5px !important; margin-bottom: 0.2rem !important; padding-bottom: 0.2rem !important; }
+            .term-block p, .term-block ul li { font-size: 0.64rem !important; line-height: 1.4 !important; }
+            .term-block ul { margin-top: 0.2rem !important; }
+            .term-block ul li { padding: 0.08rem 0 0.08rem 0.75rem !important; }
+
+            /* ── Contact ── */
+            .contact-grid {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 0.35rem !important;
+                margin-top: 0.5rem !important;
+                break-inside: avoid;
+            }
+            .contact-card { padding: 0.55rem !important; break-inside: avoid; }
+            .contact-card-icon { font-size: 0.9rem !important; margin-bottom: 0.15rem !important; }
+            .contact-card h3 { font-size: 6.5px !important; }
+            .contact-card p { font-size: 0.65rem !important; }
+            .contact-card span { font-size: 6.5px !important; }
+
+            /* ── CTA banner ── */
+            .cta-banner { padding: 0.85rem 1.1rem !important; margin-top: 0.75rem !important; break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .cta-banner h2 { font-size: 0.85rem !important; margin-bottom: 0.2rem !important; }
+            .cta-banner p { font-size: 0.65rem !important; margin-bottom: 0.5rem !important; }
+            .cta-btn { font-size: 7px !important; padding: 0.35rem 0.85rem !important; }
+
+            /* ── Footer ── */
+            .site-footer { padding: 0.5rem !important; font-size: 6.5px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
 
         /* ── Mobile ── */
