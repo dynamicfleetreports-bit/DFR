@@ -147,11 +147,22 @@
     <div class="ref-box">
         <div class="ref-icon">🔗</div>
         <div class="ref-body">
-            <div class="ref-label">Your Referral Link</div>
-            <div class="ref-sub">Share this link everywhere. Every lead that comes through it is automatically linked to you.</div>
+            <div class="ref-label">Your Referral Links</div>
+            <div class="ref-sub">Share these links with prospects. Every lead that comes through them is automatically linked to you.</div>
+
+            <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:5px;">🚀 Enquiry Link — for leads ready to submit their details</div>
             <div class="ref-link-row">
                 <div class="ref-link-val" id="refLinkVal">—</div>
-                <button class="btn-copy" id="copyBtn" onclick="copyLink()">📋 Copy Link</button>
+                <button class="btn-copy" id="copyBtn" onclick="copyLink('refLinkVal','copyBtn')">📋 Copy</button>
+            </div>
+
+            <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin:0.85rem 0 5px;">📦 Info Pack Link — for cold prospects who need more information first</div>
+            <div class="ref-link-row">
+                <div class="ref-link-val" id="infoLinkVal">—</div>
+                <button class="btn-copy" id="copyInfoBtn" onclick="copyLink('infoLinkVal','copyInfoBtn')">📋 Copy</button>
+            </div>
+
+            <div class="ref-link-row" style="margin-top:0.75rem;">
                 <button style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="goMarketing()">📣 Marketing Hub</button>
                 <button style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="window.open('partner-guide.html','_blank')">📖 Partner Guide</button>
             </div>
@@ -290,6 +301,7 @@ function showPortal(){
     document.getElementById('tbPname').textContent     = _partner.name;
     document.getElementById('tbPcode').textContent     = getRefCode(_partner);
     document.getElementById('refLinkVal').textContent  = DISCOVER_URL + '?ref=' + getRefCode(_partner);
+    document.getElementById('infoLinkVal').textContent = window.location.origin + window.location.pathname.replace('partner-portal.html','') + 'infopack.html?ref=' + getRefCode(_partner);
     renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
 }
 
@@ -410,12 +422,15 @@ function renderActive(){
     }).join('');
 }
 
-function copyLink(){
-    var link = document.getElementById('refLinkVal').textContent;
+function copyLink(valId, btnId){
+    valId = valId || 'refLinkVal';
+    btnId = btnId || 'copyBtn';
+    var link = document.getElementById(valId).textContent;
     navigator.clipboard.writeText(link).then(function(){
-        var btn = document.getElementById('copyBtn');
+        var btn = document.getElementById(btnId);
+        var orig = btn.textContent;
         btn.textContent = '✅ Copied!'; btn.classList.add('copied');
-        setTimeout(function(){ btn.textContent = '📋 Copy Link'; btn.classList.remove('copied'); }, 2000);
+        setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
     });
 }
 </script>
