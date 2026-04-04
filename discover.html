@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module" src="firebase-helper.js"></script>
     <script src="uom-helper.js"></script>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Fleet Audit — Dynamic Fleet Reporting</title>
@@ -311,15 +311,16 @@
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
-(function initDiscoverCountry() {
-    function tryInit() {
-        if (typeof DFR_UOM === 'undefined') { setTimeout(tryInit, 80); return; }
+// Country dropdown — wait for DOM + DFR_UOM both ready
+document.addEventListener('DOMContentLoaded', function() {
+    function tryInitCountry() {
+        if (typeof DFR_UOM === 'undefined') { setTimeout(tryInitCountry, 80); return; }
         var sel = document.getElementById('f-country');
-        if (!sel) return;
+        if (!sel) { setTimeout(tryInitCountry, 80); return; }
         sel.innerHTML = DFR_UOM.buildCountryOptions('ZA');
     }
-    tryInit();
-})();
+    tryInitCountry();
+});
 
 // ── Read ?ref= from URL ────────────────────────────────────────────────────
 let _refCode    = null;  // partner referral code from URL
