@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Intake | Dynamic Fleet Reporting</title>
@@ -92,6 +93,34 @@
         </div>
 
         <div class="form-section">
+            <span class="section-label">01b — Country &amp; Units</span>
+            <div class="grid grid-cols-2 gap-5 mb-5">
+                <div>
+                    <label>Country *</label>
+                    <select id="countryCode" onchange="onCountryChange()"></select>
+                </div>
+                <div>
+                    <label>Currency</label>
+                    <input type="text" id="currencyDisplay" readonly style="background:rgba(255,255,255,0.02);color:#64748b;" placeholder="Auto-set from country">
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-5">
+                <div>
+                    <label>Distance Unit</label>
+                    <input type="text" id="distUnitDisplay" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
+                </div>
+                <div>
+                    <label>Volume Unit</label>
+                    <input type="text" id="volUnitDisplay" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
+                </div>
+                <div>
+                    <label>Efficiency Unit</label>
+                    <input type="text" id="effUnitDisplay" readonly style="background:rgba(255,255,255,0.02);color:#64748b;">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
             <span class="section-label">02 — Contact Information</span>
             <div class="grid grid-cols-2 gap-5 mb-5">
                 <div><label>Contact Name</label><input type="text" id="contactName" placeholder="Primary contact person"></div>
@@ -108,7 +137,8 @@
             </div>
             <div class="grid grid-cols-3 gap-5">
                 <div><label>City</label><input type="text" id="billingCity" placeholder="City"></div>
-                <div><label>Province</label>
+                <div id="provinceGroup">
+                    <label>Province / State / Region</label>
                     <select id="billingProvince">
                         <option value="">— Select —</option>
                         <option>Western Cape</option><option>Eastern Cape</option><option>Northern Cape</option>
@@ -124,12 +154,12 @@
             <span class="section-label">04 — Fleet &amp; Performance</span>
             <div class="grid grid-cols-3 gap-5 mb-5">
                 <div><label>Fleet Size (Units) *</label><input type="number" id="fleetSize" required value="1" min="1"></div>
-                <div><label>Fuel Price (R/L)</label><input type="number" id="fuelPrice" step="0.01" value="22.50"></div>
-                <div><label>Speed Limit (km/h)</label><input type="number" id="speedLimit" value="80"></div>
+                <div><label id="fuelPriceLabel">Fuel Price (R/L)</label><input type="number" id="fuelPrice" step="0.01" value="22.50"></div>
+                <div><label id="speedLimitLabel">Speed Limit (km/h)</label><input type="number" id="speedLimit" value="80"></div>
             </div>
             <div class="grid grid-cols-2 gap-5">
-                <div><label>Current Consumption (km/L)</label><input type="number" id="currentCons" step="0.1" placeholder="Actual reported"></div>
-                <div><label>Target Consumption (km/L)</label><input type="number" id="targetCons" step="0.1" value="2.3"></div>
+                <div><label id="currentConsLabel">Current Consumption (km/L)</label><input type="number" id="currentCons" step="0.1" placeholder="Actual reported"></div>
+                <div><label id="targetConsLabel">Target Consumption (km/L)</label><input type="number" id="targetCons" step="0.1" value="2.3"></div>
             </div>
         </div>
 
@@ -232,6 +262,9 @@ ready().then(async function(){
         });
     } catch(e) {}
 
+    // Init country dropdown
+    initCountryDropdown('ZA');
+
     // Check URL for ?ref= auto-assign from referral link click
     var refParam=urlParams.get('ref');
     if(refParam){
@@ -275,6 +308,7 @@ ready().then(async function(){
         document.getElementById('speedLimit').value=p.speedLimit||80;
         document.getElementById('currentCons').value=p.currentCons||'';
         document.getElementById('targetCons').value=p.targetCons||2.3;
+        if(p.countryCode) { document.getElementById('countryCode').value=p.countryCode; onCountryChange(false); }
         document.getElementById('reportSchedule').value=p.reportSchedule||'weekly';
         document.getElementById('vatNumber').value=p.vatNumber||'';
         if(p.referralPartnerId){
@@ -302,6 +336,10 @@ document.getElementById('intakeForm').onsubmit=async function(e){
     var btn=document.getElementById('submitBtn');
     btn.innerText='Saving...'; btn.disabled=true;
     var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    // Get UOM profile for this client so we can normalise inputs to metric
+    var _countryCode = document.getElementById('countryCode').value || 'ZA';
+    var _uomProfile  = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile({countryCode:_countryCode}) : null;
+
     var updates={
         company:        document.getElementById('company').value.trim().toUpperCase(),
         city:           document.getElementById('city').value.trim().toUpperCase(),
@@ -314,14 +352,33 @@ document.getElementById('intakeForm').onsubmit=async function(e){
         billingProvince:document.getElementById('billingProvince').value,
         billingPostal:  document.getElementById('billingPostal').value.trim(),
         fleetSize:      parseInt(document.getElementById('fleetSize').value)||1,
-        fuelPrice:      parseFloat(document.getElementById('fuelPrice').value)||22.50,
-        speedLimit:     parseInt(document.getElementById('speedLimit').value)||80,
-        currentCons:    document.getElementById('currentCons').value,
-        targetCons:     parseFloat(document.getElementById('targetCons').value)||2.3,
+        // Always store fuel price as per-litre in the base currency
+        fuelPrice:      (typeof DFR_UOM !== 'undefined')
+                            ? DFR_UOM.fuelPriceToPerLitre(document.getElementById('fuelPrice').value, _uomProfile)
+                            : parseFloat(document.getElementById('fuelPrice').value)||22.50,
+        // Always store speed limit in km/h
+        speedLimit:     (typeof DFR_UOM !== 'undefined')
+                            ? DFR_UOM.speedToKmh(document.getElementById('speedLimit').value, _uomProfile)
+                            : parseInt(document.getElementById('speedLimit').value)||80,
+        // Always store consumption as km/L
+        currentCons:    (typeof DFR_UOM !== 'undefined' && document.getElementById('currentCons').value)
+                            ? DFR_UOM.effToKmL(document.getElementById('currentCons').value, _uomProfile)
+                            : document.getElementById('currentCons').value,
+        targetCons:     (typeof DFR_UOM !== 'undefined')
+                            ? DFR_UOM.effToKmL(document.getElementById('targetCons').value, _uomProfile)
+                            : parseFloat(document.getElementById('targetCons').value)||2.3,
         reportSchedule: document.getElementById('reportSchedule').value,
         vatNumber:      document.getElementById('vatNumber').value.trim(),
         referralPartnerId: document.getElementById('referralPartnerId').value||null,
         referralCode:   document.getElementById('referralCode').value.trim()||null,
+        // UOM profile fields — stored so audit.html and reports know how to display
+        countryCode:    _countryCode,
+        currency:       _uomProfile ? _uomProfile.currency   : 'ZAR',
+        currencySymbol: _uomProfile ? _uomProfile.symbol     : 'R',
+        distUnit:       _uomProfile ? _uomProfile.distUnit   : 'km',
+        volUnit:        _uomProfile ? _uomProfile.volUnit    : 'L',
+        effUnit:        _uomProfile ? _uomProfile.effUnit    : 'km/L',
+        speedUnit:      _uomProfile ? _uomProfile.speedUnit  : 'km/h',
     };
     if(editId){
         var idx=clients.findIndex(function(c){return c.id==editId;});
@@ -334,6 +391,63 @@ document.getElementById('intakeForm').onsubmit=async function(e){
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(clients));
     window.location.href='pipeline.html';
 };
+
+function initCountryDropdown(selectedCode) {
+    if (typeof DFR_UOM === 'undefined') return;
+    var sel = document.getElementById('countryCode');
+    sel.innerHTML = DFR_UOM.buildCountryOptions(selectedCode || 'ZA');
+    onCountryChange(false);
+}
+
+function onCountryChange(resetDefaults) {
+    if (typeof DFR_UOM === 'undefined') return;
+    var code    = document.getElementById('countryCode').value || 'ZA';
+    var profile = DFR_UOM.getProfile({countryCode: code});
+
+    // Update display fields
+    document.getElementById('currencyDisplay').value  = profile.currency + ' (' + profile.symbol + ')';
+    document.getElementById('distUnitDisplay').value  = profile.distUnit;
+    document.getElementById('volUnitDisplay').value   = volLabel(profile);
+    document.getElementById('effUnitDisplay').value   = DFR_UOM.effLabel(profile);
+
+    // Update Fleet & Performance labels
+    document.getElementById('fuelPriceLabel').textContent   = 'Fuel Price (' + DFR_UOM.fuelPriceLabel(profile) + ')';
+    document.getElementById('speedLimitLabel').textContent  = 'Speed Limit (' + DFR_UOM.speedLabel(profile) + ')';
+    document.getElementById('currentConsLabel').textContent = 'Current Consumption (' + DFR_UOM.effLabel(profile) + ')';
+    document.getElementById('targetConsLabel').textContent  = 'Target Consumption (' + DFR_UOM.effLabel(profile) + ')';
+
+    // Hide province dropdown for non-SA (still submits empty string which is fine)
+    var isSA = (code === 'ZA');
+    var pg = document.getElementById('provinceGroup');
+    if (pg) pg.style.display = isSA ? '' : 'none';
+
+    // Reset fuel price and speed limit defaults for the country
+    if (resetDefaults !== false) {
+        if (code === 'ZA') {
+            document.getElementById('fuelPrice').value  = '22.50';
+            document.getElementById('speedLimit').value = '80';
+        } else if (code === 'US') {
+            document.getElementById('fuelPrice').value  = '3.50';  // $/gal approx
+            document.getElementById('speedLimit').value = '65';    // mph
+        } else if (code === 'GB') {
+            document.getElementById('fuelPrice').value  = '1.50';  // £/litre approx
+            document.getElementById('speedLimit').value = '60';    // mph
+        } else if (code === 'AU') {
+            document.getElementById('fuelPrice').value  = '2.00';  // A$/L approx
+            document.getElementById('speedLimit').value = '100';
+        } else {
+            document.getElementById('fuelPrice').value  = '';
+            document.getElementById('speedLimit').value = '80';
+        }
+    }
+}
+
+function volLabel(profile) {
+    if (!profile || profile.volUnit === 'L') return 'L';
+    if (profile.volUnit === 'gal_us') return 'gal (US)';
+    if (profile.volUnit === 'gal_uk') return 'gal (UK)';
+    return 'L';
+}
 
 function syncToSheet(companyName,status){
     return new Promise(function(resolve,reject){
