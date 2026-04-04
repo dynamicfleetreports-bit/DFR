@@ -308,19 +308,50 @@
     © Dynamic Fleet Reporting &nbsp;•&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="25415c4b44484c4643494040515740554a575156654248444c490b464a48">[email&#160;protected]</a> &nbsp;•&nbsp; 083 314 9592 &nbsp;•&nbsp; 100% Confidential
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
-// Country dropdown — wait for DOM + DFR_UOM both ready
-document.addEventListener('DOMContentLoaded', function() {
-    function tryInitCountry() {
-        if (typeof DFR_UOM === 'undefined') { setTimeout(tryInitCountry, 80); return; }
+</script>
+<script>
+(function() {
+    var countries = [
+        {v:'ZA',    t:'South Africa'},
+        {v:'AE',    t:'UAE'},
+        {v:'AU',    t:'Australia'},
+        {v:'BW',    t:'Botswana'},
+        {v:'CA',    t:'Canada'},
+        {v:'DE',    t:'Germany'},
+        {v:'EU',    t:'Europe (EUR)'},
+        {v:'FR',    t:'France'},
+        {v:'GB',    t:'United Kingdom'},
+        {v:'GH',    t:'Ghana'},
+        {v:'KE',    t:'Kenya'},
+        {v:'MZ',    t:'Mozambique'},
+        {v:'NA',    t:'Namibia'},
+        {v:'NG',    t:'Nigeria'},
+        {v:'NL',    t:'Netherlands'},
+        {v:'NZ',    t:'New Zealand'},
+        {v:'US',    t:'United States'},
+        {v:'ZM',    t:'Zambia'},
+        {v:'ZW',    t:'Zimbabwe'},
+        {v:'OTHER', t:'Other (Metric)'},
+    ];
+    function fillCountry() {
         var sel = document.getElementById('f-country');
-        if (!sel) { setTimeout(tryInitCountry, 80); return; }
-        sel.innerHTML = DFR_UOM.buildCountryOptions('ZA');
+        if (!sel) return;
+        sel.innerHTML = countries.map(function(c) {
+            return '<option value="' + c.v + '"' + (c.v === 'ZA' ? ' selected' : '') + '>' + c.t + '</option>';
+        }).join('');
     }
-    tryInitCountry();
-});
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fillCountry);
+    } else {
+        fillCountry();
+    }
+})();
+</script>
+<script>
 
 // ── Read ?ref= from URL ────────────────────────────────────────────────────
 let _refCode    = null;  // partner referral code from URL
