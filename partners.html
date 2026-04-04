@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Referral Partners | Dynamic Fleet Reporting</title>
@@ -360,6 +361,7 @@ Time is short. April 1st is coming fast. 🔥</div></div>
       <div class="form-group"><label>Full Name *</label><input type="text" id="pName" placeholder="e.g. Johan van der Merwe"></div>
       <div class="form-group"><label>Contact Number *</label><input type="text" id="pPhone" placeholder="083 000 0000"></div>
       <div class="form-group full"><label>Email Address *</label><input type="email" id="pEmail" placeholder="name@email.com"></div>
+      <div class="form-group"><label>Country</label><select id="pCountry"></select></div>
       <div class="form-group"><label>ID Number</label><input type="text" id="pID"></div>
       <div class="form-group"><label>Address</label><input type="text" id="pAddress"></div>
       <div class="form-group"><label>Bank Name</label><input type="text" id="pBank" placeholder="e.g. FNB"></div>
@@ -569,7 +571,10 @@ function renderPartners(){
             :`<button class="btn-sm bsgr" onclick="setStatus('${p.id}','active')">▶ Activate</button>`;
         return `<div class="partner-card ${p.status!=='active'?'inactive':''}">
             <div class="pc-header">
-                <div><div class="pc-name">${p.name}</div><div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm</div></div>
+                <div>
+                <div class="pc-name">${(typeof DFR_UOM !== 'undefined' && p.countryCode) ? DFR_UOM.getProfile(p).flag+' ' : ''}${p.name}</div>
+                <div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm${p.countryCode && p.countryCode!=='ZA' ? ' &middot; '+p.countryCode : ''}</div>
+                </div>
                 <span class="sbadge ${sc}">${sl}</span>
             </div>
             <div class="pc-body">
@@ -610,7 +615,7 @@ function renderPartners(){
 function openAddModal(){
     _editId=null;
     document.getElementById('modalTitle').textContent='Add Referral Partner';
-    ['pName','pPhone','pEmail','pID','pBank','pAccNum','pBranch','pAddress','pNotes'].forEach(id=>document.getElementById(id).value='');
+    ['pName','pPhone','pEmail','pID','pBank','pAccNum','pBranch','pAddress','pNotes'].forEach(id=>document.getElementById(id).value=''); if(document.getElementById('pCountry')) document.getElementById('pCountry').value='ZA';
     document.getElementById('pCommRate').value='15';
     document.getElementById('pAccType').value='Cheque';
     document.getElementById('pStatus').value='pending';
@@ -624,6 +629,7 @@ function editPartner(id){
     document.getElementById('pName').value=p.name||'';
     document.getElementById('pPhone').value=p.phone||'';
     document.getElementById('pEmail').value=p.email||'';
+    if(document.getElementById('pCountry')) document.getElementById('pCountry').value=p.countryCode||'ZA';
     document.getElementById('pID').value=p.idNumber||'';
     document.getElementById('pBank').value=p.bank||'';
     document.getElementById('pAccNum').value=p.accNum||'';
@@ -641,7 +647,9 @@ async function savePartner(){
     const phone=document.getElementById('pPhone').value.trim();
     const email=document.getElementById('pEmail').value.trim();
     if(!name||!phone||!email){ toast('Name, phone and email required','red'); return; }
-    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim()};
+    const _pCountry = document.getElementById('pCountry') ? document.getElementById('pCountry').value : 'ZA';
+    const _pUomProf = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile({countryCode:_pCountry}) : null;
+    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim(),countryCode:_pCountry,currency:_pUomProf?_pUomProf.currency:'ZAR',currencySymbol:_pUomProf?_pUomProf.symbol:'R'};
     if(_editId){
         const idx=_partners.findIndex(p=>p.id===_editId);
         if(idx>-1) _partners[idx]=Object.assign({},_partners[idx],data);

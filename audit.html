@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 	<script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Forensic Audit Engine</title>
@@ -161,7 +162,7 @@
     <main class="main-wrapper">
         <div class="mb-6">
             <h1 class="text-3xl font-black italic uppercase text-white leading-none">
-                Efficiency Audit : <span id="client-name" class="text-emerald-500">NO CLIENT SELECTED</span>
+                Efficiency Audit : <span id="client-flag" style="font-size:1.1rem;margin-right:6px;"></span><span id="client-name" class="text-emerald-500">NO CLIENT SELECTED</span>
             </h1>
             <!-- Client selector row -->
             <div class="flex gap-4 mt-4 items-center flex-wrap">
@@ -433,6 +434,7 @@ function calcFleet(vehicles, settings) {
 
 // ── State ──────────────────────────────────────────────────────────────────
 let auditData = {};
+let currentClientProfile = null; // UOM profile for active client
 let _vdb = {};
 let activeRows = [], activeMode = '';
 let currentClientName = '';
@@ -511,12 +513,30 @@ async function loadAuditClient(name, allClients) {
     const sel = document.getElementById('audit-client-sel');
     if (sel) sel.value = name;
     await cloudStorage.setItem('currentAuditClient', name);
+    // Store UOM profile for this client
+    currentClientProfile = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile(client) : null;
+
+    // Show conversion note if client uses non-metric inputs
+    var convNote = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.conversionNote(currentClientProfile) : null;
+    var noteEl = document.getElementById('uom-conversion-note');
+    if (noteEl) {
+        if (convNote) { noteEl.textContent = '⚙️ ' + convNote; noteEl.style.display = 'block'; }
+        else { noteEl.style.display = 'none'; }
+    }
+
+    // Show client flag if available
+    var flagEl = document.getElementById('client-flag');
+    if (flagEl) flagEl.textContent = (currentClientProfile && currentClientProfile.flag) ? currentClientProfile.flag : '';
+
     if (client.speedLimit) document.getElementById('master-speed').value = client.speedLimit;
     if (client.fuelPrice) {
         document.getElementById('price-w').value = client.fuelPrice;
         document.getElementById('price-r').value = parseFloat(client.fuelPrice) + 2.35;
     }
     if (client.targetCons) document.getElementById('master-target').value = client.targetCons;
+
+    // Update input labels to show client UOM
+    updateAuditLabels(currentClientProfile);
     await loadAuditDraft(name);
     await checkFreeAuditWarning(name);
 }
@@ -536,8 +556,29 @@ The current audit for ' + currentClientName + ' will be auto-saved as a draft.')
     await loadAuditClient(name);
 }
 
+function updateAuditLabels(profile) {
+    if (typeof DFR_UOM === 'undefined') return;
+    // Update column header labels to reflect client UOM
+    var effLbl   = DFR_UOM.effLabel(profile);
+    var distLbl  = DFR_UOM.distLabel(profile);
+    var volLbl   = DFR_UOM.volLabel(profile);
+    var currSym  = DFR_UOM.currencySymbol(profile);
+    var hdrs = document.querySelectorAll('.col-header-eff');
+    hdrs.forEach(function(el){ el.textContent = effLbl; });
+    var hdrsD = document.querySelectorAll('.col-header-dist');
+    hdrsD.forEach(function(el){ el.textContent = distLbl; });
+    var hdrsV = document.querySelectorAll('.col-header-vol');
+    hdrsV.forEach(function(el){ el.textContent = volLbl; });
+    var hdrsC = document.querySelectorAll('.col-header-curr');
+    hdrsC.forEach(function(el){ el.textContent = currSym; });
+    // Update target label
+    var tl = document.getElementById('target-label');
+    if (tl) tl.textContent = 'Target ' + effLbl;
+}
+
 function resetAuditUI() {
     auditData = {};
+    currentClientProfile = null;
     const gr = document.getElementById('grid-rows'); if (gr) gr.innerHTML = '';
     ['stat-usage','stat-speed'].forEach(id => {
         const el = document.getElementById(id);
@@ -736,7 +777,11 @@ async function commitMapping() {
                 gps:0, gpsDist:0, mK:av.mK||av.odo||null, mL:av.mL||av.liters||null,
                 speeds:[], duration:0, maxSpeed:0, violations:0 };
         }
-        const val = parseFloat(row[vIdx])||0;
+        // Convert to metric on intake — calc engine always works in km/litres
+        const rawVal = parseFloat(row[vIdx])||0;
+        const val = (typeof DFR_UOM !== 'undefined' && currentClientProfile)
+            ? (activeMode==='usage' ? DFR_UOM.distToKm(rawVal, currentClientProfile) : rawVal)
+            : rawVal;
         if (activeMode==='usage') {
             if (logic==='sum') newData[key].gps+=val; else if (val>newData[key].gps) newData[key].gps=val;
             newData[key].gpsDist = newData[key].gps;
@@ -802,11 +847,28 @@ function renderGrid() {
         const fraudBadge = hasFraud ? `<span style="font-size:9px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:2px 6px;margin-left:4px;" title="${v.fraudFlags.join(' | ')}">⚠ FLAG</span>` : '';
         const isGps = !parseFloat(raw.mK||raw.odo) && (raw.gps||raw.gpsDist)>0;
 
-        const odoInput = `<input type="number" placeholder="km" value="${v.mK||''}" data-key="${k}" data-field="mK"
-            onchange="auditData['${k}'].mK=parseFloat(this.value)||0;auditData['${k}'].odo=parseFloat(this.value)||0;renderGrid();autoSaveAuditDraft();"
+        // Display values in client UOM, but store/calc in metric
+        const _uom = (typeof DFR_UOM !== 'undefined') ? DFR_UOM : null;
+        const _p   = currentClientProfile;
+        const odoDisp = v.mK ? (_uom ? _uom.kmToDisplay(v.mK, _p).toFixed(0) : v.mK) : '';
+        const litDisp = v.mL ? (_uom ? _uom.litresToDisplay(v.mL, _p).toFixed(1) : v.mL) : '';
+        const odoPlaceholder = _uom ? _uom.distLabel(_p) : 'km';
+        const litPlaceholder = _uom ? _uom.volLabel(_p)  : 'L';
+        const odoInput = `<input type="number" placeholder="${odoPlaceholder}" value="${odoDisp}" data-key="${k}" data-field="mK"
+            onchange="(function(el){
+                var raw=parseFloat(el.value)||0;
+                var metric=(_uom&&_p)?_uom.distToKm(raw,_p):raw;
+                auditData['${k}'].mK=metric; auditData['${k}'].odo=metric;
+                renderGrid(); autoSaveAuditDraft();
+            })(this)"
             class="manual-input" ${isGps?'style="border-color:rgba(99,102,241,0.5);" title="Using GPS as fallback"':''}>`;
-        const litInput = `<input type="number" placeholder="L" value="${v.mL||''}" step="0.1" data-key="${k}" data-field="mL"
-            onchange="auditData['${k}'].mL=parseFloat(this.value)||0;auditData['${k}'].liters=parseFloat(this.value)||0;renderGrid();autoSaveAuditDraft();"
+        const litInput = `<input type="number" placeholder="${litPlaceholder}" value="${litDisp}" step="0.1" data-key="${k}" data-field="mL"
+            onchange="(function(el){
+                var raw=parseFloat(el.value)||0;
+                var metric=(_uom&&_p)?_uom.volToLitres(raw,_p):raw;
+                auditData['${k}'].mL=metric; auditData['${k}'].liters=metric;
+                renderGrid(); autoSaveAuditDraft();
+            })(this)"
             class="manual-input">`;
 
         const scoreCol = v.actKmL
@@ -827,32 +889,33 @@ function renderGrid() {
                 <div class="col-data">${odoInput}</div>
                 <div class="col-drift text-[11px] ${v.driftKm&&Math.abs(v.driftKm)>50?'text-red-400 font-bold':'text-slate-500'}">${v.driftKm!==null?v.driftKm+'km':'—'}</div>
                 <div class="col-data">${litInput}</div>
-                <div class="col-perf text-[12px] ${(v.wastedL||0)>0?'text-orange-400':'text-slate-500'}">${(v.wastedL||0).toFixed(1)}L</div>
-                <div class="col-perf text-[12px] font-black ${v.actKmL&&v.actKmL<v.activeTarget?'text-red-400':'text-emerald-400'}">${v.actKmL?v.actKmL.toFixed(2):'—'}</div>
+                <div class="col-perf text-[12px] ${(v.wastedL||0)>0?'text-orange-400':'text-slate-500'}">${_uom?_uom.formatVol(v.wastedL||0,_p,1):(v.wastedL||0).toFixed(1)+'L'}</div>
+                <div class="col-perf text-[12px] font-black ${v.actKmL&&v.actKmL<v.activeTarget?'text-red-400':'text-emerald-400'}">${v.actKmL?(_uom?_uom.formatEff(v.actKmL,_p,2):v.actKmL.toFixed(2)):'—'}</div>
                 <div class="col-events text-[12px] ${(v.violations||0)>0?'text-red-500 font-bold':'text-slate-500'}">${v.violations||0}</div>
-                <div class="col-money text-orange-400">R ${v.effLoss_w.toFixed(0)}</div>
-                <div class="col-money text-orange-500">R ${v.speedLoss_w.toFixed(0)}</div>
-                <div class="col-money text-red-500 font-black">R ${v.totalLoss_w.toFixed(0)}</div>
+                <div class="col-money text-orange-400">${_uom?_uom.formatCurrency(v.effLoss_w,_p):'R '+v.effLoss_w.toFixed(0)}</div>
+                <div class="col-money text-orange-500">${_uom?_uom.formatCurrency(v.speedLoss_w,_p):'R '+v.speedLoss_w.toFixed(0)}</div>
+                <div class="col-money text-red-500 font-black">${_uom?_uom.formatCurrency(v.totalLoss_w,_p):'R '+v.totalLoss_w.toFixed(0)}</div>
                 <div class="col-score text-[12px]">${scoreCol}</div>
             </div>`;
     });
 
     // Totals — rounded from summed vehicle values
     const totW = Math.round(sEffW+sSpeedW), totR = Math.round(sEffR+sSpeedR);
-    document.getElementById('l1-eff').innerText   = 'R ' + Math.round(sEffW).toLocaleString();
-    document.getElementById('l1-speed').innerText = 'R ' + Math.round(sSpeedW).toLocaleString();
-    document.getElementById('l1-total').innerText = 'R ' + totW.toLocaleString();
-    document.getElementById('l2-eff').innerText   = 'R ' + Math.round(sEffR).toLocaleString();
-    document.getElementById('l2-speed').innerText = 'R ' + Math.round(sSpeedR).toLocaleString();
-    document.getElementById('l2-total').innerText = 'R ' + totR.toLocaleString();
+    const _fmtCurr = (val) => (typeof DFR_UOM !== 'undefined') ? DFR_UOM.formatCurrency(val, currentClientProfile) : 'R ' + val.toLocaleString();
+    document.getElementById('l1-eff').innerText   = _fmtCurr(Math.round(sEffW));
+    document.getElementById('l1-speed').innerText = _fmtCurr(Math.round(sSpeedW));
+    document.getElementById('l1-total').innerText = _fmtCurr(totW);
+    document.getElementById('l2-eff').innerText   = _fmtCurr(Math.round(sEffR));
+    document.getElementById('l2-speed').innerText = _fmtCurr(Math.round(sSpeedR));
+    document.getElementById('l2-total').innerText = _fmtCurr(totR);
     document.getElementById('bonus-elite-count').innerText = eliteCount;
     document.getElementById('bonus-high-count').innerText  = highCount;
     document.getElementById('bonus-good-count').innerText  = goodCount;
     document.getElementById('bonus-poor-count').innerText  = poorCount;
     const bonusPayout = (eliteCount*500)+(highCount*300)+(goodCount*150);
-    document.getElementById('bonus-total').innerText   = 'R ' + bonusPayout.toLocaleString();
-    document.getElementById('bonus-savings').innerText = 'R ' + Math.round(totalBonusSavings).toLocaleString();
-    document.getElementById('bonus-roi').innerText     = 'R ' + Math.round(totalBonusSavings-bonusPayout).toLocaleString();
+    document.getElementById('bonus-total').innerText   = _fmtCurr(bonusPayout);
+    document.getElementById('bonus-savings').innerText = _fmtCurr(Math.round(totalBonusSavings));
+    document.getElementById('bonus-roi').innerText     = _fmtCurr(Math.round(totalBonusSavings-bonusPayout));
     if (Object.keys(auditData).length > 0) autoSaveAuditDraft();
 }
 

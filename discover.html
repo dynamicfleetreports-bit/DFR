@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Free Fleet Audit — Dynamic Fleet Reporting</title>
@@ -209,6 +210,10 @@
                     <div class="field-err" id="e-fleet">Please enter your fleet size</div>
                 </div>
                 <div class="form-group">
+                    <label for="f-country">Country <span class="req">*</span></label>
+                    <select id="f-country"></select>
+                </div>
+                <div class="form-group">
                     <label>Primary Vehicle Types <span class="req">*</span></label>
                     <select id="f-types">
                         <option value="">— Select —</option>
@@ -297,11 +302,21 @@
 </section>
 
 <footer>
-    © Dynamic Fleet Reporting &nbsp;•&nbsp; dynamicfleetreports@gmail.com &nbsp;•&nbsp; 083 314 9592 &nbsp;•&nbsp; 100% Confidential
+    © Dynamic Fleet Reporting &nbsp;•&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="25415c4b44484c4643494040515740554a575156654248444c490b464a48">[email&#160;protected]</a> &nbsp;•&nbsp; 083 314 9592 &nbsp;•&nbsp; 100% Confidential
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
+
+(function initDiscoverCountry() {
+    function tryInit() {
+        if (typeof DFR_UOM === 'undefined') { setTimeout(tryInit, 80); return; }
+        var sel = document.getElementById('f-country');
+        if (!sel) return;
+        sel.innerHTML = DFR_UOM.buildCountryOptions('ZA');
+    }
+    tryInit();
+})();
 
 // ── Read ?ref= from URL ────────────────────────────────────────────────────
 let _refCode    = null;  // partner referral code from URL
@@ -387,6 +402,8 @@ async function submitAudit() {
     const email       = document.getElementById('f-email').value.trim().toLowerCase();
     const tel         = document.getElementById('f-tel').value.trim();
     const fleetSize   = parseInt(document.getElementById('f-fleet').value) || 0;
+    const countryCode = document.getElementById('f-country').value || 'ZA';
+    const _uomProf    = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile({countryCode:countryCode}) : null;
     const vehTypes    = document.getElementById('f-types').value;
     const manualData  = document.getElementById('f-manual').value;
     const referredBy  = document.getElementById('f-referredby').value.trim();
@@ -443,6 +460,13 @@ async function submitAudit() {
         createdAt:        now,
         speedCsvNote:     speedFile  ? speedFile.name  : null,
         usageCsvNote:     usageFile  ? usageFile.name  : null,
+        countryCode:      countryCode,
+        currency:         _uomProf ? _uomProf.currency  : 'ZAR',
+        currencySymbol:   _uomProf ? _uomProf.symbol    : 'R',
+        distUnit:         _uomProf ? _uomProf.distUnit  : 'km',
+        volUnit:          _uomProf ? _uomProf.volUnit   : 'L',
+        effUnit:          _uomProf ? _uomProf.effUnit   : 'km/L',
+        speedUnit:        _uomProf ? _uomProf.speedUnit : 'km/h',
     };
 
     let savedToFirebase = false;
@@ -543,8 +567,4 @@ function sheetRequest(action, company, status) {
     });
 }
 
-// ── Start ──────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', init);
-</script>
-</body>
-</html>
+// ── Start ─────────────�

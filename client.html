@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client | Dynamic Fleet Reporting</title>
@@ -96,7 +97,7 @@
         <div>
             <button onclick="window.location.href='database.html'" class="text-[9px] font-black uppercase text-white/30 hover:text-white tracking-widest transition mb-3 block">← Back to Database</button>
             <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-1">Active Client</p>
-            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">Loading...</h1>
+            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white"><span id="clientFlag" style="font-size:2rem;margin-right:0.4rem;vertical-align:middle;"></span>Loading...</h1>
             <p id="clientSub" class="text-[10px] font-black uppercase text-white/30 tracking-widest mt-1"></p>
         </div>
         <div class="flex gap-3 mt-2 flex-wrap justify-end">
@@ -144,6 +145,12 @@
         <div class="section" id="billingSection" style="display:none;">
             <div class="section-title">Billing Address</div>
             <div id="billingGrid" class="kv-grid"></div>
+        </div>
+
+        <!-- UOM / International Settings -->
+        <div class="section" id="uomSection" style="display:none;">
+            <div class="section-title">International Settings</div>
+            <div class="kv-grid" id="uomGrid"></div>
         </div>
 
         <!-- Actions -->
@@ -302,7 +309,8 @@
         var dueColor = daysUntil<0 ? '#ef4444' : daysUntil<=2 ? '#fbbf24' : '#10b981';
         var inv      = getInvStatus(c);
 
-        document.getElementById('s-retainer').innerText = 'R ' + monthly.toLocaleString('en-ZA');
+        var _retenSym = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile(c).symbol : 'R';
+        document.getElementById('s-retainer').innerText = _retenSym + ' ' + monthly.toLocaleString('en-ZA');
         document.getElementById('s-fleet').innerText    = fleet + ' units';
         document.getElementById('s-due').innerHTML      = '<span style="color:'+dueColor+'">'+dueText+'</span>';
         document.getElementById('s-inv').innerHTML      = '<span class="pill '+inv.cls+'">'+inv.label+'</span>';
@@ -328,16 +336,26 @@
         document.getElementById('linksGrid').innerHTML = linksHtml;
 
         // Details
+        var _uomP = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile(c) : null;
+        var _sym  = _uomP ? _uomP.symbol : 'R';
+        var _fuelLbl = _uomP ? DFR_UOM.fuelPriceLabel(_uomP) : 'R/L';
+        var _spdLbl  = _uomP ? DFR_UOM.speedLabel(_uomP) : 'km/h';
+        var _tierLbl = _uomP ? tier.label+' ('+_sym+tier.rate+'/unit)' : tier.label+' (R'+tier.rate+'/unit)';
+
+        // Set the flag
+        var flagEl = document.getElementById('clientFlag');
+        if (flagEl) flagEl.textContent = (_uomP && _uomP.flag) ? _uomP.flag : '';
+
         document.getElementById('detailsGrid').innerHTML =
             kv('Email', c.email||'—') +
             kv('Mobile', c.contactTel||'—') +
             kv('Report Schedule', (c.reportSchedule||'monthly').charAt(0).toUpperCase()+(c.reportSchedule||'monthly').slice(1)) +
-            kv('Pricing Tier', tier.label+' (R'+tier.rate+'/unit)') +
+            kv('Pricing Tier', _tierLbl) +
             kv('On-Demand Pool', fleet+' reports/month') +
             kv('Activation Date', c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA') : '—') +
             kv('SLA Reference', c.slaRef||'—') +
-            kv('Speed Limit', (c.speedLimit||80)+' km/h') +
-            kv('Fuel Price', 'R '+(c.fuelPrice||22.50)+'/L');
+            kv('Speed Limit', (c.speedLimit||80)+' '+_spdLbl) +
+            kv('Fuel Price', _sym+' '+(c.fuelPrice||22.50)+'/'+(_uomP?DFR_UOM.volLabel(_uomP):'L'));
 
         // Billing address
         var hasBilling = c.billingStreet||c.billingCity||c.billingProvince;
@@ -354,6 +372,22 @@
         // Fleet table
         _fleetData = c.fleet ? JSON.parse(JSON.stringify(c.fleet)) : [];
         renderFleetTable();
+
+        // UOM section — only show for non-SA clients
+        if (c.countryCode && c.countryCode !== 'ZA') {
+            var uomSec = document.getElementById('uomSection');
+            if (uomSec) uomSec.style.display = 'block';
+            var uomGrid = document.getElementById('uomGrid');
+            if (uomGrid && _uomP) {
+                uomGrid.innerHTML =
+                    kv('Country', (_uomP.flag||'') + ' ' + (_uomP.name||c.countryCode)) +
+                    kv('Currency', _uomP.currency + ' (' + _uomP.symbol + ')') +
+                    kv('Distance Unit', _uomP.distUnit) +
+                    kv('Volume Unit', DFR_UOM.volLabel(_uomP)) +
+                    kv('Efficiency Unit', DFR_UOM.effLabel(_uomP)) +
+                    kv('Speed Unit', _uomP.speedUnit);
+            }
+        }
 
         // Notes
         document.getElementById('notesField').value = c.notes||'';
@@ -689,6 +723,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client | Dynamic Fleet Reporting</title>
@@ -783,7 +818,7 @@
         <div>
             <button onclick="window.location.href='database.html'" class="text-[9px] font-black uppercase text-white/30 hover:text-white tracking-widest transition mb-3 block">← Back to Database</button>
             <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400 mb-1">Active Client</p>
-            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white">Loading...</h1>
+            <h1 id="clientTitle" class="text-4xl font-black italic uppercase tracking-tighter text-white"><span id="clientFlag" style="font-size:2rem;margin-right:0.4rem;vertical-align:middle;"></span>Loading...</h1>
             <p id="clientSub" class="text-[10px] font-black uppercase text-white/30 tracking-widest mt-1"></p>
         </div>
         <div class="flex gap-3 mt-2 flex-wrap justify-end">
@@ -831,6 +866,12 @@
         <div class="section" id="billingSection" style="display:none;">
             <div class="section-title">Billing Address</div>
             <div id="billingGrid" class="kv-grid"></div>
+        </div>
+
+        <!-- UOM / International Settings -->
+        <div class="section" id="uomSection" style="display:none;">
+            <div class="section-title">International Settings</div>
+            <div class="kv-grid" id="uomGrid"></div>
         </div>
 
         <!-- Actions -->
@@ -989,7 +1030,8 @@
         var dueColor = daysUntil<0 ? '#ef4444' : daysUntil<=2 ? '#fbbf24' : '#10b981';
         var inv      = getInvStatus(c);
 
-        document.getElementById('s-retainer').innerText = 'R ' + monthly.toLocaleString('en-ZA');
+        var _retenSym = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile(c).symbol : 'R';
+        document.getElementById('s-retainer').innerText = _retenSym + ' ' + monthly.toLocaleString('en-ZA');
         document.getElementById('s-fleet').innerText    = fleet + ' units';
         document.getElementById('s-due').innerHTML      = '<span style="color:'+dueColor+'">'+dueText+'</span>';
         document.getElementById('s-inv').innerHTML      = '<span class="pill '+inv.cls+'">'+inv.label+'</span>';
@@ -1015,16 +1057,26 @@
         document.getElementById('linksGrid').innerHTML = linksHtml;
 
         // Details
+        var _uomP = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile(c) : null;
+        var _sym  = _uomP ? _uomP.symbol : 'R';
+        var _fuelLbl = _uomP ? DFR_UOM.fuelPriceLabel(_uomP) : 'R/L';
+        var _spdLbl  = _uomP ? DFR_UOM.speedLabel(_uomP) : 'km/h';
+        var _tierLbl = _uomP ? tier.label+' ('+_sym+tier.rate+'/unit)' : tier.label+' (R'+tier.rate+'/unit)';
+
+        // Set the flag
+        var flagEl = document.getElementById('clientFlag');
+        if (flagEl) flagEl.textContent = (_uomP && _uomP.flag) ? _uomP.flag : '';
+
         document.getElementById('detailsGrid').innerHTML =
             kv('Email', c.email||'—') +
             kv('Mobile', c.contactTel||'—') +
             kv('Report Schedule', (c.reportSchedule||'monthly').charAt(0).toUpperCase()+(c.reportSchedule||'monthly').slice(1)) +
-            kv('Pricing Tier', tier.label+' (R'+tier.rate+'/unit)') +
+            kv('Pricing Tier', _tierLbl) +
             kv('On-Demand Pool', fleet+' reports/month') +
             kv('Activation Date', c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA') : '—') +
             kv('SLA Reference', c.slaRef||'—') +
-            kv('Speed Limit', (c.speedLimit||80)+' km/h') +
-            kv('Fuel Price', 'R '+(c.fuelPrice||22.50)+'/L');
+            kv('Speed Limit', (c.speedLimit||80)+' '+_spdLbl) +
+            kv('Fuel Price', _sym+' '+(c.fuelPrice||22.50)+'/'+(_uomP?DFR_UOM.volLabel(_uomP):'L'));
 
         // Billing address
         var hasBilling = c.billingStreet||c.billingCity||c.billingProvince;
@@ -1041,6 +1093,22 @@
         // Fleet table
         _fleetData = c.fleet ? JSON.parse(JSON.stringify(c.fleet)) : [];
         renderFleetTable();
+
+        // UOM section — only show for non-SA clients
+        if (c.countryCode && c.countryCode !== 'ZA') {
+            var uomSec = document.getElementById('uomSection');
+            if (uomSec) uomSec.style.display = 'block';
+            var uomGrid = document.getElementById('uomGrid');
+            if (uomGrid && _uomP) {
+                uomGrid.innerHTML =
+                    kv('Country', (_uomP.flag||'') + ' ' + (_uomP.name||c.countryCode)) +
+                    kv('Currency', _uomP.currency + ' (' + _uomP.symbol + ')') +
+                    kv('Distance Unit', _uomP.distUnit) +
+                    kv('Volume Unit', DFR_UOM.volLabel(_uomP)) +
+                    kv('Efficiency Unit', DFR_UOM.effLabel(_uomP)) +
+                    kv('Speed Unit', _uomP.speedUnit);
+            }
+        }
 
         // Notes
         document.getElementById('notesField').value = c.notes||'';
