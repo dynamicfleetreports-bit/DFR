@@ -211,7 +211,7 @@
             </div>
             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
                 <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
-                <a id="infoPackOpenBtn" href="infopack.html" target="_blank" onclick="this.href='infopack.html'+(_mktCountry&&_mktCountry!=='ZA'?'?country='+_mktCountry:'')" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
+                <a id="infoPackOpenBtn" href="infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
             </div>
         </div>
         <!-- Country picker row -->
@@ -591,10 +591,14 @@ function setCountry(c) {
     document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
     var btn = document.getElementById('cntryBtn' + c);
     if (btn) btn.classList.add('active');
-    // Update info pack banner to show selected country
     var r = MKT_RATES[c] || MKT_RATES.ZA;
+    // Update label
     var lbl = document.getElementById('infopackCountryLabel');
-    if (lbl) lbl.textContent = r.label + ' pricing selected — link will include ?country=' + c;
+    if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR pricing — default link' : r.label + ' pricing — ?country=' + c + ' appended';
+    // Update open button href immediately so it opens with correct country
+    var base = window.location.origin + window.location.pathname.replace('marketing.html','') + 'infopack.html';
+    var openBtn = document.getElementById('infoPackOpenBtn');
+    if (openBtn) openBtn.href = c !== 'ZA' ? base + '?country=' + c : base;
 }
 
 function setLang(l){
@@ -815,7 +819,11 @@ function initMarketingCountry() {
     if (btn) btn.classList.add('active');
     var r = MKT_RATES[c] || MKT_RATES.ZA;
     var lbl = document.getElementById('infopackCountryLabel');
-    if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR pricing selected — default link' : r.label + ' pricing selected — link will include ?country=' + c;
+    if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR pricing — default link' : r.label + ' pricing — ?country=' + c + ' appended';
+    // Set open button href on load
+    var base = window.location.origin + window.location.pathname.replace('marketing.html','') + 'infopack.html';
+    var openBtn = document.getElementById('infoPackOpenBtn');
+    if (openBtn) openBtn.href = c !== 'ZA' ? base + '?country=' + c : base;
 }
 
 function switchSection(id,el){ document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('tab-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); }
