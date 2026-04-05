@@ -134,6 +134,9 @@
         .lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:20px;padding:4px;margin-bottom:1.25rem;}
         .lang-btn{padding:5px 14px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
         .lang-btn.lang-active{background:var(--grn);color:#020617;}
+        .country-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:20px;padding:4px;margin-bottom:0;}
+        .country-btn{padding:5px 12px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
+        .country-btn.active{background:#2563eb;color:white;}
         .lang-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;margin-left:4px;}
         .badge-en{background:rgba(59,130,246,0.15);color:#60a5fa;}
         .badge-af{background:rgba(16,185,129,0.15);color:var(--grn);}
@@ -197,17 +200,32 @@
     </div>
 
     <!-- Info Pack Banner -->
-    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(30,58,95,0.1));border:1.5px solid rgba(37,99,235,0.35);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
-            <div style="font-size:2rem;">📦</div>
-            <div>
-                <div style="font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">Client Information Pack</div>
-                <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;max-width:480px;">Your top-of-funnel prospecting document. Send the link to a cold prospect or save as PDF to attach to an email. Covers services, pricing, terms &amp; contact.</div>
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(30,58,95,0.1));border:1.5px solid rgba(37,99,235,0.35);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+                <div style="font-size:2rem;">📦</div>
+                <div>
+                    <div style="font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">Client Information Pack</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;max-width:480px;">Select the prospect's country below, then copy or open the link — pricing will display in their local currency.</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
+                <a id="infoPackOpenBtn" href="infopack.html" target="_blank" onclick="this.href='infopack.html'+(_mktCountry&&_mktCountry!=='ZA'?'?country='+_mktCountry:'')" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
             </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
-            <a href="infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
+        <!-- Country picker row -->
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(37,99,235,0.2);display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;">Prospect Country:</span>
+            <div class="country-toggle">
+                <button class="country-btn active" id="cntryBtnZA" onclick="setCountry('ZA')">🇿🇦 ZAR</button>
+                <button class="country-btn" id="cntryBtnUS"  onclick="setCountry('US')">🇺🇸 USD</button>
+                <button class="country-btn" id="cntryBtnGB"  onclick="setCountry('GB')">🇬🇧 GBP</button>
+                <button class="country-btn" id="cntryBtnEU"  onclick="setCountry('EU')">🇪🇺 EUR</button>
+                <button class="country-btn" id="cntryBtnAU"  onclick="setCountry('AU')">🇦🇺 AUD</button>
+                <button class="country-btn" id="cntryBtnAE"  onclick="setCountry('AE')">🇦🇪 AED</button>
+            </div>
+            <span id="infopackCountryLabel" style="font-size:11px;color:#64748b;font-weight:700;">ZAR pricing selected — default link</span>
         </div>
     </div>
 
@@ -548,13 +566,36 @@ Wishing you and your business all the best.
 ];
 
 let _posts = [], _editId = null, _filter = 'all', _lang = localStorage.getItem('dfr_lang') || 'en';
+let _mktCountry = localStorage.getItem('dfr_mkt_country') || 'ZA';
+
+// Rates table — edit these when pricing changes
+const MKT_RATES = {
+    ZA:    { sym:'R',   setup:'2,500',  admin:'1,500', t1:'200',  t2:'175',  t3:'150',  od:'150',  ex_fleet:'R 2,000', ex_retainer:'R 3,500', ex_first:'R 6,000', ex_unit:'R200', label:'ZAR' },
+    US:    { sym:'$',   setup:'135',    admin:'80',    t1:'11',   t2:'9.50', t3:'8',    od:'8',    ex_fleet:'$110',    ex_retainer:'$190',    ex_first:'$325',    ex_unit:'$11',  label:'USD' },
+    GB:    { sym:'£',   setup:'105',    admin:'65',    t1:'9',    t2:'7.50', t3:'6.50', od:'6.50', ex_fleet:'£90',     ex_retainer:'£155',    ex_first:'£260',    ex_unit:'£9',   label:'GBP' },
+    EU:    { sym:'€',   setup:'120',    admin:'75',    t1:'10',   t2:'9',    t3:'7.50', od:'7.50', ex_fleet:'€100',    ex_retainer:'€175',    ex_first:'€295',    ex_unit:'€10',  label:'EUR' },
+    AU:    { sym:'A$',  setup:'200',    admin:'120',   t1:'16',   t2:'14',   t3:'12',   od:'12',   ex_fleet:'A$160',   ex_retainer:'A$280',   ex_first:'A$480',   ex_unit:'A$16', label:'AUD' },
+    AE:    { sym:'د.إ', setup:'500',    admin:'300',   t1:'40',   t2:'35',   t3:'30',   od:'30',   ex_fleet:'د.إ400',  ex_retainer:'د.إ700',  ex_first:'د.إ1,200',ex_unit:'د.إ40',label:'AED' },
+};
 function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
 async function boot(){
     await waitFor(()=>typeof cloudStorage!=='undefined');
     applyLangUI();
-    await loadPosts();
+    await loadPosts(); initMarketingCountry();
 }
 boot();
+
+function setCountry(c) {
+    _mktCountry = c;
+    localStorage.setItem('dfr_mkt_country', c);
+    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    var btn = document.getElementById('cntryBtn' + c);
+    if (btn) btn.classList.add('active');
+    // Update info pack banner to show selected country
+    var r = MKT_RATES[c] || MKT_RATES.ZA;
+    var lbl = document.getElementById('infopackCountryLabel');
+    if (lbl) lbl.textContent = r.label + ' pricing selected — link will include ?country=' + c;
+}
 
 function setLang(l){
     _lang = l;
@@ -767,11 +808,25 @@ async function savePost(publish){
     await savePosts(); closeModal('postModal'); renderViewPosts(); renderManagePosts();
     toast(publish?'🚀 Post published — live for partners ✓':'💾 Saved as draft ✓','green');
 }
+function initMarketingCountry() {
+    var c = _mktCountry || 'ZA';
+    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    var btn = document.getElementById('cntryBtn' + c);
+    if (btn) btn.classList.add('active');
+    var r = MKT_RATES[c] || MKT_RATES.ZA;
+    var lbl = document.getElementById('infopackCountryLabel');
+    if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR pricing selected — default link' : r.label + ' pricing selected — link will include ?country=' + c;
+}
+
 function switchSection(id,el){ document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('tab-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); }
 function switchPlat(id,el){ document.querySelectorAll('.plat-section').forEach(s=>s.classList.remove('active')); document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active')); const sec=document.getElementById('plat-'+id); if(sec) sec.classList.add('active'); if(el) el.classList.add('active'); const btn=document.getElementById('openPlatBtn'); if(btn){ btn.textContent='🚀 Open '+PLAT_NAMES[id]; btn.onclick=()=>openPlat(id); } }
 function openPlat(id){ window.open(PLAT_OPEN[id],'_blank'); }
 function copyPost(id,btn){ const el=document.getElementById(id); if(!el) return; navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=o; btn.classList.remove('copied'); },2000); }); }
-function copyInfoPackLink(btn){ navigator.clipboard.writeText(window.location.origin + window.location.pathname.replace('marketing.html','') + 'infopack.html').then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; setTimeout(()=>{ btn.textContent=o; },2000); }); }
+function copyInfoPackLink(btn){
+    var base = window.location.origin + window.location.pathname.replace('marketing.html','') + 'infopack.html';
+    var url  = _mktCountry && _mktCountry !== 'ZA' ? base + '?country=' + _mktCountry : base;
+    navigator.clipboard.writeText(url).then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; setTimeout(()=>{ btn.textContent=o; },2000); });
+}
 function copyBioLink(btn){ navigator.clipboard.writeText('https://dynamicfleetreports-bit.github.io/DFR/discover.html').then(()=>{ const o=btn.textContent; btn.textContent='✅ Copied!'; btn.style.background='#6366f1'; setTimeout(()=>{ btn.textContent=o; btn.style.background='var(--grn)'; },2000); }); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function toast(msg,color){ color=color||'green'; const t=document.getElementById('toast'); t.textContent=msg; t.style.borderColor=color==='red'?'rgba(239,68,68,0.4)':color==='gold'?'rgba(245,158,11,0.4)':'rgba(16,185,129,0.4)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
