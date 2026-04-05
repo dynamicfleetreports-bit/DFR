@@ -609,7 +609,8 @@
     <br><span style="color:rgba(255,255,255,0.3);font-size:9px;margin-top:0.5rem;display:block;">Information correct as at <span id="footerDate"></span> · Subject to change without notice</span>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
     // Set current year/date
     var now = new Date();
     document.getElementById('packDate').innerText = now.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
@@ -631,6 +632,8 @@
         }
     })();
 
+</script>
+<script>
     // ── Country / pricing swap ──────────────────────────────────────────────
     var IP_RATES = {
         ZA:    { sym:'R',   setup:'R 2,500',   admin:'R 1,500',   t1:'R 200',  t2:'R 175',  t3:'R 150',  od:'R 150',  ex_setup:'R 2,500',   ex_admin:'R 1,500',   ex_fleet:'R 2,000',   ex_retainer:'R 3,500 / month', ex_first:'R 6,000',   ex_unit:'R200',  label:'ZAR' },
@@ -640,7 +643,7 @@
         AU:    { sym:'A$',  setup:'A$200',      admin:'A$120',     t1:'A$16',   t2:'A$14',   t3:'A$12',   od:'A$12',   ex_setup:'A$200',      ex_admin:'A$120',     ex_fleet:'A$160',      ex_retainer:'A$280 / month',   ex_first:'A$480',     ex_unit:'A$16',  label:'AUD' },
         AE:    { sym:'د.إ', setup:'د.إ500',     admin:'د.إ300',    t1:'د.إ40',  t2:'د.إ35',  t3:'د.إ30',  od:'د.إ30',  ex_setup:'د.إ500',     ex_admin:'د.إ300',    ex_fleet:'د.إ400',     ex_retainer:'د.إ700 / month',  ex_first:'د.إ1,200', ex_unit:'د.إ40', label:'AED' },
     };
-    (function applyCountryPricing() {
+    function applyCountryPricing() {
         var params  = new URLSearchParams(window.location.search);
         var country = params.get('country') || 'ZA';
         var r = IP_RATES[country] || IP_RATES.ZA;
@@ -662,7 +665,13 @@
             var badge = document.getElementById('ip-currency-badge');
             if (badge) { badge.style.display = 'inline-block'; badge.textContent = 'Prices in ' + r.label; }
         }
-    })();
+    }
+    // Run with readyState guard so DOM is always ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyCountryPricing);
+    } else {
+        applyCountryPricing();
+    }
 
     // Smooth scroll for nav
     document.querySelectorAll('a[href^="#"]').forEach(function(a) {
