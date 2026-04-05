@@ -403,8 +403,9 @@
     ════════════════════════════════════════════════════ -->
     <section id="pricing" class="section-gap">
         <p class="section-eyebrow">Investment</p>
+        <div id="ip-debug" style="font-size:10px;color:#94a3b8;margin-bottom:0.5rem;">Pricing currency: <span id="ip-debug-country">detecting...</span></div>
         <h2 class="section-title">Transparent <em>Pricing</em></h2>
-        <div id="ip-currency-badge" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9999px;padding:4px 14px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#1e40af;margin-bottom:0.75rem;display:inline-block;">Prices in ZAR</div>
+        <div id="ip-currency-badge" style="display:none;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9999px;padding:4px 14px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#1e40af;margin-bottom:0.75rem;">Prices in ZAR</div>
         <div class="section-divider"></div>
         <p class="section-body" style="margin-bottom:1.5rem;">We believe in complete pricing transparency. There are no hidden fees, no lock-in contracts, and no surprises on your invoice. The structure is simple: a once-off setup fee, a fixed monthly administration fee, and a per-vehicle monitoring fee based on your fleet size.</p>
 
@@ -436,7 +437,7 @@
                     <p class="fee-label">Fixed Monthly Account Fee</p>
                     <p class="fee-sub">Regardless of fleet size — covers all account operations</p>
                 </div>
-                <p class="fee-amount" id="ip-admin">R 1,500 <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>
+                <p class="fee-amount"><span id="ip-admin">R 1,500</span> <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span></p>
             </div>
             <div style="padding:0.75rem 1.25rem;background:#f8fafc;font-size:11px;color:var(--muted);">
                 Covers weekly data collection and reconciliation, report generation and delivery, dedicated client email channel management, anomaly monitoring, ongoing system maintenance, and general account support.
@@ -452,19 +453,19 @@
             <div class="pricing-grid" style="border-radius:0;border:none;border-top:1px solid var(--border);margin:0.75rem 0 0 0;">
                 <div class="pricing-col">
                     <div class="pricing-tier">Tier 1</div>
-                    <div class="pricing-amount"id="ip-t1">R 200</div>
+                    <div class="pricing-amount" id="ip-t1">R 200</div>
                     <div class="pricing-unit">per vehicle / month</div>
                     <div class="pricing-range">1 – 15 vehicles</div>
                 </div>
                 <div class="pricing-col active">
                     <div class="pricing-tier">Tier 2</div>
-                    <div class="pricing-amount"id="ip-t2">R 175</div>
+                    <div class="pricing-amount" id="ip-t2">R 175</div>
                     <div class="pricing-unit">per vehicle / month</div>
                     <div class="pricing-range">16 – 30 vehicles</div>
                 </div>
                 <div class="pricing-col">
                     <div class="pricing-tier">Tier 3</div>
-                    <div class="pricing-amount"id="ip-t3">R 150</div>
+                    <div class="pricing-amount" id="ip-t3">R 150</div>
                     <div class="pricing-unit">per vehicle / month</div>
                     <div class="pricing-range">31+ vehicles</div>
                 </div>
@@ -665,6 +666,9 @@
             var badge = document.getElementById('ip-currency-badge');
             if (badge) { badge.style.display = 'inline-block'; badge.textContent = 'Prices in ' + r.label; }
         }
+        // Debug indicator
+        var dbg = document.getElementById('ip-debug-country');
+        if (dbg) dbg.textContent = r.label + ' (country param: ' + (params.get('country') || 'none') + ')';
     }
     // Run with readyState guard so DOM is always ready
     if (document.readyState === 'loading') {
