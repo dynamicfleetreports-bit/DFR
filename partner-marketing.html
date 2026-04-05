@@ -22,7 +22,10 @@
         .tb-right { display:flex; align-items:center; gap:1rem; }
         .tb-partner { font-size:12px; font-weight:700; color:#64748b; }
         .tb-partner strong { color:#e2e8f0; }
-        .btn-back { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:#e2e8f0; padding:7px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
+                .country-toggle{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px;}
+        .country-btn{padding:5px 10px;border-radius:16px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
+        .country-btn.active{background:#2563eb;color:white;}
+.btn-back { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:#e2e8f0; padding:7px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
         .btn-back:hover { background:rgba(255,255,255,0.1); }
 
         /* ── LOGIN ── */
@@ -204,17 +207,31 @@
     </div>
 
     <!-- Info Pack Banner -->
-    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(30,58,95,0.1));border:1.5px solid rgba(37,99,235,0.35);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
-            <div style="font-size:2rem;">📦</div>
-            <div>
-                <div style="font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">Client Information Pack</div>
-                <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;max-width:480px;">Your top-of-funnel prospecting document. Send the link to a cold prospect or save as PDF to attach to an email. Covers services, pricing, terms &amp; contact.</div>
+    <div style="background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(30,58,95,0.1));border:1.5px solid rgba(37,99,235,0.35);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+                <div style="font-size:2rem;">📦</div>
+                <div>
+                    <div style="font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;">Client Information Pack</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;font-weight:600;max-width:420px;">Select your prospect's country, then copy or open the link — pricing shows in their currency automatically.</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
+                <a id="infoPackOpenBtn" href="https://dynamicfleetreports-bit.github.io/DFR/infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
             </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button onclick="copyInfoPackLink(this)" style="background:rgba(37,99,235,0.15);color:#93c5fd;border:1.5px solid rgba(37,99,235,0.4);padding:11px 22px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;transition:all 0.2s;" onmouseover="this.style.background='rgba(37,99,235,0.28)'" onmouseout="this.style.background='rgba(37,99,235,0.15)'">🔗 Copy Link</button>
-            <a id="infoPackOpenBtn" href="https://dynamicfleetreports-bit.github.io/DFR/infopack.html" target="_blank" style="background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border:none;padding:11px 24px;border-radius:10px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;letter-spacing:0.06em;text-decoration:none;display:inline-block;transition:all 0.2s;">📄 Open Info Pack →</a>
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(37,99,235,0.2);display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <span style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:#64748b;">Prospect Country:</span>
+            <div class="country-toggle">
+                <button class="country-btn active" id="pmCntryZA" onclick="setPmCountry('ZA')">🇿🇦 ZAR</button>
+                <button class="country-btn" id="pmCntryUS"  onclick="setPmCountry('US')">🇺🇸 USD</button>
+                <button class="country-btn" id="pmCntryGB"  onclick="setPmCountry('GB')">🇬🇧 GBP</button>
+                <button class="country-btn" id="pmCntryEU"  onclick="setPmCountry('EU')">🇪🇺 EUR</button>
+                <button class="country-btn" id="pmCntryAU"  onclick="setPmCountry('AU')">🇦🇺 AUD</button>
+                <button class="country-btn" id="pmCntryAE"  onclick="setPmCountry('AE')">🇦🇪 AED</button>
+            </div>
+            <span id="pmCountryLabel" style="font-size:11px;color:#64748b;font-weight:700;">ZAR — default</span>
         </div>
     </div>
 
@@ -299,6 +316,16 @@ const PARTNER_SCRIPTS_KEY = 'PARTNER_MARKETING_SCRIPTS';
 
 var _partner     = null;
 var _partnerCode = '';
+var _pmCountry = localStorage.getItem('dfr_pm_country') || 'ZA';
+
+const PM_RATES = {
+    ZA:    { sym:'R',   setup:'2,500',  admin:'1,500', t1:'200',  t2:'175',  t3:'150',  od:'150',  label:'ZAR' },
+    US:    { sym:'$',   setup:'135',    admin:'80',    t1:'11',   t2:'9.50', t3:'8',    od:'8',    label:'USD' },
+    GB:    { sym:'£',   setup:'105',    admin:'65',    t1:'9',    t2:'7.50', t3:'6.50', od:'6.50', label:'GBP' },
+    EU:    { sym:'€',   setup:'120',    admin:'75',    t1:'10',   t2:'9',    t3:'7.50', od:'7.50', label:'EUR' },
+    AU:    { sym:'A$',  setup:'200',    admin:'120',   t1:'16',   t2:'14',   t3:'12',   od:'12',   label:'AUD' },
+    AE:    { sym:'د.إ', setup:'500',    admin:'300',   t1:'40',   t2:'35',   t3:'30',   od:'30',   label:'AED' },
+};
 var _partnerLink = '';
 
 function waitFor(fn){ return new Promise(function(r){ var t=setInterval(function(){ if(fn()){ clearInterval(t); r(); } },60); }); }
@@ -390,7 +417,11 @@ function showHub() {
     var reelBtn = document.getElementById('reelBuilderBtn');
     if (reelBtn) reelBtn.href = 'reel-builder.html?ref=' + _partnerCode;
     var infoBtn = document.getElementById('infoPackOpenBtn');
-    if (infoBtn) infoBtn.href = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html?ref=' + _partnerCode;
+    if (infoBtn) {
+        var _iparams = ['ref=' + _partnerCode];
+        if (_pmCountry && _pmCountry !== 'ZA') _iparams.push('country=' + _pmCountry);
+        infoBtn.href = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html?' + _iparams.join('&');
+    }
     injectLinks();
     applyLangUI();
     loadAndRenderPosts();
@@ -538,9 +569,23 @@ function copyPartnerPost(id, btn) {
     });
 }
 
+function setPmCountry(c) {
+    _pmCountry = c;
+    localStorage.setItem('dfr_pm_country', c);
+    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    var btn = document.getElementById('pmCntry' + c);
+    if (btn) btn.classList.add('active');
+    var r = PM_RATES[c] || PM_RATES.ZA;
+    var lbl = document.getElementById('pmCountryLabel');
+    if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR — default' : r.label + ' selected';
+}
+
 function copyInfoPackLink(btn) {
     var base = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html';
-    var link = _partnerCode ? base + '?ref=' + _partnerCode : base;
+    var params = [];
+    if (_partnerCode) params.push('ref=' + _partnerCode);
+    if (_pmCountry && _pmCountry !== 'ZA') params.push('country=' + _pmCountry);
+    var link = params.length ? base + '?' + params.join('&') : base;
     navigator.clipboard.writeText(link).then(() => {
         const o = btn.textContent; btn.textContent = '✅ Copied!';
         setTimeout(() => { btn.textContent = o; }, 2000);
