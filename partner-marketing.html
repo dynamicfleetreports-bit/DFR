@@ -578,6 +578,13 @@ function setPmCountry(c) {
     var r = PM_RATES[c] || PM_RATES.ZA;
     var lbl = document.getElementById('pmCountryLabel');
     if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR — default' : r.label + ' selected';
+    // Update open button href immediately
+    var base = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html';
+    var params = [];
+    if (_partnerCode) params.push('ref=' + _partnerCode);
+    if (c && c !== 'ZA') params.push('country=' + c);
+    var openBtn = document.getElementById('infoPackOpenBtn');
+    if (openBtn) openBtn.href = params.length ? base + '?' + params.join('&') : base;
 }
 
 function copyInfoPackLink(btn) {
