@@ -10,7 +10,7 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Outfit',sans-serif;background:#020617;color:white;min-height:100vh;}
 
-        /* ââ Hero ââ */
+        /* -- Hero -- */
         .hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:4rem 2rem;overflow:hidden;}
         .truck-bg{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.15;filter:blur(2px);}
         .overlay{position:absolute;inset:0;background:radial-gradient(circle at center,rgba(2,6,23,0.7) 0%,rgba(2,6,23,0.95) 100%);}
@@ -35,17 +35,17 @@
         .trust-row{display:flex;justify-content:center;gap:2.5rem;margin-top:2.5rem;flex-wrap:wrap;opacity:0.75;}
         .badge{display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;font-weight:600;}
 
-        /* ââ Partner banner â shown when ?ref= detected ââ */
+        /* -- Partner banner - shown when ?ref= detected -- */
         .partner-banner{display:none;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:0.75rem;padding:0.85rem 1.25rem;margin-bottom:1.5rem;font-size:0.9rem;font-weight:600;color:#10b981;text-align:center;}
 
-        /* ââ Form section ââ */
+        /* -- Form section -- */
         .form-section{padding:5rem 2rem;background:rgba(15,23,42,0.8);border-top:1px solid rgba(255,255,255,0.06);}
         .form-section-inner{max-width:820px;margin:0 auto;}
         .form-header{text-align:center;margin-bottom:2.5rem;}
         .form-header h2{font-size:2.5rem;font-weight:900;font-style:italic;text-transform:uppercase;margin-bottom:0.75rem;}
         .form-header p{opacity:0.6;font-size:0.95rem;}
 
-        /* ââ Native form ââ */
+        /* -- Native form -- */
         .audit-form{background:rgba(15,23,42,0.9);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;padding:2.5rem;box-shadow:0 30px 80px rgba(0,0,0,0.5);}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
         @media(max-width:640px){.form-row{grid-template-columns:1fr;}} .form-group select{width:100%;}
@@ -69,7 +69,7 @@
         .field-err{font-size:11px;color:#f87171;margin-top:2px;display:none;}
         .field-err.show{display:block;}
 
-        /* ââ Upload fields ââ */
+        /* -- Upload fields -- */
         .upload-label{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.03);border:1.5px dashed rgba(255,255,255,0.15);border-radius:0.625rem;padding:0.75rem 1rem;cursor:pointer;transition:all 0.2s;}
         .upload-label:hover{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04);}
         .upload-label.has-file{border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.06);}
@@ -78,22 +78,22 @@
         .upload-label span.up-btn{font-size:10px;font-weight:900;text-transform:uppercase;color:#10b981;background:rgba(16,185,129,0.1);padding:4px 10px;border-radius:6px;}
         input[type=file]{display:none;}
 
-        /* ââ Referred by client ââ */
+        /* -- Referred by client -- */
         .ref-note{font-size:11px;color:#64748b;margin-top:3px;}
 
-        /* ââ Submit ââ */
+        /* -- Submit -- */
         .submit-row{margin-top:2rem;text-align:center;}
         .submit-btn{background:#10b981;color:#020617;border:none;padding:1.1rem 3rem;border-radius:1rem;font-size:1rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;font-family:'Outfit',sans-serif;width:100%;}
         .submit-btn:hover{background:#059669;transform:translateY(-2px);}
         .submit-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
         .form-privacy{font-size:11px;color:#475569;margin-top:1rem;text-align:center;}
 
-        /* ââ Error / duplicate banner ââ */
+        /* -- Error / duplicate banner -- */
         .form-alert{display:none;border-radius:0.75rem;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:13px;font-weight:700;}
         .form-alert.err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#f87171;}
         .form-alert.warn{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;}
 
-        /* ââ Success screen ââ */
+        /* -- Success screen -- */
         .success-screen{display:none;text-align:center;padding:3rem 1.5rem;}
         .success-icon{font-size:4rem;margin-bottom:1rem;}
         .success-title{font-size:2rem;font-weight:900;font-style:italic;text-transform:uppercase;color:#10b981;margin-bottom:0.75rem;}
@@ -105,7 +105,7 @@
         .step-title{font-weight:900;font-size:0.9rem;margin-bottom:0.4rem;}
         .step-desc{font-size:0.78rem;opacity:0.55;line-height:1.5;}
 
-        /* ââ Loader overlay ââ */
+        /* -- Loader overlay -- */
         .loader-overlay{display:none;position:fixed;inset:0;background:rgba(2,6,23,0.9);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:1rem;}
         .loader-overlay.on{display:flex;}
         .loader-spinner{width:48px;height:48px;border:4px solid rgba(16,185,129,0.2);border-top-color:#10b981;border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -120,21 +120,21 @@
 <!-- Loader -->
 <div class="loader-overlay" id="loader">
     <div class="loader-spinner"></div>
-    <div class="loader-txt" id="loaderTxt">Submitting your audit requestâ¦</div>
+    <div class="loader-txt" id="loaderTxt">Submitting your audit request&hellip;</div>
 </div>
 
-<!-- ââ HERO ââ -->
+<!-- HERO -->
 <section class="hero">
     <img src="Truck.png" alt="Fleet truck" class="truck-bg">
     <div class="overlay"></div>
     <div class="hero-inner">
-        <div class="eyebrow" id="heroEyebrow">ð Free R 8,500 Value â Limited Spots</div>
+        <div class="eyebrow" id="heroEyebrow">&#x1F4B0; Free R 8,500 Value &mdash; Limited Spots</div>
 
-        <!-- Partner banner â only shown when ?ref= detected -->
+        <!-- Partner banner - only shown when ?ref= detected -->
         <div class="partner-banner" id="partnerBanner"></div>
 
         <h1>Stop <span class="highlight">Bleeding</span> Money</h1>
-        <p class="subheading">Get a FREE forensic fuel audit and discover exactly where your fleet is losing R 45,000+ per month â with zero obligation.</p>
+        <p class="subheading">Get a FREE forensic fuel audit and discover exactly where your fleet is losing R 45,000+ per month &mdash; with zero obligation.</p>
 
         <div class="stats">
             <div class="stat-card"><div class="stat-number">73%</div><div class="stat-label">Have Hidden Losses</div></div>
@@ -143,32 +143,32 @@
         </div>
 
         <div class="benefits-row">
-            <div class="benefit-item"><span>ð</span> Efficiency score per vehicle</div>
-            <div class="benefit-item"><span>ð¸</span> Exact monthly losses identified</div>
-            <div class="benefit-item"><span>ð¤</span> Driver performance rankings</div>
-            <div class="benefit-item"><span>ðºï¸</span> Step-by-step action plan</div>
-            <div class="benefit-item"><span>ð</span> ROI projections included</div>
-            <div class="benefit-item"><span>â¡</span> Results delivered in 48 hours</div>
+            <div class="benefit-item"><span>&#x1F4CA;</span> Efficiency score per vehicle</div>
+            <div class="benefit-item"><span>&#x1F4B8;</span> Exact monthly losses identified</div>
+            <div class="benefit-item"><span>&#x1F91D;</span> Driver performance rankings</div>
+            <div class="benefit-item"><span>&#x1F5FA;&#xFE0F;</span> Step-by-step action plan</div>
+            <div class="benefit-item"><span>&#x1F4C8;</span> ROI projections included</div>
+            <div class="benefit-item"><span>&#x26A1;</span> Results delivered in 48 hours</div>
         </div>
 
-        <button class="cta-btn" onclick="scrollToForm()">ð Claim My Free Audit Now</button>
-        <span class="urgency-text">â° Only 10 spots available this month â first come, first served</span>
+        <button class="cta-btn" onclick="scrollToForm()">&#x1F680; Claim My Free Audit Now</button>
+        <span class="urgency-text">&#x23F0; Only 10 spots available this month &mdash; first come, first served</span>
 
         <div class="trust-row">
-            <div class="badge"><span>ð</span><span>100% Confidential</span></div>
-            <div class="badge"><span>â</span><span>No Obligations</span></div>
-            <div class="badge"><span>ð¯</span><span>Results in 48hrs</span></div>
-            <div class="badge"><span>ð</span><span>SA Fleet Specialists</span></div>
+            <div class="badge"><span>&#x1F512;</span><span>100% Confidential</span></div>
+            <div class="badge"><span>&#x2705;</span><span>No Obligations</span></div>
+            <div class="badge"><span>&#x1F3AF;</span><span>Results in 48hrs</span></div>
+            <div class="badge"><span>&#x1F1FF;&#x1F1E6;</span><span>SA Fleet Specialists</span></div>
         </div>
     </div>
 </section>
 
-<!-- ââ FORM SECTION ââ -->
+<!-- FORM SECTION -->
 <section class="form-section" id="auditForm">
     <div class="form-section-inner">
         <div class="form-header">
             <h2>Submit Your <span style="color:#10b981;">Free Audit</span> Request</h2>
-            <p>Fill in your details â it takes less than 3 minutes and goes straight to our team</p>
+            <p>Fill in your details &mdash; it takes less than 3 minutes and goes straight to our team</p>
         </div>
 
         <!-- Alert box -->
@@ -215,7 +215,7 @@
                 <div class="form-group">
                     <label>Primary Vehicle Types <span class="req">*</span></label>
                     <select id="f-types">
-                        <option value="">â Select â</option>
+                        <option value="">— Select —</option>
                         <option>Heavy Trucks (Interlink / Tractor)</option>
                         <option>Rigid Trucks (Freight)</option>
                         <option>Tipper / Side Tipper</option>
@@ -231,7 +231,7 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Speed Report CSV <span style="color:#64748b;font-weight:400;font-size:9px;">(optional â from your tracker system)</span></label>
+                    <label>Speed Report CSV <span style="color:#64748b;font-weight:400;font-size:9px;">(optional &mdash; from your tracker system)</span></label>
                     <label class="upload-label" id="ul-speed" for="f-speed-file">
                         <span class="up-name" id="un-speed">No file selected</span>
                         <span class="up-btn">Browse</span>
@@ -239,7 +239,7 @@
                     <input type="file" id="f-speed-file" accept=".csv,.xlsx,.xls" onchange="fileChosen('speed',this)">
                 </div>
                 <div class="form-group">
-                    <label>Usage / Distance Report CSV <span style="color:#64748b;font-weight:400;font-size:9px;">(optional â from your tracker system)</span></label>
+                    <label>Usage / Distance Report CSV <span style="color:#64748b;font-weight:400;font-size:9px;">(optional &mdash; from your tracker system)</span></label>
                     <label class="upload-label" id="ul-usage" for="f-usage-file">
                         <span class="up-name" id="un-usage">No file selected</span>
                         <span class="up-btn">Browse</span>
@@ -250,17 +250,17 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Do you have manual km & fuel records? <span style="color:#64748b;font-weight:400;font-size:9px;">(optional)</span></label>
+                    <label>Do you have manual km &amp; fuel records? <span style="color:#64748b;font-weight:400;font-size:9px;">(optional)</span></label>
                     <select id="f-manual">
-                        <option value="">â Select â</option>
-                        <option value="Yes â spreadsheet">Yes â I have a spreadsheet</option>
-                        <option value="Yes â fuel cards">Yes â fuel card data</option>
-                        <option value="Yes â logbooks">Yes â driver logbooks</option>
+                        <option value="">— Select —</option>
+                        <option value="Yes - spreadsheet">Yes &mdash; I have a spreadsheet</option>
+                        <option value="Yes - fuel cards">Yes &mdash; fuel card data</option>
+                        <option value="Yes - logbooks">Yes &mdash; driver logbooks</option>
                         <option value="No">No manual records</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Referred by a DFR client? <span style="color:#64748b;font-weight:400;font-size:9px;">(optional â loyalty rewards)</span></label>
+                    <label>Referred by a DFR client? <span style="color:#64748b;font-weight:400;font-size:9px;">(optional &mdash; loyalty rewards)</span></label>
                     <input type="text" id="f-referredby" placeholder="Company name that referred you">
                     <div class="ref-note">If an existing DFR client referred you, enter their company name to activate rewards for them.</div>
                 </div>
@@ -268,21 +268,21 @@
 
             <div class="submit-row">
                 <div class="form-alert" id="alertDuplicate" style="display:none;"></div>
-                <button class="submit-btn" id="submitBtn" onclick="submitAudit()">ð Submit My Free Audit Request</button>
-                <div class="form-privacy">ð Your information is 100% confidential and never shared. We'll contact you within 24 hours.</div>
+                <button class="submit-btn" id="submitBtn" onclick="submitAudit()">&#x1F4E4; Submit My Free Audit Request</button>
+                <div class="form-privacy">&#x1F512; Your information is 100% confidential and never shared. We'll contact you within 24 hours.</div>
             </div>
         </div>
 
         <!-- Success screen -->
         <div class="success-screen" id="successScreen">
-            <div class="success-icon">ð</div>
+            <div class="success-icon">&#x1F389;</div>
             <div class="success-title">You're on the list!</div>
             <div class="success-sub" id="successMsg">Your audit request has been received. Our team will contact you within 24 hours to get started.</div>
             <div class="success-steps">
                 <div class="success-step">
                     <div class="step-num">1</div>
                     <div class="step-title">We Receive Everything</div>
-                    <div class="step-desc">Your details land in our system the moment you hit submit â nothing extra needed from you.</div>
+                    <div class="step-desc">Your details land in our system the moment you hit submit &mdash; nothing extra needed from you.</div>
                 </div>
                 <div class="success-step">
                     <div class="step-num">2</div>
@@ -301,27 +301,26 @@
 </section>
 
 <footer>
-    Â© Dynamic Fleet Reporting &nbsp;â¢&nbsp; <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fa9e83949b9793999c969f9f8e889f8a95888e89ba9d979b9396d4999597">[email&#160;protected]</a> &nbsp;â¢&nbsp; 083 314 9592 &nbsp;â¢&nbsp; 100% Confidential
+    &copy; Dynamic Fleet Reporting &nbsp;&bull;&nbsp; info@dynamicfleetreporting.co.za &nbsp;&bull;&nbsp; 083 314 9592 &nbsp;&bull;&nbsp; 100% Confidential
 </footer>
 
 <script>
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
-// ââ Read ?ref= from URL ââââââââââââââââââââââââââââââââââââââââââââââââââââ
-let _refCode    = null;  // partner referral code from URL
-let _partnerName= null;  // resolved partner display name
+// Read ?ref= from URL
+let _refCode     = null;
+let _partnerName = null;
 
 function getUrlParam(name) {
     return new URLSearchParams(window.location.search).get(name);
 }
 
-// ââ Init âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Init
 async function init() {
     const ref = getUrlParam('ref');
     if (!ref) return;
     _refCode = ref;
 
-    // Try to resolve partner name from Firebase for the banner
     try {
         await waitFor(() => typeof cloudStorage !== 'undefined');
         const partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
@@ -333,11 +332,11 @@ async function init() {
             _partnerName = partner.name;
             const banner = document.getElementById('partnerBanner');
             banner.style.display = 'block';
-            banner.textContent   = 'ð You were referred by ' + partner.name + ' â your audit request will be linked to their account.';
-            document.getElementById('heroEyebrow').textContent = 'ð Referred by ' + partner.name + ' â Free Audit';
+            banner.textContent   = '\uD83D\uDC4B You were referred by ' + partner.name + ' \u2014 your audit request will be linked to their account.';
+            document.getElementById('heroEyebrow').textContent = '\uD83D\uDC4B Referred by ' + partner.name + ' \u2014 Free Audit';
         }
     } catch(e) {
-        // Firebase not available on public page â that's fine, store ref code anyway
+        // Firebase not available on public page - that's fine, store ref code anyway
     }
 }
 
@@ -345,7 +344,7 @@ function waitFor(fn) {
     return new Promise(r => { const t = setInterval(() => { if (fn()) { clearInterval(t); r(); } }, 60); });
 }
 
-// ââ File chosen ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// File chosen
 function fileChosen(type, input) {
     const name   = input.files[0] ? input.files[0].name : 'No file selected';
     const filled = !!input.files[0];
@@ -356,7 +355,7 @@ function fileChosen(type, input) {
     label.classList.toggle('has-file', filled);
 }
 
-// ââ Validation âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Validation
 function validate() {
     let ok = true;
     const rules = [
@@ -378,7 +377,7 @@ function validate() {
     return ok;
 }
 
-// ââ Submit âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Submit
 async function submitAudit() {
     hideAlert();
     if (!validate()) {
@@ -398,9 +397,9 @@ async function submitAudit() {
     const speedFile   = document.getElementById('f-speed-file').files[0];
     const usageFile   = document.getElementById('f-usage-file').files[0];
 
-    setLoading(true, 'Checking for duplicatesâ¦');
+    setLoading(true, 'Checking for duplicates\u2026');
 
-    // ââ Duplicate check ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // Duplicate check
     try {
         await waitFor(() => typeof cloudStorage !== 'undefined');
         const existing = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
@@ -411,21 +410,21 @@ async function submitAudit() {
         if (dupe) {
             setLoading(false);
             if (dupe.status === 'active') {
-                showAlert('Great news â ' + dupe.company + ' is already an active DFR client! Contact us at 083 314 9592 if you have questions about your account.', 'warn');
+                showAlert('Great news \u2014 ' + dupe.company + ' is already an active DFR client! Contact us at 083 314 9592 if you have questions about your account.', 'warn');
             } else {
                 showAlert(company + ' has already submitted an audit request. Our team will be in touch shortly. If you have not heard from us, call 083 314 9592.', 'warn');
             }
             return;
         }
     } catch(e) {
-        // Firebase unavailable â proceed without duplicate check
+        // Firebase unavailable - proceed without duplicate check
     }
 
-    setLoading(true, 'Saving your audit requestâ¦');
+    setLoading(true, 'Saving your audit request\u2026');
 
-    // ââ Save to Firebase âââââââââââââââââââââââââââââââââââââââââââââââââââ
-    const now     = new Date().toISOString();
-    const clientId= 'WEB-' + company.replace(/\s+/g,'-').replace(/[^A-Z0-9-]/g,'') + '-' + Date.now();
+    // Save to Firebase
+    const now      = new Date().toISOString();
+    const clientId = 'WEB-' + company.replace(/\s+/g,'-').replace(/[^A-Z0-9-]/g,'') + '-' + Date.now();
 
     const newClient = {
         id:               clientId,
@@ -437,7 +436,7 @@ async function submitAudit() {
         vehicleTypes:     vehTypes,
         manualDataNote:   manualData || '',
         referredByClient: referredBy || null,
-        referralCode:     _refCode   || null,  // partner referral code from URL
+        referralCode:     _refCode   || null,
         city:             'NATIONAL',
         fuelPrice:        22.50,
         speedLimit:       80,
@@ -463,49 +462,49 @@ async function submitAudit() {
         console.warn('Firebase save failed:', e);
     }
 
-    // ââ WhatsApp notification ââââââââââââââââââââââââââââââââââââââââââââââ
-    setLoading(true, 'Sending notificationâ¦');
-    let waMsg = 'ð¨ NEW AUDIT REQUEST\n';
-    waMsg += 'ââââââââââââââââââââ\n';
-    waMsg += 'ð¢ Company: ' + company + '\n';
-    waMsg += 'ð¤ Contact: ' + contactName + '\n';
-    waMsg += 'ð Tel: ' + tel + '\n';
-    waMsg += 'ð§ Email: ' + email + '\n';
-    waMsg += 'ð Fleet: ' + fleetSize + ' vehicles (' + vehTypes + ')\n';
-    if (manualData) waMsg += 'ð Manual data: ' + manualData + '\n';
-    if (referredBy) waMsg += 'ð¤ Referred by client: ' + referredBy + '\n';
-    if (_refCode)   waMsg += 'ð Partner ref: ' + _refCode + (_partnerName ? ' (' + _partnerName + ')' : '') + '\n';
-    if (speedFile)  waMsg += 'ð Speed CSV: ' + speedFile.name + '\n';
-    if (usageFile)  waMsg += 'ð Usage CSV: ' + usageFile.name + '\n';
-    waMsg += 'ââââââââââââââââââââ\n';
-    waMsg += savedToFirebase ? 'â Saved to Firebase' : 'â  Firebase save failed â check manually';
+    // WhatsApp notification
+    setLoading(true, 'Sending notification\u2026');
+    let waMsg = '\uD83D\uDEA8 NEW AUDIT REQUEST\n';
+    waMsg += '\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\n';
+    waMsg += '\uD83C\uDFE2 Company: '  + company      + '\n';
+    waMsg += '\uD83D\uDC64 Contact: '  + contactName  + '\n';
+    waMsg += '\uD83D\uDCDE Tel: '      + tel          + '\n';
+    waMsg += '\uD83D\uDCE7 Email: '    + email        + '\n';
+    waMsg += '\uD83D\uDE9A Fleet: '    + fleetSize    + ' vehicles (' + vehTypes + ')\n';
+    if (manualData) waMsg += '\uD83D\uDCCB Manual data: ' + manualData + '\n';
+    if (referredBy) waMsg += '\uD83D\uDD17 Referred by client: ' + referredBy + '\n';
+    if (_refCode)   waMsg += '\uD83D\uDCCE Partner ref: ' + _refCode + (_partnerName ? ' (' + _partnerName + ')' : '') + '\n';
+    if (speedFile)  waMsg += '\uD83D\uDCC4 Speed CSV: ' + speedFile.name + '\n';
+    if (usageFile)  waMsg += '\uD83D\uDCC4 Usage CSV: ' + usageFile.name + '\n';
+    waMsg += '\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\n';
+    waMsg += savedToFirebase ? '\u2705 Saved to Firebase' : '\u26A0\uFE0F Firebase save failed \u2014 check manually';
 
     try { await notifyWA(waMsg); } catch(e) {}
 
-    // ââ Update Google Sheet status âââââââââââââââââââââââââââââââââââââââââ
-    setLoading(true, 'Almost doneâ¦');
+    // Update Google Sheet status
+    setLoading(true, 'Almost done\u2026');
     try { await sheetRequest('new', company, 'Prospect'); } catch(e) {}
 
     setLoading(false);
     showSuccess(company, referredBy);
 }
 
-// ââ Show success âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Show success
 function showSuccess(company, referredBy) {
     document.getElementById('formWrap').style.display      = 'none';
     document.getElementById('successScreen').style.display = 'block';
     let msg = 'Your audit request for ' + company + ' has been received. Our team will contact you within 24 hours to get started.';
-    if (referredBy) msg += '\n\nð¤ We\'ve noted that you were referred by ' + referredBy + ' â they\'ll receive loyalty rewards once you become an active client.';
+    if (referredBy)   msg += '\n\n\uD83D\uDD17 We\'ve noted that you were referred by ' + referredBy + ' \u2014 they\'ll receive loyalty rewards once you become an active client.';
     if (_partnerName) msg += '\n\nYour request has been linked to ' + _partnerName + '\'s referral account.';
     document.getElementById('successMsg').textContent = msg;
     document.getElementById('successScreen').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Helpers
 function showAlert(msg, type) {
     const el = document.getElementById('formAlert');
-    el.textContent = msg;
-    el.className   = 'form-alert ' + (type || 'err');
+    el.textContent   = msg;
+    el.className     = 'form-alert ' + (type || 'err');
     el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -522,7 +521,7 @@ function scrollToForm() {
     document.getElementById('auditForm').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ââ Apps Script helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Apps Script helpers
 function notifyWA(msg) {
     return new Promise(res => {
         const cb = '_cb' + Date.now();
@@ -541,15 +540,21 @@ function sheetRequest(action, company, status) {
         const t  = setTimeout(() => { delete window[cb]; res(); }, 8000);
         window[cb] = () => { clearTimeout(t); delete window[cb]; res(); };
         const s = document.createElement('script');
-        s.src     = APPS_URL + '?action=' + encodeURIComponent(action)
-                  + '&company=' + encodeURIComponent(company)
-                  + '&status='  + encodeURIComponent(status)
-                  + '&callback=ââââââââââââââââââââââââââââââ
+        s.src = APPS_URL
+              + '?action='  + encodeURIComponent(action)
+              + '&company=' + encodeURIComponent(company)
+              + '&status='  + encodeURIComponent(status)
+              + '&callback=' + cb;
+        s.onerror = () => { clearTimeout(t); res(); };
+        document.body.appendChild(s);
+    });
+}
+
 window.addEventListener('DOMContentLoaded', init);
 </script>
 
 <script>
-// Country dropdown — standalone, no external deps
+// Country dropdown - standalone, no external deps
 (function() {
     var countries = [
         {v:'ZA',t:'South Africa'},{v:'AE',t:'UAE'},{v:'AU',t:'Australia'},
