@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <script type="module" src="firebase-helper.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Active Database</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -71,10 +71,10 @@
         <a href="audit.html"    class="nav-item">Forensic Audit</a>
         <a href="churned.html"  class="nav-item">Churned Clients</a>
         <a href="invoice.html"  class="nav-item">Invoices</a>
-        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html" class="nav-item">⚙ Settings</a>
-        <a href="marketing.html" class="nav-item">📣 Marketing</a>
+        <a href="partners.html" class="nav-item">&#x1F91D; Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">&#x1F3C6; Loyalty Club</a>
+        <a href="settings.html" class="nav-item">&#x2699; Settings</a>
+        <a href="marketing.html" class="nav-item">&#x1F4E3; Marketing</a>
     </nav>
 </aside>
 
@@ -86,8 +86,8 @@
         </div>
         <div class="flex gap-3 items-center">
             <input type="text" id="searchInput" class="search-bar" placeholder="Search clients..." oninput="renderList()">
-            <button onclick="syncAllToSheet()" style="background:#10b981;color:#020617;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;border:none;cursor:pointer;">☁️ Sync Sheet</button>
-            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;">📥 Export</button>
+            <button onclick="syncAllToSheet()" style="background:#10b981;color:#020617;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;border:none;cursor:pointer;">&#x2601;&#xFE0F; Sync Sheet</button>
+            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;padding:8px 18px;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;">&#x1F4E5; Export</button>
         </div>
     </header>
 
@@ -108,11 +108,11 @@
     <div class="flex gap-2 mb-4 flex-wrap items-center">
         <span class="text-[8px] font-black uppercase text-white/20 tracking-widest mr-1">Filter:</span>
         <button onclick="setFilter('all',this)"      class="pill pill-blue filter-btn active-filter">All</button>
-        <button onclick="setFilter('overdue',this)"  class="pill pill-red filter-btn">🔴 Overdue</button>
-        <button onclick="setFilter('due-soon',this)" class="pill pill-yellow filter-btn">⏰ Due Soon</button>
-        <button onclick="setFilter('weekly',this)"   class="pill pill-blue filter-btn">📅 Weekly</button>
-        <button onclick="setFilter('monthly',this)"  class="pill pill-grey filter-btn">📆 Monthly</button>
-        <button onclick="setFilter('unpaid',this)"   class="pill pill-yellow filter-btn">💳 Unpaid Invoice</button>
+        <button onclick="setFilter('overdue',this)"  class="pill pill-red filter-btn">&#x1F534; Overdue</button>
+        <button onclick="setFilter('due-soon',this)" class="pill pill-yellow filter-btn">&#x23F0; Due Soon</button>
+        <button onclick="setFilter('weekly',this)"   class="pill pill-blue filter-btn">&#x1F4C5; Weekly</button>
+        <button onclick="setFilter('monthly',this)"  class="pill pill-grey filter-btn">&#x1F4C6; Monthly</button>
+        <button onclick="setFilter('unpaid',this)"   class="pill pill-yellow filter-btn">&#x1F4B3; Unpaid Invoice</button>
         <div class="ml-auto flex items-center gap-2">
             <span class="text-[8px] font-black uppercase text-white/20">Sort:</span>
             <select id="sortBy" onchange="renderList()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 8px;color:white;font-size:10px;font-family:Outfit,sans-serif;">
@@ -141,9 +141,20 @@
 
 <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
-    var _cbCounter   = 0;
+    var _cbCounter     = 0;
     var _currentFilter = 'all';
     var _allClients    = [];
+
+    // ── Country flag lookup ───────────────────────────────────
+    function getCountryFlag(code) {
+        var flags = {
+            ZA:'🇿🇦', US:'🇺🇸', GB:'🇬🇧', EU:'🇪🇺', AU:'🇦🇺', AE:'🇦🇪',
+            BW:'🇧🇼', NA:'🇳🇦', ZW:'🇿🇼', ZM:'🇿🇲', MZ:'🇲🇿', KE:'🇰🇪',
+            GH:'🇬🇭', NG:'🇳🇬', CA:'🇨🇦', DE:'🇩🇪', FR:'🇫🇷', NL:'🇳🇱',
+            NZ:'🇳🇿', OTHER:'🌍'
+        };
+        return flags[code] || '';
+    }
 
     // ── Helpers ───────────────────────────────────────────────
     function getNextDueDate(c) {
@@ -160,19 +171,19 @@
         var hist = c.invoiceHistory || [];
         if (hist.length === 0) return { label: 'No Invoice', cls: 'pill-grey', overdue: false };
         var last = hist[hist.length-1];
-        if (last.paid) return { label: '✓ Paid', cls: 'pill-green', overdue: false };
+        if (last.paid) return { label: '&#10003; Paid', cls: 'pill-green', overdue: false };
         var due  = new Date(last.dueDate || (new Date().getTime() + 7*86400000));
         var days = Math.ceil((new Date() - due) / 86400000);
-        if (days > 0) return { label: '⚠ ' + days + 'd overdue', cls: 'pill-red', overdue: true };
+        if (days > 0) return { label: '&#9888; ' + days + 'd overdue', cls: 'pill-red', overdue: true };
         return { label: 'Unpaid', cls: 'pill-yellow', overdue: false };
     }
 
     function getReportPill(c) {
         var d = getDaysUntilDue(c);
-        if (d < 0)  return { label: 'Overdue '+Math.abs(d)+'d', cls: 'pill-red' };
+        if (d < 0)   return { label: 'Overdue ' + Math.abs(d) + 'd', cls: 'pill-red' };
         if (d === 0) return { label: 'Due Today', cls: 'pill-red' };
-        if (d <= 2)  return { label: 'Due in '+d+'d', cls: 'pill-yellow' };
-        return { label: 'In '+d+' days', cls: 'pill-grey' };
+        if (d <= 2)  return { label: 'Due in ' + d + 'd', cls: 'pill-yellow' };
+        return { label: 'In ' + d + ' days', cls: 'pill-grey' };
     }
 
     // ── Filter ────────────────────────────────────────────────
@@ -193,9 +204,9 @@
         var sortBy  = document.getElementById('sortBy').value;
 
         // Stats
-        var totalMRR   = active.reduce(function(s,c) { return s + getMonthly(c); }, 0);
-        var overdueCt  = active.filter(function(c) { return getDaysUntilDue(c) < 0; }).length;
-        var unpaidCt   = active.filter(function(c) { var s = getInvStatus(c); return !s.label.includes('Paid') && s.label !== 'No Invoice'; }).length;
+        var totalMRR  = active.reduce(function(s,c) { return s + getMonthly(c); }, 0);
+        var overdueCt = active.filter(function(c) { return getDaysUntilDue(c) < 0; }).length;
+        var unpaidCt  = active.filter(function(c) { var s = getInvStatus(c); return !s.label.includes('Paid') && s.label !== 'No Invoice'; }).length;
         document.getElementById('stat-total').innerText   = active.length;
         document.getElementById('stat-mrr').innerText     = 'R ' + totalMRR.toLocaleString('en-ZA');
         document.getElementById('stat-overdue').innerText = overdueCt;
@@ -205,8 +216,10 @@
         var alertBar = document.getElementById('alertBar');
         if (overdueCt > 0) {
             alertBar.style.display = 'block';
-            document.getElementById('alertText').innerText = '🚨 ' + overdueCt + ' client' + (overdueCt>1?'s':'') + ' with overdue reports — click filter above';
-        } else { alertBar.style.display = 'none'; }
+            document.getElementById('alertText').innerText = '&#x1F6A8; ' + overdueCt + ' client' + (overdueCt > 1 ? 's' : '') + ' with overdue reports — click filter above';
+        } else {
+            alertBar.style.display = 'none';
+        }
 
         // Filter
         var filtered = active.filter(function(c) {
@@ -220,10 +233,10 @@
         });
 
         // Sort
-        if (sortBy === 'due')      filtered.sort(function(a,b) { return getDaysUntilDue(a)-getDaysUntilDue(b); });
-        else if (sortBy === 'retainer') filtered.sort(function(a,b) { return getMonthly(b)-getMonthly(a); });
+        if (sortBy === 'due')           filtered.sort(function(a,b) { return getDaysUntilDue(a) - getDaysUntilDue(b); });
+        else if (sortBy === 'retainer') filtered.sort(function(a,b) { return getMonthly(b) - getMonthly(a); });
         else if (sortBy === 'invoice')  filtered.sort(function(a,b) { return getInvStatus(a).overdue ? -1 : 1; });
-        else filtered.sort(function(a,b) { return (a.company||'').localeCompare(b.company||''); });
+        else                            filtered.sort(function(a,b) { return (a.company||'').localeCompare(b.company||''); });
 
         var container = document.getElementById('clientList');
         if (filtered.length === 0) {
@@ -232,25 +245,28 @@
         }
 
         container.innerHTML = filtered.map(function(c) {
-            var fleetSize  = c.fleet ? c.fleet.length : (c.fleetSize || 0);
-            var monthly    = getMonthly(c);
-            var tier       = getTier(fleetSize);
-            var rpt        = getReportPill(c);
-            var inv        = getInvStatus(c);
-            var schedPill  = c.reportSchedule === 'weekly'
+            var fleetSize = c.fleet ? c.fleet.length : (c.fleetSize || 0);
+            var monthly   = getMonthly(c);
+            var tier      = getTier(fleetSize);
+            var rpt       = getReportPill(c);
+            var inv       = getInvStatus(c);
+            var schedPill = c.reportSchedule === 'weekly'
                 ? '<span class="pill pill-blue">Weekly</span>'
                 : '<span class="pill pill-grey">Monthly</span>';
+
+            // Country flag
+            var flag = c.countryCode ? '<span style="font-size:0.95rem;margin-right:5px;">' + getCountryFlag(c.countryCode) + '</span>' : '';
 
             return '<div class="client-row" onclick="window.location.href=\'client.html?id=' + c.id + '\'">'
                 // Company + contact
                 + '<div style="min-width:0;">'
-                +   '<div style="font-weight:900;font-size:13px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + c.company + '</div>'
-                +   '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;">' + (c.contactName||'—') + '</div>'
+                +   '<div style="font-weight:900;font-size:13px;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + flag + c.company + '</div>'
+                +   '<div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;">' + (c.contactName || '—') + '</div>'
                 + '</div>'
                 // Monthly retainer
                 + '<div>'
                 +   '<div style="font-weight:900;font-size:13px;color:#10b981;">R ' + monthly.toLocaleString('en-ZA') + '</div>'
-                +   '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-weight:700;">' + tier.label + ' · ' + fleetSize + ' units</div>'
+                +   '<div style="font-size:9px;color:rgba(255,255,255,0.25);font-weight:700;">' + tier.label + ' &middot; ' + fleetSize + ' units</div>'
                 + '</div>'
                 // Fleet
                 + '<div style="font-weight:900;font-size:13px;">' + fleetSize + ' <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;">units</span></div>'
@@ -262,9 +278,9 @@
                 + '<div><span class="pill ' + inv.cls + '">' + inv.label + '</span></div>'
                 // Actions — stop propagation so clicks don't open client page
                 + '<div style="display:flex;gap:6px;justify-content:flex-end;" onclick="event.stopPropagation()">'
-                +   '<button onclick="window.location.href=\'invoice.html?clientId=' + c.id + '\'" title="Invoice" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">🧾</button>'
-                +   '<button onclick="window.location.href=\'audit.html?client=' + encodeURIComponent(c.company) + '\'" title="Audit" style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">📊</button>'
-                +   '<button onclick="quickChurn(\'' + c.id + '\')" title="Churn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:#ef4444;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">🔴</button>'
+                +   '<button onclick="window.location.href=\'invoice.html?clientId=' + c.id + '\'" title="Invoice" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#10b981;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">&#x1F9FE;</button>'
+                +   '<button onclick="window.location.href=\'audit.html?client=' + encodeURIComponent(c.company) + '\'" title="Audit" style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">&#x1F4CA;</button>'
+                +   '<button onclick="quickChurn(\'' + c.id + '\')" title="Churn" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);color:#ef4444;padding:5px 9px;border-radius:7px;font-size:10px;cursor:pointer;">&#x1F534;</button>'
                 + '</div>'
                 + '</div>';
         }).join('');
@@ -280,7 +296,7 @@
         var name = allClients[idx].company;
         allClients[idx] = Object.assign({}, allClients[idx], {
             status: 'churned', churnDate: new Date().toLocaleDateString('en-ZA'),
-            churnReason: reason||'', churnedFrom: 'active'
+            churnReason: reason || '', churnedFrom: 'active'
         });
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         sheetRequest('update', name, 'Churned').catch(function(){});
@@ -292,11 +308,11 @@
         return new Promise(function(resolve, reject) {
             var cb = 'sheetCB_' + Date.now() + '_' + (++_cbCounter);
             var tid = setTimeout(function() { delete window[cb]; reject('Timeout'); }, 10000);
-            window[cb] = function(data) { clearTimeout(tid); delete window[cb]; var s=document.getElementById(cb); if(s)s.remove(); resolve(data); };
+            window[cb] = function(data) { clearTimeout(tid); delete window[cb]; var s = document.getElementById(cb); if (s) s.remove(); resolve(data); };
             var script = document.createElement('script');
             script.id = cb;
             script.onerror = function() { clearTimeout(tid); delete window[cb]; reject('Error'); };
-            script.src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(company) + '&status=' + encodeURIComponent(status||'') + '&callback=' + cb;
+            script.src = APPS_SCRIPT_URL + '?action=' + encodeURIComponent(action) + '&company=' + encodeURIComponent(company) + '&status=' + encodeURIComponent(status || '') + '&callback=' + cb;
             document.body.appendChild(script);
         });
     }
@@ -309,7 +325,7 @@
         for (var i = 0; i < active.length; i++) {
             await sheetRequest('update', active[i].company, 'Active');
         }
-        alert('✅ Synced ' + active.length + ' client(s)!');
+        alert('&#10003; Synced ' + active.length + ' client(s)!');
     }
 
     async function exportCSV() {
@@ -317,11 +333,11 @@
         var active = all.filter(function(c) { return c.status === 'active'; });
         var csv = 'Company,Contact,Email,Fleet,Schedule,Monthly Retainer\n';
         active.forEach(function(c) {
-            csv += '"'+c.company+'","'+(c.contactName||'')+'","'+(c.email||'')+'",'+
-                   (c.fleet?c.fleet.length:(c.fleetSize||0))+',"'+(c.reportSchedule||'monthly')+'",'+getMonthly(c)+'\n';
+            csv += '"' + c.company + '","' + (c.contactName||'') + '","' + (c.email||'') + '",'
+                 + (c.fleet ? c.fleet.length : (c.fleetSize||0)) + ',"' + (c.reportSchedule||'monthly') + '",' + getMonthly(c) + '\n';
         });
         var a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+        a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
         a.download = 'active-clients-' + new Date().toISOString().split('T')[0] + '.csv';
         a.click();
     }
@@ -329,13 +345,13 @@
     // ── Auto-purge churned > 6 months ────────────────────────
     async function purgeOldChurned() {
         var all = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-        var cutoff = new Date(); cutoff.setMonth(cutoff.getMonth()-6);
+        var cutoff = new Date(); cutoff.setMonth(cutoff.getMonth() - 6);
         var purged = 0;
         var remaining = all.filter(function(c) {
             if (c.status !== 'churned') return true;
             if (!c.churnDate) return true;
             var d = new Date(c.churnDate);
-            if (!isNaN(d) && d < cutoff) { purged++; sheetRequest('update',c.company,'Deleted').catch(function(){}); return false; }
+            if (!isNaN(d) && d < cutoff) { purged++; sheetRequest('update', c.company, 'Deleted').catch(function(){}); return false; }
             return true;
         });
         if (purged > 0) await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(remaining));
