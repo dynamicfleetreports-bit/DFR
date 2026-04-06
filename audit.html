@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	 <meta charset="UTF-8">
 	<script type="module" src="firebase-helper.js"></script>
     <script src="uom-helper.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Forensic Audit Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -181,10 +181,11 @@
                     <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest opacity-60">Audit Period</p>
                     <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">—</p>
                 </div>
-                <div class="bg-orange-500/10 border border-orange-500/30 px-6 py-3 rounded-xl">
-                    <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest opacity-60">Status</p>
-                    <p id="date-label" class="text-[10px] font-black text-orange-400 uppercase mt-1">DATA PENDING</p>
-                </div>
+              <div class="bg-orange-500/10 border border-orange-500/30 px-6 py-3 rounded-xl">
+    <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest opacity-60">Status</p>
+    <p id="date-label" class="text-[10px] font-black text-orange-400 uppercase mt-1">DATA PENDING</p>
+</div>
+<div id="uom-conversion-note" style="display:none;font-size:11px;color:#f59e0b;font-weight:700;padding:6px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;"></div>	
             </div>
         </div>
 
@@ -544,8 +545,7 @@ async function loadAuditClient(name, allClients) {
 async function switchAuditClient(name) {
     if (!name) { clearAudit(); return; }
     if (currentClientName && Object.keys(auditData).length > 0 && name !== currentClientName) {
-        if (!confirm('Switch to ' + name + '?
-The current audit for ' + currentClientName + ' will be auto-saved as a draft.')) {
+        if (!confirm('Switch to ' + name + '?\nThe current audit for ' + currentClientName + ' will be auto-saved as a draft.')) {
             const sel = document.getElementById('audit-client-sel');
             if (sel) sel.value = currentClientName;
             return;
