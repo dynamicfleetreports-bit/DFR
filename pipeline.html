@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
+    <script type="module" src="firebase-helper.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fleet Intel | Prospect Pipeline</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -91,15 +91,15 @@
 
     <div class="flex gap-3 mb-8 items-center flex-wrap">
         <span class="text-[9px] font-black uppercase text-white/20 tracking-widest">Workflow:</span>
-        <span class="text-[9px] font-black uppercase text-white/40">① Run Audit</span>
-        <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-emerald-400/60">② Generate Quotation</span>
-        <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-blue-400/60">③ Generate &amp; Send SLA</span>
-        <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-yellow-400/60">④ Mark SLA Received</span>
-        <span class="text-white/15 text-xs">→</span>
-        <span class="text-[9px] font-black uppercase text-emerald-400/60">⑤ Activate</span>
+        <span class="text-[9px] font-black uppercase text-white/40">&#9312; Run Audit</span>
+        <span class="text-white/15 text-xs">&#8594;</span>
+        <span class="text-[9px] font-black uppercase text-emerald-400/60">&#9313; Generate Quotation</span>
+        <span class="text-white/15 text-xs">&#8594;</span>
+        <span class="text-[9px] font-black uppercase text-blue-400/60">&#9314; Generate &amp; Send SLA</span>
+        <span class="text-white/15 text-xs">&#8594;</span>
+        <span class="text-[9px] font-black uppercase text-yellow-400/60">&#9315; Mark SLA Received</span>
+        <span class="text-white/15 text-xs">&#8594;</span>
+        <span class="text-[9px] font-black uppercase text-emerald-400/60">&#9316; Activate</span>
     </div>
 
     <div id="pipeline-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -110,6 +110,17 @@
 <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
     var _cbCounter = 0;
+
+    // ── Country flag lookup ───────────────────────────────────────────────────
+    function getCountryFlag(code) {
+        var flags = {
+            ZA:'🇿🇦', US:'🇺🇸', GB:'🇬🇧', EU:'🇪🇺', AU:'🇦🇺', AE:'🇦🇪',
+            BW:'🇧🇼', NA:'🇳🇦', ZW:'🇿🇼', ZM:'🇿🇲', MZ:'🇲🇿', KE:'🇰🇪',
+            GH:'🇬🇭', NG:'🇳🇬', CA:'🇨🇦', DE:'🇩🇪', FR:'🇫🇷', NL:'🇳🇱',
+            NZ:'🇳🇿', OTHER:'🌍'
+        };
+        return flags[code] || '';
+    }
 
     function getSlaStatus(p) {
         if (p.slaExecuted)     return 'executed';
@@ -131,10 +142,10 @@
         var s = p.auditStatus || 'not-started';
         if (s === 'complete') {
             var d = p.lastAuditDate ? ' · ' + p.lastAuditDate : '';
-            return '<span class="status-badge status-complete">✓ Audit Complete' + d + '</span>';
+            return '<span class="status-badge status-complete">&#10003; Audit Complete' + d + '</span>';
         }
-        if (s === 'in-progress') return '<span class="status-badge status-in-progress">⏳ In Progress</span>';
-        return '<span class="status-badge status-not-started">○ No Audit Yet</span>';
+        if (s === 'in-progress') return '<span class="status-badge status-in-progress">&#9203; In Progress</span>';
+        return '<span class="status-badge status-not-started">&#9675; No Audit Yet</span>';
     }
 
     function buildButtons(p) {
@@ -161,16 +172,14 @@
 
         } else if (slaStatus === 'sent') {
             html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-                + '<button onclick="generateSLA(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#93c5fd;" onmouseover="this.style.background=\'rgba(59,130,246,0.18)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.08)\'">↗ Resend SLA</button>'
-                + '<button onclick="markSlaReceived(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;" onmouseover="this.style.background=\'rgba(251,191,36,0.22)\'" onmouseout="this.style.background=\'rgba(251,191,36,0.12)\'">✉️ Mark Received</button>'
+                + '<button onclick="generateSLA(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#93c5fd;" onmouseover="this.style.background=\'rgba(59,130,246,0.18)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.08)\'">&#8599; Resend SLA</button>'
+                + '<button onclick="markSlaReceived(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;" onmouseover="this.style.background=\'rgba(251,191,36,0.22)\'" onmouseout="this.style.background=\'rgba(251,191,36,0.12)\'">&#9993;&#65039; Mark Received</button>'
                 + '</div>';
 
         } else if (slaStatus === 'received' || slaStatus === 'executed') {
-            // Drive folder button or paste field
             if (p.driveFolderUrl) {
                 html += '<a href="' + p.driveFolderUrl + '" target="_blank" style="display:block;width:100%;padding:9px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center;text-decoration:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">📁 Open Drive Folder</a>';
             }
-            // SLA file paste field or view button
             if (p.slaFileUrl) {
                 html += '<a href="' + p.slaFileUrl + '" target="_blank" style="display:block;width:100%;padding:9px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center;text-decoration:none;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:#93c5fd;">📄 View Signed SLA</a>';
             } else {
@@ -182,10 +191,9 @@
                     + 'oninput="if(this.value.startsWith(\'http\'))savePipelineSlaLink(\'' + id + '\', null, this.value)">'
                     + '</div>';
             }
-            html += '<button onclick="activateClient(\'' + id + '\')" style="width:100%;padding:11px 0;border-radius:12px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:#10b981;border:none;color:#020617;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">⚡ Activate Client</button>';
+            html += '<button onclick="activateClient(\'' + id + '\')" style="width:100%;padding:11px 0;border-radius:12px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:#10b981;border:none;color:#020617;" onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#10b981\'">&#9889; Activate Client</button>';
         }
 
-        // Edit link
         html += '<div style="text-align:center;margin-top:4px;"><button onclick="window.location.href=\'create.html?editId=' + id + '\'" style="background:none;border:none;color:rgba(255,255,255,0.2);font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.color=\'rgba(255,255,255,0.5)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.2)\'">Edit Details</button></div>';
         html += '</div>';
         return html;
@@ -214,15 +222,18 @@
 
             var slaInfoHtml = '';
             if (slaStatus === 'sent')     slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#60a5fa;margin-top:4px;">📄 SLA sent ' + (p.slaSentDate ? '· ' + new Date(p.slaSentDate).toLocaleDateString('en-ZA') : '') + '</div>';
-            if (slaStatus === 'received') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#fbbf24;margin-top:4px;">✉️ Signed SLA received ' + (p.slaReceivedDate ? '· ' + new Date(p.slaReceivedDate).toLocaleDateString('en-ZA') : '') + '</div>';
-            if (slaStatus === 'executed') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#10b981;margin-top:4px;">✓ SLA executed digitally · ' + (p.slaDate ? new Date(p.slaDate).toLocaleDateString('en-ZA') : '') + '</div>';
+            if (slaStatus === 'received') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#fbbf24;margin-top:4px;">&#9993;&#65039; Signed SLA received ' + (p.slaReceivedDate ? '· ' + new Date(p.slaReceivedDate).toLocaleDateString('en-ZA') : '') + '</div>';
+            if (slaStatus === 'executed') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#10b981;margin-top:4px;">&#10003; SLA executed digitally · ' + (p.slaDate ? new Date(p.slaDate).toLocaleDateString('en-ZA') : '') + '</div>';
+
+            // Country flag
+            var flag = p.countryCode ? '<span style="font-size:1rem;margin-right:6px;">' + getCountryFlag(p.countryCode) + '</span>' : '';
 
             return '<div class="prospect-card">'
                 + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">'
                 +   '<span style="background:rgba(16,185,129,0.1);color:#10b981;padding:4px 10px;border-radius:6px;font-size:9px;font-weight:900;text-transform:uppercase;">' + (p.city || 'NATIONAL') + '</span>'
                 +   '<button onclick="churnClient(\'' + p.id + '\',\'prospect\')" style="background:none;border:none;color:rgba(255,255,255,0.18);font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.color=\'#f97316\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">Churn</button>'
                 + '</div>'
-                + '<h3 style="font-size:1.2rem;font-weight:900;font-style:italic;color:white;text-transform:uppercase;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p.company + '</h3>'
+                + '<h3 style="font-size:1.2rem;font-weight:900;font-style:italic;color:white;text-transform:uppercase;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + flag + p.company + '</h3>'
                 + '<p style="color:#10b981;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">' + (p.contactName || 'NO CONTACT') + '</p>'
                 + getAuditBadgeHtml(p)
                 + slaInfoHtml
@@ -243,13 +254,11 @@
         if (idx === -1) return;
         var client = allClients[idx];
 
-        // Load audit draft for fleet data
         var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
         var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
         var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
         var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
 
-        // Populate AUDIT_FINAL so sla.html can read client details
         var auditFinal = {
             client: {
                 company:     client.company,
@@ -264,7 +273,6 @@
         };
         await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
 
-        // Record SLA sent timestamp
         if (!allClients[idx].slaSentDate) {
             allClients[idx].slaSentDate = new Date().toISOString();
         }
@@ -282,13 +290,11 @@
         if (idx === -1) return;
         var client = allClients[idx];
 
-        // Load audit draft for fleet data (same as SLA)
         var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
         var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
         var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
         var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
 
-        // Populate AUDIT_FINAL so quotation.html can read client details
         var auditFinal = {
             client: {
                 company:     client.company,
@@ -305,14 +311,11 @@
         };
         await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
 
-        // Record quotation sent timestamp
         allClients[idx].quotationLastOpenedDate = new Date().toISOString();
         if (!allClients[idx].quotationFirstSentDate) {
             allClients[idx].quotationFirstSentDate = new Date().toISOString();
         }
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-
-        // Write session token so quotation.html knows it was opened legitimately
         await cloudStorage.setItem('QUOTE_SESSION_TOKEN', String(Date.now()));
 
         showToast('📋 Opening Quotation for ' + client.company + '...', 'blue');
@@ -331,11 +334,11 @@
         allClients[idx].slaStatus       = 'received';
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
 
-        showToast('✉️ SLA marked as received. Activate is now unlocked.', 'yellow');
+        showToast('&#9993;&#65039; SLA marked as received. Activate is now unlocked.', 'yellow');
         renderPipeline();
     }
 
-    // ── Save SLA link from pipeline card paste ─────────────────────────────────
+    // ── Save SLA link from pipeline card paste ────────────────────────────────
     async function savePipelineSlaLink(id, pasteEvent, directValue) {
         var url = directValue || '';
         if (pasteEvent) {
@@ -351,7 +354,7 @@
         allClients[idx].slaFileUrl = url;
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         var inputEl2 = document.getElementById('slaPaste-' + id);
-        if (inputEl2) { inputEl2.style.borderColor = '#10b981'; inputEl2.style.color = '#10b981'; inputEl2.value = '✓ Saved!'; }
+        if (inputEl2) { inputEl2.style.borderColor = '#10b981'; inputEl2.style.color = '#10b981'; inputEl2.value = '&#10003; Saved!'; }
         showToast('📄 SLA link saved!', 'blue');
         setTimeout(function() { renderPipeline(); }, 700);
     }
@@ -365,7 +368,7 @@
         var slaStatus = getSlaStatus(client);
 
         if (slaStatus !== 'received' && slaStatus !== 'executed') {
-            showToast('⚠️ Cannot activate — SLA must be received first.', 'red');
+            showToast('&#9888;&#65039; Cannot activate — SLA must be received first.', 'red');
             return;
         }
 
@@ -392,7 +395,6 @@
             fuelPrice: parseFloat(client.fuelPrice) || 21.50,
             targetCons: parseFloat(client.targetCons) || 2.3,
             lastReportSent: null, reportHistory: client.reportHistory || [],
-            // ── Carry over Drive + SLA links automatically ──
             slaFileUrl:      client.slaFileUrl      || null,
             driveFolderUrl:  client.driveFolderUrl  || null
         });
@@ -400,7 +402,7 @@
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         try { await sheetRequest('update', client.company, 'Active'); } catch(e) {}
 
-        showToast('⚡ ' + client.company + ' activated! Redirecting...', 'green');
+        showToast('&#9889; ' + client.company + ' activated! Redirecting...', 'green');
         setTimeout(function() { window.location.href = 'database.html'; }, 1600);
     }
 
