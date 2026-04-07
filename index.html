@@ -52,13 +52,14 @@
         <nav>
             <a href="index.html"    class="nav-item active">Dashboard</a>
             <a href="pipeline.html" class="nav-item">Prospect Pipeline</a>
+            <a href="leads.html"    class="nav-item">🔍 Lead Prospector</a>
             <a href="database.html" class="nav-item">Active Database</a>
             <a href="audit.html"    class="nav-item">Forensic Audit</a>
             <a href="churned.html"  class="nav-item">Churned Clients</a>
             <a href="invoice.html"  class="nav-item">Invoices</a>
             <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
-        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html" class="nav-item">⚙ Settings</a>
+            <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+            <a href="settings.html" class="nav-item">⚙ Settings</a>
             <a href="marketing.html" class="nav-item">📣 Marketing</a>
         </nav>
     </aside>
@@ -84,10 +85,28 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-6 mb-10">
-            <a href="pipeline.html" class="card"><span class="card-label">Prospect Pipeline</span><div class="card-value text-4xl" id="count-prospects">0</div></a>
-            <a href="database.html" class="card"><span class="card-label" style="color: #60a5fa;">Active Database</span><div class="card-value text-4xl" id="count-active">0</div></a>
-            <a href="churned.html" class="card"><span class="card-label" style="color: #f97316;">Churned Clients</span><div class="card-value text-4xl" id="count-churned">0</div></a>
+        <!-- ── PIPELINE / DATABASE / CHURNED + LEADS TILE ── -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+            <a href="pipeline.html" class="card">
+                <span class="card-label">Prospect Pipeline</span>
+                <div class="card-value text-4xl" id="count-prospects">0</div>
+            </a>
+            <a href="database.html" class="card">
+                <span class="card-label" style="color: #60a5fa;">Active Database</span>
+                <div class="card-value text-4xl" id="count-active">0</div>
+            </a>
+            <a href="churned.html" class="card">
+                <span class="card-label" style="color: #f97316;">Churned Clients</span>
+                <div class="card-value text-4xl" id="count-churned">0</div>
+            </a>
+            <!-- ── LEADS TILE (new) ── -->
+            <a href="leads.html" class="card" style="border-color: rgba(96,165,250,0.2);">
+                <span class="card-label" style="color: #818cf8;">🔍 Lead Prospector</span>
+                <div class="card-value text-4xl" id="count-leads">0</div>
+                <p class="text-[9px] font-black uppercase tracking-widest mt-3" style="color:rgba(255,255,255,0.2);">
+                    <span id="count-leads-new" class="text-blue-400">0</span> uncontacted
+                </p>
+            </a>
         </div>
 
         <div class="bottom-grid">
@@ -114,7 +133,7 @@
 
     <script>
         const SHEET_ID = '1zssrLcT2jaM8yoQUMS2MGgithXrJMw2wdG-3D2vS3Y8';
-        const GID = '985770824'; // Form responses 3 tab
+        const GID = '985770824';
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
 
         async function hardResetSystem() {
@@ -137,41 +156,21 @@
         window.handleResponse = async function(response) {
             try {
                 const rows = response.table.rows;
-
-                // Load everything in Firebase — never wipe it
                 let existingClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-
-                // Build lookup of what we already have by company name
                 const existingByName = {};
                 existingClients.forEach(function(c) {
                     existingByName[c.company.toLowerCase()] = true;
                 });
-
                 let addedCount = 0;
-
                 rows.forEach(function(row) {
                     const c = row.c;
                     if (!c || !c[1] || !c[1].v) return;
-
                     const companyName = String(c[1].v).trim();
                     if (!companyName || companyName.toLowerCase() === 'company name') return;
-
-                    // Col J (index 9) = status in sheet
                     const sheetStatus = c[12] && c[12].v ? String(c[12].v).trim().toLowerCase() : '';
-
-                    // Skip rows already marked Active or Deleted in sheet
-                    if (sheetStatus === 'active' || sheetStatus === 'deleted') {
-                        return;
-                    }
-
-                    // Already in Firebase — keep as-is, never overwrite
-                    if (existingByName[companyName.toLowerCase()]) {
-                        return;
-                    }
-
-                    // Genuinely new — add it
+                    if (sheetStatus === 'active' || sheetStatus === 'deleted') return;
+                    if (existingByName[companyName.toLowerCase()]) return;
                     addedCount++;
-
                     existingClients.push({
                         id:               'SHEET-' + companyName.replace(/\s+/g, '-').toUpperCase() + '-' + Date.now(),
                         company:          companyName.toUpperCase(),
@@ -193,22 +192,16 @@
                         auditStatus:      'not-started',
                         source:           'sheet-import'
                     });
-
-                    // Mark new entry in sheet as Prospect
                     updateSheetStatus(companyName.toUpperCase(), 'Prospect').catch(function(err) {
                         console.warn('Could not mark in sheet:', companyName, err);
                     });
                 });
-
                 await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(existingClients));
                 await cloudStorage.setItem('lastSyncTS', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-
                 document.getElementById('sync-status').innerText = 'SUCCESS';
                 document.getElementById('last-sync-time').innerText = addedCount + ' NEW PROSPECTS ADDED';
                 setTimeout(function() { document.getElementById('sync-status').innerText = 'READY'; }, 2000);
-
                 updateDisplay();
-
             } catch (err) {
                 document.getElementById('sync-status').innerText = 'ERROR';
                 console.error('Sync error:', err);
@@ -216,7 +209,7 @@
             }
         };
 
-                var _cbCounter = 0;
+        var _cbCounter = 0;
         function updateSheetStatus(companyName, status) {
             return new Promise(function(resolve, reject) {
                 const callbackName = 'sheetCallback_' + Date.now() + '_' + (++_cbCounter);
@@ -224,7 +217,6 @@
                     delete window[callbackName];
                     reject('Timeout — no response from sheet');
                 }, 10000);
-
                 window[callbackName] = function(data) {
                     clearTimeout(timeoutId);
                     delete window[callbackName];
@@ -233,7 +225,6 @@
                     if (data.success) resolve(data);
                     else reject(data.error || 'Sheet update failed');
                 };
-
                 const script = document.createElement('script');
                 script.id = callbackName;
                 script.onerror = function() {
@@ -284,10 +275,22 @@
             });
             document.getElementById('outstanding-count').innerText = unpaidCount;
             document.getElementById('outstanding-amt').innerText   = 'R ' + unpaidTotal.toLocaleString('en-ZA', {minimumFractionDigits:2}) + ' unpaid';
+
+            // ── Lead Prospector counts (reads from localStorage set by leads.html) ──
+            document.getElementById('count-leads').innerText     = localStorage.getItem('dfr_leads_total') || '0';
+            document.getElementById('count-leads-new').innerText = localStorage.getItem('dfr_leads_new')   || '0';
         }
 
+        // Re-check lead counts when returning from leads.html tab
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'dfr_leads_total' || e.key === 'dfr_leads_new') {
+                document.getElementById('count-leads').innerText     = localStorage.getItem('dfr_leads_total') || '0';
+                document.getElementById('count-leads-new').innerText = localStorage.getItem('dfr_leads_new')   || '0';
+            }
+        });
+
         window.onload = updateDisplay;
-    
+
         function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
         function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
     </script>
