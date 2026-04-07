@@ -9,7 +9,6 @@
     <style>
         * { font-family: 'Nunito', sans-serif; }
         h1, h2, .brand { font-family: 'Rajdhani', sans-serif; }
-
         body { background: #0b0f18; }
 
         .glass {
@@ -23,7 +22,6 @@
             border: 1px solid rgba(255,255,255,0.12);
         }
 
-        /* STATUS PILLS */
         .pill-new       { background: rgba(59,130,246,.18); color: #93c5fd; border: 1px solid rgba(59,130,246,.3); }
         .pill-emailed   { background: rgba(139,92,246,.18); color: #c4b5fd; border: 1px solid rgba(139,92,246,.3); }
         .pill-followup  { background: rgba(245,158,11,.18); color: #fcd34d; border: 1px solid rgba(245,158,11,.3); }
@@ -37,18 +35,17 @@
             cursor: pointer; transition: all .15s; white-space: nowrap;
             font-family: 'Rajdhani', sans-serif;
         }
-        .pill:hover { filter: brightness(1.2); transform: scale(1.03); }
+        .pill:hover, .pill:active { filter: brightness(1.2); }
 
-        .tier-large   { background: rgba(59,130,246,.15);  color: #93c5fd;  border: 1px solid rgba(59,130,246,.25); }
-        .tier-medium  { background: rgba(139,92,246,.15);  color: #c4b5fd;  border: 1px solid rgba(139,92,246,.25); }
-        .tier-small   { background: rgba(34,197,94,.15);   color: #86efac;  border: 1px solid rgba(34,197,94,.25); }
+        .tier-large  { background: rgba(59,130,246,.15);  color: #93c5fd; border: 1px solid rgba(59,130,246,.25); }
+        .tier-medium { background: rgba(139,92,246,.15);  color: #c4b5fd; border: 1px solid rgba(139,92,246,.25); }
+        .tier-small  { background: rgba(34,197,94,.15);   color: #86efac; border: 1px solid rgba(34,197,94,.25); }
         .tier-tag {
             display: inline-block; padding: 2px 8px; border-radius: 99px;
             font-size: .68rem; font-weight: 700; text-transform: uppercase;
             letter-spacing: .05em; font-family: 'Rajdhani', sans-serif;
         }
 
-        /* MODAL */
         .modal-bg { background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }
 
         input, select, textarea {
@@ -66,136 +63,182 @@
         input::placeholder, textarea::placeholder { color: rgba(255,255,255,.25) !important; }
         select option { background: #1e2535; color: #e2e8f0; }
 
-        /* TABLE ROW */
         .lead-row { transition: background .15s; }
         .lead-row:hover { background: rgba(255,255,255,.03); }
 
-        /* STAT CARD */
-        .stat-card {
-            position: relative; overflow: hidden;
-            transition: transform .2s;
-        }
+        .stat-card { position: relative; overflow: hidden; transition: transform .2s; }
         .stat-card:hover { transform: translateY(-2px); }
         .stat-card::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,.04), transparent);
+            content:''; position:absolute; inset:0;
+            background: linear-gradient(135deg,rgba(255,255,255,.04),transparent);
         }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
 
-        /* TOAST */
         .toast {
-            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+            position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999;
             padding: .8rem 1.3rem; border-radius: 10px; font-size: .875rem;
             font-weight: 600; transform: translateY(80px); opacity: 0;
             transition: all .3s cubic-bezier(.34,1.56,.64,1);
-            border-left: 4px solid;
+            border-left: 4px solid; max-width: calc(100vw - 2rem);
         }
         .toast.show { transform: translateY(0); opacity: 1; }
 
-        /* FILTER ACTIVE */
         .filter-active { background: rgba(59,130,246,.25) !important; border-color: rgba(59,130,246,.5) !important; color: #93c5fd !important; }
 
-        /* SHIMMER ON LOAD */
-        @keyframes fadeUp {
-            from { opacity:0; transform: translateY(16px); }
-            to   { opacity:1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation: fadeUp .4s ease both; }
-        .fade-up:nth-child(2) { animation-delay: .06s; }
-        .fade-up:nth-child(3) { animation-delay: .12s; }
-        .fade-up:nth-child(4) { animation-delay: .18s; }
 
-        /* NOTES TOOLTIP */
-        .notes-text {
-            max-width: 160px; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis;
-            color: rgba(255,255,255,.35); font-size: .78rem;
-        }
-
-        /* GLOW accents */
+        .notes-text { max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:rgba(255,255,255,.35); font-size:.78rem; }
         .glow-blue { box-shadow: 0 0 20px rgba(59,130,246,.15); }
-        .glow-green { box-shadow: 0 0 20px rgba(34,197,94,.12); }
+
+        /* ── MOBILE NAV ─────────────────────── */
+        .mob-topbar {
+            display: none; background: #0f172a;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.85rem 1.25rem; align-items: center;
+            justify-content: space-between; position: sticky; top:0; z-index:60;
+        }
+        .hamburger { background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:4px; }
+        .hamburger span { display:block; width:22px; height:2px; background:#e2e8f0; border-radius:2px; }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:59; }
+        .sidebar-overlay.open { display:block; }
+        #mob-sidebar {
+            display:none; position:fixed; top:0; left:0; height:100vh; width:240px;
+            z-index:60; background:#0f172a; border-right:1px solid rgba(255,255,255,0.05);
+            flex-direction:column; overflow-y:auto; padding-bottom:2rem;
+        }
+        #mob-sidebar.open { display:flex; }
+        .mob-nav-item {
+            display:block; padding:0.85rem 1.5rem; color:#64748b; font-size:12px;
+            font-weight:700; text-transform:uppercase; letter-spacing:0.08em;
+            text-decoration:none; transition:all .2s; border-radius:0.5rem; margin:0 0.5rem 0.15rem;
+        }
+        .mob-nav-item:hover { color:#e2e8f0; background:rgba(255,255,255,.04); }
+        .mob-nav-active { background:rgba(16,185,129,.1) !important; color:#10b981 !important; }
+
+        /* ── MOBILE LEAD CARDS ──────────────── */
+        .lead-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px; padding: 1rem; margin-bottom: 0.75rem;
+            transition: border-color .2s;
+        }
+        .lead-card:active { border-color: rgba(59,130,246,.4); }
+
+        /* ── RESPONSIVE ─────────────────────── */
+        .desk-nav   { display: flex; }
+        .desk-table { display: block; }
+        .mob-cards  { display: none; }
+
+        @media (max-width: 768px) {
+            .mob-topbar  { display: flex; }
+            .desk-nav    { display: none !important; }
+            .desk-table  { display: none; }
+            .mob-cards   { display: block; }
+            .mob-hide    { display: none !important; }
+            .mob-1col    { grid-template-columns: 1fr !important; }
+            .mob-full    { width: 100% !important; }
+        }
     </style>
 </head>
 <body class="text-gray-100 min-h-screen">
 
-<!-- ─── NAV ─────────────────────────────────────────────────── -->
-<nav class="glass sticky top-0 z-40 px-6 py-3 flex items-center gap-6">
+<!-- MOBILE TOPBAR -->
+<div class="mob-topbar">
+    <span class="brand text-lg font-bold text-blue-400">⚡ DFR — Leads</span>
+    <button class="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+    </button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside id="mob-sidebar">
+    <div style="padding:1.5rem 1.5rem 2rem;">
+        <span class="brand text-xl font-bold text-blue-400">⚡ DFR</span>
+    </div>
+    <a href="index.html"     class="mob-nav-item">Dashboard</a>
+    <a href="pipeline.html"  class="mob-nav-item">Prospect Pipeline</a>
+    <a href="leads.html"     class="mob-nav-item mob-nav-active">🔍 Lead Prospector</a>
+    <a href="database.html"  class="mob-nav-item">Active Database</a>
+    <a href="audit.html"     class="mob-nav-item">Forensic Audit</a>
+    <a href="churned.html"   class="mob-nav-item">Churned Clients</a>
+    <a href="invoice.html"   class="mob-nav-item">Invoices</a>
+    <a href="marketing.html" class="mob-nav-item">Marketing</a>
+</aside>
+
+<!-- DESKTOP NAV -->
+<nav class="glass desk-nav sticky top-0 z-40 px-6 py-3 items-center gap-6">
     <a href="index.html" class="brand text-xl font-bold text-blue-400 tracking-wide hover:text-blue-300 transition">⚡ DFR</a>
     <div class="h-5 w-px bg-white/10"></div>
-    <a href="index.html" class="text-sm text-gray-400 hover:text-gray-200 transition font-medium">Dashboard</a>
+    <a href="index.html"    class="text-sm text-gray-400 hover:text-gray-200 transition font-medium">Dashboard</a>
     <a href="pipeline.html" class="text-sm text-gray-400 hover:text-gray-200 transition font-medium">Pipeline</a>
     <span class="text-sm text-blue-400 font-semibold border-b border-blue-500 pb-0.5">Lead Prospector</span>
     <div class="flex-1"></div>
     <span class="text-xs text-gray-500 font-medium">Dynamic Fleet Reporting</span>
 </nav>
 
-<!-- ─── PAGE HEADER ──────────────────────────────────────────── -->
-<div class="max-w-7xl mx-auto px-6 pt-8 pb-4 fade-up flex flex-wrap items-end justify-between gap-4">
+<!-- PAGE HEADER -->
+<div class="max-w-7xl mx-auto px-4 md:px-6 pt-6 pb-4 fade-up flex flex-wrap items-end justify-between gap-3">
     <div>
-        <h1 class="text-4xl font-bold tracking-wide">
-            Lead <span class="text-blue-400">Prospector</span>
-        </h1>
-        <p class="text-gray-500 mt-1 text-sm">Cold outbound — find transport companies, send the info pack, track every step</p>
+        <h1 class="text-3xl md:text-4xl font-bold tracking-wide">Lead <span class="text-blue-400">Prospector</span></h1>
+        <p class="text-gray-500 mt-1 text-sm mob-hide">Cold outbound — find transport companies, send the info pack, track every step</p>
     </div>
     <button onclick="openAddModal()"
-        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all glow-blue">
+        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all glow-blue">
         <span class="text-lg leading-none">＋</span> Add Lead
     </button>
 </div>
 
-<!-- ─── STAT CARDS ────────────────────────────────────────────── -->
-<div class="max-w-7xl mx-auto px-6 pb-4 grid grid-cols-2 md:grid-cols-5 gap-3 fade-up">
-    <div class="stat-card glass rounded-xl p-4 text-center col-span-2 md:col-span-1">
+<!-- STAT CARDS -->
+<div class="max-w-7xl mx-auto px-4 md:px-6 pb-4 grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3 fade-up">
+    <div class="stat-card glass rounded-xl p-3 md:p-4 text-center col-span-3 md:col-span-1">
         <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Total</p>
-        <p id="stat-total" class="text-3xl font-bold font-rajdhani">0</p>
+        <p id="stat-total" class="text-2xl md:text-3xl font-bold">0</p>
     </div>
-    <div class="stat-card glass rounded-xl p-4 text-center border-t-2 border-blue-500">
+    <div class="stat-card glass rounded-xl p-3 md:p-4 text-center border-t-2 border-blue-500">
         <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">🔵 New</p>
-        <p id="stat-new" class="text-3xl font-bold text-blue-400">0</p>
+        <p id="stat-new" class="text-2xl md:text-3xl font-bold text-blue-400">0</p>
     </div>
-    <div class="stat-card glass rounded-xl p-4 text-center border-t-2 border-purple-500">
-        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">📧 Emailed</p>
-        <p id="stat-emailed" class="text-3xl font-bold text-purple-400">0</p>
+    <div class="stat-card glass rounded-xl p-3 md:p-4 text-center border-t-2 border-purple-500">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">📧 Sent</p>
+        <p id="stat-emailed" class="text-2xl md:text-3xl font-bold text-purple-400">0</p>
     </div>
-    <div class="stat-card glass rounded-xl p-4 text-center border-t-2 border-yellow-500">
-        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">📞 Follow-up</p>
-        <p id="stat-followup" class="text-3xl font-bold text-yellow-400">0</p>
+    <div class="stat-card glass rounded-xl p-3 md:p-4 text-center border-t-2 border-yellow-500">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">📞 Follow</p>
+        <p id="stat-followup" class="text-2xl md:text-3xl font-bold text-yellow-400">0</p>
     </div>
-    <div class="stat-card glass rounded-xl p-4 text-center border-t-2 border-green-500">
-        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">✅ Converted</p>
-        <p id="stat-converted" class="text-3xl font-bold text-green-400">0</p>
+    <div class="stat-card glass rounded-xl p-3 md:p-4 text-center border-t-2 border-green-500">
+        <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">✅ Done</p>
+        <p id="stat-converted" class="text-2xl md:text-3xl font-bold text-green-400">0</p>
     </div>
 </div>
 
-<!-- ─── TOOLBAR ───────────────────────────────────────────────── -->
-<div class="max-w-7xl mx-auto px-6 py-3 fade-up flex flex-wrap items-center gap-2">
-    <button onclick="setFilter('all',this)"    data-filter="all"       class="filter-btn filter-active glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-300 border border-white/10 transition">All</button>
-    <button onclick="setFilter('new',this)"    data-filter="new"       class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 hover:text-gray-200 transition">🔵 New</button>
-    <button onclick="setFilter('emailed',this)"data-filter="emailed"   class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 hover:text-gray-200 transition">📧 Emailed</button>
-    <button onclick="setFilter('followup',this)"data-filter="followup" class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 hover:text-gray-200 transition">📞 Follow-up</button>
-    <button onclick="setFilter('converted',this)"data-filter="converted" class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 hover:text-gray-200 transition">✅ Converted</button>
-
-    <div class="w-px h-5 bg-white/10 mx-1 hidden sm:block"></div>
-    <button onclick="setTier('all')"    data-tier="all"    class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 hover:text-gray-200 transition">All Tiers</button>
-    <button onclick="setTier('large')"  data-tier="large"  class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-400  border border-blue-500/30 hover:border-blue-400 transition">Large</button>
-    <button onclick="setTier('medium')" data-tier="medium" class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-400 border border-purple-500/30 hover:border-purple-400 transition">Medium</button>
-    <button onclick="setTier('small')"  data-tier="small"  class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-green-400  border border-green-500/30 hover:border-green-400 transition">Small</button>
-
-    <div class="flex-1"></div>
-    <input id="searchInput" type="text" oninput="renderTable()"
-        placeholder="Search company, contact…"
-        class="text-sm px-3 py-1.5 w-52 rounded-lg"/>
+<!-- TOOLBAR -->
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-3 fade-up">
+    <div class="flex flex-wrap gap-1.5 mb-2">
+        <button onclick="setFilter('all',this)"       class="filter-btn filter-active glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-300 border border-white/10 transition">All</button>
+        <button onclick="setFilter('new',this)"       class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 transition">🔵 New</button>
+        <button onclick="setFilter('emailed',this)"   class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 transition">📧 Emailed</button>
+        <button onclick="setFilter('followup',this)"  class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 transition">📞 Follow-up</button>
+        <button onclick="setFilter('converted',this)" class="filter-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 transition">✅ Converted</button>
+    </div>
+    <div class="flex flex-wrap gap-1.5 items-center">
+        <button onclick="setTier('all')"    class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 border border-white/10 transition">All Tiers</button>
+        <button onclick="setTier('large')"  class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-400  border border-blue-500/30 transition">Large</button>
+        <button onclick="setTier('medium')" class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-purple-400 border border-purple-500/30 transition">Medium</button>
+        <button onclick="setTier('small')"  class="tier-btn glass px-3 py-1.5 rounded-lg text-xs font-semibold text-green-400  border border-green-500/30 transition">Small</button>
+        <div class="flex-1 min-w-[140px]">
+            <input id="searchInput" type="text" oninput="renderLeads()" placeholder="Search…" class="w-full text-sm px-3 py-1.5 rounded-lg"/>
+        </div>
+    </div>
 </div>
 
-<!-- ─── TABLE ─────────────────────────────────────────────────── -->
-<div class="max-w-7xl mx-auto px-6 pb-16 fade-up overflow-x-auto">
-    <div class="glass rounded-2xl overflow-hidden min-w-[700px]">
-        <table class="w-full text-left text-sm">
+<!-- DESKTOP TABLE -->
+<div class="desk-table max-w-7xl mx-auto px-6 pb-16 fade-up overflow-x-auto">
+    <div class="glass rounded-2xl overflow-hidden">
+        <table class="w-full text-left text-sm" style="min-width:700px;">
             <thead class="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
                 <tr>
                     <th class="px-5 py-3.5">Company</th>
@@ -209,7 +252,7 @@
             </thead>
             <tbody id="lead-body" class="divide-y divide-white/5"></tbody>
         </table>
-        <div id="empty-state" class="hidden text-center py-16 text-gray-500">
+        <div id="empty-desk" class="hidden text-center py-16 text-gray-500">
             <div class="text-5xl mb-3">🔍</div>
             <p class="font-semibold text-gray-400">No leads found</p>
             <p class="text-sm mt-1">Click <strong class="text-blue-400">+ Add Lead</strong> to start prospecting</p>
@@ -217,46 +260,56 @@
     </div>
 </div>
 
-<!-- ─── ADD / EDIT MODAL ─────────────────────────────────────── -->
-<div id="modalOverlay" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
-    <div class="glass-strong rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-5">
+<!-- MOBILE CARDS -->
+<div class="mob-cards max-w-7xl mx-auto px-4 pb-24 fade-up">
+    <div id="lead-cards"></div>
+    <div id="empty-mob" class="hidden text-center py-16 text-gray-500">
+        <div class="text-5xl mb-3">🔍</div>
+        <p class="font-semibold text-gray-400">No leads found</p>
+        <p class="text-sm mt-1">Tap <strong class="text-blue-400">+ Add Lead</strong> to start</p>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="modalOverlay" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-3">
+    <div class="glass-strong rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-2xl">
+        <div class="p-5">
+            <div class="flex items-center justify-between mb-4">
                 <h2 id="modal-title" class="text-2xl font-bold tracking-wide">Add <span class="text-blue-400">Lead</span></h2>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-300 text-xl transition">✕</button>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-300 text-xl w-9 h-9 flex items-center justify-center rounded-lg hover:bg-white/5 transition">✕</button>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="col-span-2">
+            <div class="grid mob-1col gap-3" style="grid-template-columns:1fr 1fr;">
+                <div style="grid-column:1/-1;">
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Company Name *</label>
-                    <input id="f-company" type="text" class="w-full px-3 py-2.5 text-sm" placeholder="ABC Transport (Pty) Ltd"/>
+                    <input id="f-company" type="text" class="w-full px-3 py-3 text-sm" placeholder="ABC Transport (Pty) Ltd"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Tier</label>
-                    <select id="f-tier" class="w-full px-3 py-2.5 text-sm">
-                        <option value="large">Large Fleet / Corporate</option>
+                    <select id="f-tier" class="w-full px-3 py-3 text-sm">
+                        <option value="large">Large Fleet</option>
                         <option value="medium">Medium / Carrier</option>
                         <option value="small" selected>Small / SME</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Sector / Specialisation</label>
-                    <input id="f-sector" type="text" class="w-full px-3 py-2.5 text-sm" placeholder="Mining / Reefer / FMCG…"/>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Sector</label>
+                    <input id="f-sector" type="text" class="w-full px-3 py-3 text-sm" placeholder="Mining / FMCG…"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Contact Name</label>
-                    <input id="f-contact-name" type="text" class="w-full px-3 py-2.5 text-sm" placeholder="John Smith"/>
+                    <input id="f-contact-name" type="text" class="w-full px-3 py-3 text-sm" placeholder="John Smith"/>
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Contact Email *</label>
-                    <input id="f-contact-email" type="email" class="w-full px-3 py-2.5 text-sm" placeholder="john@company.co.za"/>
+                    <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Contact Email</label>
+                    <input id="f-contact-email" type="email" class="w-full px-3 py-3 text-sm" placeholder="john@company.co.za"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Est. Fleet Size</label>
-                    <input id="f-fleet" type="text" class="w-full px-3 py-2.5 text-sm" placeholder="e.g. 35 trucks"/>
+                    <input id="f-fleet" type="text" class="w-full px-3 py-3 text-sm" placeholder="e.g. 35 trucks"/>
                 </div>
                 <div>
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Source</label>
-                    <select id="f-source" class="w-full px-3 py-2.5 text-sm">
+                    <select id="f-source" class="w-full px-3 py-3 text-sm">
                         <option>Google Search</option>
                         <option>LinkedIn</option>
                         <option>Referral</option>
@@ -266,51 +319,49 @@
                         <option>Other</option>
                     </select>
                 </div>
-                <div class="col-span-2">
+                <div style="grid-column:1/-1;">
                     <label class="block text-xs text-gray-500 uppercase tracking-wider mb-1.5 font-semibold">Notes</label>
-                    <textarea id="f-notes" class="w-full px-3 py-2.5 text-sm resize-none" rows="3" placeholder="Any relevant info about this company or contact…"></textarea>
+                    <textarea id="f-notes" class="w-full px-3 py-3 text-sm resize-none" rows="3" placeholder="Any relevant info…"></textarea>
                 </div>
             </div>
-            <div class="flex gap-3 mt-5 pt-4 border-t border-white/10 justify-end">
-                <button onclick="closeModal()" class="glass px-4 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-gray-200 border border-white/10 transition">Cancel</button>
-                <button onclick="saveLead()" class="bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-6 py-2 rounded-lg text-sm font-bold tracking-wide transition-all">Save Lead</button>
+            <div class="flex gap-3 mt-4 pt-4 border-t border-white/10">
+                <button onclick="closeModal()" class="glass px-4 py-3 rounded-lg text-sm font-semibold text-gray-400 border border-white/10 transition">Cancel</button>
+                <button onclick="saveLead()"   class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg text-sm font-bold tracking-wide transition-all">Save Lead</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ─── TOAST ─────────────────────────────────────────────────── -->
+<!-- TOAST -->
 <div id="toast" class="toast glass text-white"></div>
 
-<!-- ─── FIREBASE + APP LOGIC ─────────────────────────────────── -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set, remove, onValue, update }
+import { getDatabase, ref, push, set, remove, onValue, update, get }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 // ══════════════════════════════════════════════
-// 🔧 YOUR FIREBASE CONFIG — paste yours here
+// 🔧 YOUR FIREBASE CONFIG
 // ══════════════════════════════════════════════
 const firebaseConfig = {
-  apiKey: "AIzaSyC7wWkArf06LSrJnqNRYxjPJJyV659Z2gw",
-  authDomain: "dynamic-fleet-reporting.firebaseapp.com",
-  projectId: "dynamic-fleet-reporting",
-  storageBucket: "dynamic-fleet-reporting.firebasestorage.app",
-  messagingSenderId: "167911673918",
-  appId: "1:167911673918:web:8315ef1ba74b78b949c16f",
-  measurementId: "G-GP2SFQS6QL"
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT.firebaseapp.com",
+    databaseURL:       "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+    projectId:         "YOUR_PROJECT",
+    storageBucket:     "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId:             "YOUR_APP_ID"
 };
 // ══════════════════════════════════════════════
 
-// 🔗 YOUR INFO PACK LINK — swap with your real URL
-const INFO_PACK_URL = "https://dynamicfleetreports-bit.github.io/DFR/infopack.html";
+// 🔗 YOUR INFO PACK LINK
+const INFO_PACK_URL = "https://wa.me/27833149592";
 
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 const LEADS_REF   = "FLEET_LEADS";
 const CLIENTS_REF = "FLEET_CLIENTS";
 
-// ── Seed data (your original 19 leads) ────────
 const SEED_LEADS = [
     { name:"Imperial Logistics",    tier:"large",  sector:"Multi-Sector",    email:"info@imperiallogistics.com" },
     { name:"Super Group",           tier:"large",  sector:"Fleet Africa",    email:"info@fleetafrica.com" },
@@ -333,41 +384,33 @@ const SEED_LEADS = [
     { name:"Wright Motor Serv.",    tier:"small",  sector:"Nigel/Local",     email:"ops@wrightmotor.co.za" },
 ];
 
-// ── State ──────────────────────────────────────
 let leadsData    = {};
 let editingKey   = null;
 let activeFilter = "all";
 let activeTier   = "all";
 
-// ── Real-time listener ─────────────────────────
-const leadsRef = ref(db, LEADS_REF);
-onValue(leadsRef, snap => {
-    leadsData = snap.val() || {};
-    // Seed on first load if empty
-    if (Object.keys(leadsData).length === 0) seedLeads();
-    renderTable();
-    updateStats();
-    syncIndexStats();
-});
-
 async function seedLeads() {
     for (const l of SEED_LEADS) {
         await push(ref(db, LEADS_REF), {
-            company:      l.name,
-            tier:         l.tier,
-            sector:       l.sector,
-            contactEmail: l.email,
-            contactName:  "",
-            fleet:        "",
-            source:       "Pre-loaded",
-            notes:        "",
-            status:       "new",
-            createdAt:    Date.now()
+            company:l.name, tier:l.tier, sector:l.sector, contactEmail:l.email,
+            contactName:"", fleet:"", source:"Pre-loaded", notes:"",
+            status:"new", createdAt:Date.now()
         });
     }
 }
 
-// ── Stats ──────────────────────────────────────
+const leadsRef = ref(db, LEADS_REF);
+(async () => {
+    const snap = await get(leadsRef);
+    if (!snap.exists() || Object.keys(snap.val()||{}).length === 0) await seedLeads();
+    onValue(leadsRef, snap => {
+        leadsData = snap.val() || {};
+        renderLeads();
+        updateStats();
+        syncIndexStats();
+    });
+})();
+
 function updateStats() {
     const all = Object.values(leadsData);
     document.getElementById("stat-total").textContent    = all.length;
@@ -383,12 +426,8 @@ function syncIndexStats() {
     localStorage.setItem("dfr_leads_new",   all.filter(l=>l.status==="new").length);
 }
 
-// ── Render ─────────────────────────────────────
-window.renderTable = function() {
+window.renderLeads = function() {
     const q = (document.getElementById("searchInput").value||"").toLowerCase();
-    const tbody = document.getElementById("lead-body");
-    tbody.innerHTML = "";
-
     let rows = Object.entries(leadsData);
     if (activeFilter !== "all") rows = rows.filter(([,l])=> l.status === activeFilter);
     if (activeTier   !== "all") rows = rows.filter(([,l])=> l.tier   === activeTier);
@@ -397,74 +436,102 @@ window.renderTable = function() {
         (l.contactName||"").toLowerCase().includes(q) ||
         (l.sector||"").toLowerCase().includes(q)
     );
+    rows.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
+    renderTable(rows);
+    renderCards(rows);
+};
 
-    const empty = document.getElementById("empty-state");
+function renderTable(rows) {
+    const tbody = document.getElementById("lead-body");
+    tbody.innerHTML = "";
+    const empty = document.getElementById("empty-desk");
     if (!rows.length) { empty.classList.remove("hidden"); return; }
     empty.classList.add("hidden");
-
-    rows.sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0));
-
     rows.forEach(([key,l]) => {
-        const tierClass  = {large:"tier-large",medium:"tier-medium",small:"tier-small"}[l.tier]||"tier-small";
-        const statusClass= {new:"pill-new",emailed:"pill-emailed",followup:"pill-followup",converted:"pill-converted"}[l.status]||"pill-new";
-        const statusLabel= {new:"🔵 New",emailed:"📧 Emailed",followup:"📞 Follow-up",converted:"✅ Converted"}[l.status]||"🔵 New";
-        const date = l.createdAt ? new Date(l.createdAt).toLocaleDateString("en-ZA",{day:"2-digit",month:"short"}) : "";
-
+        const tC = {large:"tier-large",medium:"tier-medium",small:"tier-small"}[l.tier]||"tier-small";
+        const sC = {new:"pill-new",emailed:"pill-emailed",followup:"pill-followup",converted:"pill-converted"}[l.status]||"pill-new";
+        const sL = {new:"🔵 New",emailed:"📧 Emailed",followup:"📞 Follow-up",converted:"✅ Converted"}[l.status]||"🔵 New";
+        const dt = l.createdAt ? new Date(l.createdAt).toLocaleDateString("en-ZA",{day:"2-digit",month:"short"}) : "";
         const tr = document.createElement("tr");
         tr.className = "lead-row";
         tr.innerHTML = `
             <td class="px-5 py-3.5">
                 <div class="font-semibold text-gray-100">${esc(l.company||"")}</div>
-                ${date ? `<div class="text-xs text-gray-600 mt-0.5">${date}</div>` : ""}
+                ${dt?`<div class="text-xs text-gray-600 mt-0.5">${dt}</div>`:""}
             </td>
             <td class="px-5 py-3.5">
-                <span class="tier-tag ${tierClass}">${l.tier||"—"}</span>
+                <span class="tier-tag ${tC}">${l.tier||"—"}</span>
                 <span class="text-xs text-gray-500 ml-1.5">${esc(l.sector||"")}</span>
             </td>
             <td class="px-5 py-3.5">
                 <div class="text-gray-300 text-sm">${esc(l.contactName||"—")}</div>
                 <div class="text-xs text-blue-400 font-mono mt-0.5">${esc(l.contactEmail||"")}</div>
-                ${l.fleet ? `<div class="text-xs text-gray-600">${esc(l.fleet)}</div>` : ""}
+                ${l.fleet?`<div class="text-xs text-gray-600">${esc(l.fleet)}</div>`:""}
             </td>
+            <td class="px-5 py-3.5"><span class="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">${esc(l.source||"—")}</span></td>
+            <td class="px-5 py-3.5"><div class="notes-text" title="${esc(l.notes||"")}">${esc(l.notes||"—")}</div></td>
             <td class="px-5 py-3.5">
-                <span class="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">${esc(l.source||"—")}</span>
-            </td>
-            <td class="px-5 py-3.5">
-                <div class="notes-text" title="${esc(l.notes||"")}">${esc(l.notes||"—")}</div>
-            </td>
-            <td class="px-5 py-3.5">
-                <button class="pill ${statusClass}" onclick="cycleStatus('${key}','${l.status}')"
-                    title="Click to advance status">${statusLabel}</button>
+                <button class="pill ${sC}" onclick="cycleStatus('${key}','${l.status}')">${sL}</button>
             </td>
             <td class="px-5 py-3.5">
                 <div class="flex items-center gap-1.5 justify-end flex-wrap">
-                    ${l.contactEmail ? `
-                    <a href="${buildMailto(l)}" target="_blank"
-                       onclick="markEmailed('${key}')"
-                       class="inline-flex items-center gap-1 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 px-2.5 py-1 rounded-lg text-xs font-semibold border border-purple-500/30 transition">
-                        📧 Send
-                    </a>` : ""}
-                    <button onclick="openEditModal('${key}')"
-                        class="bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-200 px-2.5 py-1 rounded-lg text-xs font-semibold border border-white/10 transition">
-                        ✏️
-                    </button>
-                    ${l.status !== "converted" ? `
-                    <button onclick="convertLead('${key}')"
-                        class="bg-green-600/20 hover:bg-green-600/35 text-green-400 px-2.5 py-1 rounded-lg text-xs font-semibold border border-green-500/30 transition">
-                        → Pipeline
-                    </button>` : ""}
-                    <button onclick="deleteLead('${key}')"
-                        class="bg-red-600/15 hover:bg-red-600/30 text-red-400 px-2.5 py-1 rounded-lg text-xs font-semibold border border-red-500/25 transition">
-                        🗑
-                    </button>
+                    ${l.contactEmail?`<a href="${buildMailto(l)}" target="_blank" onclick="markEmailed('${key}')"
+                        class="inline-flex items-center gap-1 bg-purple-600/20 hover:bg-purple-600/40 text-purple-300 px-2.5 py-1 rounded-lg text-xs font-semibold border border-purple-500/30 transition">📧 Send</a>`:""}
+                    <button onclick="openEditModal('${key}')" class="bg-white/5 hover:bg-white/10 text-gray-400 px-2.5 py-1 rounded-lg text-xs font-semibold border border-white/10 transition">✏️</button>
+                    ${l.status!=="converted"?`<button onclick="convertLead('${key}')" class="bg-green-600/20 hover:bg-green-600/35 text-green-400 px-2.5 py-1 rounded-lg text-xs font-semibold border border-green-500/30 transition">→ Pipeline</button>`:""}
+                    <button onclick="deleteLead('${key}')" class="bg-red-600/15 hover:bg-red-600/30 text-red-400 px-2.5 py-1 rounded-lg text-xs font-semibold border border-red-500/25 transition">🗑</button>
                 </div>
-            </td>
-        `;
+            </td>`;
         tbody.appendChild(tr);
     });
-};
+}
 
-// ── Mailto builder ─────────────────────────────
+function renderCards(rows) {
+    const container = document.getElementById("lead-cards");
+    container.innerHTML = "";
+    const empty = document.getElementById("empty-mob");
+    if (!rows.length) { empty.classList.remove("hidden"); return; }
+    empty.classList.add("hidden");
+    rows.forEach(([key,l]) => {
+        const tC = {large:"tier-large",medium:"tier-medium",small:"tier-small"}[l.tier]||"tier-small";
+        const sC = {new:"pill-new",emailed:"pill-emailed",followup:"pill-followup",converted:"pill-converted"}[l.status]||"pill-new";
+        const sL = {new:"🔵 New",emailed:"📧 Emailed",followup:"📞 Follow-up",converted:"✅ Converted"}[l.status]||"🔵 New";
+        const card = document.createElement("div");
+        card.className = "lead-card";
+        card.innerHTML = `
+            <div class="flex items-start justify-between gap-2 mb-3">
+                <div class="flex-1 min-w-0">
+                    <div class="font-bold text-gray-100 text-base leading-tight">${esc(l.company||"")}</div>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <span class="tier-tag ${tC}">${l.tier||"—"}</span>
+                        <span class="text-xs text-gray-500">${esc(l.sector||"")}</span>
+                    </div>
+                </div>
+                <button class="pill ${sC} flex-shrink-0" onclick="cycleStatus('${key}','${l.status}')"
+                    title="Tap to advance">${sL}</button>
+            </div>
+            ${(l.contactName||l.contactEmail) ? `
+            <div class="rounded-lg px-3 py-2 mb-2" style="background:rgba(255,255,255,.04);">
+                ${l.contactName?`<div class="text-sm text-gray-300 font-medium">${esc(l.contactName)}</div>`:""}
+                ${l.contactEmail?`<div class="text-xs text-blue-400 font-mono mt-0.5 break-all">${esc(l.contactEmail)}</div>`:""}
+                ${l.fleet?`<div class="text-xs text-gray-500 mt-0.5">Fleet: ${esc(l.fleet)}</div>`:""}
+            </div>` : ""}
+            ${l.notes?`<div class="text-xs text-gray-500 mb-2 leading-relaxed">${esc(l.notes)}</div>`:""}
+            <div class="grid grid-cols-2 gap-2">
+                ${l.contactEmail?`<a href="${buildMailto(l)}" target="_blank" onclick="markEmailed('${key}')"
+                    class="col-span-2 inline-flex items-center justify-center gap-1.5 bg-purple-600/20 text-purple-300 px-3 py-2.5 rounded-lg text-sm font-bold border border-purple-500/30 active:opacity-70">
+                    📧 Send Info Pack Email</a>`:""}
+                <button onclick="openEditModal('${key}')"
+                    class="bg-white/5 text-gray-400 px-3 py-2.5 rounded-lg text-sm font-bold border border-white/10 active:opacity-70">✏️ Edit</button>
+                ${l.status!=="converted"?`<button onclick="convertLead('${key}')"
+                    class="bg-green-600/20 text-green-400 px-3 py-2.5 rounded-lg text-sm font-bold border border-green-500/30 active:opacity-70">→ Pipeline</button>`:""}
+                <button onclick="deleteLead('${key}')"
+                    class="${l.status==="converted"?"col-span-2":""} bg-red-600/15 text-red-400 px-3 py-2.5 rounded-lg text-sm font-bold border border-red-500/25 active:opacity-70">🗑 Delete</button>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
 function buildMailto(l) {
     const company = l.company || "your company";
     const contact = l.contactName || "there";
@@ -490,67 +557,46 @@ dynamicfleetreports@gmail.com`);
     return `mailto:${l.contactEmail}?subject=${subj}&body=${body}`;
 }
 
-// ── Mark emailed (auto on Send click) ─────────
 window.markEmailed = function(key) {
     const l = leadsData[key];
-    if (!l) return;
-    if (l.status === "new") {
-        update(ref(db, `${LEADS_REF}/${key}`), { status:"emailed", emailedAt: Date.now() });
+    if (l && l.status === "new") {
+        update(ref(db, `${LEADS_REF}/${key}`), { status:"emailed", emailedAt:Date.now() });
         showToast("Marked as Emailed ✓", "purple");
     }
 };
-
-// ── Cycle status on pill click ─────────────────
 window.cycleStatus = function(key, current) {
     const order = ["new","emailed","followup","converted"];
     const next  = order[(order.indexOf(current)+1) % order.length];
-    update(ref(db, `${LEADS_REF}/${key}`), { status: next });
+    update(ref(db, `${LEADS_REF}/${key}`), { status:next });
     showToast(`Status → ${next}`, "blue");
 };
-
-// ── Convert to prospect ────────────────────────
 window.convertLead = async function(key) {
-    if (!confirm("Move this lead to the Pipeline as a Prospect?\n\nThis will create a prospect record and remove the lead.")) return;
-    const l = leadsData[key];
-    if (!l) return;
-    const newRef = push(ref(db, CLIENTS_REF));
-    await set(newRef, {
-        company:      l.company,
-        contactName:  l.contactName||"",
-        contactEmail: l.contactEmail||"",
-        fleet:        l.fleet||"",
-        sector:       l.sector||"",
-        source:       `Lead Prospector — ${l.source||"Cold Outbound"}`,
-        notes:        l.notes||"",
-        status:       "prospect",
-        createdAt:    Date.now(),
-        convertedFromLead: key
+    if (!confirm("Move this lead to the Pipeline as a Prospect?")) return;
+    const l = leadsData[key]; if (!l) return;
+    const nr = push(ref(db, CLIENTS_REF));
+    await set(nr, {
+        company:l.company, contactName:l.contactName||"", contactEmail:l.contactEmail||"",
+        fleet:l.fleet||"", sector:l.sector||"",
+        source:`Lead Prospector — ${l.source||"Cold Outbound"}`,
+        notes:l.notes||"", status:"prospect", createdAt:Date.now(), convertedFromLead:key
     });
     await remove(ref(db, `${LEADS_REF}/${key}`));
-    showToast("Converted! Redirecting to Pipeline…", "green");
+    showToast("Converted! Redirecting…", "green");
     setTimeout(()=> window.location.href = "pipeline.html", 1600);
 };
-
-// ── Delete ─────────────────────────────────────
 window.deleteLead = function(key) {
     if (!confirm("Delete this lead permanently?")) return;
     remove(ref(db, `${LEADS_REF}/${key}`));
     showToast("Lead deleted", "red");
 };
-
-// ── Modal: Add ─────────────────────────────────
 window.openAddModal = function() {
     editingKey = null;
     document.getElementById("modal-title").innerHTML = 'Add <span class="text-blue-400">Lead</span>';
-    ["f-company","f-sector","f-contact-name","f-contact-email","f-fleet","f-notes"].forEach(id => {
-        document.getElementById(id).value = "";
-    });
-    document.getElementById("f-tier").value   = "small";
-    document.getElementById("f-source").value = "Google Search";
+    ["f-company","f-sector","f-contact-name","f-contact-email","f-fleet","f-notes"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-tier").value="small";
+    document.getElementById("f-source").value="Google Search";
     document.getElementById("modalOverlay").classList.remove("hidden");
 };
-
-// ── Modal: Edit ────────────────────────────────
 window.openEditModal = function(key) {
     editingKey = key;
     const l = leadsData[key]; if (!l) return;
@@ -565,15 +611,10 @@ window.openEditModal = function(key) {
     document.getElementById("f-notes").value         = l.notes||"";
     document.getElementById("modalOverlay").classList.remove("hidden");
 };
-
-window.closeModal = function() {
-    document.getElementById("modalOverlay").classList.add("hidden");
-};
-
-// ── Save ───────────────────────────────────────
+window.closeModal = function() { document.getElementById("modalOverlay").classList.add("hidden"); };
 window.saveLead = function() {
     const company = document.getElementById("f-company").value.trim();
-    if (!company) { showToast("Company name is required", "red"); return; }
+    if (!company) { showToast("Company name is required","red"); return; }
     const data = {
         company,
         tier:         document.getElementById("f-tier").value,
@@ -585,57 +626,50 @@ window.saveLead = function() {
         notes:        document.getElementById("f-notes").value.trim(),
     };
     if (editingKey) {
-        update(ref(db, `${LEADS_REF}/${editingKey}`), data);
-        showToast("Lead updated ✓", "blue");
+        update(ref(db,`${LEADS_REF}/${editingKey}`), data);
+        showToast("Lead updated ✓","blue");
     } else {
-        data.status    = "new";
-        data.createdAt = Date.now();
+        data.status="new"; data.createdAt=Date.now();
         push(ref(db, LEADS_REF), data);
-        showToast("Lead added ✓", "green");
+        showToast("Lead added ✓","green");
     }
     closeModal();
 };
-
-// ── Filters ────────────────────────────────────
 window.setFilter = function(f, btn) {
     activeFilter = f;
-    document.querySelectorAll(".filter-btn").forEach(b=> b.classList.remove("filter-active"));
+    document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("filter-active"));
     btn.classList.add("filter-active");
-    renderTable();
+    renderLeads();
 };
-window.setTier = function(t) {
-    activeTier = t;
-    renderTable();
-};
+window.setTier = function(t) { activeTier = t; renderLeads(); };
 
-// ── Toast ──────────────────────────────────────
 function showToast(msg, color) {
-    const colors = {
-        green:  "border-green-500 bg-green-900/80",
-        blue:   "border-blue-500 bg-blue-900/80",
-        purple: "border-purple-500 bg-purple-900/80",
-        red:    "border-red-500 bg-red-900/80",
-    };
+    const colors = { green:"border-green-500 bg-green-900/80", blue:"border-blue-500 bg-blue-900/80", purple:"border-purple-500 bg-purple-900/80", red:"border-red-500 bg-red-900/80" };
     const el = document.getElementById("toast");
     el.textContent = msg;
     el.className = `toast text-white text-sm font-semibold ${colors[color]||colors.blue}`;
     el.classList.add("show");
     clearTimeout(el._t);
-    el._t = setTimeout(()=> el.classList.remove("show"), 3000);
+    el._t = setTimeout(()=>el.classList.remove("show"), 3000);
 }
 window.showToast = showToast;
 
-// ── Helpers ────────────────────────────────────
-function esc(s) {
-    return String(s)
-        .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+function esc(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
-// Close modal on overlay click
 document.getElementById("modalOverlay").addEventListener("click", e=>{
-    if (e.target === e.currentTarget) closeModal();
+    if (e.target===e.currentTarget) closeModal();
 });
+</script>
+
+<script>
+function toggleSidebar() {
+    document.getElementById("mob-sidebar").classList.toggle("open");
+    document.getElementById("sidebarOverlay").classList.toggle("open");
+}
+function closeSidebar() {
+    document.getElementById("mob-sidebar").classList.remove("open");
+    document.getElementById("sidebarOverlay").classList.remove("open");
+}
 </script>
 </body>
 </html>
