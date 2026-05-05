@@ -306,10 +306,12 @@ const LOCKOUT_MS     = 5 * 60 * 1000;  // 5 minutes
 const SESSION_MS     = 30 * 60 * 1000; // 30 minute auto-lock
 
 let _partner = null, _allClients = [], _allPartners = [];
-let _pinBuffer = '';
-let _attempts  = 0;
-let _lockedUntil = 0;
-let _sessionExpiry = 0;
+let _pinBuffer    = '';
+let _pinSetBuffer = '';   // first entry during setup
+let _pinMode      = 'enter'; // 'enter' | 'setup_first' | 'setup_confirm'
+let _attempts     = 0;
+let _lockedUntil  = 0;
+let _sessionExpiry   = 0;
 let _sessionInterval = null;
 let _lockoutInterval = null;
 
@@ -376,18 +378,30 @@ async function login(){
 function showPinScreen(){
     document.getElementById('loginWrap').classList.remove('on');
     document.getElementById('pinWrap').classList.add('on');
-    _pinBuffer = '';
-    updatePinDots();
+    _pinBuffer = ''; _pinSetBuffer = '';
     document.getElementById('pinErr').style.display = 'none';
-    document.getElementById('pinTitle').textContent  = 'Hi ' + _partner.name.split(' ')[0] + ', enter your PIN';
-    document.getElementById('pinSub').textContent    = 'Enter your 4-digit security PIN to access your portal.';
-    updateAttemptsLabel();
-    // Check for existing lockout in sessionStorage
+
+    // Check for existing lockout
     var storedLock = sessionStorage.getItem('dfr_lockout_' + getRefCode(_partner));
     if(storedLock && Date.now() < parseInt(storedLock)){
         _lockedUntil = parseInt(storedLock);
         startLockoutCountdown();
     }
+
+    if(!_partner.pin){
+        // First time — setup mode
+        _pinMode = 'setup_first';
+        document.getElementById('pinTitle').textContent = 'Hi ' + _partner.name.split(' ')[0] + ', set your PIN';
+        document.getElementById('pinSub').textContent   = 'Choose a 4-digit PIN. You\'ll use this every time you log in.';
+        document.getElementById('attemptsLeft').textContent = '';
+    } else {
+        // Returning — enter mode
+        _pinMode = 'enter';
+        document.getElementById('pinTitle').textContent = 'Hi ' + _partner.name.split(' ')[0] + ', enter your PIN';
+        document.getElementById('pinSub').textContent   = 'Enter your 4-digit security PIN to access your portal.';
+        updateAttemptsLabel();
+    }
+    updatePinDots();
 }
 
 function pinKey(d){
@@ -417,42 +431,90 @@ function flashError(){
     for(var i=0; i<4; i++) document.getElementById('pd'+i).classList.add('error');
     setTimeout(function(){
         for(var i=0; i<4; i++) document.getElementById('pd'+i).classList.remove('error','filled');
+        _pinBuffer = '';
+        updatePinDots();
     }, 600);
 }
 
 function checkPin(){
-    var storedPin = _partner.pin;
-
-    // No PIN set — let them through with a warning shown in portal
-    if(!storedPin){
-        document.getElementById('pinErr').textContent  = '⚠ No PIN set on your account yet. Contact DFR to set one.';
-        document.getElementById('pinErr').style.display = 'block';
-        // Still allow access — but show notice in portal
-        setTimeout(openPortal, 1200);
+    // ── SETUP: first entry ──────────────────────────────────────────────────
+    if(_pinMode === 'setup_first'){
+        _pinSetBuffer = _pinBuffer;
+        _pinBuffer    = '';
+        _pinMode      = 'setup_confirm';
+        document.getElementById('pinTitle').textContent = 'Confirm your PIN';
+        document.getElementById('pinSub').textContent   = 'Re-enter your PIN to confirm.';
+        updatePinDots();
         return;
     }
 
-    if(_pinBuffer === String(storedPin)){
-        // Correct — clear attempts, open portal
+    // ── SETUP: confirm entry ────────────────────────────────────────────────
+    if(_pinMode === 'setup_confirm'){
+        if(_pinBuffer === _pinSetBuffer){
+            // Match — save to Firebase and open portal
+            saveNewPin(_pinBuffer);
+        } else {
+            // Mismatch — restart setup
+            flashError();
+            setTimeout(function(){
+                _pinSetBuffer = '';
+                _pinMode      = 'setup_first';
+                document.getElementById('pinTitle').textContent = 'PINs didn\'t match — try again';
+                document.getElementById('pinSub').textContent   = 'Choose a 4-digit PIN.';
+                document.getElementById('pinErr').textContent   = 'The PINs you entered didn\'t match. Please start again.';
+                document.getElementById('pinErr').style.display = 'block';
+            }, 650);
+        }
+        return;
+    }
+
+    // ── ENTER: validate against stored PIN ─────────────────────────────────
+    if(_pinBuffer === String(_partner.pin)){
         _attempts = 0;
         sessionStorage.removeItem('dfr_lockout_' + getRefCode(_partner));
         openPortal();
     } else {
-        // Wrong
         _attempts++;
         flashError();
-        _pinBuffer = '';
-
         if(_attempts >= MAX_ATTEMPTS){
-            // Lockout
             _lockedUntil = Date.now() + LOCKOUT_MS;
             sessionStorage.setItem('dfr_lockout_' + getRefCode(_partner), _lockedUntil);
             startLockoutCountdown();
         } else {
-            document.getElementById('pinErr').textContent  = 'Incorrect PIN. Please try again.';
-            document.getElementById('pinErr').style.display = 'block';
-            updateAttemptsLabel();
+            setTimeout(function(){
+                document.getElementById('pinErr').textContent  = 'Incorrect PIN. Please try again.';
+                document.getElementById('pinErr').style.display = 'block';
+                updateAttemptsLabel();
+            }, 650);
         }
+    }
+}
+
+async function saveNewPin(pin){
+    // Show saving state
+    document.getElementById('pinTitle').textContent = 'Saving your PIN...';
+    document.getElementById('pinSub').textContent   = 'Just a moment.';
+    document.getElementById('pinKeypad').style.pointerEvents = 'none';
+
+    try {
+        // Update partner record in Firebase
+        var partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+        var idx = partners.findIndex(function(p){ return p.id === _partner.id; });
+        if(idx > -1){
+            partners[idx].pin = pin;
+            await cloudStorage.setItem('REFERRAL_PARTNERS', JSON.stringify(partners));
+            _partner.pin = pin; // update local reference
+        }
+        document.getElementById('pinKeypad').style.pointerEvents = '';
+        openPortal();
+    } catch(e){
+        document.getElementById('pinKeypad').style.pointerEvents = '';
+        document.getElementById('pinTitle').textContent = 'Hi ' + _partner.name.split(' ')[0] + ', set your PIN';
+        document.getElementById('pinSub').textContent   = 'Choose a 4-digit PIN.';
+        document.getElementById('pinErr').textContent   = 'Could not save your PIN. Please try again.';
+        document.getElementById('pinErr').style.display = 'block';
+        _pinMode = 'setup_first'; _pinBuffer = ''; _pinSetBuffer = '';
+        updatePinDots();
     }
 }
 
