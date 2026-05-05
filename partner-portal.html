@@ -17,27 +17,55 @@
         .tb-pname{font-size:14px;font-weight:900;color:white;}
         .tb-pcode{font-size:10px;color:var(--mut);font-family:'Courier New',monospace;margin-top:1px;}
 
-        /* Loading state */
+        /* Loading */
         .loading-wrap{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 66px);flex-direction:column;gap:1.25rem;}
         .loading-wrap.on{display:flex;}
         .loading-spinner{width:38px;height:38px;border:3px solid rgba(16,185,129,0.15);border-top-color:var(--grn);border-radius:50%;animation:spin 0.75s linear infinite;}
         @keyframes spin{to{transform:rotate(360deg);}}
         .loading-text{font-size:13px;font-weight:700;color:var(--mut);}
 
-        /* Login */
-        .login-wrap{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
-        .login-wrap.on{display:flex;}
+        /* Login / PIN screens */
+        .screen-wrap{display:none;align-items:center;justify-content:center;min-height:calc(100vh - 66px);padding:2rem;}
+        .screen-wrap.on{display:flex;}
         .login-card{background:var(--panel);border:1px solid var(--brd);border-radius:20px;padding:2.5rem;width:420px;max-width:100%;text-align:center;}
         .lc-icon{font-size:3rem;margin-bottom:1rem;}
         .lc-title{font-size:1.4rem;font-weight:900;color:white;margin-bottom:0.4rem;}
         .lc-sub{font-size:13px;color:var(--mut);margin-bottom:1.75rem;line-height:1.6;}
         .lc-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:10px;padding:0.85rem 1rem;color:var(--txt);font-family:'Outfit',sans-serif;font-size:14px;outline:none;text-align:center;letter-spacing:0.08em;font-weight:700;transition:border-color 0.2s;margin-bottom:1rem;}
         .lc-input:focus{border-color:var(--grn);}
+        .lc-input.pin-input{font-size:1.6rem;letter-spacing:0.5em;font-family:'Bebas Neue',sans-serif;}
         .lc-btn{width:100%;background:var(--grn);border:none;color:#020617;padding:0.85rem;border-radius:10px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
         .lc-btn:hover{background:var(--gd);}
+        .lc-btn-sec{width:100%;background:transparent;border:1px solid var(--brd);color:var(--mut);padding:0.65rem;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.75rem;transition:all 0.2s;}
+        .lc-btn-sec:hover{color:white;border-color:rgba(255,255,255,0.2);}
         .lc-err{color:#f87171;font-size:12px;margin-top:0.5rem;display:none;}
         .lc-signup{margin-top:1.25rem;font-size:12px;color:var(--mut);}
         .lc-signup a{color:var(--grn);text-decoration:none;font-weight:700;}
+
+        /* PIN dots */
+        .pin-dots{display:flex;justify-content:center;gap:12px;margin:1.25rem 0;}
+        .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);transition:all 0.2s;}
+        .pin-dot.filled{background:var(--grn);border-color:var(--grn);}
+        .pin-dot.error{background:var(--red);border-color:var(--red);}
+
+        /* PIN keypad */
+        .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 1rem;}
+        .pin-key{background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:12px;padding:0.9rem;font-size:1.2rem;font-weight:900;cursor:pointer;font-family:'Outfit',sans-serif;color:white;transition:all 0.15s;user-select:none;}
+        .pin-key:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}
+        .pin-key:active{transform:scale(0.95);}
+        .pin-key.del{color:var(--mut);font-size:1rem;}
+        .pin-key.del:hover{color:white;}
+        .pin-key.empty{background:transparent;border-color:transparent;cursor:default;}
+        .pin-key.empty:hover{background:transparent;border-color:transparent;}
+        .attempts-left{font-size:11px;color:var(--mut);margin-top:0.5rem;}
+        .attempts-left.warn{color:#fbbf24;}
+        .attempts-left.danger{color:#f87171;}
+
+        /* Lockout banner */
+        .lockout-banner{background:rgba(239,68,68,0.1);border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem;text-align:center;}
+        .lockout-title{font-size:1rem;font-weight:900;color:#f87171;margin-bottom:0.4rem;}
+        .lockout-sub{font-size:12px;color:#94a3b8;line-height:1.6;}
+        .lockout-timer{font-size:1.6rem;font-weight:900;font-style:italic;color:#f87171;margin:0.5rem 0;}
 
         /* Portal */
         .portal{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
@@ -103,34 +131,90 @@
         .pdot.done{background:var(--grn);} .pdot.pend{background:var(--gld);} .pdot.miss{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);}
         .prog-lbl{color:var(--mut);} .prog-lbl.done{color:#a7f3d0;} .prog-lbl.pend{color:#fde68a;}
         .empty-msg{text-align:center;color:var(--mut);font-size:13px;padding:20px;}
+
+        /* Session timer in topbar */
+        .session-badge{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:900;color:var(--grn);display:none;align-items:center;gap:6px;}
+        .session-badge.on{display:flex;}
+        .session-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+        .btn-logout{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;padding:5px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;margin-left:0.5rem;transition:all 0.2s;}
+        .btn-logout:hover{background:rgba(239,68,68,0.2);}
     </style>
 </head>
 <body>
 
 <div class="topbar">
     <div class="tb-brand">Dynamic Fleet Reporting<span>Referral Partner Portal</span></div>
-    <div class="tb-partner" id="tbPartner" style="display:none;">
-        <div class="tb-pname" id="tbPname">—</div>
-        <div class="tb-pcode" id="tbPcode">—</div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+        <div class="session-badge" id="sessionBadge"><div class="session-dot"></div><span id="sessionTimer">--:--</span></div>
+        <button class="btn-logout" id="logoutBtn" onclick="logout()" style="display:none;">🔒 Lock</button>
+        <div class="tb-partner" id="tbPartner" style="display:none;">
+            <div class="tb-pname" id="tbPname">—</div>
+            <div class="tb-pcode" id="tbPcode">—</div>
+        </div>
     </div>
 </div>
 
-<!-- LOADING — shown while Firebase initialises when ?ref= is present -->
+<!-- LOADING -->
 <div class="loading-wrap" id="loadingWrap">
     <div class="loading-spinner"></div>
     <div class="loading-text">Loading your portal...</div>
 </div>
 
-<!-- LOGIN — only shown when no ?ref= in URL -->
-<div class="login-wrap" id="loginWrap">
+<!-- STEP 1 — Referral Code Login -->
+<div class="screen-wrap" id="loginWrap">
     <div class="login-card">
         <div class="lc-icon">🤝</div>
         <div class="lc-title">Partner Portal</div>
-        <div class="lc-sub">Enter your referral code to view your dashboard, track your referrals, and see your earnings.</div>
+        <div class="lc-sub">Enter your referral code to continue.</div>
         <input class="lc-input" type="text" id="loginCode" placeholder="e.g. ref_your_name" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter')login()">
-        <button class="lc-btn" onclick="login()">View My Dashboard →</button>
+        <button class="lc-btn" onclick="login()">Continue →</button>
         <div class="lc-err" id="loginErr">Code not recognised. Check your WhatsApp for your referral link — your code is the part after <em>?ref=</em></div>
         <div class="lc-signup">Not a partner yet? <a href="partner-signup.html">Apply here →</a></div>
+    </div>
+</div>
+
+<!-- STEP 2 — PIN Entry -->
+<div class="screen-wrap" id="pinWrap">
+    <div class="login-card">
+        <div class="lc-icon">🔐</div>
+        <div class="lc-title" id="pinTitle">Enter Your PIN</div>
+        <div class="lc-sub" id="pinSub">Enter your 4-digit security PIN to access your portal.</div>
+
+        <!-- Lockout banner — hidden by default -->
+        <div class="lockout-banner" id="lockoutBanner" style="display:none;">
+            <div class="lockout-title">🚫 Too Many Attempts</div>
+            <div class="lockout-timer" id="lockoutTimer">5:00</div>
+            <div class="lockout-sub">Your portal has been temporarily locked. Please wait before trying again.<br>If you've forgotten your PIN, contact DFR on 083 314 9592.</div>
+        </div>
+
+        <!-- PIN dots -->
+        <div class="pin-dots" id="pinDots">
+            <div class="pin-dot" id="pd0"></div>
+            <div class="pin-dot" id="pd1"></div>
+            <div class="pin-dot" id="pd2"></div>
+            <div class="pin-dot" id="pd3"></div>
+        </div>
+
+        <!-- PIN keypad -->
+        <div class="pin-keypad" id="pinKeypad">
+            <button class="pin-key" onclick="pinKey('1')">1</button>
+            <button class="pin-key" onclick="pinKey('2')">2</button>
+            <button class="pin-key" onclick="pinKey('3')">3</button>
+            <button class="pin-key" onclick="pinKey('4')">4</button>
+            <button class="pin-key" onclick="pinKey('5')">5</button>
+            <button class="pin-key" onclick="pinKey('6')">6</button>
+            <button class="pin-key" onclick="pinKey('7')">7</button>
+            <button class="pin-key" onclick="pinKey('8')">8</button>
+            <button class="pin-key" onclick="pinKey('9')">9</button>
+            <button class="pin-key empty"></button>
+            <button class="pin-key" onclick="pinKey('0')">0</button>
+            <button class="pin-key del" onclick="pinDel()">⌫</button>
+        </div>
+
+        <div class="attempts-left" id="attemptsLeft"></div>
+        <div class="lc-err" id="pinErr">Incorrect PIN. Please try again.</div>
+        <button class="lc-btn-sec" onclick="backToLogin()">← Use a different code</button>
     </div>
 </div>
 
@@ -149,19 +233,16 @@
         <div class="ref-body">
             <div class="ref-label">Your Referral Links</div>
             <div class="ref-sub">Share these links with prospects. Every lead that comes through them is automatically linked to you.</div>
-
             <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:5px;">🚀 Enquiry Link — for leads ready to submit their details</div>
             <div class="ref-link-row">
                 <div class="ref-link-val" id="refLinkVal">—</div>
                 <button class="btn-copy" id="copyBtn" onclick="copyLink('refLinkVal','copyBtn')">📋 Copy</button>
             </div>
-
             <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin:0.85rem 0 5px;">📦 Info Pack Link — for cold prospects who need more information first</div>
             <div class="ref-link-row">
                 <div class="ref-link-val" id="infoLinkVal">—</div>
                 <button class="btn-copy" id="copyInfoBtn" onclick="copyLink('infoLinkVal','copyInfoBtn')">📋 Copy</button>
             </div>
-
             <div class="ref-link-row" style="margin-top:0.75rem;">
                 <button style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="goMarketing()">📣 Marketing Hub</button>
                 <button style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:'Outfit',sans-serif;white-space:nowrap;" onclick="window.open('partner-guide.html','_blank')">📖 Partner Guide</button>
@@ -219,27 +300,36 @@
 </div>
 
 <script>
-const DISCOVER_URL='https://dynamicfleetreports-bit.github.io/DFR/discover.html';
-let _partner=null,_allClients=[],_allPartners=[];
+const DISCOVER_URL   = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html';
+const MAX_ATTEMPTS   = 5;
+const LOCKOUT_MS     = 5 * 60 * 1000;  // 5 minutes
+const SESSION_MS     = 30 * 60 * 1000; // 30 minute auto-lock
 
-function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
-async function ready(){await waitFor(()=>typeof cloudStorage!=='undefined');}
+let _partner = null, _allClients = [], _allPartners = [];
+let _pinBuffer = '';
+let _attempts  = 0;
+let _lockedUntil = 0;
+let _sessionExpiry = 0;
+let _sessionInterval = null;
+let _lockoutInterval = null;
 
-// ── On load — detect ?ref= immediately and show correct state ────────────────
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+async function ready(){ await waitFor(()=>typeof cloudStorage!=='undefined'); }
+
+// ── On load ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
     var p   = new URLSearchParams(window.location.search);
     var ref = p.get('ref') || p.get('pid');
     if(ref){
-        // Has a ref — show loading spinner, hide login
         document.getElementById('loadingWrap').classList.add('on');
         document.getElementById('loginCode').value = ref;
         ready().then(login);
     } else {
-        // No ref — show login screen for manual entry
         document.getElementById('loginWrap').classList.add('on');
     }
 });
 
+// ── STEP 1 — Validate referral code ──────────────────────────────────────────
 async function login(){
     var input = document.getElementById('loginCode').value.trim().toLowerCase();
     if(!input) return;
@@ -253,7 +343,6 @@ async function login(){
             return code === refCode || p.id === input || code === input;
         });
         if(!_partner){
-            // Failed — hide loading, show login with error
             document.getElementById('loadingWrap').classList.remove('on');
             document.getElementById('loginWrap').classList.add('on');
             document.getElementById('loginErr').style.display = 'block';
@@ -262,11 +351,20 @@ async function login(){
         if(_partner.status === 'inactive'){
             document.getElementById('loadingWrap').classList.remove('on');
             document.getElementById('loginWrap').classList.add('on');
-            document.getElementById('loginErr').textContent = 'This account is currently inactive. Contact DFR.';
+            document.getElementById('loginErr').textContent = 'This account is currently inactive. Contact DFR on 083 314 9592.';
             document.getElementById('loginErr').style.display = 'block';
             return;
         }
-        showPortal();
+        if(_partner.status === 'pending'){
+            document.getElementById('loadingWrap').classList.remove('on');
+            document.getElementById('loginWrap').classList.add('on');
+            document.getElementById('loginErr').textContent = 'Your application is still pending approval. You will receive a WhatsApp once activated.';
+            document.getElementById('loginErr').style.display = 'block';
+            return;
+        }
+        // Code valid — move to PIN step
+        document.getElementById('loadingWrap').classList.remove('on');
+        showPinScreen();
     } catch(e){
         document.getElementById('loadingWrap').classList.remove('on');
         document.getElementById('loginWrap').classList.add('on');
@@ -274,13 +372,191 @@ async function login(){
     }
 }
 
-// ── Safe Marketing Hub navigation ────────────────────────────────────────────
-function goMarketing(){
-    if(!_partner){ return; }
-    var code = getRefCode(_partner);
-    window.location.href = 'partner-marketing.html?ref=' + code;
+// ── STEP 2 — PIN screen ───────────────────────────────────────────────────────
+function showPinScreen(){
+    document.getElementById('loginWrap').classList.remove('on');
+    document.getElementById('pinWrap').classList.add('on');
+    _pinBuffer = '';
+    updatePinDots();
+    document.getElementById('pinErr').style.display = 'none';
+    document.getElementById('pinTitle').textContent  = 'Hi ' + _partner.name.split(' ')[0] + ', enter your PIN';
+    document.getElementById('pinSub').textContent    = 'Enter your 4-digit security PIN to access your portal.';
+    updateAttemptsLabel();
+    // Check for existing lockout in sessionStorage
+    var storedLock = sessionStorage.getItem('dfr_lockout_' + getRefCode(_partner));
+    if(storedLock && Date.now() < parseInt(storedLock)){
+        _lockedUntil = parseInt(storedLock);
+        startLockoutCountdown();
+    }
 }
 
+function pinKey(d){
+    if(_lockedUntil > Date.now()) return;
+    if(_pinBuffer.length >= 4) return;
+    _pinBuffer += d;
+    updatePinDots();
+    document.getElementById('pinErr').style.display = 'none';
+    if(_pinBuffer.length === 4) setTimeout(checkPin, 150);
+}
+
+function pinDel(){
+    if(_lockedUntil > Date.now()) return;
+    _pinBuffer = _pinBuffer.slice(0, -1);
+    updatePinDots();
+}
+
+function updatePinDots(){
+    for(var i=0; i<4; i++){
+        var dot = document.getElementById('pd'+i);
+        dot.classList.remove('filled','error');
+        if(i < _pinBuffer.length) dot.classList.add('filled');
+    }
+}
+
+function flashError(){
+    for(var i=0; i<4; i++) document.getElementById('pd'+i).classList.add('error');
+    setTimeout(function(){
+        for(var i=0; i<4; i++) document.getElementById('pd'+i).classList.remove('error','filled');
+    }, 600);
+}
+
+function checkPin(){
+    var storedPin = _partner.pin;
+
+    // No PIN set — let them through with a warning shown in portal
+    if(!storedPin){
+        document.getElementById('pinErr').textContent  = '⚠ No PIN set on your account yet. Contact DFR to set one.';
+        document.getElementById('pinErr').style.display = 'block';
+        // Still allow access — but show notice in portal
+        setTimeout(openPortal, 1200);
+        return;
+    }
+
+    if(_pinBuffer === String(storedPin)){
+        // Correct — clear attempts, open portal
+        _attempts = 0;
+        sessionStorage.removeItem('dfr_lockout_' + getRefCode(_partner));
+        openPortal();
+    } else {
+        // Wrong
+        _attempts++;
+        flashError();
+        _pinBuffer = '';
+
+        if(_attempts >= MAX_ATTEMPTS){
+            // Lockout
+            _lockedUntil = Date.now() + LOCKOUT_MS;
+            sessionStorage.setItem('dfr_lockout_' + getRefCode(_partner), _lockedUntil);
+            startLockoutCountdown();
+        } else {
+            document.getElementById('pinErr').textContent  = 'Incorrect PIN. Please try again.';
+            document.getElementById('pinErr').style.display = 'block';
+            updateAttemptsLabel();
+        }
+    }
+}
+
+function updateAttemptsLabel(){
+    var el = document.getElementById('attemptsLeft');
+    if(!_partner || !_partner.pin){ el.textContent = ''; return; }
+    var left = MAX_ATTEMPTS - _attempts;
+    if(left <= 0){ el.textContent = ''; return; }
+    el.textContent = left + ' attempt' + (left!==1?'s':'') + ' remaining before lockout';
+    el.className = 'attempts-left' + (left <= 2 ? (left === 1 ? ' danger' : ' warn') : '');
+}
+
+function startLockoutCountdown(){
+    document.getElementById('lockoutBanner').style.display = 'block';
+    document.getElementById('pinKeypad').style.opacity = '0.3';
+    document.getElementById('pinKeypad').style.pointerEvents = 'none';
+    document.getElementById('pinErr').style.display = 'none';
+    document.getElementById('attemptsLeft').textContent = '';
+
+    clearInterval(_lockoutInterval);
+    _lockoutInterval = setInterval(function(){
+        var remaining = _lockedUntil - Date.now();
+        if(remaining <= 0){
+            clearInterval(_lockoutInterval);
+            _attempts = 0;
+            _lockedUntil = 0;
+            document.getElementById('lockoutBanner').style.display = 'none';
+            document.getElementById('pinKeypad').style.opacity = '';
+            document.getElementById('pinKeypad').style.pointerEvents = '';
+            updateAttemptsLabel();
+        } else {
+            var m = Math.floor(remaining/60000);
+            var s = Math.floor((remaining%60000)/1000);
+            document.getElementById('lockoutTimer').textContent = m + ':' + (s<10?'0':'') + s;
+        }
+    }, 500);
+}
+
+function backToLogin(){
+    _partner = null; _pinBuffer = '';
+    document.getElementById('pinWrap').classList.remove('on');
+    document.getElementById('loginWrap').classList.add('on');
+    document.getElementById('loginErr').style.display = 'none';
+    document.getElementById('loginCode').value = '';
+}
+
+// ── Portal open + session timer ───────────────────────────────────────────────
+function openPortal(){
+    document.getElementById('pinWrap').classList.remove('on');
+    document.getElementById('portal').classList.add('on');
+    document.getElementById('tbPartner').style.display = 'block';
+    document.getElementById('tbPname').textContent     = _partner.name;
+    document.getElementById('tbPcode').textContent     = getRefCode(_partner);
+    document.getElementById('refLinkVal').textContent  = DISCOVER_URL + '?ref=' + getRefCode(_partner);
+    document.getElementById('infoLinkVal').textContent = window.location.origin + window.location.pathname.replace('partner-portal.html','') + 'infopack.html?ref=' + getRefCode(_partner);
+
+    // Start session timer
+    _sessionExpiry = Date.now() + SESSION_MS;
+    document.getElementById('sessionBadge').classList.add('on');
+    document.getElementById('logoutBtn').style.display = 'block';
+    clearInterval(_sessionInterval);
+    _sessionInterval = setInterval(function(){
+        var remaining = _sessionExpiry - Date.now();
+        if(remaining <= 0){ logout(); return; }
+        var m = Math.floor(remaining/60000);
+        var s = Math.floor((remaining%60000)/1000);
+        document.getElementById('sessionTimer').textContent = m + ':' + (s<10?'0':'') + s;
+    }, 1000);
+
+    // Reset session timer on any user interaction
+    ['click','keydown','touchstart'].forEach(function(evt){
+        document.addEventListener(evt, resetSession, { passive:true });
+    });
+
+    renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
+}
+
+function resetSession(){
+    _sessionExpiry = Date.now() + SESSION_MS;
+}
+
+function logout(){
+    clearInterval(_sessionInterval);
+    ['click','keydown','touchstart'].forEach(function(evt){
+        document.removeEventListener(evt, resetSession);
+    });
+    document.getElementById('portal').classList.remove('on');
+    document.getElementById('sessionBadge').classList.remove('on');
+    document.getElementById('logoutBtn').style.display = 'none';
+    document.getElementById('tbPartner').style.display = 'none';
+    _pinBuffer = ''; _attempts = 0;
+    // Return to PIN screen (code already validated)
+    if(_partner){
+        showPinScreen();
+    } else {
+        document.getElementById('loginWrap').classList.add('on');
+    }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function goMarketing(){
+    if(!_partner) return;
+    window.location.href = 'partner-marketing.html?ref=' + getRefCode(_partner);
+}
 function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
 function getTier(f){ return f<=15?{rate:200,lbl:'T1'}:f<=30?{rate:175,lbl:'T2'}:{rate:150,lbl:'T3'}; }
 function getFS(c){ return c.fleet?c.fleet.length:(c.fleetSize||0); }
@@ -293,18 +569,7 @@ function getMyClients(status){
     });
 }
 
-function showPortal(){
-    document.getElementById('loadingWrap').classList.remove('on');
-    document.getElementById('loginWrap').classList.remove('on');
-    document.getElementById('portal').classList.add('on');
-    document.getElementById('tbPartner').style.display = 'block';
-    document.getElementById('tbPname').textContent     = _partner.name;
-    document.getElementById('tbPcode').textContent     = getRefCode(_partner);
-    document.getElementById('refLinkVal').textContent  = DISCOVER_URL + '?ref=' + getRefCode(_partner);
-    document.getElementById('infoLinkVal').textContent = window.location.origin + window.location.pathname.replace('partner-portal.html','') + 'infopack.html?ref=' + getRefCode(_partner);
-    renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
-}
-
+// ── Render functions (identical to original) ──────────────────────────────────
 function renderStats(){
     var all      = getMyClients();
     var active   = getMyClients('active');
@@ -423,8 +688,6 @@ function renderActive(){
 }
 
 function copyLink(valId, btnId){
-    valId = valId || 'refLinkVal';
-    btnId = btnId || 'copyBtn';
     var link = document.getElementById(valId).textContent;
     navigator.clipboard.writeText(link).then(function(){
         var btn = document.getElementById(btnId);
@@ -433,6 +696,13 @@ function copyLink(valId, btnId){
         setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
     });
 }
+
+// Keyboard support for PIN
+document.addEventListener('keydown', function(e){
+    if(!document.getElementById('pinWrap').classList.contains('on')) return;
+    if(e.key >= '0' && e.key <= '9') pinKey(e.key);
+    else if(e.key === 'Backspace') pinDel();
+});
 </script>
 </body>
 </html>

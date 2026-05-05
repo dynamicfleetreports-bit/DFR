@@ -3,7 +3,6 @@
 <head>
    <meta charset="UTF-8">
     <script type="module" src="firebase-helper.js"></script>
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Marketing Hub | DFR</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -23,10 +22,10 @@
         .tb-right { display:flex; align-items:center; gap:1rem; }
         .tb-partner { font-size:12px; font-weight:700; color:#64748b; }
         .tb-partner strong { color:#e2e8f0; }
-                .country-toggle{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px;flex-wrap:wrap;}
+        .country-toggle{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:4px;flex-wrap:wrap;}
         .country-btn{padding:5px 10px;border-radius:16px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
         .country-btn.active{background:#2563eb;color:white;}
-.btn-back { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:#e2e8f0; padding:7px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
+        .btn-back { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:#e2e8f0; padding:7px 16px; border-radius:8px; font-size:11px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; }
         .btn-back:hover { background:rgba(255,255,255,0.1); }
 
         /* ── LOGIN ── */
@@ -102,11 +101,14 @@
         .tab-wa.active { background:rgba(37,211,102,0.15); border-color:rgba(37,211,102,0.4); color:#4ade80; }
         .tab-tt.active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white; }
         .tab-email.active { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
+        .tab-outreach.active { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24; }
         .tab-scripts.active { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+
         /* Language toggle */
         .lang-toggle{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:4px;margin-bottom:1.25rem;}
         .lang-btn{padding:5px 14px;border-radius:16px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;background:transparent;color:#64748b;transition:all 0.2s;}
         .lang-btn.active{background:#10b981;color:#020617;}
+
         /* Email cards */
         .email-card{background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
         .email-card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;}
@@ -136,14 +138,37 @@
         .post-tag { font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; padding:3px 10px; border-radius:20px; }
         .post-card-body { padding:16px; }
         .post-preview { white-space:pre-wrap; font-size:13px; color:#cbd5e1; line-height:1.65; max-height:260px; overflow-y:auto; word-break:break-word; }
-        .post-preview::-webkit-scrollbar { width:3px; }
-        .post-preview::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
-        .post-link-line { color:var(--green); font-weight:700; font-size:12px; margin-top:8px; display:block; }
         .post-card-footer { padding:10px 16px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
         .hashtag-wrap { font-size:10px; color:#475569; flex:1; }
         .btn-copy { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:var(--green); padding:6px 16px; border-radius:6px; font-size:10px; font-weight:900; text-transform:uppercase; cursor:pointer; font-family:'Outfit',sans-serif; transition:all 0.2s; white-space:nowrap; }
         .btn-copy:hover { background:rgba(16,185,129,0.25); }
         .btn-copy.copied { background:rgba(99,102,241,0.2); border-color:rgba(99,102,241,0.4); color:#818cf8; }
+
+        /* ── OUTREACH SECTION ── */
+        .outreach-intro{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.03));border:1.5px solid rgba(245,158,11,0.3);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.75rem;}
+        .outreach-intro-title{font-size:1.1rem;font-weight:900;font-style:italic;text-transform:uppercase;color:white;margin-bottom:0.5rem;}
+        .outreach-intro p{font-size:13px;color:#94a3b8;line-height:1.7;margin-bottom:0.5rem;}
+        .outreach-intro p:last-child{margin-bottom:0;}
+        .outreach-intro strong{color:#fbbf24;}
+        .outreach-subtabs{display:flex;gap:6px;margin-bottom:1.5rem;flex-wrap:wrap;}
+        .ostab{padding:8px 18px;border-radius:8px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;font-family:'Outfit',sans-serif;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:#64748b;transition:all 0.2s;}
+        .ostab:hover{color:#e2e8f0;border-color:rgba(255,255,255,0.15);}
+        .ostab.active{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.35);color:var(--gold);}
+        .ostab-section{display:none;}.ostab-section.active{display:block;}
+        .outreach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:1.25rem;}
+        .outreach-card{background:rgba(30,41,59,0.5);border:1px solid var(--border);border-radius:1rem;overflow:hidden;transition:border-color 0.2s;}
+        .outreach-card:hover{border-color:rgba(245,158,11,0.25);}
+        .outreach-card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(245,158,11,0.03);}
+        .outreach-tag{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;padding:4px 10px;border-radius:20px;background:rgba(245,158,11,0.12);color:var(--gold);border:1px solid rgba(245,158,11,0.25);}
+        .outreach-label{font-size:10px;color:#64748b;font-weight:700;}
+        .outreach-card-body{padding:16px;}
+        .outreach-preview{background:#000d1a;border-radius:8px;padding:14px;font-size:13px;line-height:1.75;color:#cbd5e1;white-space:pre-wrap;max-height:300px;overflow-y:auto;border:1px solid rgba(255,255,255,0.04);}
+        .outreach-card-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+        .outreach-note{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:8px;padding:10px 14px;font-size:11px;color:#94a3b8;line-height:1.6;flex:1;}
+        .outreach-note strong{color:#fbbf24;}
+        .partner-brief-card{background:rgba(16,185,129,0.06);border:1.5px solid rgba(16,185,129,0.2);border-radius:1rem;padding:1.5rem 2rem;margin-bottom:1.25rem;}
+        .partner-brief-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--green);margin-bottom:0.75rem;}
+        .partner-brief-body{background:#000d1a;border-radius:8px;padding:14px;font-size:13px;line-height:1.75;color:#cbd5e1;white-space:pre-wrap;border:1px solid rgba(16,185,129,0.1);margin-bottom:0.75rem;}
 
         /* ── LOADING & EMPTY ── */
         .loading { text-align:center; padding:3rem; color:#64748b; font-size:13px; font-weight:700; }
@@ -153,6 +178,12 @@
         /* ── TOAST ── */
         .toast { position:fixed; bottom:2rem; right:2rem; background:#1e293b; border:1px solid var(--border); border-radius:10px; padding:0.85rem 1.25rem; font-size:13px; font-weight:700; color:white; z-index:9999; transform:translateY(100px); opacity:0; transition:all 0.3s; }
         .toast.show { transform:translateY(0); opacity:1; }
+
+        @media(max-width:640px){
+            .outreach-grid{grid-template-columns:1fr;}
+            .posts-grid{grid-template-columns:1fr;}
+            .main{padding:1rem;}
+        }
     </style>
 </head>
 <body>
@@ -165,13 +196,11 @@
     </div>
 </div>
 
-<!-- LOADING SPINNER — shown while Firebase initialises when ?ref= present -->
 <div class="loading-wrap" id="loadingWrap">
     <div class="loading-spinner"></div>
     <div class="loading-text">Loading your marketing hub...</div>
 </div>
 
-<!-- LOGIN -->
 <div class="login-wrap" id="loginWrap">
     <div class="login-card">
         <div class="lc-icon">&#128227;</div>
@@ -183,10 +212,9 @@
     </div>
 </div>
 
-<!-- MAIN HUB -->
 <div class="main" id="mainHub">
 
-    <!-- My referral link box — hidden in owner mode -->
+    <!-- My referral link box -->
     <div class="my-link-box" id="myLinkBox">
         <div class="mlb-top">
             <div>
@@ -202,8 +230,7 @@
             <div class="mlb-link" id="myLinkDisplay">—</div>
         </div>
         <div class="mlb-tip">
-            Every post below already includes your link. When you click <strong>Copy Post</strong> the link is part of the text — ready to paste straight to Facebook, WhatsApp, LinkedIn, anywhere.
-            The Reel Builder opens with your link pre-loaded — it auto-appends to captions when you copy.
+            Every post below already includes your link when you copy it. The <strong>Direct Outreach</strong> scripts do <strong>not</strong> include your link — they are for personal one-on-one messages only. Add your link only after someone asks for more information.
         </div>
     </div>
 
@@ -236,29 +263,23 @@
         </div>
     </div>
 
-    <!-- Community Scripts Section -->
-    <div class="community-scripts" id="communityScriptsWrap" style="display:none;">
-        <div class="cs-header">
-            <div class="cs-title">&#127775; Community Scripts — from your fellow partners</div>
-        </div>
-        <div id="communityScriptsList"></div>
-    </div>
-
-    <!-- Platform Tabs -->
+    <!-- Platform Tabs — now includes Direct Outreach -->
     <div class="tab-bar">
         <div class="lang-toggle">
             <button class="lang-btn active" id="langBtnEn" onclick="setLang('en')">🇬🇧 English</button>
             <button class="lang-btn" id="langBtnAf" onclick="setLang('af')">Afrikaans</button>
         </div>
-        <button class="tab tab-fb active" onclick="switchTab('fb',this)">&#128216; Facebook</button>
-        <button class="tab tab-li"        onclick="switchTab('li',this)">&#128188; LinkedIn</button>
-        <button class="tab tab-ig"        onclick="switchTab('ig',this)">&#128247; Instagram</button>
-        <button class="tab tab-wa"        onclick="switchTab('wa',this)">&#128172; WhatsApp</button>
-        <button class="tab tab-tt"        onclick="switchTab('tt',this)">&#127925; TikTok / Reels</button>
-        <button class="tab tab-email"     onclick="switchTab('email',this)">&#128231; Email</button>
-        <button class="tab tab-scripts"   onclick="switchTab('community',this)">&#127775; Community Scripts</button>
+        <button class="tab tab-fb active"    onclick="switchTab('fb',this)">&#128216; Facebook</button>
+        <button class="tab tab-li"           onclick="switchTab('li',this)">&#128188; LinkedIn</button>
+        <button class="tab tab-ig"           onclick="switchTab('ig',this)">&#128247; Instagram</button>
+        <button class="tab tab-wa"           onclick="switchTab('wa',this)">&#128172; WhatsApp</button>
+        <button class="tab tab-tt"           onclick="switchTab('tt',this)">&#127925; TikTok / Reels</button>
+        <button class="tab tab-email"        onclick="switchTab('email',this)">&#128231; Email</button>
+        <button class="tab tab-outreach"     onclick="switchTab('outreach',this)">💬 Direct Outreach</button>
+        <button class="tab tab-scripts"      onclick="switchTab('community',this)">&#127775; Community Scripts</button>
     </div>
 
+    <!-- Platform sections — load from Firebase -->
     <div class="platform-section active" id="section-fb"><div class="loading">Loading posts...</div></div>
     <div class="platform-section"        id="section-li"><div class="loading">Loading posts...</div></div>
     <div class="platform-section"        id="section-ig"><div class="loading">Loading posts...</div></div>
@@ -266,15 +287,35 @@
     <div class="platform-section"        id="section-tt"><div class="loading">Loading posts...</div></div>
     <div class="platform-section"        id="section-email"><div class="loading">Loading posts...</div></div>
 
-        <div class="platform-section" id="section-community">
+    <!-- Direct Outreach section — static scripts, no Firebase needed -->
+    <div class="platform-section" id="section-outreach">
+        <div class="outreach-intro">
+            <div class="outreach-intro-title">💬 Direct Outreach — Start Conversations</div>
+            <p>These scripts are for <strong>one-on-one messages only</strong> — not for posting publicly. The goal is simple: <strong>get a reply</strong>.</p>
+            <p>No links in the first message. No pricing. No feature lists. Just a short, human message that opens a door. <strong>Only share your referral link after someone says they're interested.</strong></p>
+            <p>Read each script out loud before sending. If it sounds like a marketing email, rewrite it in your own words first.</p>
+        </div>
+        <div class="outreach-subtabs">
+            <button class="ostab active" onclick="switchOstab('linkedin',this)">💼 LinkedIn DMs</button>
+            <button class="ostab"        onclick="switchOstab('whatsapp',this)">💬 WhatsApp Direct</button>
+            <button class="ostab"        onclick="switchOstab('followup',this)">🔄 Follow-Up Scripts</button>
+            <button class="ostab"        onclick="switchOstab('briefing',this)">📋 Partner Briefing</button>
+        </div>
+        <div class="ostab-section active" id="ostab-linkedin"></div>
+        <div class="ostab-section"        id="ostab-whatsapp"></div>
+        <div class="ostab-section"        id="ostab-followup"></div>
+        <div class="ostab-section"        id="ostab-briefing"></div>
+    </div>
+
+    <!-- Community scripts tab -->
+    <div class="platform-section" id="section-community">
         <div id="communityInTab"><p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet. Be the first to submit one below!</p></div>
     </div>
 
-    <!-- Submit Script — partner only, at the bottom -->
+    <!-- Submit Script -->
     <div class="script-box" id="submitScriptBox">
         <div class="sb-title">&#128640; Submit a Marketing Script</div>
-        <div class="sb-sub">Written a post that worked well for you? Share it with the DFR partner community.
-        Your script will appear in everyone's marketing hub — with <em>their own</em> referral link automatically attached.</div>
+        <div class="sb-sub">Written something that worked well for you? Share it with the DFR partner community. Your script will appear in everyone's hub — with their own referral link automatically attached.</div>
         <div class="sb-form">
             <div>
                 <label class="form-label">Platform</label>
@@ -317,55 +358,161 @@ const PARTNER_SCRIPTS_KEY = 'PARTNER_MARKETING_SCRIPTS';
 
 var _partner     = null;
 var _partnerCode = '';
-var _pmCountry = localStorage.getItem('dfr_pm_country') || 'ZA';
+var _pmCountry   = localStorage.getItem('dfr_pm_country') || 'ZA';
+var _lang        = localStorage.getItem('dfr_lang') || 'en';
+var _partnerLink = '';
 
 const PM_RATES = {
-    ZA:    { sym:'R',   setup:'2,500',  admin:'1,500', t1:'200',  t2:'175',  t3:'150',  od:'150',  label:'ZAR' },
-    US:    { sym:'$',   setup:'135',    admin:'80',    t1:'11',   t2:'9.50', t3:'8',    od:'8',    label:'USD' },
-    GB:    { sym:'£',   setup:'105',    admin:'65',    t1:'9',    t2:'7.50', t3:'6.50', od:'6.50', label:'GBP' },
-    EU:    { sym:'€',   setup:'120',    admin:'75',    t1:'10',   t2:'9',    t3:'7.50', od:'7.50', label:'EUR' },
-    AU:    { sym:'A$',  setup:'200',    admin:'120',   t1:'16',   t2:'14',   t3:'12',   od:'12',   label:'AUD' },
-    AE:    { sym:'د.إ', setup:'500',    admin:'300',   t1:'40',   t2:'35',   t3:'30',   od:'30',   label:'AED' },
+    ZA:{ sym:'R',   label:'ZAR' }, US:{ sym:'$',   label:'USD' },
+    GB:{ sym:'£',   label:'GBP' }, EU:{ sym:'€',   label:'EUR' },
+    AU:{ sym:'A$',  label:'AUD' }, AE:{ sym:'د.إ', label:'AED' },
 };
-var _partnerLink = '';
+
+// ── OUTREACH SCRIPTS (mirrored from marketing.html) ───────────────────────────
+const OUTREACH_SCRIPTS = {
+  linkedin: {
+    en: [
+      { tag:'🤝 Warm Connection', label:'For new or recent connections',
+        note:'<strong>Send within 24–48 hours of connecting.</strong> No link. Goal is one reply.',
+        content:`Hi [Name],\n\nThanks for connecting — I saw your background is in [transport / logistics / fleet management] and wanted to reach out properly.\n\nI run a forensic fleet reporting service called Dynamic Fleet Reporting. We help SA fleet operators understand exactly what their fleet is costing them each month — fuel, driver behaviour, maintenance, cost per km — all in one clear monthly report.\n\nI'm not going to pitch you right now. I'd genuinely just like to know — is fleet cost visibility something your operation struggles with, or do you feel you've got that well covered?\n\nAppreciate any honest answer either way.\n\nPieter` },
+      { tag:'💡 Insight Opener', label:'For industry contacts — no prior conversation needed',
+        note:'<strong>Works well for transport managers and logistics directors.</strong> Leads with insight, not a pitch.',
+        content:`Hi [Name],\n\nI came across your profile and noticed you're in [fleet / transport / logistics] — I wanted to share something I see come up consistently.\n\nMost SA fleets are running at 60–70% of their possible fuel efficiency. Not because of bad management, but because the data to see it clearly simply isn't being surfaced each month.\n\nI specialise in monthly forensic fleet reporting — taking existing fleet data and turning it into a plain-language monthly report with specific recommendations.\n\nWould it be worth a 10-minute call to see if there's anything we'd find in your fleet? No obligation — I'd rather show you than sell you.\n\nPieter Nell\nDynamic Fleet Reporting` },
+      { tag:'❓ Question-First', label:'Softest opener — best for cold connections',
+        note:'<strong>Ask first, pitch never.</strong> If they answer, follow up with more detail.',
+        content:`Hi [Name],\n\nQuick question — does your operation currently get a monthly breakdown of what each vehicle is costing you per kilometre?\n\nI ask because it's something I help fleet operators with, and I'm always curious how much visibility people actually have before we speak.\n\nEither way, appreciate you connecting.\n\nPieter` },
+      { tag:'💬 Afrikaans — Warm Connection', label:'Vir nuwe of onlangse verbindings',
+        note:'<strong>Stuur binne 24–48 uur na verbinding.</strong> Geen skakel nie. Die doel is een antwoord.',
+        content:`Hallo [Naam],\n\nDankie dat jy gekoppel het — ek het gesien jy is in [vervoer / logistiek / vlootbestuur] en wou behoorlik uitreik.\n\nEk bestuur 'n forensiese vlootverslagdoeningsdiens genaamd Dynamic Fleet Reporting. Ons help SA-vlootoperateurs om presies te verstaan wat hul vloot hulle elke maand kos.\n\nEk gaan jou nou nie pitchen nie. Ek wil eerlik net weet — is vlootkoste-sigbaarheid iets waarmee jou bedryf sukkel?\n\nWaardeer enige eerlike antwoord.\n\nPieter` }
+    ]
+  },
+  whatsapp: {
+    en: [
+      { tag:'🚛 Transport Contact', label:'For someone you know in transport — even loosely',
+        note:'<strong>No link. No pricing.</strong> The only goal is to start a conversation.',
+        content:`Hi [Name], hope you're good.\n\nI've been working on something for fleet owners and wanted to run it past you — you'd probably tell me straight if it's useful or not.\n\nI do monthly forensic fleet reports — fuel, drivers, costs, all broken down per vehicle. The idea is to show fleet owners exactly where money is leaking before it becomes a real problem.\n\nWould you be open to a quick 10-minute call this week? I'd value your honest opinion more than anything right now.\n\nPieter\n083 314 9592` },
+      { tag:'🔥 Fuel Crisis Hook', label:'For any transport contact — rides the current news',
+        note:'<strong>Reference the real current price.</strong> R27/L now, going to ~R32.30 this week.',
+        content:`Hi [Name],\n\nWith diesel sitting at R27 a litre and another R6.19 increase hitting this week — I imagine fleet costs are very much front of mind right now.\n\nI help fleet operators find where their fuel budget is actually going each month. Most fleets are losing 12–18% more than they need to, and at R32 a litre that adds up fast.\n\nNot a sales pitch — just wondering if it's worth a quick conversation this week?\n\nPieter\n083 314 9592` },
+      { tag:'😬 Honest Opener', label:'For warm contacts where you can be direct',
+        note:'<strong>Works best with people you actually know.</strong> The honesty is the hook.',
+        content:`Hi [Name],\n\nGoing to be honest with you — I've started a fleet reporting business and I'm looking for my first few clients.\n\nI do monthly forensic reports for fleet operators — fuel consumption, driver behaviour, cost per km, all broken down per vehicle.\n\nWould you know anyone in transport who might be open to a conversation? Even a 10-minute call would mean a lot right now.\n\nPieter\n083 314 9592` },
+      { tag:'💬 Afrikaans — Vervoer Kontakpersoon', label:'Vir iemand wat jy in vervoer ken',
+        note:'<strong>Geen skakel nie. Geen pryse nie.</strong> Die enigste doel is om \'n gesprek te begin.',
+        content:`Hallo [Naam], hoop alles gaan goed.\n\nEk het aan iets gewerk vir vlooteienaars en wou dit met jou bespreek — jy sal my waarskynlik reguit vertel as dit nuttig is of nie.\n\nEk doen maandelikse forensiese vlootverslae — brandstof, bestuurders, koste, alles per voertuig. Sal jy oop wees vir 'n vinnige 10-minute oproep hierdie week?\n\nPieter\n083 314 9592` }
+    ]
+  },
+  followup: {
+    en: [
+      { tag:'📞 Day 3 — No Reply', label:"When someone hasn't responded after 3 days",
+        note:'<strong>One short follow-up only.</strong> If no reply after this, leave them alone.',
+        content:`Hi [Name],\n\nJust following up on my message from a few days ago — no worries if the timing isn't right.\n\nIf fleet costs aren't a priority right now, I completely understand. If things change, I'm easy to reach on 083 314 9592.\n\nPieter` },
+      { tag:'✅ After a Conversation', label:'Same day as a call or meeting',
+        note:'<strong>Send within a few hours of speaking.</strong> Personalise the [SPECIFIC THING] — shows you were listening.',
+        content:`Hi [Name],\n\nGood speaking with you earlier — thanks for your time.\n\nAs promised, I'll put together a quick overview of what a first fleet report would look like for your operation. I'll focus on [SPECIFIC THING THEY MENTIONED].\n\nI'll have something to you by [DAY].\n\nPieter` },
+      { tag:'💡 Value Add Follow-Up', label:'For a contact who showed interest but went quiet',
+        note:'<strong>Lead with something useful.</strong> Give them a reason to reply.',
+        content:`Hi [Name],\n\nThought this was worth sharing — diesel is hitting ~R32.30 a litre this week after the R6.19 increase.\n\nFor a 10-truck fleet doing 8,000km each per month, that's roughly R50,000 more in monthly fuel than six weeks ago.\n\nThe fleets managing this best are the ones who can see exactly which vehicles and drivers are consuming above target.\n\nThat's what our monthly report shows. Still worth a quick call if you're open to it.\n\nPieter\n083 314 9592` },
+      { tag:'💬 Afrikaans — Dag 3 Geen Antwoord', label:'Wanneer iemand nie na 3 dae geantwoord het nie',
+        note:'<strong>Slegs een kort opvolg.</strong> As steeds geen antwoord nie, laat hulle met rus.',
+        content:`Hallo [Naam],\n\nNet opvolg op my boodskap van 'n paar dae gelede — geen probleem as die tydsberekening nie reg is nie.\n\nAs vlootkoste nie nou 'n prioriteit is nie, verstaan ek heeltemal. As dit verander, is ek bereikbaar op 083 314 9592.\n\nPieter` }
+    ]
+  },
+  briefing: {
+    en: [
+      { tag:'📋 How to Refer Someone', label:'Your complete guide to making a successful referral',
+        note:'Read this before you reach out to anyone. The simpler your message, the better it works.',
+        content:`THE MOST EFFECTIVE REFERRAL IS THE SHORTEST ONE.
+
+Don't try to explain the service. Just open a door.
+
+─── WHAT TO SAY ───────────────────────────────────
+
+"Hey [contact], I've come across a fleet reporting service called Dynamic Fleet Reporting — they do monthly forensic audits that show fleet owners exactly what their operation is costing them. With diesel at R32 a litre right now, I thought it might be worth a quick conversation. Want me to connect you?"
+
+That's it. If they say yes, WhatsApp Pieter on 083 314 9592 and introduce them.
+
+─── WHO TO APPROACH ───────────────────────────────
+
+Best prospects:
+• Owns or manages 5+ vehicles
+• In transport, logistics, agriculture, construction, or mining
+• Feeling the pressure of rising fuel costs right now
+
+Don't overthink who qualifies. If they have vehicles and a fuel bill, they're worth a conversation.
+
+─── WHAT NOT TO DO ────────────────────────────────
+
+• Don't send your referral link without a conversation first
+• Don't try to explain all the features — that's Pieter's job
+• Don't pressure anyone — one message, then leave it
+
+─── THE ONE GOAL ──────────────────────────────────
+
+Get them to agree to a 10-minute call with Pieter.
+That's the only ask.
+
+Pieter Nell — Dynamic Fleet Reporting
+083 314 9592 · dynamicfleetreports@gmail.com` },
+      { tag:'📋 Hoe Om Iemand Te Verwys', label:'Jou volledige gids vir 'n suksesvolle verwysing',
+        note:'Lees dit voordat jy iemand nader. Hoe korter jou boodskap, hoe beter werk dit.',
+        content:`DIE MEES EFFEKTIEWE VERWYSING IS DIE KORTSTE EEN.
+
+Moenie probeer om die diens te verduidelik nie. Maak net 'n deur oop.
+
+─── WAT OM TE SÊ ──────────────────────────────────
+
+"Hallo [kontakpersoon], ek het 'n vlootverslagdoeningsdiens ontdek genaamd Dynamic Fleet Reporting — hulle doen maandelikse forensiese oudits. Met diesel teen R32 per liter nou, het ek gedink dit is dalk die moeite werd vir 'n vinnige gesprek. Wil jy hê ek moet jou koppel?"
+
+Dit is dit. As hulle ja sê, WhatsApp Pieter op 083 314 9592.
+
+─── WIE OM TE NADER ───────────────────────────────
+
+Beste vooruitsigte:
+• Besit of bestuur 5+ voertuie
+• In vervoer, logistiek, landbou, konstruksie, of mynbou
+• Voel die druk van stygende brandstofkoste
+
+─── DIE ENIGSTE DOEL ──────────────────────────────
+
+Kry hulle om saam te stem tot 'n 10-minute oproep met Pieter.
+
+Pieter Nell — Dynamic Fleet Reporting
+083 314 9592 · dynamicfleetreports@gmail.com` }
+    ]
+  }
+};
 
 function waitFor(fn){ return new Promise(function(r){ var t=setInterval(function(){ if(fn()){ clearInterval(t); r(); } },60); }); }
 
-// ── Detect owner vs partner on load ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     var p   = new URLSearchParams(window.location.search);
     var ref = p.get('ref') || p.get('pid');
     if (ref) {
-        // Partner arriving via their unique link — show spinner immediately, hide login
         document.getElementById('loadingWrap').classList.add('on');
         document.getElementById('loginCode').value = ref;
         waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(doLogin);
     } else {
-        // No ref in URL = DFR owner — open hub directly
         showOwnerHub();
     }
 });
 
-// ── Owner hub — no login, no partner link ─────────────────────────────────────
 function showOwnerHub() {
-    _partner     = null;
-    _partnerCode = '';
-    _partnerLink = '';
+    _partner = null; _partnerCode = ''; _partnerLink = '';
     document.getElementById('loginWrap').style.display      = 'none';
     document.getElementById('mainHub').classList.add('on');
-    document.getElementById('myLinkBox').style.display      = 'none';   // owner has no referral link
-    document.getElementById('submitScriptBox').style.display = 'none';  // owner doesn't submit scripts
+    document.getElementById('myLinkBox').style.display      = 'none';
+    document.getElementById('submitScriptBox').style.display = 'none';
     document.getElementById('tbPartnerName').style.display  = 'block';
     document.getElementById('tbName').textContent           = 'DFR Owner';
-    // Load community scripts (owner can see them, just can't submit)
     waitFor(function(){ return typeof cloudStorage !== 'undefined'; }).then(function(){
         applyLangUI();
         loadAndRenderPosts();
-         loadCommunityScripts();        
+        loadCommunityScripts();
+        renderOutreachScripts();
     });
 }
 
-// ── Partner login ─────────────────────────────────────────────────────────────
 async function doLogin() {
     var input = document.getElementById('loginCode').value.trim().toLowerCase();
     if (!input) return;
@@ -382,56 +529,45 @@ async function doLogin() {
             document.getElementById('loginWrap').classList.add('on');
             document.getElementById('loginErr').style.display = 'block'; return;
         }
-        if (_partner.status === 'inactive') {
+        if (_partner.status === 'inactive' || _partner.status === 'pending') {
             document.getElementById('loadingWrap').classList.remove('on');
             document.getElementById('loginWrap').classList.add('on');
-            document.getElementById('loginErr').textContent = 'This partner account is currently inactive. Please contact DFR on 083 314 9592.';
-            document.getElementById('loginErr').style.display = 'block'; return;
-        }
-        if (_partner.status === 'pending') {
-            document.getElementById('loadingWrap').classList.remove('on');
-            document.getElementById('loginWrap').classList.add('on');
-            document.getElementById('loginErr').textContent = 'Your application is still pending approval. You will receive a WhatsApp once activated.';
+            var msg = _partner.status === 'inactive'
+                ? 'This partner account is currently inactive. Please contact DFR on 083 314 9592.'
+                : 'Your application is still pending approval. You will receive a WhatsApp once activated.';
+            document.getElementById('loginErr').textContent = msg;
             document.getElementById('loginErr').style.display = 'block'; return;
         }
         _partnerCode = 'ref_' + _partner.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
         _partnerLink = DISCOVER_URL + '?ref=' + _partnerCode;
         window._partnerCode = _partnerCode;
         showHub();
-    } catch(e) {
-        document.getElementById('loginErr').style.display = 'block';
-    }
+    } catch(e) { document.getElementById('loginErr').style.display = 'block'; }
 }
 
-// ── Partner hub ───────────────────────────────────────────────────────────────
 function showHub() {
     document.getElementById('loadingWrap').classList.remove('on');
     document.getElementById('loginWrap').classList.remove('on');
     document.getElementById('mainHub').classList.add('on');
-    document.getElementById('myLinkBox').style.display        = 'block';
-    document.getElementById('submitScriptBox').style.display  = 'block';
-    document.getElementById('tbPartnerName').style.display    = 'block';
-    document.getElementById('tbName').textContent             = _partner.name;
-    document.getElementById('partnerDisplayName').textContent = _partner.name;
-    document.getElementById('myLinkDisplay').textContent      = _partnerLink;
-    // Set reel builder link with partner's ref code
+    document.getElementById('myLinkBox').style.display       = 'block';
+    document.getElementById('submitScriptBox').style.display = 'block';
+    document.getElementById('tbPartnerName').style.display   = 'block';
+    document.getElementById('tbName').textContent            = _partner.name;
+    document.getElementById('partnerDisplayName').textContent= _partner.name;
+    document.getElementById('myLinkDisplay').textContent     = _partnerLink;
     var reelBtn = document.getElementById('reelBuilderBtn');
     if (reelBtn) reelBtn.href = 'reel-builder.html?ref=' + _partnerCode;
     var infoBtn = document.getElementById('infoPackOpenBtn');
     if (infoBtn) {
-        var _iparams = ['ref=' + _partnerCode];
-        if (_pmCountry && _pmCountry !== 'ZA') _iparams.push('country=' + _pmCountry);
-        infoBtn.href = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html?' + _iparams.join('&');
+        var params = ['ref=' + _partnerCode];
+        if (_pmCountry && _pmCountry !== 'ZA') params.push('country=' + _pmCountry);
+        infoBtn.href = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html?' + params.join('&');
     }
-    injectLinks();
     applyLangUI();
     loadAndRenderPosts();
     loadCommunityScripts();
-    // Activate FB tab handled by renderPlatformSection
+    renderOutreachScripts();
 }
-
-// ── Load posts from Firebase ─────────────────────────────────────────────────
-var _lang = localStorage.getItem('dfr_lang') || 'en';
 
 function applyLangUI() {
     var enBtn = document.getElementById('langBtnEn');
@@ -445,24 +581,21 @@ function setLang(l) {
     localStorage.setItem('dfr_lang', l);
     applyLangUI();
     loadAndRenderPosts();
+    renderOutreachScripts();
 }
 
 async function loadAndRenderPosts() {
     var posts = [];
     try {
         var stored = JSON.parse(await cloudStorage.getItem(POSTS_KEY));
-        posts = (stored && stored.length) ? stored : [];
-        // Backfill lang field for old posts that don't have it
-        posts = posts.map(function(p){ return p.lang ? p : Object.assign({lang:'en'}, p); });
+        posts = (stored && stored.length) ? stored.map(function(p){ return p.lang ? p : Object.assign({lang:'en'}, p); }) : [];
     } catch(e) { posts = []; }
     ['fb','li','ig','wa','tt','email'].forEach(function(plat) { renderPlatformSection(plat, posts); });
 }
 
-// ── Render one platform section ───────────────────────────────────────────────
 function renderPlatformSection(plat, posts) {
     var el = document.getElementById('section-' + plat);
     if (!el) return;
-
     var icons = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵',email:'📧'};
     var names = {fb:'Facebook',li:'LinkedIn',ig:'Instagram',wa:'WhatsApp',tt:'TikTok / Reels',email:'Email'};
     var colors= {fb:'#60a5fa',li:'#38bdf8',ig:'#f472b6',wa:'#4ade80',tt:'white',email:'#fbbf24'};
@@ -476,68 +609,91 @@ function renderPlatformSection(plat, posts) {
         email:'Send sequence over 3 weeks · Personalise the opening line for best results'
     };
     var tips = {
-        fb:'These posts are written to perform on Facebook. Your referral link is included when you copy.',
-        li:'LinkedIn reaches fleet managers and logistics directors directly. Use your real name for credibility.',
-        ig:'Instagram is visual — pair these captions with photos of trucks or dashboards. Bio link is the money shot.',
-        wa:'Most underrated platform in SA. WhatsApp Status reaches people who never see your Facebook posts.',
+        fb:'Your referral link is included automatically when you copy any post.',
+        li:'LinkedIn reaches fleet managers and logistics directors directly. Use your real name.',
+        ig:'Instagram is visual — pair captions with truck photos. Bio link is the money shot.',
+        wa:'Most underrated platform in SA. WhatsApp Status reaches people who never see Facebook posts.',
         tt:'These are scripts, not captions. Read them naturally to camera. Keep each under 60 seconds.',
-        email:'Copy each email, personalise the opening, and send from your own email address. Your referral link is already included.'
+        email:'Copy each email, personalise the opening, and send from your own address.'
     };
-
-    // Filter by platform, live, and selected language
-    var live = posts.filter(function(p){
-        return p.platform === plat && p.live && (p.lang || 'en') === _lang;
-    });
-
-    var html = '<div class="platform-banner ' + css[plat] + '">';
-    html += '<div><div class="pb-title">' + icons[plat] + ' ' + names[plat] + '</div>';
-    html += '<div class="pb-meta">' + times[plat] + '</div></div>';
-    html += '<div class="pb-tip">' + tips[plat] + '</div></div>';
-
+    var live = posts.filter(function(p){ return p.platform === plat && p.live && (p.lang || 'en') === _lang; });
+    var html = '<div class="platform-banner ' + css[plat] + '"><div><div class="pb-title">' + icons[plat] + ' ' + names[plat] + '</div><div class="pb-meta">' + times[plat] + '</div></div><div class="pb-tip">' + tips[plat] + '</div></div>';
     if (!live.length) {
         var otherLang = _lang === 'en' ? 'af' : 'en';
         var otherCount = posts.filter(function(p){ return p.platform === plat && p.live && (p.lang||'en') === otherLang; }).length;
         var msg = otherCount > 0
-            ? 'No ' + (_lang==='en'?'English':'Afrikaans') + ' posts live yet.<br><span style="font-size:12px;color:#475569;">' + otherCount + ' post' + (otherCount!==1?'s':'') + ' available in the other language — use the toggle above.</span>'
-            : 'No posts live for ' + names[plat] + ' yet.<br><span style="font-size:12px;color:#475569;">DFR will publish posts here — check back soon.</span>';
+            ? 'No ' + (_lang==='en'?'English':'Afrikaans') + ' posts live yet. ' + otherCount + ' post' + (otherCount!==1?'s':'') + ' available in the other language.'
+            : 'No posts live for ' + names[plat] + ' yet. DFR will publish posts here — check back soon.';
         html += '<div class="empty-state"><div class="icon">' + icons[plat] + '</div><p>' + msg + '</p></div>';
         el.innerHTML = html; return;
     }
-
-    // Email platform renders differently
     if (plat === 'email') {
         live.forEach(function(p) {
             var pid = 'pp_' + p.id;
-            html += '<div class="email-card">';
-            html += '<div class="email-card-head">';
-            html += '<div><div style="font-size:13px;font-weight:900;color:white;">' + escHtml(p.tag||'') + '</div>';
+            html += '<div class="email-card"><div class="email-card-head"><div><div style="font-size:13px;font-weight:900;color:white;">' + escHtml(p.tag||'') + '</div>';
             if (p.subject) html += '<div class="email-subject">Subject: ' + escHtml(p.subject) + '</div>';
             html += '</div>';
             if (p.when) html += '<span class="email-when">' + escHtml(p.when) + '</span>';
-            html += '</div>';
-            html += '<div class="email-preview" id="' + pid + '">' + escHtml(p.content||'') + '</div>';
-            html += '<div class="email-footer">';
-            html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Email</button>';
-            html += '</div></div>';
+            html += '</div><div class="email-preview" id="' + pid + '">' + escHtml(p.content||'') + '</div><div class="email-footer"><button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Email</button></div></div>';
         });
     } else {
         html += '<div class="posts-grid">';
         live.forEach(function(p) {
             var pid = 'pp_' + p.id;
-            html += '<div class="post-card">';
-            html += '<div class="post-card-head">';
-            html += '<span class="post-tag" style="background:rgba(255,255,255,0.07);color:' + colors[plat] + ';">' + escHtml(p.tag || '') + '</span>';
-            html += '</div>';
+            html += '<div class="post-card"><div class="post-card-head"><span class="post-tag" style="background:rgba(255,255,255,0.07);color:' + colors[plat] + ';">' + escHtml(p.tag || '') + '</span></div>';
             html += '<div class="post-card-body"><div class="post-preview" id="' + pid + '">' + escHtml(p.content || '') + '</div></div>';
-            html += '<div class="post-card-footer">';
-            html += '<button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Post</button>';
+            html += '<div class="post-card-footer"><button class="btn-copy" onclick="copyPartnerPost(\'' + pid + '\',this)">📋 Copy Post</button>';
             if (p.hashtags) html += '<div class="hashtag-wrap">' + escHtml(p.hashtags) + '</div>';
             html += '</div></div>';
         });
         html += '</div>';
     }
-
     el.innerHTML = html;
+}
+
+// ── Render outreach scripts ────────────────────────────────────────────────────
+function renderOutreachScripts() {
+    renderOstab('linkedin');
+    renderOstab('whatsapp');
+    renderOstab('followup');
+    renderOstabBriefing();
+}
+
+function renderOstab(type) {
+    var el = document.getElementById('ostab-' + type);
+    if (!el) return;
+    var scripts = (OUTREACH_SCRIPTS[type] && OUTREACH_SCRIPTS[type]['en']) ? OUTREACH_SCRIPTS[type]['en'] : [];
+    if (!scripts.length) { el.innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>No scripts available yet.</p></div>'; return; }
+    el.innerHTML = '<div class="outreach-grid">' + scripts.map(function(s, i) {
+        var pid = 'osp_' + type + '_' + i;
+        return '<div class="outreach-card"><div class="outreach-card-head"><span class="outreach-tag">' + escHtml(s.tag) + '</span><span class="outreach-label">' + escHtml(s.label) + '</span></div>' +
+            '<div class="outreach-card-body"><div class="outreach-preview" id="' + pid + '">' + escHtml(s.content) + '</div></div>' +
+            '<div class="outreach-card-foot"><div class="outreach-note">' + s.note + '</div>' +
+            '<button class="btn-copy" style="background:rgba(245,158,11,0.15);color:var(--gold);border:1px solid rgba(245,158,11,0.3);" onclick="copyOutreachScript(\'' + pid + '\',this)">📋 Copy Script</button>' +
+            '</div></div>';
+    }).join('') + '</div>';
+}
+
+function renderOstabBriefing() {
+    var el = document.getElementById('ostab-briefing');
+    if (!el) return;
+    var scripts = (OUTREACH_SCRIPTS.briefing && OUTREACH_SCRIPTS.briefing['en']) ? OUTREACH_SCRIPTS.briefing['en'] : [];
+    el.innerHTML = scripts.map(function(s, i) {
+        var pid = 'osp_briefing_' + i;
+        return '<div class="partner-brief-card"><div class="partner-brief-title">' + escHtml(s.tag) + '</div>' +
+            '<div style="font-size:12px;color:#64748b;font-weight:700;margin-bottom:0.75rem;">' + escHtml(s.label) + '</div>' +
+            '<div class="partner-brief-body" id="' + pid + '">' + escHtml(s.content) + '</div>' +
+            '<div style="display:flex;gap:0.75rem;flex-wrap:wrap;"><button class="btn-copy" onclick="copyOutreachScript(\'' + pid + '\',this)">📋 Copy Briefing</button>' +
+            '<div style="font-size:12px;color:#64748b;padding:8px 0;flex:1;">' + s.note + '</div></div></div>';
+    }).join('');
+}
+
+function switchOstab(id, el) {
+    document.querySelectorAll('.ostab-section').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('.ostab').forEach(function(t){ t.classList.remove('active'); });
+    var sec = document.getElementById('ostab-' + id);
+    if (sec) sec.classList.add('active');
+    if (el) el.classList.add('active');
 }
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
@@ -550,18 +706,12 @@ function switchTab(id, el) {
     if (id === 'community') renderCommunityTab();
 }
 
-// ── injectLinks no longer needed (links added at copy time) ──────────────────
-function injectLinks() { /* posts now loaded from Firebase with copyPartnerPost handling link */ }
-
-// ── Copy post ─────────────────────────────────────────────────────────────────
+// ── Copy functions ─────────────────────────────────────────────────────────────
 function copyPartnerPost(id, btn) {
     var el = document.getElementById(id);
     if (!el) return;
     var text = el.innerText || el.textContent;
-    // Only append link if this is a partner (not owner mode)
-    if (_partnerLink && text.indexOf('?ref=') < 0) {
-        text += '\n\n🔗 ' + _partnerLink;
-    }
+    if (_partnerLink && text.indexOf('?ref=') < 0) text += '\n\n🔗 ' + _partnerLink;
     navigator.clipboard.writeText(text).then(function() {
         var orig = btn.textContent;
         btn.textContent = _partnerLink ? '✅ Copied with my link!' : '✅ Copied!';
@@ -570,16 +720,27 @@ function copyPartnerPost(id, btn) {
     });
 }
 
+function copyOutreachScript(id, btn) {
+    // Outreach scripts intentionally do NOT append referral link
+    var el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText || el.textContent).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
 function setPmCountry(c) {
     _pmCountry = c;
     localStorage.setItem('dfr_pm_country', c);
-    document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.country-btn').forEach(function(b){ b.classList.remove('active'); });
     var btn = document.getElementById('pmCntry' + c);
     if (btn) btn.classList.add('active');
     var r = PM_RATES[c] || PM_RATES.ZA;
     var lbl = document.getElementById('pmCountryLabel');
     if (lbl) lbl.textContent = c === 'ZA' ? 'ZAR — default' : r.label + ' selected';
-    // Update open button href immediately
     var base = 'https://dynamicfleetreports-bit.github.io/DFR/infopack.html';
     var params = [];
     if (_partnerCode) params.push('ref=' + _partnerCode);
@@ -594,21 +755,21 @@ function copyInfoPackLink(btn) {
     if (_partnerCode) params.push('ref=' + _partnerCode);
     if (_pmCountry && _pmCountry !== 'ZA') params.push('country=' + _pmCountry);
     var link = params.length ? base + '?' + params.join('&') : base;
-    navigator.clipboard.writeText(link).then(() => {
-        const o = btn.textContent; btn.textContent = '✅ Copied!';
-        setTimeout(() => { btn.textContent = o; }, 2000);
+    navigator.clipboard.writeText(link).then(function() {
+        var o = btn.textContent; btn.textContent = '✅ Copied!';
+        setTimeout(function(){ btn.textContent = o; }, 2000);
     });
 }
+
 function copyMyLink() {
     navigator.clipboard.writeText(_partnerLink).then(function() {
         var btn = document.getElementById('copyLinkBtn');
-        btn.textContent = '✅ Copied!';
-        btn.classList.add('copied');
+        btn.textContent = '✅ Copied!'; btn.classList.add('copied');
         setTimeout(function(){ btn.textContent = '📋 Copy My Link'; btn.classList.remove('copied'); }, 2000);
     });
 }
 
-// ── Community Scripts ─────────────────────────────────────────────────────────
+// ── Community Scripts ──────────────────────────────────────────────────────────
 async function loadCommunityScripts() {
     try {
         var all      = JSON.parse(await cloudStorage.getItem(PARTNER_SCRIPTS_KEY)) || [];
@@ -620,9 +781,7 @@ async function loadCommunityScripts() {
                 var pendingEl = document.getElementById('myPendingNotice');
                 if (pendingEl) {
                     pendingEl.style.display = 'block';
-                    pendingEl.innerHTML = '⏱ You have <strong>' + myPending.length +
-                        ' script' + (myPending.length > 1 ? 's' : '') +
-                        ' pending DFR review</strong>. Once approved they will appear here for all partners.';
+                    pendingEl.innerHTML = '⏱ You have <strong>' + myPending.length + ' script' + (myPending.length > 1 ? 's' : '') + ' pending DFR review</strong>.';
                 }
             }
         }
@@ -632,27 +791,22 @@ async function loadCommunityScripts() {
 function renderCommunityScripts(scripts) {
     var platformIcons = {fb:'📘',li:'💼',ig:'📸',wa:'💬',tt:'🎵'};
     if (!scripts.length) {
-        document.getElementById('communityScriptsWrap').style.display = 'none';
         document.getElementById('communityInTab').innerHTML = '<p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet. Be the first to submit one above!</p>';
         return;
     }
-    document.getElementById('communityScriptsWrap').style.display = 'block';
     var html = scripts.map(function(s, idx) {
-        return '<div class="script-card">' +
-            '<div class="sc-head"><span class="sc-author">📖 ' + (s.title || 'Community Script') + '</span>' +
+        return '<div class="script-card"><div class="sc-head"><span class="sc-author">📖 ' + (s.title || 'Community Script') + '</span>' +
             '<span class="sc-platform">' + (platformIcons[s.platform]||'') + ' ' + (s.platform||'').toUpperCase() + '</span></div>' +
             '<div class="sc-body"><div class="sc-preview" id="cs_' + idx + '">' + escHtml(s.content) + '</div>' +
             (s.hashtags ? '<div style="font-size:10px;color:#475569;margin-top:8px;">' + escHtml(s.hashtags) + '</div>' : '') +
             '</div><div class="sc-footer"><button class="btn-copy-script" onclick="copyCommunityScript(' + idx + ',this)">📋 Copy' + (_partnerLink ? ' with My Link' : '') + '</button></div></div>';
     }).join('');
-    document.getElementById('communityScriptsList').innerHTML = html;
+    document.getElementById('communityInTab').innerHTML = html;
 }
 
 function renderCommunityTab() {
-    var listEl = document.getElementById('communityScriptsList');
-    document.getElementById('communityInTab').innerHTML = listEl && listEl.innerHTML.trim()
-        ? listEl.outerHTML
-        : '<p style="color:#64748b;font-size:13px;padding:2rem 0;">No community scripts yet.</p>';
+    var inTab = document.getElementById('communityInTab');
+    document.getElementById('section-community').innerHTML = inTab ? inTab.outerHTML : '<p style="color:#64748b;">No community scripts yet.</p>';
 }
 
 function copyCommunityScript(idx, btn) {
@@ -680,7 +834,7 @@ async function submitScript() {
             submittedBy: _partner.name, submittedById: _partner.id,
             date: new Date().toISOString(), approved: false });
         await cloudStorage.setItem(PARTNER_SCRIPTS_KEY, JSON.stringify(scripts));
-        await notifyWA('🚀 New Partner Script\nPartner: ' + _partner.name + '\nPlatform: ' + platform.toUpperCase() + '\nTitle: ' + (title||'Untitled') + '\n' + content.substring(0,100) + '...');
+        await notifyWA('🚀 New Partner Script\nPartner: ' + _partner.name + '\nPlatform: ' + platform.toUpperCase() + '\nTitle: ' + (title||'Untitled'));
         document.getElementById('scriptContent').value  = '';
         document.getElementById('scriptTitle').value    = '';
         document.getElementById('scriptHashtags').value = '';
@@ -709,12 +863,6 @@ function toast(msg, color) {
     t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 3000);
 }
-
-// Activate FB tab on load
-document.addEventListener('DOMContentLoaded', function() {
-    var fb = document.getElementById('section-fb');
-    if (fb) fb.classList.add('active');
-});
 </script>
 </body>
 </html>
