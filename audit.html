@@ -27,6 +27,11 @@
         .col-score { flex: 1; min-width: 68px; text-align: center; font-weight: 900; }
         .col-money { flex: 1; min-width: 88px; text-align: center; }
         .col-events { flex: 1; min-width: 65px; text-align: center; font-weight: 900; }
+        .col-pair { flex: 2; min-width: 160px; text-align: center; }
+        .pair-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .pair-l { font-size: 11px; font-weight: 700; opacity: 0.75; min-width: 52px; text-align: right; }
+        .pair-r { font-size: 11px; font-weight: 900; min-width: 72px; text-align: left; }
+        .pair-sep { font-size: 9px; opacity: 0.3; }
         .grid-header { font-size: 9px; font-weight: 900; text-transform: uppercase; color: #10b981; opacity: 0.6; display: flex; gap: 10px; padding: 0 1rem; margin-bottom: 1rem; }
         .vehicle-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); margin-bottom: 0.4rem; border-radius: 0.75rem; display: flex; gap: 10px; padding: 0.6rem 1rem; align-items: center; }
         .manual-input { background: #020617; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.3rem; color: white; width: 100%; font-size: 12px; outline: none; text-align: center; }
@@ -62,7 +67,7 @@
             .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
             .grid-header{overflow-x:auto;white-space:nowrap;}
             #grid-rows{overflow-x:auto;}
-            .vehicle-row{min-width:1250px;}
+            .vehicle-row{min-width:1300px;}
             .summary-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
             .modal-box{width:90vw!important;}
         }
@@ -208,14 +213,11 @@
             <div class="col-data">Act Odo</div>
             <div class="col-drift">Drift</div>
             <div class="col-data">Litres</div>
-            <div class="col-perf">Wasted L</div>
             <div class="col-perf">Act km/L</div>
-            <div class="col-events">Spd Ev</div>
-            <div class="col-events" style="color:#a78bfa;">Idle Ev</div>
-            <div class="col-money" style="color:#10b981;">Eff Loss</div>
-            <div class="col-money" style="color:#f97316;">Spd Loss</div>
-            <div class="col-money" style="color:#a78bfa;">Idle Loss</div>
-            <div class="col-money" style="color:#ef4444;">Total</div>
+            <div class="col-pair" style="color:#10b981;">Wasted L · Eff Loss</div>
+            <div class="col-pair" style="color:#f97316;">Spd Ev · Spd Loss</div>
+            <div class="col-pair" style="color:#a78bfa;">Idle Ev · Idle Loss</div>
+            <div class="col-money" style="color:#ef4444;">Total Loss</div>
             <div class="col-score">Score</div>
         </div>
         <div id="grid-rows" class="space-y-1 max-h-[350px] overflow-y-auto pr-2"></div>
@@ -918,13 +920,28 @@ function renderGrid(){
                 <div class="col-data">${odoInput}</div>
                 <div class="col-drift text-[11px] ${v.driftKm&&Math.abs(v.driftKm)>50?'text-red-400 font-bold':'text-slate-500'}">${v.driftKm!==null?v.driftKm+'km':'—'}</div>
                 <div class="col-data">${litInput}</div>
-                <div class="col-perf text-[12px] ${(v.totalWastedL||0)>0?'text-orange-400':'text-slate-500'}">${_uom?_uom.formatVol(v.totalWastedL||0,_p,1):(v.totalWastedL||0).toFixed(1)+'L'}</div>
                 <div class="col-perf text-[12px] font-black ${v.actKmL&&v.actKmL<v.activeTarget?'text-red-400':'text-emerald-400'}">${v.actKmL?(_uom?_uom.formatEff(v.actKmL,_p,2):v.actKmL.toFixed(2)):'—'}</div>
-                <div class="col-events text-[12px] ${(v.violations||0)>0?'text-red-500 font-bold':'text-slate-500'}">${v.violations||0}</div>
-                <div class="col-events text-[12px] ${(v.idleCount||0)>0?'font-bold':'text-slate-500'}" style="${(v.idleCount||0)>0?'color:#a78bfa;':''}">${v.idleCount||0}</div>
-                <div class="col-money text-[11px] text-emerald-400">${_fmtC(v.effLoss_w)}</div>
-                <div class="col-money text-[11px] text-orange-400">${_fmtC(v.speedLoss_w)}</div>
-                <div class="col-money text-[11px]" style="color:#c4b5fd;">${_fmtC(v.idleLoss_w)}</div>
+                <div class="col-pair">
+                    <div class="pair-cell">
+                        <span class="pair-l ${(v.totalWastedL||0)>0?'text-orange-300':'text-slate-500'}">${_uom?_uom.formatVol(v.totalWastedL||0,_p,1):(v.totalWastedL||0).toFixed(1)+'L'}</span>
+                        <span class="pair-sep">|</span>
+                        <span class="pair-r text-emerald-400">${_fmtC(v.effLoss_w)}</span>
+                    </div>
+                </div>
+                <div class="col-pair">
+                    <div class="pair-cell">
+                        <span class="pair-l ${(v.violations||0)>0?'text-red-400 font-black':'text-slate-500'}">${v.violations||0} ev</span>
+                        <span class="pair-sep">|</span>
+                        <span class="pair-r text-orange-400">${_fmtC(v.speedLoss_w)}</span>
+                    </div>
+                </div>
+                <div class="col-pair">
+                    <div class="pair-cell">
+                        <span class="pair-l ${(v.idleCount||0)>0?'font-bold':'text-slate-500'}" style="${(v.idleCount||0)>0?'color:#a78bfa;':''}">${v.idleCount||0} ev</span>
+                        <span class="pair-sep">|</span>
+                        <span class="pair-r" style="color:#c4b5fd;">${_fmtC(v.idleLoss_w)}</span>
+                    </div>
+                </div>
                 <div class="col-money text-[11px] text-red-400 font-black">${_fmtC(v.totalLoss_w)}</div>
                 <div class="col-score text-[12px]">${scoreCol}</div>
             </div>`;
