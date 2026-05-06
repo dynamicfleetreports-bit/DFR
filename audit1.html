@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<script type="module" src="firebase-helper.js"></script>
+    <script src="uom-helper.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet Intel | Forensic Audit Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #020617; color: #e2e8f0; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 260px; background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; padding: 2rem 1rem; }
+        .main-wrapper { flex: 1; overflow-y: auto; padding: 2rem; background: radial-gradient(circle at top right, #0f172a, #020617); position: relative; }
+        .audit-panel { background: rgba(30,41,59,0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 1.2rem; margin-bottom: 1.5rem; }
+        .control-bar { display: flex; align-items: center; gap: 1rem; background: rgba(15,23,42,0.6); padding: 1rem; border-radius: 1.25rem; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .upload-tile { padding: 0.6rem 1.2rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: space-between; flex: 1; }
+        .var-input-box { display: flex; flex-direction: column; align-items: center; border-left: 1px solid rgba(255,255,255,0.1); padding: 0 12px; }
+        .var-label { font-size: 9px; font-weight: 900; text-transform: uppercase; opacity: 0.5; margin-bottom: 4px; }
+        .var-val { background: transparent; color: white; font-weight: 900; font-size: 14px; width: 55px; text-align: center; outline: none; border-bottom: 2px solid transparent; }
+        .col-reg { flex: 1; min-width: 110px; }
+        .col-type { flex: 1; min-width: 90px; }
+        .col-data { flex: 1; min-width: 68px; text-align: center; }
+        .col-drift { flex: 1; min-width: 65px; text-align: center; font-weight: 900; }
+        .col-perf { flex: 1; min-width: 72px; text-align: center; }
+        .col-score { flex: 1; min-width: 68px; text-align: center; font-weight: 900; }
+        .col-money { flex: 1; min-width: 88px; text-align: center; }
+        .col-events { flex: 1; min-width: 65px; text-align: center; font-weight: 900; }
+        .grid-header { font-size: 9px; font-weight: 900; text-transform: uppercase; color: #10b981; opacity: 0.6; display: flex; gap: 10px; padding: 0 1rem; margin-bottom: 1rem; }
+        .vehicle-row { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03); margin-bottom: 0.4rem; border-radius: 0.75rem; display: flex; gap: 10px; padding: 0.6rem 1rem; align-items: center; }
+        .manual-input { background: #020617; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.3rem; color: white; width: 100%; font-size: 12px; outline: none; text-align: center; }
+        .manual-input::-webkit-outer-spin-button, .manual-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .manual-input[type=number] { -moz-appearance: textfield; }
+        .var-val::-webkit-outer-spin-button, .var-val::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .var-val[type=number] { -moz-appearance: textfield; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+        .data-card { background: rgba(15,23,42,0.8); border-left: 4px solid #10b981; padding: 1.2rem; border-radius: 1rem; }
+        .data-card.speed { border-left-color: #f97316; }
+        .data-card.idle  { border-left-color: #8b5cf6; }
+        .data-card.total { border-left-color: #ef4444; background: rgba(30,0,0,0.35); }
+        .data-card.retail { border-left-color: #6366f1; }
+        .card-label { font-size: 9px; font-weight: 900; text-transform: uppercase; opacity: 0.5; display: block; }
+        .card-value { font-size: 1.4rem; font-weight: 900; display: block; margin-top: 4px; }
+        .card-sub   { font-size: 9px; color: #475569; margin-top: 3px; display: block; }
+        #mapper-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-box { background: #0f172a; border: 1px solid #10b981; border-radius: 2rem; padding: 2.5rem; width: 440px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+        .mob-topbar { display:none; background:#0f172a; border-bottom:1px solid rgba(255,255,255,0.05); padding:0.85rem 1.25rem; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; flex-shrink:0; }
+        .mob-logo { max-height:32px; }
+        .hamburger { background:none; border:none; cursor:pointer; display:flex; flex-direction:column; gap:5px; padding:4px; }
+        .hamburger span { display:block; width:22px; height:2px; background:#e2e8f0; border-radius:2px; }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:49; }
+        .sidebar-overlay.open { display:block; }
+        @media(max-width:768px){
+            body{flex-direction:column;height:auto;overflow:auto;}
+            #sidebar{display:none;position:fixed;top:0;left:-260px;height:100vh;z-index:100;transition:left 0.25s ease;overflow-y:auto;width:260px;}
+            #sidebar.open{left:0;display:flex;}
+            .mob-topbar{display:flex;}
+            .main-wrapper{padding:1rem;overflow-y:visible;}
+            .control-bar{flex-direction:column;align-items:stretch;gap:0.75rem;}
+            .upload-tile{flex:none;}
+            .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
+            .grid-header{overflow-x:auto;white-space:nowrap;}
+            #grid-rows{overflow-x:auto;}
+            .vehicle-row{min-width:1250px;}
+            .summary-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
+            .modal-box{width:90vw!important;}
+        }
+        @media(min-width:769px){.mob-topbar{display:none!important;}}
+    </style>
+</head>
+<body onload="initAudit()">
+<div class="mob-topbar">
+    <img src="Logo.png" alt="Logo" class="mob-logo">
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Free Audit Warning Modal -->
+<div id="free-audit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(10px);z-index:3000;align-items:center;justify-content:center;">
+    <div style="background:#0f172a;border:2px solid #f97316;border-radius:2rem;padding:2.5rem;width:460px;max-width:90vw;">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+            <p style="font-size:2.5rem;margin-bottom:0.5rem;">⚠️</p>
+            <h2 style="font-size:1rem;font-weight:900;text-transform:uppercase;color:#f97316;letter-spacing:0.1em;">Free Audit Already Used</h2>
+        </div>
+        <div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.25);border-radius:1rem;padding:1.25rem;margin-bottom:1.25rem;">
+            <p id="free-audit-warning-text" style="font-size:0.82rem;color:#94a3b8;line-height:1.7;"></p>
+        </div>
+        <p style="font-size:0.78rem;color:#475569;text-align:center;margin-bottom:1.5rem;line-height:1.6;">Running another audit without an active SLA means unpaid work.<br>Go to the pipeline to send them an SLA, or proceed if you choose to.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+            <button onclick="document.getElementById('free-audit-modal').style.display='none';window.location.href='pipeline.html';" style="padding:0.9rem;border-radius:0.75rem;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.35);color:#10b981;">→ Go to Pipeline &amp; SLA</button>
+            <button onclick="document.getElementById('free-audit-modal').style.display='none';" style="padding:0.9rem;border-radius:0.75rem;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);">Proceed Anyway</button>
+        </div>
+    </div>
+</div>
+
+<!-- CSV Mapper Modal -->
+<div id="mapper-modal">
+    <div class="modal-box text-white">
+        <h2 class="text-xl font-black mb-4 uppercase text-center text-emerald-500">Map Data Columns</h2>
+        <div class="space-y-4">
+            <div><label class="text-[9px] font-black uppercase opacity-50 block mb-1">Registration / Asset</label><select id="map-reg" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select></div>
+            <div><label class="text-[9px] font-black uppercase opacity-50 block mb-1">Value (KM / Speed)</label><select id="map-val" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select></div>
+            <div id="usage-extra-fields" style="display:none;">
+                <label class="text-[9px] font-black uppercase opacity-50 block mb-1 mt-3">Over Speed Duration (seconds)</label>
+                <select id="map-duration" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select>
+                <label class="text-[9px] font-black uppercase opacity-50 block mb-1 mt-3">Max Speed</label>
+                <select id="map-maxspeed" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select>
+                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(139,92,246,0.25);">
+                    <p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#a78bfa;letter-spacing:0.1em;margin-bottom:0.6rem;">Excessive Idling</p>
+                    <label class="text-[9px] font-black uppercase opacity-50 block mb-1">Excess Idle Count</label>
+                    <select id="map-idlecount" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select>
+                    <label class="text-[9px] font-black uppercase opacity-50 block mb-1 mt-3">Excess Idle Duration (seconds)</label>
+                    <select id="map-idleduration" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select>
+                    <p style="font-size:9px;color:#475569;margin-top:6px;line-height:1.5;">All reported excess idle events are included. Thresholds are configured on your tracking platform.</p>
+                </div>
+            </div>
+            <div id="logic-selector-box">
+                <label class="text-[9px] font-black uppercase opacity-50 block mb-1">Distance Calculation</label>
+                <select id="map-logic" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white">
+                    <option value="sum" selected>Sum (Adds all rows)</option>
+                    <option value="latest">Latest (Uses highest value)</option>
+                </select>
+            </div>
+            <div><label class="text-[9px] font-black uppercase opacity-50 block mb-1">Audit Date</label><select id="map-date" class="w-full bg-slate-900 p-3 rounded-lg border border-white/10 text-xs text-white"></select></div>
+        </div>
+        <div id="mapping-preview" class="mt-4 p-3 bg-slate-800 rounded-lg text-[10px] text-slate-400 hidden">
+            <p class="font-black text-emerald-400 mb-1 uppercase">Sample Data Preview</p>
+            <div id="preview-rows"></div>
+        </div>
+        <button onclick="updateMappingPreview()" class="w-full mt-3 bg-slate-700 text-white font-black py-2 rounded-xl uppercase text-[10px] hover:bg-slate-600">Preview Sample</button>
+        <button onclick="commitMapping()" class="w-full mt-3 bg-emerald-500 text-slate-900 font-black py-4 rounded-xl uppercase text-[11px] hover:bg-emerald-400">Confirm &amp; Process</button>
+    </div>
+</div>
+
+<aside id="sidebar">
+    <div class="logo-area mb-10"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
+    <nav class="space-y-1">
+        <a href="index.html"        class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Dashboard</a>
+        <a href="pipeline.html"     class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Pipeline</a>
+        <a href="database.html"     class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Active Database</a>
+        <a href="data-entry.html"   class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Data Entry</a>
+        <a href="audit.html"        class="flex items-center p-3 text-xs font-bold uppercase text-emerald-500 bg-emerald-500/5 rounded-lg">Forensic Audit</a>
+        <a href="invoice.html"      class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Invoices</a>
+        <a href="churned.html"      class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">Churned</a>
+        <a href="partners.html"     class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="flex items-center p-3 text-xs font-bold uppercase text-slate-500">🏆 Loyalty Club</a>
+    </nav>
+</aside>
+
+<main class="main-wrapper">
+    <div class="mb-6">
+        <h1 class="text-3xl font-black italic uppercase text-white leading-none">
+            Efficiency Audit : <span id="client-flag" style="font-size:1.1rem;margin-right:6px;"></span><span id="client-name" class="text-emerald-500">NO CLIENT SELECTED</span>
+        </h1>
+        <div class="flex gap-4 mt-4 items-center flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">Client</span>
+                <select id="audit-client-sel" onchange="switchAuditClient(this.value)"
+                    style="background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:white;font-family:'Outfit',sans-serif;font-weight:700;font-size:12px;padding:6px 12px;cursor:pointer;outline:none;">
+                    <option value="">— Select Client —</option>
+                </select>
+            </div>
+            <button onclick="clearAudit()" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-size:10px;font-weight:900;text-transform:uppercase;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;">✕ Clear</button>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 px-6 py-3 rounded-xl">
+                <p class="text-[9px] font-black text-emerald-400 uppercase tracking-widest opacity-60">Audit Period</p>
+                <p id="audit-period" class="text-sm font-black text-emerald-400 uppercase mt-1">—</p>
+            </div>
+            <div class="bg-orange-500/10 border border-orange-500/30 px-6 py-3 rounded-xl">
+                <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest opacity-60">Status</p>
+                <p id="date-label" class="text-[10px] font-black text-orange-400 uppercase mt-1">DATA PENDING</p>
+            </div>
+            <div id="uom-conversion-note" style="display:none;font-size:11px;color:#f59e0b;font-weight:700;padding:6px 12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;"></div>
+        </div>
+    </div>
+
+    <!-- Control Bar -->
+    <div class="control-bar">
+        <div class="upload-tile bg-emerald-500/5 border border-emerald-500/20">
+            <div class="flex items-center"><span id="stat-usage" class="text-red-500 font-bold mr-2">✘</span><span class="text-[10px] font-black uppercase">Usage CSV</span></div>
+            <button onclick="document.getElementById('csv-usage').click()" class="bg-white/10 px-4 py-2 rounded-lg text-[10px] font-black uppercase border border-white/10 hover:bg-emerald-500/20">Upload</button>
+            <input type="file" id="csv-usage" class="hidden" onchange="launchMapper(this,'usage')">
+        </div>
+        <div class="upload-tile bg-orange-500/5 border border-orange-500/20">
+            <div class="flex items-center"><span id="stat-speed" class="text-red-500 font-bold mr-2">✘</span><span class="text-[10px] font-black uppercase">Violation CSV</span></div>
+            <button onclick="document.getElementById('csv-speed').click()" class="bg-white/10 px-4 py-2 rounded-lg text-[10px] font-black uppercase border border-white/10 hover:bg-orange-500/20">Upload</button>
+            <input type="file" id="csv-speed" class="hidden" onchange="launchMapper(this,'speed')">
+        </div>
+        <div class="var-input-box"><span class="var-label">Speed Limit</span><input type="number" id="master-speed" value="80" class="var-val" step="1" oninput="renderGrid()"></div>
+        <div class="var-input-box"><span class="var-label">Wholesale</span><input type="number" id="price-w" value="21.50" class="var-val text-emerald-400" step="0.01" oninput="renderGrid()"></div>
+        <div class="var-input-box"><span class="var-label">Retail</span><input type="number" id="price-r" value="23.85" class="var-val text-indigo-400" step="0.01" oninput="renderGrid()"></div>
+        <div class="var-input-box"><span class="var-label">Target km/L</span><input type="number" id="master-target" value="2.3" class="var-val" step="0.01" oninput="renderGrid()"></div>
+        <div class="var-input-box" title="Litres per hour burned while idling. Typical heavy diesel truck: 3.0–4.0 L/hr">
+            <span class="var-label" style="color:#a78bfa;">Idle L/hr</span>
+            <input type="number" id="idle-burn-rate" value="3.5" class="var-val" style="color:#c4b5fd;" step="0.1" oninput="renderGrid()">
+        </div>
+    </div>
+
+    <!-- Vehicle Grid -->
+    <div class="audit-panel">
+        <div class="grid-header">
+            <div class="col-reg">Registration</div>
+            <div class="col-type">Type / Usage</div>
+            <div class="col-data" style="color:#60a5fa;font-size:8px;">Mfr Min</div>
+            <div class="col-data" style="color:#10b981;font-size:8px;">Suggested</div>
+            <div class="col-data" style="color:#fbbf24;font-size:8px;">Target</div>
+            <div class="col-data">GPS KM</div>
+            <div class="col-data">Act Odo</div>
+            <div class="col-drift">Drift</div>
+            <div class="col-data">Litres</div>
+            <div class="col-perf">Wasted L</div>
+            <div class="col-perf">Act km/L</div>
+            <div class="col-events">Spd Ev</div>
+            <div class="col-events" style="color:#a78bfa;">Idle Ev</div>
+            <div class="col-money" style="color:#10b981;">Eff Loss</div>
+            <div class="col-money" style="color:#f97316;">Spd Loss</div>
+            <div class="col-money" style="color:#a78bfa;">Idle Loss</div>
+            <div class="col-money" style="color:#ef4444;">Total</div>
+            <div class="col-score">Score</div>
+        </div>
+        <div id="grid-rows" class="space-y-1 max-h-[350px] overflow-y-auto pr-2"></div>
+    </div>
+
+    <!-- Summary Cards — Wholesale -->
+    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Wholesale</p>
+    <div class="summary-grid mb-4">
+        <div class="data-card">
+            <span class="card-label">Efficiency Loss</span>
+            <span id="l1-eff" class="card-value text-emerald-400">R 0</span>
+            <span class="card-sub">Driver behaviour &amp; mechanical waste</span>
+        </div>
+        <div class="data-card speed">
+            <span class="card-label">Speed Loss</span>
+            <span id="l1-speed" class="card-value text-orange-400">R 0</span>
+            <span class="card-sub">Aero drag above speed limit</span>
+        </div>
+        <div class="data-card idle">
+            <span class="card-label">Idle Loss</span>
+            <span id="l1-idle" class="card-value" style="color:#c4b5fd;">R 0</span>
+            <span class="card-sub">Fuel burned while stationary</span>
+        </div>
+        <div class="data-card total">
+            <span class="card-label">Total Impact</span>
+            <span id="l1-total" class="card-value text-red-400">R 0</span>
+            <span class="card-sub">Eff + Speed + Idle combined</span>
+        </div>
+    </div>
+
+    <!-- Summary Cards — Retail -->
+    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Retail</p>
+    <div class="summary-grid mb-6">
+        <div class="data-card retail"><span class="card-label">Efficiency Loss</span><span id="l2-eff" class="card-value" style="color:#818cf8;">R 0</span></div>
+        <div class="data-card retail speed"><span class="card-label">Speed Loss</span><span id="l2-speed" class="card-value text-orange-400">R 0</span></div>
+        <div class="data-card retail idle"><span class="card-label">Idle Loss</span><span id="l2-idle" class="card-value" style="color:#c4b5fd;">R 0</span></div>
+        <div class="data-card retail total"><span class="card-label">Total Impact</span><span id="l2-total" class="card-value text-red-400">R 0</span></div>
+    </div>
+
+    <!-- Performance Bonus -->
+    <div class="audit-panel">
+        <h2 class="text-xl font-black uppercase text-emerald-400 mb-4">🏆 Performance Bonus Summary</h2>
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <div class="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded-xl text-center">
+                <p class="text-[9px] font-black text-yellow-400 uppercase opacity-60">Elite Drivers</p>
+                <p id="bonus-elite-count" class="text-3xl font-black text-yellow-400 mt-1">0</p>
+                <p class="text-[8px] text-yellow-400/60 mt-1">95–100 Score</p>
+            </div>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl text-center">
+                <p class="text-[9px] font-black text-emerald-400 uppercase opacity-60">High Performers</p>
+                <p id="bonus-high-count" class="text-3xl font-black text-emerald-400 mt-1">0</p>
+                <p class="text-[8px] text-emerald-400/60 mt-1">90–94 Score</p>
+            </div>
+            <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-center">
+                <p class="text-[9px] font-black text-blue-400 uppercase opacity-60">Good Drivers</p>
+                <p id="bonus-good-count" class="text-3xl font-black text-blue-400 mt-1">0</p>
+                <p class="text-[8px] text-blue-400/60 mt-1">80–89 Score</p>
+            </div>
+            <div class="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-center">
+                <p class="text-[9px] font-black text-red-400 uppercase opacity-60">Needs Improvement</p>
+                <p id="bonus-poor-count" class="text-3xl font-black text-red-400 mt-1">0</p>
+                <p class="text-[8px] text-red-400/60 mt-1">Below 80</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/30 p-4 rounded-xl">
+                <p class="text-[9px] font-black text-emerald-400 uppercase opacity-60">Estimated Monthly Bonus</p>
+                <p id="bonus-total" class="text-2xl font-black text-emerald-400 mt-2">R 0</p>
+                <p class="text-[8px] text-emerald-400/60 mt-1">Elite: R500 | High: R300 | Good: R150</p>
+            </div>
+            <div class="bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/30 p-4 rounded-xl">
+                <p class="text-[9px] font-black text-yellow-400 uppercase opacity-60">Savings from Bonused Drivers</p>
+                <p id="bonus-savings" class="text-2xl font-black text-yellow-400 mt-2">R 0</p>
+                <p class="text-[8px] text-yellow-400/60 mt-1">Fuel waste prevented by top performers</p>
+            </div>
+            <div class="bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/30 p-4 rounded-xl">
+                <p class="text-[9px] font-black text-blue-400 uppercase opacity-60">Net ROI</p>
+                <p id="bonus-roi" class="text-2xl font-black text-blue-400 mt-2">R 0</p>
+                <p class="text-[8px] text-blue-400/60 mt-1">Savings minus bonus payout</p>
+            </div>
+        </div>
+        <div class="mt-4 p-4 bg-blue-500/5 border border-blue-500/20 rounded-lg">
+            <p class="text-[10px] font-bold text-blue-300">💡 <strong>Performance Incentive Recommendation:</strong> Implement a monthly bonus structure to reward high-scoring drivers. This self-funds through fuel savings while improving driver behaviour, safety, and retention.</p>
+        </div>
+    </div>
+
+    <div class="mt-8 flex gap-4">
+        <button onclick="saveAuditResults()" class="flex-1 bg-emerald-500 text-slate-900 font-black py-4 rounded-xl uppercase text-[11px] hover:bg-emerald-400 transition shadow-lg">💾 Save Audit Results</button>
+        <button onclick="generateReport()" class="flex-1 bg-blue-500 text-white font-black py-4 rounded-xl uppercase text-[11px] hover:bg-blue-400 transition shadow-lg">📄 Generate Report</button>
+        <button onclick="window.location.href='pipeline.html'" class="flex-1 bg-white/5 border border-white/10 text-white font-black py-4 rounded-xl uppercase text-[11px] hover:bg-white/10 transition">← Back</button>
+    </div>
+</main>
+
+<div id="audit-toast" class="hidden fixed top-6 right-6 z-[5000] transform translate-x-full transition-all duration-500">
+    <div id="audit-toast-inner" class="px-6 py-4 rounded-xl shadow-xl border text-white">
+        <p id="audit-toast-title" class="font-black text-lg"></p>
+        <p id="audit-toast-body" class="text-sm mt-1 opacity-90"></p>
+    </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// DFR CALCULATION ENGINE
+// Three-way loss split: Total Wasted = Efficiency + Speed + Idle
+// Efficiency is the residual — derived last, always >= 0
+// Idle: all excess idle data used as reported by tracker, burn rate configurable
+// ══════════════════════════════════════════════════════════════════════════════
+const DFR_TERRAIN_FACTOR = {'Flat / Highveld':1.00,'Mixed / Undulating':0.93,'Mountainous':0.84,'Severe Mountain':0.75};
+const DFR_AERO_DRAG      = {'Long Distance':0.42,'Mixed':0.32,'Local Distribution':0.22,'Construction / Mining':0.18,'Agricultural':0.18};
+const DFR_LOAD_ADJ       = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15};
+const DFR_TRAILER_ADJ    = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.10,'Rear Tipper':-0.12,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0};
+const DFR_AEROKIT_ADJ    = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10};
+const DFR_FRAUD          = {LOW_EFF_FACTOR:0.40, DRIFT_PCT:0.15};
+
+function calcSuggested(v) {
+    const base = parseFloat(v.mfr_avg) || parseFloat(v.mfr_min) || null;
+    if (!base) return null;
+    const terrain = DFR_TERRAIN_FACTOR[v.terrain] ?? DFR_TERRAIN_FACTOR['Mixed / Undulating'];
+    return Math.round(base *
+        (1 + (DFR_LOAD_ADJ[v.loadProfile]??0) + (DFR_TRAILER_ADJ[v.trailerType]??0) +
+        ((v.interlink===true||v.interlink==='true'||v.interlink==='Yes')?-0.04:0) +
+        (DFR_AEROKIT_ADJ[v.aerokit]??0)) * terrain * 100) / 100;
+}
+
+function calcSpeedLoss(v, limit, target, wPrice, rPrice) {
+    const aeroDrag = DFR_AERO_DRAG[v.usage] ?? DFR_AERO_DRAG['Mixed'];
+    let litres = 0;
+    if (v.speeds && v.speeds.length > 0) {
+        const over = v.speeds.filter(s => s > limit);
+        if (!over.length) return {litres:0,lossW:0,lossR:0};
+        const totalHrs = v.duration > 0 ? v.duration/3600 : over.length*5/60;
+        const perHrs   = Math.max(5/60, totalHrs/over.length);
+        over.forEach(spd => {
+            const penalty = aeroDrag * ((spd/limit)**2 - 1);
+            litres += (spd*0.9*perHrs/target) * penalty;
+        });
+    } else if (v.violations > 0) {
+        const assumed = limit + 15;
+        litres = v.violations * (assumed*0.9*(5/60)/target) * aeroDrag * ((assumed/limit)**2 - 1);
+    }
+    litres = Math.max(0, litres);
+    return {litres:Math.round(litres*100)/100, lossW:Math.round(litres*wPrice*100)/100, lossR:Math.round(litres*rPrice*100)/100};
+}
+
+function calcIdleLoss(idleSecs, idleBurnRate, wPrice, rPrice) {
+    if (!idleSecs || idleSecs <= 0) return {litres:0,lossW:0,lossR:0};
+    const litres = Math.round((idleSecs/3600) * idleBurnRate * 100) / 100;
+    return {litres, lossW:Math.round(litres*wPrice*100)/100, lossR:Math.round(litres*rPrice*100)/100};
+}
+
+function calcScore(v, limit, target) {
+    let score = 100;
+    if (v.actKmL > 0 && v.actKmL < target)
+        score -= Math.min(40, (((target-v.actKmL)/target)*100/100)*40);
+    const events = (v.speeds&&v.speeds.length>0) ? v.speeds.filter(s=>s>limit).length : (v.violations||0);
+    if (events > 0) score -= Math.min(25, events*0.3);
+    const peak = (v.speeds&&v.speeds.length>0) ? Math.max(...v.speeds) : (v.maxSpeed||0);
+    if (v.duration > 300 && peak > limit+1) score -= Math.min(15, (v.duration/60/30)*15);
+    if (peak > limit+20) score -= Math.min(10, (peak-(limit+20))*0.5);
+    const idleCount = v.idleCount || 0;
+    if (idleCount > 0) score -= Math.min(10, idleCount*0.5);
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function calcFraudFlags(v) {
+    const flags  = [];
+    const litres = parseFloat(v.mL)||parseFloat(v.liters)||0;
+    const distKm = parseFloat(v.mK)||parseFloat(v.odo)||0;
+    const gps    = parseFloat(v.gpsDist)||parseFloat(v.gps)||0;
+    const mfrAvg = parseFloat(v.mfr_avg)||0;
+    const minKmL = mfrAvg>0 ? mfrAvg*DFR_FRAUD.LOW_EFF_FACTOR : 0.8;
+    const maxL   = distKm>0&&minKmL>0 ? Math.round(distKm/minKmL) : 0;
+    if (maxL>0&&litres>maxL)
+        flags.push(`Excess fuel: ${litres}L for ${distKm}km (${(distKm/litres).toFixed(2)}km/L) — below minimum plausible`);
+    if (v.actKmL>0&&mfrAvg>0&&v.actKmL<mfrAvg*DFR_FRAUD.LOW_EFF_FACTOR)
+        flags.push(`Implausible: ${v.actKmL}km/L < 40% of mfr avg (${mfrAvg})`);
+    if (distKm>0&&gps>0) {
+        const drift = Math.abs(distKm-gps);
+        if (drift>gps*DFR_FRAUD.DRIFT_PCT)
+            flags.push(`Odo drift: ${Math.round(drift)}km vs GPS (${Math.round(drift/gps*100)}%)`);
+    }
+    return flags;
+}
+
+// ── Main vehicle calculation — three-way split ────────────────────────────
+function calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate) {
+    const idleBurn = idleBurnRate || 3.5;
+    const odoKm    = parseFloat(v.mK)||parseFloat(v.odo)||0;
+    const gpsKm    = parseFloat(v.gpsDist)||parseFloat(v.gps)||0;
+    const litres   = parseFloat(v.mL)||parseFloat(v.liters)||0;
+    const distKm   = odoKm || gpsKm;
+    const driftKm  = (odoKm>0&&gpsKm>0) ? Math.round(odoKm-gpsKm) : null;
+    const driftPct = (driftKm!==null&&gpsKm>0) ? Math.round(Math.abs(driftKm)/gpsKm*1000)/10 : null;
+
+    const suggested  = calcSuggested(v);
+    const target     = parseFloat(v.clientTarget)||parseFloat(v.targetKmL)||suggested||globalTarget||2.3;
+    const actKmL     = (litres>0&&distKm>0) ? Math.round(distKm/litres*100)/100 : null;
+
+    // Total wasted litres (actual minus what target says should have been used)
+    const totalWastedL = (litres>0&&distKm>0&&actKmL!==null&&actKmL<target)
+        ? Math.round((litres - distKm/target)*100)/100 : 0;
+
+    // Speed loss component
+    const spd = calcSpeedLoss(v, limit, target, wPrice, rPrice);
+
+    // Idle loss component — all reported excess idle seconds, tracker applies its own thresholds
+    const idle = calcIdleLoss(v.idleSecs||0, idleBurn, wPrice, rPrice);
+
+    // Efficiency = residual after removing speed and idle — floor at 0
+    const effLitres = Math.max(0, Math.round((totalWastedL - spd.litres - idle.litres)*100)/100);
+    const effLoss_w = Math.round(effLitres*wPrice*100)/100;
+    const effLoss_r = Math.round(effLitres*rPrice*100)/100;
+
+    // Total = sum of all three
+    const totalLoss_w = Math.round((effLoss_w + spd.lossW + idle.lossW)*100)/100;
+    const totalLoss_r = Math.round((effLoss_r + spd.lossR + idle.lossR)*100)/100;
+
+    const violations = (v.speeds&&v.speeds.length>0) ? v.speeds.filter(s=>s>limit).length : (v.violations||0);
+    const maxSpeed   = (v.speeds&&v.speeds.length>0) ? Math.max(...v.speeds) : (v.maxSpeed||0);
+    const idleCount  = v.idleCount||0;
+    const score      = calcScore({...v, actKmL, violations, maxSpeed, idleCount}, limit, target);
+    const fraudFlags = calcFraudFlags({...v, mK:odoKm, mL:litres, actKmL});
+
+    return { ...v,
+        mK:odoKm||v.mK, mL:litres||v.mL, gpsDist:gpsKm||v.gpsDist,
+        suggestedTarget:suggested, activeTarget:target,
+        actKmL, totalWastedL, driftKm, driftPct,
+        violations, maxSpeed, idleCount, idleSecs:v.idleSecs||0,
+        effLitres, effLoss_w, effLoss_r,
+        speedLitres:spd.litres, speedLoss_w:spd.lossW, speedLoss_r:spd.lossR,
+        idleLitres:idle.litres, idleLoss_w:idle.lossW, idleLoss_r:idle.lossR,
+        totalLoss_w, totalLoss_r,
+        score, fraudFlags
+    };
+}
+
+function calcFleet(vehicles, settings) {
+    const {limit, wPrice, rPrice, globalTarget, idleBurnRate} = settings;
+    const processed = vehicles.map(v => calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate));
+    const totals = processed.reduce((a,v) => ({
+        totalKM:      a.totalKM      + (v.mK||0),
+        totalLitres:  a.totalLitres  + (v.mL||0),
+        totalWastedL: a.totalWastedL + (v.totalWastedL||0),
+        effLoss_w:    a.effLoss_w    + v.effLoss_w,
+        effLoss_r:    a.effLoss_r    + v.effLoss_r,
+        speedLitres:  a.speedLitres  + v.speedLitres,
+        speedLoss_w:  a.speedLoss_w  + v.speedLoss_w,
+        speedLoss_r:  a.speedLoss_r  + v.speedLoss_r,
+        idleLitres:   a.idleLitres   + v.idleLitres,
+        idleLoss_w:   a.idleLoss_w   + v.idleLoss_w,
+        idleLoss_r:   a.idleLoss_r   + v.idleLoss_r,
+        totalLoss_w:  a.totalLoss_w  + v.totalLoss_w,
+        totalLoss_r:  a.totalLoss_r  + v.totalLoss_r,
+        totalScore:   a.totalScore   + v.score,
+        violations:   a.violations   + v.violations,
+        idleCount:    a.idleCount    + (v.idleCount||0),
+        idleSecs:     a.idleSecs     + (v.idleSecs||0)
+    }), {totalKM:0,totalLitres:0,totalWastedL:0,
+         effLoss_w:0,effLoss_r:0,
+         speedLitres:0,speedLoss_w:0,speedLoss_r:0,
+         idleLitres:0,idleLoss_w:0,idleLoss_r:0,
+         totalLoss_w:0,totalLoss_r:0,
+         totalScore:0,violations:0,idleCount:0,idleSecs:0});
+
+    Object.keys(totals).forEach(k => { totals[k] = Math.round(totals[k]*100)/100; });
+    totals.fleetScore   = processed.length ? Math.round(totals.totalScore/processed.length) : 0;
+    totals.avgKmL       = totals.totalLitres>0 ? Math.round(totals.totalKM/totals.totalLitres*100)/100 : 0;
+    totals.vehicleCount = processed.length;
+
+    const elite = processed.filter(v=>v.score>=95).length;
+    const high  = processed.filter(v=>v.score>=90&&v.score<95).length;
+    const good  = processed.filter(v=>v.score>=80&&v.score<90).length;
+    const poor  = processed.filter(v=>v.score<80).length;
+    const bonusPayout  = (elite*500)+(high*300)+(good*150);
+    const bonusSavings = processed.filter(v=>v.score>=80).reduce((s,v)=>s+v.totalLoss_w,0);
+    totals.bonus = {elite,high,good,poor,payout:bonusPayout,savings:Math.round(bonusSavings),roi:Math.round(bonusSavings-bonusPayout)};
+    return {vehicles:processed, totals};
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let auditData = {};
+let currentClientProfile = null;
+let _vdb = {};
+let activeRows = [], activeMode = '';
+let currentClientName = '';
+let lastUploadTimestamp = {usage:0,speed:0};
+
+(async function loadVDB(){
+    try {
+        await new Promise(res=>{const t=setInterval(()=>{if(typeof cloudStorage!=='undefined'){clearInterval(t);res();}},60);});
+        const r = await cloudStorage.getItem('VEHICLE_DB');
+        _vdb = r ? JSON.parse(r) : {};
+    } catch(e){_vdb={};}
+})();
+
+function _dbk(m,mo){return((m||'').trim().toLowerCase()+'|'+(mo||'').trim().toLowerCase());}
+function _lookupMfr(make,model){
+    if(!make) return null;
+    const e=_vdb[_dbk(make,model)]; if(e) return e;
+    for(const k of Object.keys(_vdb)){if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k];}
+    return null;
+}
+function normaliseKey(raw){return String(raw).trim().replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(-7);}
+
+async function checkFreeAuditWarning(clientName){
+    const allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const client=allClients.find(c=>c.company&&c.company.toUpperCase().trim()===clientName.toUpperCase().trim());
+    if(!client||client.status!=='prospect'||client.auditStatus!=='complete') return;
+    const dateStr=client.lastAuditDate?' on <strong>'+client.lastAuditDate+'</strong>':'';
+    document.getElementById('free-audit-warning-text').innerHTML=
+        '<strong style="color:#f97316;">'+client.company+'</strong> already received their complimentary audit'+dateStr+'.<br><br>Running another audit without an active SLA means unpaid work for you.';
+    document.getElementById('free-audit-modal').style.display='flex';
+}
+
+async function initAudit(){
+    const allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const sel=document.getElementById('audit-client-sel');
+    if(sel){
+        sel.innerHTML='<option value="">— Select Client —</option>';
+        allClients.forEach(c=>{
+            const o=document.createElement('option');
+            o.value=c.company; o.text=c.company+(c.status==='prospect'?' (Prospect)':'');
+            sel.appendChild(o);
+        });
+    }
+    const urlParams=new URLSearchParams(window.location.search);
+    const clientFromUrl=urlParams.get('client');
+    let resolvedName=clientFromUrl?decodeURIComponent(clientFromUrl):null;
+    if(!resolvedName){
+        const clientIdFromUrl=urlParams.get('id');
+        if(clientIdFromUrl){const found=allClients.find(c=>c.id===clientIdFromUrl);if(found)resolvedName=found.company;}
+    }
+    if(!resolvedName){
+        const savedCompany=await cloudStorage.getItem('currentAuditClient');
+        if(savedCompany){
+            const stillExists=allClients.find(c=>c.company.toUpperCase()===savedCompany.toUpperCase());
+            if(stillExists)resolvedName=savedCompany; else await cloudStorage.removeItem('currentAuditClient');
+        }
+    }
+    if(resolvedName) await loadAuditClient(resolvedName,allClients);
+}
+
+async function loadAuditClient(name,allClients){
+    if(!allClients) allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const client=allClients.find(c=>c.company.toUpperCase()===name.toUpperCase());
+    if(!client){
+        await cloudStorage.removeItem('currentAuditClient');
+        document.getElementById('client-name').textContent='NO CLIENT SELECTED';
+        const sel=document.getElementById('audit-client-sel'); if(sel) sel.value='';
+        return;
+    }
+    currentClientName=name;
+    document.getElementById('client-name').textContent=name.toUpperCase();
+    const sel=document.getElementById('audit-client-sel'); if(sel) sel.value=name;
+    await cloudStorage.setItem('currentAuditClient',name);
+    currentClientProfile=(typeof DFR_UOM!=='undefined')?DFR_UOM.getProfile(client):null;
+
+    const convNote=(typeof DFR_UOM!=='undefined')?DFR_UOM.conversionNote(currentClientProfile):null;
+    const noteEl=document.getElementById('uom-conversion-note');
+    if(noteEl){if(convNote){noteEl.textContent='⚙️ '+convNote;noteEl.style.display='block';}else{noteEl.style.display='none';}}
+    const flagEl=document.getElementById('client-flag');
+    if(flagEl) flagEl.textContent=(currentClientProfile&&currentClientProfile.flag)?currentClientProfile.flag:'';
+
+    if(client.speedLimit)  document.getElementById('master-speed').value=client.speedLimit;
+    if(client.fuelPrice){
+        document.getElementById('price-w').value=client.fuelPrice;
+        document.getElementById('price-r').value=parseFloat(client.fuelPrice)+2.35;
+    }
+    if(client.targetCons)   document.getElementById('master-target').value=client.targetCons;
+    if(client.idleBurnRate) document.getElementById('idle-burn-rate').value=client.idleBurnRate;
+
+    await loadAuditDraft(name);
+    await checkFreeAuditWarning(name);
+}
+
+async function switchAuditClient(name){
+    if(!name){clearAudit();return;}
+    if(currentClientName&&Object.keys(auditData).length>0&&name!==currentClientName){
+        if(!confirm('Switch to '+name+'?\nThe current audit for '+currentClientName+' will be auto-saved as a draft.')){
+            const sel=document.getElementById('audit-client-sel'); if(sel) sel.value=currentClientName; return;
+        }
+        await autoSaveAuditDraft();
+    }
+    resetAuditUI(); await loadAuditClient(name);
+}
+
+function resetAuditUI(){
+    auditData={}; currentClientProfile=null;
+    const gr=document.getElementById('grid-rows'); if(gr) gr.innerHTML='';
+    ['stat-usage','stat-speed'].forEach(id=>{const el=document.getElementById(id);if(el){el.innerText='✘';el.className='text-red-500 font-bold mr-2';}});
+    document.getElementById('audit-period').innerText='—';
+    document.getElementById('date-label').innerText='DATA PENDING';
+    ['l1-eff','l1-speed','l1-idle','l1-total','l2-eff','l2-speed','l2-idle','l2-total'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerText='R 0';});
+}
+
+async function clearAudit(){
+    if(Object.keys(auditData).length>0){if(!confirm('Clear the current audit? Your draft will still be saved in Firebase.')) return;}
+    resetAuditUI(); currentClientName='';
+    await cloudStorage.removeItem('currentAuditClient');
+    document.getElementById('client-name').textContent='NO CLIENT SELECTED';
+    const sel=document.getElementById('audit-client-sel'); if(sel) sel.value='';
+}
+
+async function loadAuditDraft(clientName){
+    const draftKey='AUDIT_DRAFT_'+clientName.toUpperCase().replace(/\s+/g,'_');
+    const savedDraft=await cloudStorage.getItem(draftKey); if(!savedDraft) return;
+    try{
+        const draft=JSON.parse(savedDraft);
+        auditData=draft.auditData||{};
+        if(Object.keys(auditData).length>0){
+            ['usage','speed'].forEach(m=>{document.getElementById('stat-'+m).innerText='✓';document.getElementById('stat-'+m).classList.replace('text-red-500','text-emerald-500');});
+        }
+        if(draft.speedLimit)   document.getElementById('master-speed').value=draft.speedLimit;
+        if(draft.priceW)       document.getElementById('price-w').value=draft.priceW;
+        if(draft.priceR)       document.getElementById('price-r').value=draft.priceR;
+        if(draft.target)       document.getElementById('master-target').value=draft.target;
+        if(draft.idleBurnRate) document.getElementById('idle-burn-rate').value=draft.idleBurnRate;
+        if(draft.auditDate)    document.getElementById('date-label').innerText=draft.auditDate;
+        if(draft.auditPeriod)  document.getElementById('audit-period').innerText=draft.auditPeriod;
+        if(Object.keys(auditData).length>0){renderGrid();showDraftStatus('Draft Loaded — '+new Date(draft.savedAt).toLocaleString());}
+    }catch(e){console.error('Error loading draft:',e);}
+}
+
+async function autoSaveAuditDraft(){
+    if(!currentClientName) return;
+    const draftKey='AUDIT_DRAFT_'+currentClientName.toUpperCase().replace(/\s+/g,'_');
+    const draft={auditData,
+        speedLimit:document.getElementById('master-speed').value,
+        priceW:document.getElementById('price-w').value,
+        priceR:document.getElementById('price-r').value,
+        target:document.getElementById('master-target').value,
+        idleBurnRate:document.getElementById('idle-burn-rate').value,
+        auditDate:document.getElementById('date-label').innerText,
+        auditPeriod:document.getElementById('audit-period').innerText,
+        savedAt:new Date().toISOString()};
+    await cloudStorage.setItem(draftKey,JSON.stringify(draft));
+    showDraftStatus('Draft Auto-Saved');
+}
+
+function showDraftStatus(message){
+    const el=document.getElementById('date-label'); const orig=el.innerText;
+    el.innerText='💾 '+message; el.style.color='#10b981';
+    setTimeout(()=>{el.innerText=orig;el.style.color='';},2000);
+}
+
+async function updateClientAuditStatus(status){
+    let allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const ci=allClients.findIndex(c=>c.company.toUpperCase()===currentClientName.toUpperCase());
+    if(ci!==-1){allClients[ci].auditStatus=status;allClients[ci].lastEditedDate=new Date().toISOString();await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(allClients));}
+}
+
+// ── CSV Mapping ────────────────────────────────────────────────────────────
+async function launchMapper(input,mode){
+    if(!input.files||!input.files[0]) return;
+    activeMode=mode;
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+        const text=e.target.result;
+        const delim=text.includes(';')?';':',';
+        activeRows=text.split(/\r?\n/).filter(l=>l.trim()).map(r=>r.split(delim));
+        if(!activeRows.length){alert('CSV file is empty');return;}
+        const headers=activeRows[0];
+        const opts=headers.map((h,i)=>'<option value="'+i+'">'+h+'</option>').join('');
+
+        const mappingKey='CSV_MAPPING_'+currentClientName.toUpperCase().replace(/\s+/g,'_')+'_'+mode;
+        const savedMapping=await cloudStorage.getItem(mappingKey);
+        let regIdx=0,valIdx=1,dateIdx=-1,durIdx=-1,maxSpdIdx=-1,idleCountIdx=-1,idleDurIdx=-1;
+
+        if(savedMapping){
+            const m=JSON.parse(savedMapping);
+            regIdx=m.reg; valIdx=m.val; dateIdx=m.date;
+            if(m.duration!==undefined)     durIdx=m.duration;
+            if(m.maxSpeed!==undefined)     maxSpdIdx=m.maxSpeed;
+            if(m.idleCount!==undefined)    idleCountIdx=m.idleCount;
+            if(m.idleDuration!==undefined) idleDurIdx=m.idleDuration;
+        } else {
+            headers.forEach((h,i)=>{
+                const lower=h.toLowerCase().trim();
+                if(lower.includes('asset registration')||lower==='asset'||lower.includes('registration')) regIdx=i;
+                if(mode==='usage'&&(lower==='distance (km)'||lower.includes('distance'))) valIdx=i;
+                if(mode==='speed'&&lower==='speed'&&!lower.includes('limit')&&!lower.includes('max')&&!lower.includes('over')) valIdx=i;
+                if(lower==='start date'||lower==='event date'||lower==='date') dateIdx=i;
+                if(mode==='usage'&&lower==='over speed duration') durIdx=i;
+                if(mode==='usage'&&lower==='max speed') maxSpdIdx=i;
+                if(mode==='usage'&&lower==='excess idle count') idleCountIdx=i;
+                if(mode==='usage'&&lower==='excess idle duration') idleDurIdx=i;
+            });
+        }
+
+        ['map-reg','map-val'].forEach(id=>document.getElementById(id).innerHTML=opts);
+        document.getElementById('map-date').innerHTML='<option value="-1">None</option>'+opts;
+        document.getElementById('map-reg').value=regIdx;
+        document.getElementById('map-val').value=valIdx;
+        document.getElementById('map-date').value=dateIdx;
+
+        if(mode==='usage'){
+            document.getElementById('usage-extra-fields').style.display='block';
+            const nOpt='<option value="-1">None / Not Available</option>';
+            ['map-duration','map-maxspeed','map-idlecount','map-idleduration'].forEach(id=>{document.getElementById(id).innerHTML=nOpt+opts;});
+            document.getElementById('map-duration').value=durIdx;
+            document.getElementById('map-maxspeed').value=maxSpdIdx;
+            document.getElementById('map-idlecount').value=idleCountIdx;
+            document.getElementById('map-idleduration').value=idleDurIdx;
+        } else {
+            document.getElementById('usage-extra-fields').style.display='none';
+        }
+        document.getElementById('logic-selector-box').style.display=(mode==='usage')?'block':'none';
+        document.getElementById('mapper-modal').style.display='flex';
+        updateMappingPreview();
+    };
+    reader.readAsText(input.files[0]);
+}
+
+function updateMappingPreview(){
+    const rIdx=parseInt(document.getElementById('map-reg').value);
+    const vIdx=parseInt(document.getElementById('map-val').value);
+    if(!activeRows||activeRows.length<2) return;
+    document.getElementById('preview-rows').innerHTML=activeRows.slice(1,4).map(row=>{
+        const reg=row[rIdx]||'—',val=row[vIdx]||'—';
+        return `<div class="flex gap-4 py-1 border-b border-white/5"><span class="text-white/60 w-24 truncate">Reg: <span class="text-white font-bold">${reg.trim()}</span></span><span class="text-white/60">Value: <span class="text-emerald-400 font-bold">${val.trim()}</span></span></div>`;
+    }).join('');
+    document.getElementById('mapping-preview').classList.remove('hidden');
+}
+document.addEventListener('change',e=>{if(e.target.id==='map-reg'||e.target.id==='map-val')updateMappingPreview();});
+
+async function commitMapping(){
+    const now=Date.now();
+    if(now-lastUploadTimestamp[activeMode]<2000) return;
+    lastUploadTimestamp[activeMode]=now;
+
+    const rIdx=parseInt(document.getElementById('map-reg').value);
+    const vIdx=parseInt(document.getElementById('map-val').value);
+    const dIdx=parseInt(document.getElementById('map-date').value);
+    const logic=document.getElementById('map-logic')?document.getElementById('map-logic').value:'sum';
+    let durIdx=-1,maxSpdIdx=-1,idleCountIdx=-1,idleDurIdx=-1;
+
+    if(activeMode==='usage'){
+        durIdx      =parseInt(document.getElementById('map-duration').value);
+        maxSpdIdx   =parseInt(document.getElementById('map-maxspeed').value);
+        idleCountIdx=parseInt(document.getElementById('map-idlecount').value);
+        idleDurIdx  =parseInt(document.getElementById('map-idleduration').value);
+    }
+
+    const mappingKey='CSV_MAPPING_'+currentClientName.toUpperCase().replace(/\s+/g,'_')+'_'+activeMode;
+    await cloudStorage.setItem(mappingKey,JSON.stringify({reg:rIdx,val:vIdx,date:dIdx,logic,duration:durIdx,maxSpeed:maxSpdIdx,idleCount:idleCountIdx,idleDuration:idleDurIdx}));
+
+    // Preserve existing data for the other mode
+    let newData={};
+    Object.keys(auditData).forEach(k=>{
+        const v=auditData[k];
+        newData[k]={reg:v.reg,type:v.type||'Heavy',make:v.make||'',model:v.model||'',
+            year:v.year||'',usage:v.usage||'Long Distance',terrain:v.terrain||'Mixed / Undulating',
+            loadProfile:v.loadProfile||'Fully Loaded',trailerType:v.trailerType||'Tautliner / Curtainsider',
+            interlink:v.interlink||false,aerokit:v.aerokit||'None',
+            mfr_min:v.mfr_min||null,mfr_avg:v.mfr_avg||null,fuel_tank:v.fuel_tank||null,
+            clientTarget:v.clientTarget||null,targetKmL:v.targetKmL||null,
+            gps:activeMode==='usage'?0:(v.gps||0),
+            gpsDist:activeMode==='usage'?0:(v.gpsDist||0),
+            mK:v.mK||v.odo||null,mL:v.mL||v.liters||null,
+            speeds:activeMode==='speed'?[]:(v.speeds||[]),
+            duration:activeMode==='usage'?0:(v.duration||0),
+            maxSpeed:activeMode==='usage'?0:(v.maxSpeed||0),
+            violations:activeMode==='usage'?0:(v.violations||0),
+            idleCount:activeMode==='usage'?0:(v.idleCount||0),
+            idleSecs:activeMode==='usage'?0:(v.idleSecs||0)};
+    });
+
+    let firstDate=null,lastDate=null;
+    activeRows.slice(1).forEach(row=>{
+        if(!row[rIdx]) return;
+        const key=normaliseKey(row[rIdx]); if(!key) return;
+
+        // Date
+        if(dIdx!==-1&&row[dIdx]){
+            const dp=row[dIdx].trim().split(' ')[0].split('T')[0];
+            let d;
+            if(dp.includes('/')){const p=dp.split('/');d=p[0].length===4?new Date(p[0],p[1]-1,p[2]):new Date(p[2],p[1]-1,p[0]);}
+            else{const p=dp.split('-');d=p[0].length===4?new Date(p[0],p[1]-1,p[2]):new Date(p[2],p[1]-1,p[0]);}
+            if(!isNaN(d)){if(!firstDate||d<firstDate)firstDate=d;if(!lastDate||d>lastDate)lastDate=d;}
+        }
+
+        if(!newData[key]){
+            const av=auditData[key]||{};
+            newData[key]={reg:row[rIdx].trim(),type:av.type||'Heavy',make:av.make||'',model:av.model||'',
+                year:av.year||'',usage:av.usage||'Long Distance',terrain:av.terrain||'Mixed / Undulating',
+                loadProfile:av.loadProfile||'Fully Loaded',trailerType:av.trailerType||'Tautliner / Curtainsider',
+                interlink:av.interlink||false,aerokit:av.aerokit||'None',
+                mfr_min:av.mfr_min||null,mfr_avg:av.mfr_avg||null,fuel_tank:av.fuel_tank||null,
+                clientTarget:av.clientTarget||null,targetKmL:av.targetKmL||null,
+                gps:0,gpsDist:0,mK:av.mK||av.odo||null,mL:av.mL||av.liters||null,
+                speeds:[],duration:0,maxSpeed:0,violations:0,idleCount:0,idleSecs:0};
+        }
+
+        const rawVal=parseFloat(row[vIdx])||0;
+        const val=(typeof DFR_UOM!=='undefined'&&currentClientProfile)
+            ?(activeMode==='usage'?DFR_UOM.distToKm(rawVal,currentClientProfile):rawVal):rawVal;
+
+        if(activeMode==='usage'){
+            if(logic==='sum') newData[key].gps+=val; else if(val>newData[key].gps) newData[key].gps=val;
+            newData[key].gpsDist=newData[key].gps;
+            if(durIdx>=0&&row[durIdx]) newData[key].duration+=parseFloat(row[durIdx])||0;
+            if(maxSpdIdx>=0&&row[maxSpdIdx]){const sv=parseFloat(row[maxSpdIdx])||0;if(sv>newData[key].maxSpeed)newData[key].maxSpeed=sv;}
+
+            // Idle — use all reported excess idle data as-is (tracker has already applied thresholds)
+            if(idleDurIdx>=0&&row[idleDurIdx]){
+                const idleDur=parseFloat(row[idleDurIdx])||0;
+                if(idleDur>0) newData[key].idleSecs+=idleDur;
+            }
+            if(idleCountIdx>=0&&row[idleCountIdx]){
+                newData[key].idleCount+=parseInt(row[idleCountIdx])||0;
+            }
+
+        } else if(activeMode==='speed'){
+            if(val>0){newData[key].speeds.push(val);newData[key].violations=(newData[key].violations||0)+1;}
+        }
+    });
+
+    auditData=newData;
+    if(firstDate&&lastDate){
+        const fmt=d=>String(d.getDate()).padStart(2,'0')+' '+['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+' '+d.getFullYear();
+        const from=fmt(firstDate),to=fmt(lastDate);
+        document.getElementById('audit-period').innerText=from===to?from:from+' - '+to;
+    }
+    const statEl=document.getElementById('stat-'+activeMode);
+    if(statEl){statEl.innerText='✓';statEl.classList.replace('text-red-500','text-emerald-500');}
+    document.getElementById('mapper-modal').style.display='none';
+    if(activeMode==='usage') document.getElementById('csv-usage').value='';
+    else document.getElementById('csv-speed').value='';
+    autoSaveAuditDraft();
+    setTimeout(()=>{
+        const ud=document.getElementById('stat-usage').innerText==='✓';
+        const sd=document.getElementById('stat-speed').innerText==='✓';
+        if(ud&&sd) window.location.href='data-entry.html?client='+encodeURIComponent(currentClientName);
+        else renderGrid();
+    },100);
+}
+
+// ── Render Grid ────────────────────────────────────────────────────────────
+function renderGrid(){
+    const container=document.getElementById('grid-rows');
+    container.innerHTML='';
+    const wPrice      =parseFloat(document.getElementById('price-w').value)||0;
+    const rPrice      =parseFloat(document.getElementById('price-r').value)||0;
+    const globalTarget=parseFloat(document.getElementById('master-target').value)||2.3;
+    const limit       =parseFloat(document.getElementById('master-speed').value)||80;
+    const idleBurnRate=parseFloat(document.getElementById('idle-burn-rate').value)||3.5;
+
+    let sEffW=0,sSpeedW=0,sIdleW=0,sTotW=0;
+    let sEffR=0,sSpeedR=0,sIdleR=0,sTotR=0;
+    let eliteCount=0,highCount=0,goodCount=0,poorCount=0,totalBonusSavings=0;
+
+    Object.keys(auditData).forEach(k=>{
+        const raw=auditData[k];
+        const dbEntry=_lookupMfr(raw.make,raw.model);
+        const vEnriched={...raw,mfr_avg:raw.mfr_avg||dbEntry?.mfr_avg||null,mfr_min:raw.mfr_min||dbEntry?.mfr_min||null,fuel_tank:raw.fuel_tank||dbEntry?.fuel_tank||null};
+        const v=calcVehicle(vEnriched,limit,wPrice,rPrice,globalTarget,idleBurnRate);
+
+        sEffW+=v.effLoss_w; sSpeedW+=v.speedLoss_w; sIdleW+=v.idleLoss_w; sTotW+=v.totalLoss_w;
+        sEffR+=v.effLoss_r; sSpeedR+=v.speedLoss_r; sIdleR+=v.idleLoss_r; sTotR+=v.totalLoss_r;
+
+        if(v.score>=95){eliteCount++;totalBonusSavings+=v.totalLoss_w;}
+        else if(v.score>=90){highCount++;totalBonusSavings+=v.totalLoss_w;}
+        else if(v.score>=80){goodCount++;totalBonusSavings+=v.totalLoss_w;}
+        else{poorCount++;}
+
+        const hasFraud=v.fraudFlags&&v.fraudFlags.length>0;
+        const fraudBadge=hasFraud?`<span style="font-size:9px;background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:2px 6px;margin-left:4px;" title="${v.fraudFlags.join(' | ')}">⚠ FLAG</span>`:'';
+        const isGps=!parseFloat(raw.mK||raw.odo)&&(raw.gps||raw.gpsDist)>0;
+
+        const _uom=(typeof DFR_UOM!=='undefined')?DFR_UOM:null;
+        const _p=currentClientProfile;
+        const odoDisp=v.mK?(_uom?_uom.kmToDisplay(v.mK,_p).toFixed(0):v.mK):'';
+        const litDisp=v.mL?(_uom?_uom.litresToDisplay(v.mL,_p).toFixed(1):v.mL):'';
+        const odoPlaceholder=_uom?_uom.distLabel(_p):'km';
+        const litPlaceholder=_uom?_uom.volLabel(_p):'L';
+        const _fmtC=(val)=>_uom?_uom.formatCurrency(val,_p):'R '+val.toFixed(0);
+
+        const odoInput=`<input type="number" placeholder="${odoPlaceholder}" value="${odoDisp}" data-key="${k}" data-field="mK"
+            onchange="(function(el){var raw=parseFloat(el.value)||0;var metric=(_uom&&_p)?_uom.distToKm(raw,_p):raw;auditData['${k}'].mK=metric;auditData['${k}'].odo=metric;renderGrid();autoSaveAuditDraft();})(this)"
+            class="manual-input" ${isGps?'style="border-color:rgba(99,102,241,0.5);" title="Using GPS as fallback"':''}>`;
+        const litInput=`<input type="number" placeholder="${litPlaceholder}" value="${litDisp}" step="0.1" data-key="${k}" data-field="mL"
+            onchange="(function(el){var raw=parseFloat(el.value)||0;var metric=(_uom&&_p)?_uom.volToLitres(raw,_p):raw;auditData['${k}'].mL=metric;auditData['${k}'].liters=metric;renderGrid();autoSaveAuditDraft();})(this)"
+            class="manual-input">`;
+
+        const scoreCol=v.actKmL
+            ?`<span class="${v.score<70?'text-red-500':v.score<80?'text-orange-400':v.score<90?'text-blue-400':v.score<95?'text-emerald-400':'text-yellow-400'}">${v.score}%${v.score>=95?' 🏆':v.score>=90?' ⭐':''}</span>`
+            :'<span class="opacity-30">—</span>';
+
+        container.innerHTML+=`
+            <div class="vehicle-row${hasFraud?' border-red-900/40':''}">
+                <div class="col-reg text-[12px] truncate">${v.reg}${isGps?'<span style="color:#6366f1;font-size:9px;"> GPS</span>':''}${fraudBadge}</div>
+                <div class="col-type" style="font-size:10px;">
+                    <div style="font-weight:700;color:white;">${v.type||'Heavy'}</div>
+                    <div style="color:#64748b;font-size:9px;">${v.usage||'—'} · ${v.terrain||'—'}</div>
+                </div>
+                <div class="col-data text-[11px]" style="color:#60a5fa;">${v.mfr_avg?parseFloat(v.mfr_avg).toFixed(2):'<span style="opacity:0.3">—</span>'}</div>
+                <div class="col-data text-[11px]" style="color:#10b981;">${v.suggestedTarget?v.suggestedTarget.toFixed(2):'<span style="opacity:0.3">—</span>'}</div>
+                <div class="col-data text-[11px]" style="color:#fbbf24;font-weight:700;">${v.activeTarget.toFixed(2)}</div>
+                <div class="col-data text-[11px] opacity-40">${(v.gpsDist||0).toFixed(0)}</div>
+                <div class="col-data">${odoInput}</div>
+                <div class="col-drift text-[11px] ${v.driftKm&&Math.abs(v.driftKm)>50?'text-red-400 font-bold':'text-slate-500'}">${v.driftKm!==null?v.driftKm+'km':'—'}</div>
+                <div class="col-data">${litInput}</div>
+                <div class="col-perf text-[12px] ${(v.totalWastedL||0)>0?'text-orange-400':'text-slate-500'}">${_uom?_uom.formatVol(v.totalWastedL||0,_p,1):(v.totalWastedL||0).toFixed(1)+'L'}</div>
+                <div class="col-perf text-[12px] font-black ${v.actKmL&&v.actKmL<v.activeTarget?'text-red-400':'text-emerald-400'}">${v.actKmL?(_uom?_uom.formatEff(v.actKmL,_p,2):v.actKmL.toFixed(2)):'—'}</div>
+                <div class="col-events text-[12px] ${(v.violations||0)>0?'text-red-500 font-bold':'text-slate-500'}">${v.violations||0}</div>
+                <div class="col-events text-[12px] ${(v.idleCount||0)>0?'font-bold':'text-slate-500'}" style="${(v.idleCount||0)>0?'color:#a78bfa;':''}">${v.idleCount||0}</div>
+                <div class="col-money text-[11px] text-emerald-400">${_fmtC(v.effLoss_w)}</div>
+                <div class="col-money text-[11px] text-orange-400">${_fmtC(v.speedLoss_w)}</div>
+                <div class="col-money text-[11px]" style="color:#c4b5fd;">${_fmtC(v.idleLoss_w)}</div>
+                <div class="col-money text-[11px] text-red-400 font-black">${_fmtC(v.totalLoss_w)}</div>
+                <div class="col-score text-[12px]">${scoreCol}</div>
+            </div>`;
+    });
+
+    const _fmtCurr=(val)=>(typeof DFR_UOM!=='undefined')?DFR_UOM.formatCurrency(val,currentClientProfile):'R '+Math.round(val).toLocaleString();
+    document.getElementById('l1-eff').innerText  =_fmtCurr(Math.round(sEffW));
+    document.getElementById('l1-speed').innerText=_fmtCurr(Math.round(sSpeedW));
+    document.getElementById('l1-idle').innerText =_fmtCurr(Math.round(sIdleW));
+    document.getElementById('l1-total').innerText=_fmtCurr(Math.round(sTotW));
+    document.getElementById('l2-eff').innerText  =_fmtCurr(Math.round(sEffR));
+    document.getElementById('l2-speed').innerText=_fmtCurr(Math.round(sSpeedR));
+    document.getElementById('l2-idle').innerText =_fmtCurr(Math.round(sIdleR));
+    document.getElementById('l2-total').innerText=_fmtCurr(Math.round(sTotR));
+
+    document.getElementById('bonus-elite-count').innerText=eliteCount;
+    document.getElementById('bonus-high-count').innerText =highCount;
+    document.getElementById('bonus-good-count').innerText =goodCount;
+    document.getElementById('bonus-poor-count').innerText =poorCount;
+    const bonusPayout=(eliteCount*500)+(highCount*300)+(goodCount*150);
+    document.getElementById('bonus-total').innerText  =_fmtCurr(bonusPayout);
+    document.getElementById('bonus-savings').innerText=_fmtCurr(Math.round(totalBonusSavings));
+    document.getElementById('bonus-roi').innerText    =_fmtCurr(Math.round(totalBonusSavings-bonusPayout));
+
+    if(Object.keys(auditData).length>0) autoSaveAuditDraft();
+}
+
+// ── Save & Generate ────────────────────────────────────────────────────────
+async function saveAuditResults(){
+    const companyName=await cloudStorage.getItem('currentAuditClient');
+    if(!companyName){alert('No client selected');return;}
+    const settings={
+        limit:        parseFloat(document.getElementById('master-speed').value)||80,
+        wPrice:       parseFloat(document.getElementById('price-w').value)||0,
+        rPrice:       parseFloat(document.getElementById('price-r').value)||0,
+        globalTarget: parseFloat(document.getElementById('master-target').value)||2.3,
+        idleBurnRate: parseFloat(document.getElementById('idle-burn-rate').value)||3.5
+    };
+    const rawVehicles=Object.values(auditData).map(v=>{const db=_lookupMfr(v.make,v.model);return{...v,mfr_avg:v.mfr_avg||db?.mfr_avg||null,mfr_min:v.mfr_min||db?.mfr_min||null,fuel_tank:v.fuel_tank||db?.fuel_tank||null};});
+    const {vehicles:processed,totals}=calcFleet(rawVehicles,settings);
+
+    let allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const ci=allClients.findIndex(c=>c.company.toUpperCase()===companyName.toUpperCase());
+    if(ci===-1){showAuditToast('prospect','Client Not Found','The selected client does not exist.');return;}
+
+    allClients[ci].fleetSize=processed.length; allClients[ci].fleetSizeConfirmed=true;
+    allClients[ci].speedLimit=settings.limit; allClients[ci].fuelPrice=settings.wPrice;
+    allClients[ci].rPrice=settings.rPrice; allClients[ci].targetCons=settings.globalTarget;
+    allClients[ci].idleBurnRate=settings.idleBurnRate;
+    allClients[ci].lastAuditDate=new Date().toLocaleDateString('en-ZA');
+    allClients[ci].auditStatus='complete';
+
+    allClients[ci].auditResults={
+        totalKM:Math.round(totals.totalKM), totalLiters:Math.round(totals.totalLitres),
+        avgKmL:totals.avgKmL, fleetScore:totals.fleetScore,
+        wholesaleEffLoss:Math.round(totals.effLoss_w),
+        wholesaleSpeedLoss:Math.round(totals.speedLoss_w),
+        wholesaleIdleLoss:Math.round(totals.idleLoss_w),
+        wholesaleTotalLoss:Math.round(totals.totalLoss_w),
+        retailEffLoss:Math.round(totals.effLoss_r),
+        retailSpeedLoss:Math.round(totals.speedLoss_r),
+        retailIdleLoss:Math.round(totals.idleLoss_r),
+        retailTotalLoss:Math.round(totals.totalLoss_r),
+        totalIdleCount:totals.idleCount, totalIdleSecs:totals.idleSecs,
+        vehicleCount:processed.length, auditDate:new Date().toISOString(), bonus:totals.bonus,
+        vehicles:processed.map(v=>({
+            reg:v.reg, score:v.score,
+            effLoss_w:v.effLoss_w, speedLoss_w:v.speedLoss_w, idleLoss_w:v.idleLoss_w, totalLoss_w:v.totalLoss_w,
+            effLoss_r:v.effLoss_r, speedLoss_r:v.speedLoss_r, idleLoss_r:v.idleLoss_r, totalLoss_r:v.totalLoss_r,
+            idleCount:v.idleCount, idleSecs:v.idleSecs,
+            eLoss:v.effLoss_w, sLoss:v.speedLoss_w, tLoss:v.totalLoss_w
+        }))
+    };
+
+    const historyKey=`AUDIT_HISTORY_${allClients[ci].id}`;
+    let history=JSON.parse(await cloudStorage.getItem(historyKey))||[];
+    const auditPeriod=document.getElementById('audit-period').innerText;
+    let auditEndDate=new Date();
+    if(auditPeriod.includes(' - ')){
+        const endStr=auditPeriod.split(' - ')[1].trim().split(' ');
+        if(endStr.length===3){const mm={JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};auditEndDate=new Date(parseInt(endStr[2]),mm[endStr[1]],parseInt(endStr[0]));}
+    }
+    const weekLabel=auditEndDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const newEntry={week:weekLabel,date:auditEndDate.toISOString(),
+        fuelLoss:Math.round(totals.totalLoss_w),
+        effLoss:Math.round(totals.effLoss_w),
+        speedLoss:Math.round(totals.speedLoss_w),
+        idleLoss:Math.round(totals.idleLoss_w),
+        distance:Math.round(totals.totalKM),fuelConsumed:Math.round(totals.totalLitres)};
+    const ei=history.findIndex(h=>h.week===weekLabel);
+    if(ei>=0) history[ei]=newEntry; else history.push(newEntry);
+    await cloudStorage.setItem(historyKey,JSON.stringify(history));
+    await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(allClients));
+    autoSaveAuditDraft();
+
+    const isActive=allClients[ci].status==='active';
+    showAuditToast(isActive?'active':'prospect','Audit Saved!',
+        `${processed.length} vehicles · Eff: R${Math.round(totals.effLoss_w).toLocaleString()} · Speed: R${Math.round(totals.speedLoss_w).toLocaleString()} · Idle: R${Math.round(totals.idleLoss_w).toLocaleString()}`);
+}
+
+async function generateReport(){
+    const companyName=currentClientName||'Unknown Client';
+    if(!Object.keys(auditData).length){alert('No audit data. Upload CSV files first.');return;}
+    const settings={
+        limit:        parseFloat(document.getElementById('master-speed').value)||80,
+        wPrice:       parseFloat(document.getElementById('price-w').value)||0,
+        rPrice:       parseFloat(document.getElementById('price-r').value)||0,
+        globalTarget: parseFloat(document.getElementById('master-target').value)||2.3,
+        idleBurnRate: parseFloat(document.getElementById('idle-burn-rate').value)||3.5
+    };
+    const rawVehicles=Object.values(auditData).map(v=>{const db=_lookupMfr(v.make,v.model);return{...v,mfr_avg:v.mfr_avg||db?.mfr_avg||null,mfr_min:v.mfr_min||db?.mfr_min||null,fuel_tank:v.fuel_tank||db?.fuel_tank||null};});
+    const {vehicles:processed,totals}=calcFleet(rawVehicles,settings);
+
+    const allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const currentClient=allClients.find(c=>c.company.toUpperCase()===companyName.toUpperCase());
+
+    // AUDIT_FINAL — full data package read by report pages
+    // totals.effLoss_w, totals.speedLoss_w, totals.idleLoss_w used for three graphs
+    const auditFinal={
+        client:{company:companyName,town:currentClient?.city||'',target:settings.globalTarget,id:currentClient?.id||''},
+        month:document.getElementById('audit-period').innerText,
+        speedLimit:settings.limit, fuelPrice:settings.wPrice, rPrice:settings.rPrice,
+        idleBurnRate:settings.idleBurnRate,
+        isActive:currentClient?.status==='active'||false,
+        totals,
+        auditResults:{
+            wholesaleEffLoss:  Math.round(totals.effLoss_w),
+            wholesaleSpeedLoss:Math.round(totals.speedLoss_w),
+            wholesaleIdleLoss: Math.round(totals.idleLoss_w),
+            wholesaleTotalLoss:Math.round(totals.totalLoss_w),
+            retailEffLoss:     Math.round(totals.effLoss_r),
+            retailSpeedLoss:   Math.round(totals.speedLoss_r),
+            retailIdleLoss:    Math.round(totals.idleLoss_r),
+            retailTotalLoss:   Math.round(totals.totalLoss_r),
+            totalKM:           Math.round(totals.totalKM),
+            totalLiters:       Math.round(totals.totalLitres),
+            totalIdleCount:    totals.idleCount, totalIdleSecs:totals.idleSecs,
+            vehicles:processed.map(v=>({reg:v.reg,eLoss:v.effLoss_w,sLoss:v.speedLoss_w,iLoss:v.idleLoss_w,tLoss:v.totalLoss_w}))
+        },
+        fleet:Object.fromEntries(processed.map(v=>[v.reg,v]))
+    };
+
+    await cloudStorage.setItem('AUDIT_FINAL',JSON.stringify(auditFinal));
+    const reportFile=auditFinal.isActive?'report-active.html':'report-prospect.html';
+    const win=window.open(reportFile,'_blank');
+    if(!win||win.closed||typeof win.closed==='undefined') alert('Pop-up blocked. Please allow pop-ups, or open '+reportFile+' manually.');
+}
+
+setInterval(async()=>{if(Object.keys(auditData).length>0)autoSaveAuditDraft();},30000);
+
+function showAuditToast(type,title,message){
+    const toast=document.getElementById('audit-toast');
+    const inner=document.getElementById('audit-toast-inner');
+    inner.className='px-6 py-4 rounded-xl shadow-xl border text-white';
+    if(type==='active')inner.classList.add('bg-emerald-600','border-emerald-400/40');
+    else inner.classList.add('bg-orange-600','border-orange-400/40');
+    document.getElementById('audit-toast-title').textContent=title;
+    document.getElementById('audit-toast-body').textContent=message;
+    toast.classList.remove('hidden');
+    setTimeout(()=>toast.classList.remove('translate-x-full'),10);
+    setTimeout(()=>{toast.classList.add('translate-x-full');setTimeout(()=>toast.classList.add('hidden'),500);},6000);
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('open');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('open');}
+</script>
+</body>
+</html>
