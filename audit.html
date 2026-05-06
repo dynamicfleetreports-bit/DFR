@@ -27,7 +27,7 @@
         .col-score { flex: 1; min-width: 68px; text-align: center; font-weight: 900; }
         .col-money { flex: 1; min-width: 88px; text-align: center; }
         .col-events { flex: 1; min-width: 65px; text-align: center; font-weight: 900; }
-        .col-pair { flex: 2; min-width: 160px; text-align: center; }
+        .col-pair { flex: 2; min-width: 190px; text-align: center; }
         .pair-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
         .pair-l { font-size: 11px; font-weight: 700; opacity: 0.75; min-width: 52px; text-align: right; }
         .pair-r { font-size: 11px; font-weight: 900; min-width: 72px; text-align: left; }
@@ -67,7 +67,7 @@
             .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
             .grid-header{overflow-x:auto;white-space:nowrap;}
             #grid-rows{overflow-x:auto;}
-            .vehicle-row{min-width:1300px;}
+            .vehicle-row{min-width:1400px;}
             .summary-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
             .modal-box{width:90vw!important;}
         }
@@ -215,8 +215,8 @@
             <div class="col-data">Litres</div>
             <div class="col-perf">Act km/L</div>
             <div class="col-pair" style="color:#10b981;">Wasted L · Eff Loss</div>
-            <div class="col-pair" style="color:#f97316;">Spd Ev · Spd Loss</div>
-            <div class="col-pair" style="color:#a78bfa;">Idle Ev · Idle Loss</div>
+            <div class="col-pair" style="color:#f97316;">Spd Ev · Duration · Spd Loss</div>
+            <div class="col-pair" style="color:#a78bfa;">Idle Ev · Duration · Idle Loss</div>
             <div class="col-money" style="color:#ef4444;">Total Loss</div>
             <div class="col-score">Score</div>
         </div>
@@ -855,6 +855,24 @@ async function commitMapping(){
     },100);
 }
 
+// ── Duration formatter ────────────────────────────────────────────────────
+function fmtDuration(secs) {
+    if (!secs || secs <= 0) return '—';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+}
+
+// ── Duration formatter ────────────────────────────────────────────────────
+function fmtDuration(secs) {
+    if (!secs || secs <= 0) return '—';
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+}
+
 // ── Render Grid ────────────────────────────────────────────────────────────
 function renderGrid(){
     const container=document.getElementById('grid-rows');
@@ -932,12 +950,16 @@ function renderGrid(){
                     <div class="pair-cell">
                         <span class="pair-l ${(v.violations||0)>0?'text-red-400 font-black':'text-slate-500'}">${v.violations||0} ev</span>
                         <span class="pair-sep">|</span>
+                        <span class="pair-l" style="color:#fb923c;font-size:10px;">${fmtDuration(v.duration)}</span>
+                        <span class="pair-sep">|</span>
                         <span class="pair-r text-orange-400">${_fmtC(v.speedLoss_w)}</span>
                     </div>
                 </div>
                 <div class="col-pair">
                     <div class="pair-cell">
                         <span class="pair-l ${(v.idleCount||0)>0?'font-bold':'text-slate-500'}" style="${(v.idleCount||0)>0?'color:#a78bfa;':''}">${v.idleCount||0} ev</span>
+                        <span class="pair-sep">|</span>
+                        <span class="pair-l" style="color:#c084fc;font-size:10px;">${fmtDuration(v.idleSecs)}</span>
                         <span class="pair-sep">|</span>
                         <span class="pair-r" style="color:#c4b5fd;">${_fmtC(v.idleLoss_w)}</span>
                     </div>
