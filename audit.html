@@ -27,7 +27,7 @@
         .col-score { flex: 1; min-width: 68px; text-align: center; font-weight: 900; }
         .col-money { flex: 1; min-width: 88px; text-align: center; }
         .col-events { flex: 1; min-width: 65px; text-align: center; font-weight: 900; }
-        .col-pair { flex: 2; min-width: 190px; text-align: center; }
+        .col-pair { flex: 2; min-width: 210px; text-align: center; }
         .pair-cell { display: flex; align-items: center; justify-content: center; gap: 6px; }
         .pair-l { font-size: 11px; font-weight: 700; opacity: 0.75; min-width: 52px; text-align: right; }
         .pair-r { font-size: 11px; font-weight: 900; min-width: 72px; text-align: left; }
@@ -67,7 +67,7 @@
             .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
             .grid-header{overflow-x:auto;white-space:nowrap;}
             #grid-rows{overflow-x:auto;}
-            .vehicle-row{min-width:1400px;}
+            .vehicle-row{min-width:1480px;}
             .summary-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
             .modal-box{width:90vw!important;}
         }
@@ -224,37 +224,40 @@
     </div>
 
     <!-- Summary Cards — Wholesale -->
-    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Wholesale</p>
+    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Wholesale — Loss Breakdown</p>
+    <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0.75rem;padding:0.6rem 1rem;margin-bottom:0.75rem;font-size:10px;color:#475569;line-height:1.6;">
+        💡 <strong style="color:#94a3b8;">Total Consumption Variance</strong> is measured from actual fuel data. Speed and Idle are estimated contributions <em>within</em> that total. Efficiency is the residual after removing those estimates.
+    </div>
     <div class="summary-grid mb-4">
-        <div class="data-card">
-            <span class="card-label">Efficiency Loss</span>
-            <span id="l1-eff" class="card-value text-emerald-400">R 0</span>
-            <span class="card-sub">Driver behaviour &amp; mechanical waste</span>
+        <div class="data-card total">
+            <span class="card-label">Total Consumption Variance</span>
+            <span id="l1-total" class="card-value text-red-400">R 0</span>
+            <span class="card-sub">Measured · actual fuel vs target</span>
         </div>
         <div class="data-card speed">
-            <span class="card-label">Speed Loss</span>
+            <span class="card-label">Speed Contribution (est.)</span>
             <span id="l1-speed" class="card-value text-orange-400">R 0</span>
-            <span class="card-sub">Aero drag above speed limit</span>
+            <span class="card-sub">Estimated · aero drag above limit</span>
         </div>
         <div class="data-card idle">
-            <span class="card-label">Idle Loss</span>
+            <span class="card-label">Idle Contribution (est.)</span>
             <span id="l1-idle" class="card-value" style="color:#c4b5fd;">R 0</span>
-            <span class="card-sub">Fuel burned while stationary</span>
+            <span class="card-sub">Estimated · fuel burned stationary</span>
         </div>
-        <div class="data-card total">
-            <span class="card-label">Total Impact</span>
-            <span id="l1-total" class="card-value text-red-400">R 0</span>
-            <span class="card-sub">Eff + Speed + Idle combined</span>
+        <div class="data-card">
+            <span class="card-label">Efficiency Loss (residual)</span>
+            <span id="l1-eff" class="card-value text-emerald-400">R 0</span>
+            <span class="card-sub">Total − Speed − Idle · habits &amp; mechanical</span>
         </div>
     </div>
 
     <!-- Summary Cards — Retail -->
-    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Retail</p>
+    <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Retail — Loss Breakdown</p>
     <div class="summary-grid mb-6">
-        <div class="data-card retail"><span class="card-label">Efficiency Loss</span><span id="l2-eff" class="card-value" style="color:#818cf8;">R 0</span></div>
-        <div class="data-card retail speed"><span class="card-label">Speed Loss</span><span id="l2-speed" class="card-value text-orange-400">R 0</span></div>
-        <div class="data-card retail idle"><span class="card-label">Idle Loss</span><span id="l2-idle" class="card-value" style="color:#c4b5fd;">R 0</span></div>
-        <div class="data-card retail total"><span class="card-label">Total Impact</span><span id="l2-total" class="card-value text-red-400">R 0</span></div>
+        <div class="data-card retail total"><span class="card-label">Total Consumption Variance</span><span id="l2-total" class="card-value text-red-400">R 0</span><span class="card-sub">Measured · actual fuel vs target</span></div>
+        <div class="data-card retail speed"><span class="card-label">Speed Contribution (est.)</span><span id="l2-speed" class="card-value text-orange-400">R 0</span><span class="card-sub">Estimated · aero drag above limit</span></div>
+        <div class="data-card retail idle"><span class="card-label">Idle Contribution (est.)</span><span id="l2-idle" class="card-value" style="color:#c4b5fd;">R 0</span><span class="card-sub">Estimated · fuel burned stationary</span></div>
+        <div class="data-card retail"><span class="card-label">Efficiency Loss (residual)</span><span id="l2-eff" class="card-value" style="color:#818cf8;">R 0</span><span class="card-sub">Total − Speed − Idle · habits &amp; mechanical</span></div>
     </div>
 
     <!-- Performance Bonus -->
@@ -855,7 +858,7 @@ async function commitMapping(){
     },100);
 }
 
-// ── Duration formatter ────────────────────────────────────────────────────
+// ── Duration formatters ───────────────────────────────────────────────────
 function fmtDuration(secs) {
     if (!secs || secs <= 0) return '—';
     const h = Math.floor(secs / 3600);
@@ -863,14 +866,30 @@ function fmtDuration(secs) {
     if (h > 0) return h + 'h ' + m + 'm';
     return m + 'm';
 }
+function fmtAvg(totalSecs, count) {
+    if (!totalSecs || !count || count <= 0) return null;
+    const avg = totalSecs / count;
+    const m = Math.floor(avg / 60);
+    const s = Math.round(avg % 60);
+    if (m > 0) return 'avg ' + m + 'm';
+    return 'avg ' + s + 's';
+}
 
-// ── Duration formatter ────────────────────────────────────────────────────
+// ── Duration formatters ───────────────────────────────────────────────────
 function fmtDuration(secs) {
     if (!secs || secs <= 0) return '—';
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
     if (h > 0) return h + 'h ' + m + 'm';
     return m + 'm';
+}
+function fmtAvg(totalSecs, count) {
+    if (!totalSecs || !count || count <= 0) return null;
+    const avg = totalSecs / count;
+    const m = Math.floor(avg / 60);
+    const s = Math.round(avg % 60);
+    if (m > 0) return 'avg ' + m + 'm';
+    return 'avg ' + s + 's';
 }
 
 // ── Render Grid ────────────────────────────────────────────────────────────
@@ -960,6 +979,7 @@ function renderGrid(){
                         <span class="pair-l ${(v.idleCount||0)>0?'font-bold':'text-slate-500'}" style="${(v.idleCount||0)>0?'color:#a78bfa;':''}">${v.idleCount||0} ev</span>
                         <span class="pair-sep">|</span>
                         <span class="pair-l" style="color:#c084fc;font-size:10px;">${fmtDuration(v.idleSecs)}</span>
+                        ${fmtAvg(v.idleSecs,v.idleCount)?`<span class="pair-sep">|</span><span class="pair-l" style="color:#94a3b8;font-size:10px;">${fmtAvg(v.idleSecs,v.idleCount)}</span>`:''}
                         <span class="pair-sep">|</span>
                         <span class="pair-r" style="color:#c4b5fd;">${_fmtC(v.idleLoss_w)}</span>
                     </div>
