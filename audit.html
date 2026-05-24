@@ -65,9 +65,6 @@
             .control-bar{flex-direction:column;align-items:stretch;gap:0.75rem;}
             .upload-tile{flex:none;}
             .var-input-box{border-left:none;border-top:1px solid rgba(255,255,255,0.1);padding:0.6rem 0;flex-direction:row;justify-content:space-between;align-items:center;}
-            .grid-header{overflow-x:auto;white-space:nowrap;}
-            #grid-rows{overflow-x:auto;}
-            .vehicle-row{min-width:1480px;}
             .summary-grid{grid-template-columns:1fr 1fr!important;gap:0.75rem;}
             .modal-box{width:90vw!important;}
         }
@@ -202,29 +199,32 @@
     </div>
 
     <!-- Vehicle Grid -->
-   <div class="audit-panel">
-    <div style="overflow-x: auto;">
-        <div style="min-width: 1480px;">
-            <div class="grid-header">
-            <div class="col-reg">Registration</div>
-            <div class="col-type">Type / Usage</div>
-            <div class="col-data" style="color:#60a5fa;font-size:8px;">Mfr Min</div>
-            <div class="col-data" style="color:#10b981;font-size:8px;">Suggested</div>
-            <div class="col-data" style="color:#fbbf24;font-size:8px;">Target</div>
-            <div class="col-data">GPS KM</div>
-            <div class="col-data">Act Odo</div>
-            <div class="col-drift">Drift</div>
-            <div class="col-data">Litres</div>
-            <div class="col-perf">Act km/L</div>
-            <div class="col-pair" style="color:#10b981;">Wasted L · Eff Loss</div>
-            <div class="col-pair" style="color:#f97316;">Spd Ev · Duration · Spd Loss</div>
-            <div class="col-pair" style="color:#a78bfa;">Idle Ev · Duration · Idle Loss</div>
-            <div class="col-money" style="color:#ef4444;">Total Loss</div>
-            <div class="col-score">Score</div>
+    <div class="audit-panel">
+        <!-- FIX 1: Single overflow-x wrapper around BOTH header and rows -->
+        <div style="overflow-x: auto;">
+            <div style="min-width: 1480px;">
+                <div class="grid-header">
+                    <div class="col-reg">Registration</div>
+                    <div class="col-type">Type / Usage</div>
+                    <div class="col-data" style="color:#60a5fa;font-size:8px;">Mfr Min</div>
+                    <div class="col-data" style="color:#10b981;font-size:8px;">Suggested</div>
+                    <div class="col-data" style="color:#fbbf24;font-size:8px;">Target</div>
+                    <div class="col-data">GPS KM</div>
+                    <div class="col-data">Act Odo</div>
+                    <div class="col-drift">Drift</div>
+                    <div class="col-data">Litres</div>
+                    <div class="col-perf">Act km/L</div>
+                    <div class="col-pair" style="color:#10b981;">Wasted L · Eff Loss</div>
+                    <div class="col-pair" style="color:#f97316;">Spd Ev · Duration · Spd Loss</div>
+                    <div class="col-pair" style="color:#a78bfa;">Idle Ev · Duration · Idle Loss</div>
+                    <div class="col-money" style="color:#ef4444;">Total Loss</div>
+                    <div class="col-score">Score</div>
+                </div>
+                <!-- FIX 2: Removed max-h and overflow-y-auto — single scroll via parent -->
+                <div id="grid-rows" class="space-y-1 pr-2"></div>
+            </div>
         </div>
-       <div id="grid-rows" class="space-y-1 pr-2"></div>
     </div>
-</div>
 
     <!-- Summary Cards — Wholesale -->
     <p class="text-[9px] font-black uppercase tracking-widest text-slate-500 mb-2">Wholesale — Loss Breakdown</p>
@@ -408,7 +408,6 @@ function calcFraudFlags(v) {
     return flags;
 }
 
-// ── Main vehicle calculation — three-way split ────────────────────────────
 function calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate) {
     const idleBurn = idleBurnRate || 3.5;
     const odoKm    = parseFloat(v.mK)||parseFloat(v.odo)||0;
@@ -422,22 +421,16 @@ function calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate) {
     const target     = parseFloat(v.clientTarget)||parseFloat(v.targetKmL)||suggested||globalTarget||2.3;
     const actKmL     = (litres>0&&distKm>0) ? Math.round(distKm/litres*100)/100 : null;
 
-    // Total wasted litres (actual minus what target says should have been used)
     const totalWastedL = (litres>0&&distKm>0&&actKmL!==null&&actKmL<target)
         ? Math.round((litres - distKm/target)*100)/100 : 0;
 
-    // Speed loss component
-    const spd = calcSpeedLoss(v, limit, target, wPrice, rPrice);
-
-    // Idle loss component — all reported excess idle seconds, tracker applies its own thresholds
+    const spd  = calcSpeedLoss(v, limit, target, wPrice, rPrice);
     const idle = calcIdleLoss(v.idleSecs||0, idleBurn, wPrice, rPrice);
 
-    // Efficiency = residual after removing speed and idle — floor at 0
     const effLitres = Math.max(0, Math.round((totalWastedL - spd.litres - idle.litres)*100)/100);
     const effLoss_w = Math.round(effLitres*wPrice*100)/100;
     const effLoss_r = Math.round(effLitres*rPrice*100)/100;
 
-    // Total = sum of all three
     const totalLoss_w = Math.round((effLoss_w + spd.lossW + idle.lossW)*100)/100;
     const totalLoss_r = Math.round((effLoss_r + spd.lossR + idle.lossR)*100)/100;
 
@@ -527,6 +520,26 @@ function _lookupMfr(make,model){
     return null;
 }
 function normaliseKey(raw){return String(raw).trim().replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(-7);}
+
+// ── FIX 3: Global manual input handler — survives renderGrid() DOM rebuild ──
+function handleManualInput(el, key, field) {
+    const raw = parseFloat(el.value) || 0;
+    const _uom = (typeof DFR_UOM !== 'undefined') ? DFR_UOM : null;
+    const _p = currentClientProfile;
+    let metric = raw;
+    if (_uom && _p) {
+        metric = field === 'mK' ? _uom.distToKm(raw, _p) : _uom.volToLitres(raw, _p);
+    }
+    if (field === 'mK') {
+        auditData[key].mK = metric;
+        auditData[key].odo = metric;
+    } else {
+        auditData[key].mL = metric;
+        auditData[key].liters = metric;
+    }
+    renderGrid();
+    autoSaveAuditDraft();
+}
 
 async function checkFreeAuditWarning(clientName){
     const allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
@@ -770,7 +783,6 @@ async function commitMapping(){
     const mappingKey='CSV_MAPPING_'+currentClientName.toUpperCase().replace(/\s+/g,'_')+'_'+activeMode;
     await cloudStorage.setItem(mappingKey,JSON.stringify({reg:rIdx,val:vIdx,date:dIdx,logic,duration:durIdx,maxSpeed:maxSpdIdx,idleCount:idleCountIdx,idleDuration:idleDurIdx}));
 
-    // Preserve existing data for the other mode
     let newData={};
     Object.keys(auditData).forEach(k=>{
         const v=auditData[k];
@@ -796,7 +808,6 @@ async function commitMapping(){
         if(!row[rIdx]) return;
         const key=normaliseKey(row[rIdx]); if(!key) return;
 
-        // Date
         if(dIdx!==-1&&row[dIdx]){
             const dp=row[dIdx].trim().split(' ')[0].split('T')[0];
             let d;
@@ -826,8 +837,6 @@ async function commitMapping(){
             newData[key].gpsDist=newData[key].gps;
             if(durIdx>=0&&row[durIdx]) newData[key].duration+=parseFloat(row[durIdx])||0;
             if(maxSpdIdx>=0&&row[maxSpdIdx]){const sv=parseFloat(row[maxSpdIdx])||0;if(sv>newData[key].maxSpeed)newData[key].maxSpeed=sv;}
-
-            // Idle — use all reported excess idle data as-is (tracker has already applied thresholds)
             if(idleDurIdx>=0&&row[idleDurIdx]){
                 const idleDur=parseFloat(row[idleDurIdx])||0;
                 if(idleDur>0) newData[key].idleSecs+=idleDur;
@@ -835,7 +844,6 @@ async function commitMapping(){
             if(idleCountIdx>=0&&row[idleCountIdx]){
                 newData[key].idleCount+=parseInt(row[idleCountIdx])||0;
             }
-
         } else if(activeMode==='speed'){
             if(val>0){newData[key].speeds.push(val);newData[key].violations=(newData[key].violations||0)+1;}
         }
@@ -859,23 +867,6 @@ async function commitMapping(){
         if(ud&&sd) window.location.href='data-entry.html?client='+encodeURIComponent(currentClientName);
         else renderGrid();
     },100);
-}
-
-// ── Duration formatters ───────────────────────────────────────────────────
-function fmtDuration(secs) {
-    if (!secs || secs <= 0) return '—';
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    if (h > 0) return h + 'h ' + m + 'm';
-    return m + 'm';
-}
-function fmtAvg(totalSecs, count) {
-    if (!totalSecs || !count || count <= 0) return null;
-    const avg = totalSecs / count;
-    const m = Math.floor(avg / 60);
-    const s = Math.round(avg % 60);
-    if (m > 0) return 'avg ' + m + 'm';
-    return 'avg ' + s + 's';
 }
 
 // ── Duration formatters ───────────────────────────────────────────────────
@@ -935,11 +926,12 @@ function renderGrid(){
         const litPlaceholder=_uom?_uom.volLabel(_p):'L';
         const _fmtC=(val)=>_uom?_uom.formatCurrency(val,_p):'R '+val.toFixed(0);
 
+        // FIX 3: Use global handleManualInput instead of inline closures
         const odoInput=`<input type="number" placeholder="${odoPlaceholder}" value="${odoDisp}" data-key="${k}" data-field="mK"
-            onchange="(function(el){var raw=parseFloat(el.value)||0;var metric=(_uom&&_p)?_uom.distToKm(raw,_p):raw;auditData['${k}'].mK=metric;auditData['${k}'].odo=metric;renderGrid();autoSaveAuditDraft();})(this)"
+            onchange="handleManualInput(this, '${k}', 'mK')"
             class="manual-input" ${isGps?'style="border-color:rgba(99,102,241,0.5);" title="Using GPS as fallback"':''}>`;
         const litInput=`<input type="number" placeholder="${litPlaceholder}" value="${litDisp}" step="0.1" data-key="${k}" data-field="mL"
-            onchange="(function(el){var raw=parseFloat(el.value)||0;var metric=(_uom&&_p)?_uom.volToLitres(raw,_p):raw;auditData['${k}'].mL=metric;auditData['${k}'].liters=metric;renderGrid();autoSaveAuditDraft();})(this)"
+            onchange="handleManualInput(this, '${k}', 'mL')"
             class="manual-input">`;
 
         const scoreCol=v.actKmL
@@ -1103,8 +1095,6 @@ async function generateReport(){
     const allClients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
     const currentClient=allClients.find(c=>c.company.toUpperCase()===companyName.toUpperCase());
 
-    // AUDIT_FINAL — full data package read by report pages
-    // totals.effLoss_w, totals.speedLoss_w, totals.idleLoss_w used for three graphs
     const auditFinal={
         client:{company:companyName,town:currentClient?.city||'',target:settings.globalTarget,id:currentClient?.id||''},
         month:document.getElementById('audit-period').innerText,
