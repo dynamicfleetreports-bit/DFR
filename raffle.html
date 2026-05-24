@@ -397,7 +397,7 @@ input[type=file]{min-height:auto;padding:0.5rem;}
     <div class="form-group"><label>Description</label><input type="text" id="pz-desc" placeholder="e.g. Worth R500"></div>
     <div class="form-group">
       <label>Prize Photo</label>
-      <input type="file" id="pz-photo" accept="image/*" capture="environment" onchange="previewPrizePhoto(this)">
+    <input type="file" id="pz-photo" accept="image/*" onchange="previewPrizePhoto(this)">
       <div id="pz-photo-preview" style="margin-top:0.6rem;display:none;">
         <img id="pz-preview-img" style="max-height:160px;border-radius:0.75rem;border:1px solid var(--border);width:100%;object-fit:cover;">
       </div>
