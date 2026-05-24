@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script type="module" src="firebase-helper.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Raffle Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -22,18 +22,18 @@
   --radius: 1rem;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color: transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 h1,h2,h3{font-family:'Playfair Display',serif;}
 
 /* PIN SCREEN */
-#pin-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:1rem;}
+#pin-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
 .pin-title{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pin-subtitle{color:var(--muted);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;}
 .pin-dots{display:flex;gap:1rem;}
 .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold);transition:background 0.2s;}
 .pin-dot.filled{background:var(--gold);}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;width:100%;max-width:260px;}
-.pin-btn{background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;color:var(--text);font-size:1.4rem;font-weight:700;padding:1.1rem 1rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;min-height:60px;display:flex;align-items:center;justify-content:center;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;width:240px;}
+.pin-btn{background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;color:var(--text);font-size:1.4rem;font-weight:700;padding:1rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
 .pin-btn:hover{background:rgba(245,200,66,0.12);border-color:var(--gold);}
 .pin-btn.wide{grid-column:span 2;}
 .pin-error{color:var(--rose);font-size:0.8rem;min-height:1rem;text-align:center;}
@@ -45,24 +45,19 @@ h1,h2,h3{font-family:'Playfair Display',serif;}
 
 /* MAIN LAYOUT */
 #app{display:none;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem;display:flex;flex-direction:column;gap:1rem;position:sticky;top:0;z-index:100;}
-@media(min-width: 640px) {
-  .topbar { flex-direction: row; padding: 1rem 1.5rem; justify-content: space-between; align-items: center; }
-}
-.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
-.tab-bar{display:flex;gap:0.35rem;width:100%;justify-content:center;}
-@media(min-width:640px) { .tab-bar { width: auto; } }
-.tab{flex: 1; text-align: center; background:none; border:1px solid var(--border);border-radius:0.6rem;color:var(--muted);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:0.6rem 0.5rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;max-width: 120px;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tab-bar{display:flex;gap:0.5rem;}
+.tab{background:none;border:1px solid var(--border);border-radius:0.6rem;color:var(--muted);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 1rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
 .tab.active{background:var(--gold);color:#0d0d14;border-color:var(--gold);}
-.content{padding:1rem;max-width:1200px;margin:0 auto;width:100%;}
-@media(min-width: 640px) { .content { padding: 1.5rem; } }
+.content{padding:1.5rem;max-width:1200px;margin:0 auto;width:100%;}
 
 /* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;}
 .card-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;padding:0.75rem 1.2rem;border-radius:0.75rem;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;min-height:44px;}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.2rem;border-radius:0.75rem;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
 .btn-gold{background:var(--gold);color:#0d0d14;}
 .btn-gold:hover{background:var(--gold2);}
 .btn-ghost{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);}
@@ -73,23 +68,20 @@ h1,h2,h3{font-family:'Playfair Display',serif;}
 .btn-emerald:hover{background:rgba(16,185,129,0.25);}
 .btn-violet{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:var(--violet);}
 .btn-violet:hover{background:rgba(139,92,246,0.25);}
-.btn-sm{padding:0.4rem 0.75rem;font-size:0.7rem;min-height:34px;}
+.btn-sm{padding:0.35rem 0.75rem;font-size:0.7rem;}
 
 /* FORMS */
-.form-grid{display:grid;grid-template-columns:1fr;gap:1rem;}
-@media(min-width: 480px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
 .form-group{display:flex;flex-direction:column;gap:0.4rem;}
 .form-group.full{grid-column:1/-1;}
-@media(max-width: 479px) { .form-group { grid-column: auto !important; } }
 label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
-input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:0.6rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:1rem;padding:0.75rem 0.9rem;outline:none;transition:border-color 0.2s;width:100%;min-height:46px;}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:0.6rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.2s;width:100%;}
 input:focus,select:focus,textarea:focus{border-color:var(--gold);}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 input[type=number]{-moz-appearance:textfield;}
-textarea { min-height: 80px; }
 
 /* BADGE */
-.badge{display:inline-block;padding:0.25rem 0.6rem;border-radius:0.4rem;font-size:0.68rem;font-weight:700;text-transform:uppercase;}
+.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:0.4rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;}
 .badge-open{background:rgba(16,185,129,0.15);color:var(--emerald);border:1px solid rgba(16,185,129,0.3);}
 .badge-closed{background:rgba(107,114,128,0.2);color:var(--muted);border:1px solid rgba(107,114,128,0.3);}
 .badge-drawn{background:rgba(245,200,66,0.15);color:var(--gold);border:1px solid rgba(245,200,66,0.3);}
@@ -97,63 +89,61 @@ textarea { min-height: 80px; }
 .badge-confirmed{background:rgba(16,185,129,0.12);color:var(--emerald);border:1px solid rgba(16,185,129,0.2);}
 
 /* RAFFLE CARDS */
-.raffle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+.raffle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;}
 .raffle-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
 .raffle-card:hover{border-color:rgba(245,200,66,0.3);transform:translateY(-2px);}
-.raffle-card-img{height:150px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+.raffle-card-img{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .raffle-card-img img{width:100%;height:100%;object-fit:cover;}
 .raffle-card-img .prize-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);border-radius:0.5rem;padding:3px 8px;font-size:0.7rem;font-weight:700;color:var(--gold);}
-.raffle-card-body{padding:1.25rem;}
-.raffle-card-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin-bottom:0.4rem;}
+.raffle-card-body{padding:1rem;}
+.raffle-card-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;}
 .raffle-progress{background:rgba(255,255,255,0.05);border-radius:100px;height:6px;margin:0.75rem 0 0.4rem;}
 .raffle-progress-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.5s ease;}
 .raffle-stats{display:flex;gap:1rem;font-size:0.75rem;color:var(--muted);}
 .raffle-stats strong{color:var(--text);}
 
-/* RESPONSIVE MOBILE TABLE OVERRIDE */
-.table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.ticket-table{width:100%;border-collapse:collapse;font-size:0.85rem;white-space: nowrap;}
-.ticket-table th{text-align:left;padding:0.75rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);border-bottom:1px solid var(--border);}
-.ticket-table td{padding:0.75rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
-.ticket-nums{display:flex;flex-wrap:wrap;gap:4px;max-width: 220px; white-space: normal;}
+/* TICKET TABLE */
+.ticket-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.ticket-table th{text-align:left;padding:0.5rem 0.75rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);border-bottom:1px solid var(--border);}
+.ticket-table td{padding:0.55rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+.ticket-table tr:hover td{background:rgba(255,255,255,0.02);}
+.ticket-nums{display:flex;flex-wrap:wrap;gap:4px;}
 .tnum{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;font-weight:700;color:var(--gold);}
 .tnum.free{border-color:rgba(139,92,246,0.4);color:var(--violet);}
 
 /* PRIZE LIST */
 .prize-item{display:flex;align-items:center;gap:1rem;padding:0.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;margin-bottom:0.5rem;}
-.prize-thumb{width:50px;height:50px;border-radius:0.5rem;object-fit:cover;background:rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.1rem;}
-.prize-thumb img{width:50px;height:50px;border-radius:0.5rem;object-fit:cover;}
+.prize-thumb{width:56px;height:56px;border-radius:0.5rem;object-fit:cover;background:rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.2rem;}
+.prize-thumb img{width:56px;height:56px;border-radius:0.5rem;object-fit:cover;}
 
 /* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center;padding:0.75rem;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:500;align-items:center;justify-content:center;padding:1rem;}
 .modal-bg.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:1.25rem;padding:1.5rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;}
-.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:1.25rem;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:1.5rem;}
 
 /* DRAW SCREEN */
-#draw-screen{display:none;position:fixed;inset:0;background:#07070f;z-index:9000;flex-direction:column;align-items:center;overflow-y:auto;padding-bottom: 2rem;}
-.draw-header{padding:1.5rem 1rem;text-align:center;width:100%;}
-.draw-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#fff6cc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.spinners-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;padding:0 1rem 1.5rem;width:100%;}
-.spinner-box{background:var(--surface);border:2px solid var(--border);border-radius:1.25rem;width:100%;max-width:200px;display:flex;flex-direction:column;align-items:center;overflow:hidden;transition:border-color 0.3s;}
-@media(max-width: 480px) { .spinner-box { max-width: 46%; } }
+#draw-screen{display:none;position:fixed;inset:0;background:#07070f;z-index:900;flex-direction:column;align-items:center;overflow-y:auto;}
+.draw-header{padding:1.5rem;text-align:center;width:100%;}
+.draw-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#fff6cc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.spinners-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1.5rem;padding:1rem 1.5rem 2rem;width:100%;}
+.spinner-box{background:var(--surface);border:2px solid var(--border);border-radius:1.25rem;width:220px;display:flex;flex-direction:column;align-items:center;overflow:hidden;transition:border-color 0.3s;}
 .spinner-box.spinning{border-color:var(--gold);box-shadow:0 0 24px rgba(245,200,66,0.2);}
 .spinner-box.won{border-color:var(--emerald);box-shadow:0 0 30px rgba(16,185,129,0.3);}
-.spinner-prize-img{width:100%;height:100px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.8rem;}
-.spinner-prize-img img{width:100%;height:100px;object-fit:cover;}
-.spinner-prize-name{font-size:0.75rem;font-weight:700;text-align:center;padding:0.5rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);width:100%;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
-.spinner-drum{height:64px;overflow:hidden;width:100%;position:relative;background:var(--surface2);}
+.spinner-prize-img{width:100%;height:120px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;}
+.spinner-prize-img img{width:100%;height:120px;object-fit:cover;}
+.spinner-prize-name{font-size:0.78rem;font-weight:700;text-align:center;padding:0.5rem 0.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);width:100%;}
+.spinner-drum{height:72px;overflow:hidden;width:100%;position:relative;background:var(--surface2);}
 .spinner-drum-inner{display:flex;flex-direction:column;transition:none;}
-.spinner-number{height:64px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--text);flex-shrink:0;}
-.spinner-name{font-size:0.72rem;font-weight:700;text-align:center;padding:0.4rem;color:var(--muted);min-height:36px;display:flex;align-items:center;justify-content:center;word-break:break-word;}
+.spinner-number{height:72px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--text);flex-shrink:0;}
+.spinner-name{font-size:0.75rem;font-weight:700;text-align:center;padding:0.4rem;color:var(--muted);min-height:32px;display:flex;align-items:center;justify-content:center;}
 .spinner-box.won .spinner-name{color:var(--emerald);}
-.spinner-status{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.3rem 0.5rem;font-weight:700;color:var(--muted);text-align:center;width:100%;}
+.spinner-status{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.3rem 0.5rem;font-weight:700;color:var(--muted);text-align:center;width:100%;}
 .spinner-box.won .spinner-status{color:var(--emerald);}
-.draw-controls{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 1rem;width:100%;max-width:500px;}
-.draw-controls .btn { flex: 1; min-width: 130px; }
-.spin-time-control{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:0.5rem 1rem;width:100%;max-width:180px;min-height:44px;}
+.draw-controls{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 1.5rem 2rem;}
+.spin-time-control{display:flex;align-items:center;gap:0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:0.5rem 1rem;}
 .spin-time-control label{font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-.spin-time-control input{width:50px;background:transparent;border:none;color:var(--gold);font-size:0.95rem;font-weight:700;text-align:center;padding:0;min-height:auto;}
+.spin-time-control input{width:60px;background:transparent;border:none;color:var(--gold);font-size:0.9rem;font-weight:700;text-align:center;padding:0;}
 
 /* TABS in detail view */
 .detail-tabs{display:flex;gap:0.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
@@ -174,8 +164,11 @@ textarea { min-height: 80px; }
 .spinner-box.won{animation:winner-pulse 1.5s infinite;}
 
 @media(max-width:640px){
-  .tab{max-width: none;}
-  .spinner-number{height:64px;font-size:1.5rem;}
+  .form-grid{grid-template-columns:1fr;}
+  .tab-bar{gap:0.25rem;}
+  .tab{padding:0.4rem 0.6rem;font-size:0.7rem;}
+  .spinner-box{width:160px;}
+  .spinner-number{font-size:1.5rem;}
 }
 </style>
 </head>
@@ -183,6 +176,7 @@ textarea { min-height: 80px; }
 
 <div class="stars" id="stars"></div>
 
+<!-- LOADING -->
 <div id="loading-screen">
   <div style="font-size:2.5rem;margin-bottom:0.5rem;">🎟️</div>
   <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold);">Raffle Manager</div>
@@ -190,10 +184,11 @@ textarea { min-height: 80px; }
   <div style="color:var(--muted);font-size:0.8rem;margin-top:0.75rem;">Loading from Firebase...</div>
 </div>
 
+<!-- PIN SCREEN -->
 <div id="pin-screen" style="display:none;">
   <div style="text-align:center;">
-    <div style="font-size:2.5rem;margin-bottom:0.5rem;">🎟️</div>
-    <div class="pin-title" style="font-size: 2.2rem;">Raffle Manager</div>
+    <div style="font-size:3rem;margin-bottom:0.5rem;">🎟️</div>
+    <div class="pin-title">Raffle Manager</div>
     <div class="pin-subtitle" style="margin-top:0.25rem;">Enter your PIN to continue</div>
   </div>
   <div class="pin-dots" id="pin-dots">
@@ -220,6 +215,7 @@ textarea { min-height: 80px; }
   <button class="btn btn-ghost btn-sm" onclick="showChangePinModal()" style="margin-top:0.5rem;">Change PIN</button>
 </div>
 
+<!-- MAIN APP -->
 <div id="app">
   <div class="topbar">
     <div class="logo">🎟️ Raffle Manager</div>
@@ -230,13 +226,14 @@ textarea { min-height: 80px; }
     </div>
   </div>
 
+  <!-- RAFFLES TAB -->
   <div id="tab-raffles" class="content">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
       <div>
         <h2 style="font-size:1.6rem;">Active Raffles</h2>
         <p style="color:var(--muted);font-size:0.82rem;margin-top:0.2rem;">Manage your ongoing draws</p>
       </div>
-      <button class="btn btn-gold" onclick="openNewRaffleModal()" style="width: 100%; max-width: 160px;">+ New Raffle</button>
+      <button class="btn btn-gold" onclick="openNewRaffleModal()">+ New Raffle</button>
     </div>
     <div class="raffle-grid" id="raffle-grid"></div>
     <div id="no-raffles" style="display:none;text-align:center;padding:4rem 1rem;color:var(--muted);">
@@ -246,11 +243,13 @@ textarea { min-height: 80px; }
     </div>
   </div>
 
+  <!-- HISTORY TAB -->
   <div id="tab-history" class="content" style="display:none;">
     <h2 style="font-size:1.6rem;margin-bottom:1.5rem;">Completed Raffles</h2>
     <div id="history-list"></div>
   </div>
 
+  <!-- SETTINGS TAB -->
   <div id="tab-settings" class="content" style="display:none;">
     <div class="card" style="max-width:500px;">
       <div class="card-title">⚙️ Default Settings</div>
@@ -272,63 +271,61 @@ textarea { min-height: 80px; }
           <input type="number" id="set-price" value="50" min="1">
         </div>
       </div>
-      <button class="btn btn-gold" style="margin-top:1.25rem; width: 100%;" onclick="saveSettings()">Save Settings</button>
+      <button class="btn btn-gold" style="margin-top:1.25rem;" onclick="saveSettings()">Save Settings</button>
     </div>
     <div class="card" style="max-width:500px;margin-top:1rem;">
       <div class="card-title">🔐 Security</div>
-      <button class="btn btn-ghost" style="width:100%;" onclick="showChangePinModal()">Change PIN</button>
+      <button class="btn btn-ghost" onclick="showChangePinModal()">Change PIN</button>
     </div>
   </div>
 
+  <!-- RAFFLE DETAIL VIEW -->
   <div id="tab-detail" class="content" style="display:none;">
-    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
       <button class="btn btn-ghost btn-sm" onclick="showTab('raffles')">← Back</button>
-      <h2 id="detail-name" style="font-size:1.4rem;flex:1;min-width: 150px;"></h2>
+      <h2 id="detail-name" style="font-size:1.5rem;flex:1;"></h2>
       <span id="detail-badge"></span>
-    </div>
-    <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; width: 100%;">
-      <button class="btn btn-violet" onclick="openDrawScreen()" style="flex:1;">🎰 Draw!</button>
+      <button class="btn btn-violet" onclick="openDrawScreen()">🎰 Draw!</button>
       <button class="btn btn-ghost btn-sm" onclick="editRaffle()">Edit</button>
       <button class="btn btn-rose btn-sm" onclick="deleteRaffle()">Delete</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.5rem;margin-bottom:1.5rem;" id="detail-stats"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;" id="detail-stats"></div>
     <div class="detail-tabs">
       <button class="detail-tab active" onclick="showDetailTab('tickets')">🎟️ Tickets</button>
       <button class="detail-tab" onclick="showDetailTab('prizes')">🏆 Prizes</button>
     </div>
     <div id="dtab-tickets">
-      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-        <button class="btn btn-gold" onclick="openAddTicketModal()" style="flex: 1; min-width: 140px;">+ Add Buyer</button>
-        <button class="btn btn-ghost btn-sm" onclick="copyWhatsApp()" style="flex: 1; min-width: 140px;">📋 WhatsApp Report</button>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
+        <button class="btn btn-gold" onclick="openAddTicketModal()">+ Add Buyer</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyWhatsApp()">📋 Copy for WhatsApp</button>
       </div>
       <div class="card" style="padding:0;overflow:hidden;">
-        <div class="table-container">
-          <table class="ticket-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Paid</th>
-                <th>Free</th>
-                <th>Ticket Numbers</th>
-                <th>Amount</th>
-                <th>Payment</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="ticket-tbody"></tbody>
-          </table>
-        </div>
+        <table class="ticket-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Paid</th>
+              <th>Free</th>
+              <th>Ticket Numbers</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ticket-tbody"></tbody>
+        </table>
       </div>
     </div>
     <div id="dtab-prizes" style="display:none;">
       <div style="margin-bottom:1rem;">
-        <button class="btn btn-gold" style="width:100%; max-width: 200px;" onclick="openAddPrizeModal()">+ Add Prize</button>
+        <button class="btn btn-gold" onclick="openAddPrizeModal()">+ Add Prize</button>
       </div>
       <div id="prizes-list"></div>
     </div>
   </div>
 </div>
 
+<!-- DRAW SCREEN -->
 <div id="draw-screen">
   <div class="draw-header">
     <div class="draw-title" id="draw-raffle-name"></div>
@@ -348,6 +345,7 @@ textarea { min-height: 80px; }
   </div>
 </div>
 
+<!-- MODALS -->
 <div class="modal-bg" id="modal-raffle">
   <div class="modal">
     <div class="modal-title" id="modal-raffle-title">Create New Raffle</div>
@@ -360,8 +358,8 @@ textarea { min-height: 80px; }
       <div class="form-group full"><label>Description (optional)</label><textarea id="rf-desc" rows="2" placeholder="What is this raffle for?"></textarea></div>
     </div>
     <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-raffle')">Cancel</button>
-      <button class="btn btn-gold" style="flex:1;" onclick="saveRaffle()">Save Raffle</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-raffle')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveRaffle()">Save Raffle</button>
     </div>
   </div>
 </div>
@@ -386,8 +384,8 @@ textarea { min-height: 80px; }
       <div id="ticket-preview-text" style="color:var(--gold);font-size:0.85rem;"></div>
     </div>
     <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-ticket')">Cancel</button>
-      <button class="btn btn-gold" style="flex:1;" onclick="saveTicket()">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-ticket')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveTicket()">Save</button>
     </div>
   </div>
 </div>
@@ -400,15 +398,15 @@ textarea { min-height: 80px; }
       <div class="form-group full"><label>Description (optional)</label><input type="text" id="pz-desc" placeholder="e.g. Worth R500"></div>
       <div class="form-group full">
         <label>Prize Photo</label>
-        <input type="file" id="pz-photo" accept="image/*" onchange="previewPrizePhoto(this)" style="padding-top: 0.5rem;">
-        <div id="pz-photo-preview" style="margin-top:0.5rem;display:none; text-align: center;">
-          <img id="pz-preview-img" style="max-height:120px; max-width: 100%; border-radius:0.5rem;border:1px solid var(--border);">
+        <input type="file" id="pz-photo" accept="image/*" onchange="previewPrizePhoto(this)">
+        <div id="pz-photo-preview" style="margin-top:0.5rem;display:none;">
+          <img id="pz-preview-img" style="max-height:140px;border-radius:0.5rem;border:1px solid var(--border);">
         </div>
       </div>
     </div>
     <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-prize')">Cancel</button>
-      <button class="btn btn-gold" style="flex:1;" onclick="savePrize()">Add Prize</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-prize')">Cancel</button>
+      <button class="btn btn-gold" onclick="savePrize()">Add Prize</button>
     </div>
   </div>
 </div>
@@ -421,67 +419,662 @@ textarea { min-height: 80px; }
     <div class="form-group" style="margin-bottom:1.5rem;"><label>Confirm New PIN</label><input type="password" id="pin-confirm" maxlength="4" placeholder="••••"></div>
     <div class="pin-error" id="pin-change-error" style="margin-bottom:1rem;"></div>
     <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-pin')">Cancel</button>
-      <button class="btn btn-gold" style="flex:1;" onclick="changePIN()">Change PIN</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-pin')">Cancel</button>
+      <button class="btn btn-gold" onclick="changePIN()">Change PIN</button>
     </div>
   </div>
 </div>
 
 <script>
-// [Keep your existing JavaScript code blocks exactly as they were here]
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
 const STORAGE_KEY = 'RAFFLE_DATA';
-let state = { raffles: [], settings: { buyX: 5, getFree: 2, spinDuration: 5, defaultPrice: 50 }, pin: '1234' };
-let currentRaffleId = null; let editingTicketIdx = null; let editingPrizeIdx = null; let editingRaffleId = null; let drawState = { spinners: [], winners: [] };
-async function waitForStorage() { return new Promise(res => { const t = setInterval(() => { if (typeof cloudStorage !== 'undefined') { clearInterval(t); res(); } }, 50); setTimeout(() => { clearInterval(t); res(); }, 5000); }); }
-async function saveState() { try { await cloudStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { console.error('Save error:', e); } }
-async function loadState() { try { const raw = await cloudStorage.getItem(STORAGE_KEY); if (raw) { const loaded = JSON.parse(raw); state = { ...state, ...loaded }; } } catch(e) { console.error('Load error:', e); } }
-let pinEntry = ''; function pinPress(n) { if (pinEntry.length >= 4) return; pinEntry += n; updatePinDots(); if (pinEntry.length === 4) setTimeout(checkPin, 100); }
+
+let state = {
+  raffles: [],
+  settings: { buyX: 5, getFree: 2, spinDuration: 5, defaultPrice: 50 },
+  pin: '1234'
+};
+let currentRaffleId = null;
+let editingTicketIdx = null;
+let editingPrizeIdx = null;
+let editingRaffleId = null;
+let drawState = { spinners: [], winners: [] };
+
+// ═══════════════════════════════════════════════
+// FIREBASE STORAGE — wait for cloudStorage to be ready
+// ═══════════════════════════════════════════════
+async function waitForStorage() {
+  return new Promise(res => {
+    const t = setInterval(() => {
+      if (typeof cloudStorage !== 'undefined') { clearInterval(t); res(); }
+    }, 50);
+    setTimeout(() => { clearInterval(t); res(); }, 5000); // timeout fallback
+  });
+}
+
+async function saveState() {
+  try {
+    await cloudStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch(e) { console.error('Save error:', e); }
+}
+
+async function loadState() {
+  try {
+    const raw = await cloudStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const loaded = JSON.parse(raw);
+      state = { ...state, ...loaded };
+    }
+  } catch(e) { console.error('Load error:', e); }
+}
+
+// ═══════════════════════════════════════════════
+// PIN
+// ═══════════════════════════════════════════════
+let pinEntry = '';
+function pinPress(n) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += n;
+  updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 100);
+}
 function pinBackspace() { pinEntry = pinEntry.slice(0,-1); updatePinDots(); document.getElementById('pin-error').textContent=''; }
 function pinClear() { pinEntry = ''; updatePinDots(); document.getElementById('pin-error').textContent=''; }
-function updatePinDots() { for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i < pinEntry.length); }
-function checkPin() { if (pinEntry === state.pin) { document.getElementById('pin-screen').style.display = 'none'; document.getElementById('app').style.display = 'flex'; document.getElementById('app').style.flexDirection = 'column'; renderRaffles(); } else { document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.'; pinEntry = ''; updatePinDots(); } }
-function showChangePinModal() { document.getElementById('pin-current').value=''; document.getElementById('pin-new').value=''; document.getElementById('pin-confirm').value=''; document.getElementById('pin-change-error').textContent=''; openModal('modal-pin'); }
-async function changePIN() { const cur = document.getElementById('pin-current').value.trim(); const nw = document.getElementById('pin-new').value.trim(); const cnf = document.getElementById('pin-confirm').value.trim(); const err = document.getElementById('pin-change-error'); if (cur !== state.pin) { err.textContent = 'Current PIN is incorrect.'; return; } if (!/^\d{4}$/.test(nw)) { err.textContent = 'New PIN must be exactly 4 digits.'; return; } if (nw !== cnf) { err.textContent = 'PINs do not match.'; return; } state.pin = nw; await saveState(); closeModal('modal-pin'); }
-function showTab(name) { ['raffles','history','settings','detail'].forEach(t => { document.getElementById('tab-'+t).style.display = t===name ? '' : 'none'; }); document.querySelectorAll('.tab').forEach(b => b.classList.remove('active')); const map = { raffles:0, history:1, settings:2 }; if (map[name] !== undefined) document.querySelectorAll('.tab')[map[name]].classList.add('active'); if (name === 'history') renderHistory(); if (name === 'raffles') renderRaffles(); }
-function showDetailTab(name) { ['tickets','prizes'].forEach(t => { document.getElementById('dtab-'+t).style.display = t===name ? '' : 'none'; }); document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active')); document.querySelectorAll('.detail-tab')[name==='tickets'?0:1].classList.add('active'); }
+function updatePinDots() {
+  for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i < pinEntry.length);
+}
+function checkPin() {
+  if (pinEntry === state.pin) {
+    document.getElementById('pin-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    renderRaffles();
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
+    pinEntry = '';
+    updatePinDots();
+  }
+}
+function showChangePinModal() {
+  document.getElementById('pin-current').value='';
+  document.getElementById('pin-new').value='';
+  document.getElementById('pin-confirm').value='';
+  document.getElementById('pin-change-error').textContent='';
+  openModal('modal-pin');
+}
+async function changePIN() {
+  const cur = document.getElementById('pin-current').value.trim();
+  const nw  = document.getElementById('pin-new').value.trim();
+  const cnf = document.getElementById('pin-confirm').value.trim();
+  const err = document.getElementById('pin-change-error');
+  if (cur !== state.pin) { err.textContent = 'Current PIN is incorrect.'; return; }
+  if (!/^\d{4}$/.test(nw)) { err.textContent = 'New PIN must be exactly 4 digits.'; return; }
+  if (nw !== cnf) { err.textContent = 'PINs do not match.'; return; }
+  state.pin = nw;
+  await saveState();
+  closeModal('modal-pin');
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+function showTab(name) {
+  ['raffles','history','settings','detail'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  const map = { raffles:0, history:1, settings:2 };
+  if (map[name] !== undefined) document.querySelectorAll('.tab')[map[name]].classList.add('active');
+  if (name === 'history') renderHistory();
+  if (name === 'raffles') renderRaffles();
+}
+function showDetailTab(name) {
+  ['tickets','prizes'].forEach(t => {
+    document.getElementById('dtab-'+t).style.display = t===name ? '' : 'none';
+  });
+  document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.detail-tab')[name==='tickets'?0:1].classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+// RAFFLE CRUD
+// ═══════════════════════════════════════════════
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function openNewRaffleModal() { editingRaffleId = null; document.getElementById('modal-raffle-title').textContent = 'Create New Raffle'; document.getElementById('rf-name').value = ''; document.getElementById('rf-price').value = state.settings.defaultPrice; document.getElementById('rf-target').value = ''; document.getElementById('rf-buy').value = state.settings.buyX; document.getElementById('rf-free').value = state.settings.getFree; document.getElementById('rf-desc').value = ''; openModal('modal-raffle'); }
-function editRaffle() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; editingRaffleId = r.id; document.getElementById('modal-raffle-title').textContent = 'Edit Raffle'; document.getElementById('rf-name').value = r.name; document.getElementById('rf-price').value = r.price; document.getElementById('rf-target').value = r.target||''; document.getElementById('rf-buy').value = r.buyX; document.getElementById('rf-free').value = r.getFree; document.getElementById('rf-desc').value = r.desc||''; openModal('modal-raffle'); }
-async function saveRaffle() { const name = document.getElementById('rf-name').value.trim(); if (!name) { alert('Please enter a raffle name.'); return; } const price = parseFloat(document.getElementById('rf-price').value)||50; const target = parseFloat(document.getElementById('rf-target').value)||0; const buyX = parseInt(document.getElementById('rf-buy').value)||5; const getFree = parseInt(document.getElementById('rf-free').value)||2; const desc = document.getElementById('rf-desc').value.trim(); if (editingRaffleId) { const r = state.raffles.find(x=>x.id===editingRaffleId); if (r) { r.name=name; r.price=price; r.target=target; r.buyX=buyX; r.getFree=getFree; r.desc=desc; } } else { state.raffles.push({ id:uid(), name, price, target, buyX, getFree, desc, tickets:[], prizes:[], status:'open', createdAt:Date.now() }); } await saveState(); closeModal('modal-raffle'); renderRaffles(); if (editingRaffleId) renderDetail(); }
-async function deleteRaffle() { if (!confirm('Delete this raffle and all its data?')) return; state.raffles = state.raffles.filter(x=>x.id!==currentRaffleId); await saveState(); showTab('raffles'); }
-function calcFreeTickets(paid, buyX, getFree) { return Math.floor(paid / buyX) * getFree; }
-function assignTicketNumbers(raffle, paid, free) { const allNums = raffle.tickets.flatMap(t => [...t.paidNums, ...t.freeNums]); let next = allNums.length > 0 ? Math.max(...allNums) + 1 : 1; const paidNums = Array.from({length:paid}, (_,i) => next+i); const freeNums = Array.from({length:free}, (_,i) => next+paid+i); return { paidNums, freeNums }; }
-function openAddTicketModal() { editingTicketIdx = null; document.getElementById('modal-ticket-title').textContent = 'Add Ticket Buyer'; document.getElementById('tk-name').value = ''; document.getElementById('tk-count').value = ''; document.getElementById('tk-payment').value = 'pending'; document.getElementById('tk-ref').value = ''; document.getElementById('ticket-preview-text').textContent = '—'; openModal('modal-ticket'); }
-function editTicket(idx) { const r = state.raffles.find(x=>x.id===currentRaffleId); const t = r.tickets[idx]; editingTicketIdx = idx; document.getElementById('modal-ticket-title').textContent = 'Edit Buyer'; document.getElementById('tk-name').value = t.name; document.getElementById('tk-count').value = t.paidNums.length; document.getElementById('tk-payment').value = t.payment; document.getElementById('tk-ref').value = t.ref||''; updateTicketPreview(); openModal('modal-ticket'); }
-function updateTicketPreview() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const paid = parseInt(document.getElementById('tk-count').value)||0; const free = calcFreeTickets(paid, r.buyX, r.getFree); const total = paid + free; const amt = paid * r.price; let txt = total > 0 ? `${paid} paid + ${free} free = ${total} entries · R${amt.toLocaleString()}` : '—'; if (free > 0 && total > 0) txt += ` (every ${r.buyX} tickets = ${r.getFree} free)`; document.getElementById('ticket-preview-text').textContent = txt; }
-async function saveTicket() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const name = document.getElementById('tk-name').value.trim(); if (!name) { alert('Please enter a name.'); return; } const paid = parseInt(document.getElementById('tk-count').value)||0; if (paid < 1) { alert('Please enter at least 1 ticket.'); return; } const free = calcFreeTickets(paid, r.buyX, r.getFree); const payment = document.getElementById('tk-payment').value; const ref = document.getElementById('tk-ref').value.trim(); if (editingTicketIdx !== null) { const old = r.tickets[editingTicketIdx]; const oldPaid = old.paidNums.length; if (oldPaid !== paid) { const diff = paid - oldPaid; if (diff > 0) { const extra = assignTicketNumbers(r, diff, 0); old.paidNums = [...old.paidNums, ...extra.paidNums]; } else { old.paidNums = old.paidNums.slice(0, paid); } const newFree = calcFreeTickets(paid, r.buyX, r.getFree); old.freeNums = newFree > 0 ? old.freeNums.slice(0, newFree) : []; if (old.freeNums.length < newFree) { const extra = assignTicketNumbers(r, 0, newFree - old.freeNums.length); old.freeNums = [...old.freeNums, ...extra.freeNums]; } } old.name = name; old.payment = payment; old.ref = ref; } else { const nums = assignTicketNumbers(r, paid, free); r.tickets.push({ id:uid(), name, paidNums:nums.paidNums, freeNums:nums.freeNums, payment, ref, addedAt:Date.now() }); } const totalCollected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0); if (r.target > 0 && totalCollected >= r.target && r.status === 'open') r.status = 'target_reached'; await saveState(); closeModal('modal-ticket'); renderDetail(); }
-async function deleteTicket(idx) { if (!confirm('Remove this buyer?')) return; const r = state.raffles.find(x=>x.id===currentRaffleId); r.tickets.splice(idx,1); await saveState(); renderDetail(); }
-function openAddPrizeModal() { editingPrizeIdx = null; document.getElementById('modal-prize-title').textContent = 'Add Prize'; document.getElementById('pz-name').value = ''; document.getElementById('pz-desc').value = ''; document.getElementById('pz-photo').value = ''; document.getElementById('pz-preview-img').src = ''; document.getElementById('pz-photo-preview').style.display = 'none'; openModal('modal-prize'); }
-function previewPrizePhoto(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { document.getElementById('pz-preview-img').src = e.target.result; document.getElementById('pz-photo-preview').style.display = ''; }; reader.readAsDataURL(file); }
-async function savePrize() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const name = document.getElementById('pz-name').value.trim(); if (!name) { alert('Please enter a prize name.'); return; } const desc = document.getElementById('pz-desc').value.trim(); const imgEl = document.getElementById('pz-preview-img'); const img = imgEl.src && imgEl.src.startsWith('data:') ? imgEl.src : ''; if (editingPrizeIdx !== null) { r.prizes[editingPrizeIdx] = { ...r.prizes[editingPrizeIdx], name, desc, img: img || r.prizes[editingPrizeIdx].img }; } else { r.prizes.push({ id:uid(), name, desc, img }); } await saveState(); closeModal('modal-prize'); renderPrizes(); }
-async function deletePrize(idx) { if (!confirm('Remove this prize?')) return; const r = state.raffles.find(x=>x.id===currentRaffleId); r.prizes.splice(idx,1); await saveState(); renderPrizes(); }
-function editPrize(idx) { const r = state.raffles.find(x=>x.id===currentRaffleId); const p = r.prizes[idx]; editingPrizeIdx = idx; document.getElementById('modal-prize-title').textContent = 'Edit Prize'; document.getElementById('pz-name').value = p.name; document.getElementById('pz-desc').value = p.desc||''; if (p.img) { document.getElementById('pz-preview-img').src = p.img; document.getElementById('pz-photo-preview').style.display = ''; } else { document.getElementById('pz-photo-preview').style.display = 'none'; } openModal('modal-prize'); }
-function renderRaffles() { const grid = document.getElementById('raffle-grid'); const none = document.getElementById('no-raffles'); const active = state.raffles.filter(r=>r.status!=='drawn'); grid.innerHTML = ''; if (!active.length) { none.style.display=''; grid.style.display='none'; return; } none.style.display = 'none'; grid.style.display = ''; active.forEach(r => { const totalTickets = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0); const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0); const pct = r.target > 0 ? Math.min(100, Math.round(collected/r.target*100)) : 0; const firstPrizeImg = r.prizes[0]?.img || ''; const card = document.createElement('div'); card.className = 'raffle-card'; card.onclick = () => openDetail(r.id); card.innerHTML = ` <div class="raffle-card-img"> ${firstPrizeImg ? `<img src="${firstPrizeImg}">` : '<span style="font-size:2.5rem;">🏆</span>'} <div class="prize-count">${r.prizes.length} prize${r.prizes.length!==1?'s':''}</div> </div> <div class="raffle-card-body"> <div class="raffle-card-name">${r.name}</div> <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem;"> <span class="badge ${r.status==='open'?'badge-open':r.status==='target_reached'?'badge-drawn':'badge-closed'}">${r.status==='target_reached'?'Target Reached':r.status}</span> <span style="font-size:0.75rem;color:var(--muted);">R${r.price}/ticket</span> </div> ${r.target>0?`<div class="raffle-progress"><div class="raffle-progress-bar" style="width:${pct}%"></div></div> <div class="raffle-stats"><div>Collected <strong>R${collected.toLocaleString()}</strong></div><div>Target <strong>R${r.target.toLocaleString()}</strong></div></div>`:''} <div class="raffle-stats" style="margin-top:0.4rem;"> <div>Entries <strong>${totalTickets}</strong></div> <div>Buyers <strong>${r.tickets.length}</strong></div> </div> </div>`; grid.appendChild(card); }); }
-function openDetail(id) { currentRaffleId = id; showTab('detail'); renderDetail(); }
-function renderDetail() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; document.getElementById('detail-name').textContent = r.name; const badgeMap = { open:'badge-open', target_reached:'badge-drawn', closed:'badge-closed', drawn:'badge-drawn' }; const badgeText = { open:'Open', target_reached:'Target Reached', closed:'Closed', drawn:'Drawn' }; document.getElementById('detail-badge').innerHTML = `<span class="badge ${badgeMap[r.status]||'badge-open'}">${badgeText[r.status]||r.status}</span>`; const totalPaid = r.tickets.reduce((s,t)=>s+t.paidNums.length,0); const totalFree = r.tickets.reduce((s,t)=>s+t.freeNums.length,0); const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0); const pending = r.tickets.filter(t=>t.payment==='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0); document.getElementById('detail-stats').innerHTML = ` <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.tickets.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Buyers</div></div> <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--violet);">${totalPaid+totalFree}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Total Entries</div></div> <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--emerald);">R${collected.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Collected</div></div> <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--rose);">R${pending.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Pending EFT</div></div> ${r.target>0?`<div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${Math.round(collected/r.target*100)}%</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Of Target</div></div>`:''} <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.prizes.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Prizes</div></div>`; renderTickets(); renderPrizes(); }
-function renderTickets() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const tbody = document.getElementById('ticket-tbody'); tbody.innerHTML = ''; if (!r.tickets.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No buyers yet — add the first one!</td></tr>'; return; } r.tickets.forEach((t,i) => { const amt = t.paidNums.length * r.price; const pBadge = t.payment==='confirmed'?'badge-confirmed':t.payment==='eft'?'badge-open':'badge-pending'; const pText = t.payment==='confirmed'?'Confirmed':t.payment==='eft'?'EFT Received':'Pending'; const row = document.createElement('tr'); row.innerHTML = ` <td style="font-weight:700;">${t.name}</td> <td style="text-align:center;">${t.paidNums.length}</td> <td style="text-align:center;color:var(--violet);">${t.freeNums.length}</td> <td><div class="ticket-nums">${t.paidNums.map(n=>`<span class="tnum">#${n}</span>`).join('')}${t.freeNums.map(n=>`<span class="tnum free">#${n}</span>`).join('')}</div></td> <td style="font-weight:700;">R${amt.toLocaleString()}</td> <td><span class="badge ${pBadge}">${pText}</span>${t.ref?`<div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${t.ref}</div>`:''}</td> <td><div style="display:flex;gap:0.4rem;"><button class="btn btn-ghost btn-sm" onclick="editTicket(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deleteTicket(${i})">✕</button></div></td>`; tbody.appendChild(row); }); }
-function renderPrizes() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const list = document.getElementById('prizes-list'); list.innerHTML = ''; if (!r.prizes.length) { list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">No prizes yet — add your first prize!</div>'; return; } r.prizes.forEach((p,i) => { const div = document.createElement('div'); div.className = 'prize-item'; div.innerHTML = ` <div class="prize-thumb">${p.img ? `<img src="${p.img}">` : '🏆'}</div> <div style="flex:1;"><div style="font-weight:700;font-size:0.9rem;">${p.name}</div>${p.desc?`<div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">${p.desc}</div>`:''}</div> <div style="display:flex;gap:0.5rem;"><button class="btn btn-ghost btn-sm" onclick="editPrize(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deletePrize(${i})">✕</button></div>`; list.appendChild(div); }); }
-function renderHistory() { const list = document.getElementById('history-list'); const drawn = state.raffles.filter(r=>r.status==='drawn'); if (!drawn.length) { list.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--muted);">No completed raffles yet.</div>'; return; } list.innerHTML = drawn.map(r => { const winners = (r.winners||[]).map(w=>`<div style="display:flex;gap:0.5rem;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);"> <span style="color:var(--gold);font-size:0.75rem;font-weight:700;">🏆 ${w.prize}</span> <span style="font-size:0.82rem;">→ ${w.name} <span style="color:var(--muted);">#${w.ticket}</span></span> </div>`).join(''); return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;"><h3 style="font-size:1.1rem;">${r.name}</h3><span class="badge badge-drawn">Drawn</span></div>${winners||'<p style="color:var(--muted);font-size:0.82rem;">No winner data.</p>'}</div>`; }).join(''); }
-function copyWhatsApp() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0); const allNums = r.tickets.flatMap(t=>[...t.paidNums,...t.freeNums]); const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0); let msg = `🎟️ *${r.name}*\n\n`; msg += `💰 Ticket price: R${r.price}\n`; msg += `🎁 Prizes: ${r.prizes.length ? r.prizes.map(p=>p.name).join(', ') : 'TBA'}\n`; msg += `🎫 Buy ${r.buyX} get ${r.getFree} free!\n\n`; msg += `📊 *${totalEntries} tickets sold*\n`; if (r.target > 0) msg += `💵 Collected R${collected.toLocaleString()} of R${r.target.toLocaleString()} target\n`; msg += `\n_Reply to grab your tickets!_ 🙌`; navigator.clipboard.writeText(msg).then(()=>alert('WhatsApp message copied!')).catch(()=>prompt('Copy this:', msg)); }
-function openDrawScreen() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; if (!r.prizes.length) { alert('Add at least one prize before drawing.'); return; } if (!r.tickets.length) { alert('Add ticket buyers before drawing.'); return; } document.getElementById('draw-raffle-name').textContent = r.name; const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0); document.getElementById('draw-ticket-count').textContent = `${totalEntries} total entries · ${r.prizes.length} prizes to draw`; document.getElementById('spin-duration-input').value = state.settings.spinDuration; buildSpinners(r); document.getElementById('btn-start-draw').style.display = ''; document.getElementById('btn-stop-next').style.display = 'none'; document.getElementById('btn-close-draw').style.display = 'none'; document.getElementById('draw-screen').style.display = 'flex'; drawState = { spinners: r.prizes.map(()=>({spinning:false, stopped:false, interval:null, timer:null})), winners:[] }; }
-function buildSpinners(r) { const grid = document.getElementById('spinners-grid'); grid.innerHTML = ''; r.prizes.forEach((p,i) => { const box = document.createElement('div'); box.className = 'spinner-box'; box.id = 'spinner-'+i; box.innerHTML = ` <div class="spinner-prize-img">${p.img?`<img src="${p.img}">`:'🏆'}</div> <div class="spinner-prize-name">${p.name}</div> <div class="spinner-drum" id="drum-${i}"> <div class="spinner-drum-inner" id="drum-inner-${i}"><div class="spinner-number">?</div></div> </div> <div class="spinner-name" id="spinner-name-${i}">—</div> <div class="spinner-status" id="spinner-status-${i}">Waiting...</div>`; grid.appendChild(box); }); }
-function startDraw() { const r = state.raffles.find(x=>x.id===currentRaffleId); if (!r) return; const spinDuration = (parseInt(document.getElementById('spin-duration-input').value)||5) * 1000; const pool = r.tickets.flatMap(t => [ ...t.paidNums.map(n=>({num:n, name:t.name})), ...t.freeNums.map(n=>({num:n, name:t.name})) ]); const usedNames = new Set(); const shuffled = [...pool].sort(()=>Math.random()-0.5); drawState.winners = r.prizes.map(p => { const winner = shuffled.find(e=>!usedNames.has(e.name)); if (winner) { usedNames.add(winner.name); return { prize:p.name, num:winner.num, name:winner.name }; } const any = shuffled[Math.floor(Math.random()*shuffled.length)]; return { prize:p.name, num:any.num, name:any.name }; }); r.prizes.forEach((_,i) => { const box = document.getElementById('spinner-'+i); const inner = document.getElementById('drum-inner-'+i); box.classList.add('spinning'); document.getElementById('spinner-status-'+i).textContent = 'Spinning...'; drawState.spinners[i].spinning = true; drawState.spinners[i].interval = setInterval(() => { inner.innerHTML = `<div class="spinner-number">#${Math.floor(Math.random()*Math.max(1,pool.length))+1}</div>`; }, 80); drawState.spinners[i].timer = setTimeout(() => { if (drawState.spinners[i].spinning) stopSpinner(i); }, spinDuration + i * 600); }); document.getElementById('btn-start-draw').style.display = 'none'; document.getElementById('btn-stop-next').style.display = ''; const nextIdx = drawState.spinners.findIndex(s=>s.spinning); document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`; }
-function stopNextSpinner() { for (let i=0;i<drawState.spinners.length;i++) { if (drawState.spinners[i].spinning) { stopSpinner(i); return; } } }
-async function stopSpinner(i) { const s = drawState.spinners[i]; if (!s.spinning) return; clearInterval(s.interval); clearTimeout(s.timer); s.spinning = false; s.stopped = true; const w = drawState.winners[i]; document.getElementById('drum-inner-'+i).innerHTML = `<div class="spinner-number" style="color:var(--gold);">#${w.num}</div>`; document.getElementById('spinner-name-'+i).textContent = '🎉 ' + w.name; document.getElementById('spinner-status-'+i).textContent = 'WINNER!'; const box = document.getElementById('spinner-'+i); box.classList.remove('spinning'); box.classList.add('won'); launchConfetti(); const anySpinning = drawState.spinners.some(s=>s.spinning); if (!anySpinning) { document.getElementById('btn-stop-next').style.display = 'none'; document.getElementById('btn-close-draw').style.display = ''; const r = state.raffles.find(x=>x.id===currentRaffleId); if (r) { r.winners = drawState.winners.map(w=>({prize:w.prize, name:w.name, ticket:w.num})); r.status = 'drawn'; await saveState(); } } else { const nextIdx = drawState.spinners.findIndex(s=>s.spinning); document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`; } }
-function closeDraw() { drawState.spinners.forEach((s,i) => { clearInterval(s.interval); clearTimeout(s.timer); }); document.getElementById('draw-screen').style.display = 'none'; renderRaffles(); if (currentRaffleId) renderDetail(); }
-function launchConfetti() { const colors = ['#f5c842','#10b981','#f43f5e','#8b5cf6','#60a5fa','#ffffff']; for (let i=0;i<40;i++) { const el = document.createElement('div'); el.className = 'confetti-piece'; el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;`; document.body.appendChild(el); setTimeout(()=>el.remove(), 3000); } }
-async function saveSettings() { state.settings.buyX = parseInt(document.getElementById('set-buy').value)||5; state.settings.getFree = parseInt(document.getElementById('set-free').value)||2; state.settings.spinDuration = parseInt(document.getElementById('set-spin').value)||5; state.settings.defaultPrice = parseFloat(document.getElementById('set-price').value)||50; await saveState(); alert('Settings saved!'); }
-function loadSettingsUI() { document.getElementById('set-buy').value = state.settings.buyX; document.getElementById('set-free').value = state.settings.getFree; document.getElementById('set-spin').value = state.settings.spinDuration; document.getElementById('set-price').value = state.settings.defaultPrice; }
+
+function openNewRaffleModal() {
+  editingRaffleId = null;
+  document.getElementById('modal-raffle-title').textContent = 'Create New Raffle';
+  document.getElementById('rf-name').value = '';
+  document.getElementById('rf-price').value = state.settings.defaultPrice;
+  document.getElementById('rf-target').value = '';
+  document.getElementById('rf-buy').value = state.settings.buyX;
+  document.getElementById('rf-free').value = state.settings.getFree;
+  document.getElementById('rf-desc').value = '';
+  openModal('modal-raffle');
+}
+function editRaffle() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  editingRaffleId = r.id;
+  document.getElementById('modal-raffle-title').textContent = 'Edit Raffle';
+  document.getElementById('rf-name').value = r.name;
+  document.getElementById('rf-price').value = r.price;
+  document.getElementById('rf-target').value = r.target||'';
+  document.getElementById('rf-buy').value = r.buyX;
+  document.getElementById('rf-free').value = r.getFree;
+  document.getElementById('rf-desc').value = r.desc||'';
+  openModal('modal-raffle');
+}
+async function saveRaffle() {
+  const name = document.getElementById('rf-name').value.trim();
+  if (!name) { alert('Please enter a raffle name.'); return; }
+  const price = parseFloat(document.getElementById('rf-price').value)||50;
+  const target = parseFloat(document.getElementById('rf-target').value)||0;
+  const buyX = parseInt(document.getElementById('rf-buy').value)||5;
+  const getFree = parseInt(document.getElementById('rf-free').value)||2;
+  const desc = document.getElementById('rf-desc').value.trim();
+  if (editingRaffleId) {
+    const r = state.raffles.find(x=>x.id===editingRaffleId);
+    if (r) { r.name=name; r.price=price; r.target=target; r.buyX=buyX; r.getFree=getFree; r.desc=desc; }
+  } else {
+    state.raffles.push({ id:uid(), name, price, target, buyX, getFree, desc, tickets:[], prizes:[], status:'open', createdAt:Date.now() });
+  }
+  await saveState();
+  closeModal('modal-raffle');
+  renderRaffles();
+  if (editingRaffleId) renderDetail();
+}
+async function deleteRaffle() {
+  if (!confirm('Delete this raffle and all its data?')) return;
+  state.raffles = state.raffles.filter(x=>x.id!==currentRaffleId);
+  await saveState();
+  showTab('raffles');
+}
+
+// ═══════════════════════════════════════════════
+// TICKET LOGIC
+// ═══════════════════════════════════════════════
+function calcFreeTickets(paid, buyX, getFree) {
+  return Math.floor(paid / buyX) * getFree;
+}
+function assignTicketNumbers(raffle, paid, free) {
+  const allNums = raffle.tickets.flatMap(t => [...t.paidNums, ...t.freeNums]);
+  let next = allNums.length > 0 ? Math.max(...allNums) + 1 : 1;
+  const paidNums = Array.from({length:paid}, (_,i) => next+i);
+  const freeNums = Array.from({length:free}, (_,i) => next+paid+i);
+  return { paidNums, freeNums };
+}
+function openAddTicketModal() {
+  editingTicketIdx = null;
+  document.getElementById('modal-ticket-title').textContent = 'Add Ticket Buyer';
+  document.getElementById('tk-name').value = '';
+  document.getElementById('tk-count').value = '';
+  document.getElementById('tk-payment').value = 'pending';
+  document.getElementById('tk-ref').value = '';
+  document.getElementById('ticket-preview-text').textContent = '—';
+  openModal('modal-ticket');
+}
+function editTicket(idx) {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  const t = r.tickets[idx];
+  editingTicketIdx = idx;
+  document.getElementById('modal-ticket-title').textContent = 'Edit Buyer';
+  document.getElementById('tk-name').value = t.name;
+  document.getElementById('tk-count').value = t.paidNums.length;
+  document.getElementById('tk-payment').value = t.payment;
+  document.getElementById('tk-ref').value = t.ref||'';
+  updateTicketPreview();
+  openModal('modal-ticket');
+}
+function updateTicketPreview() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const paid = parseInt(document.getElementById('tk-count').value)||0;
+  const free = calcFreeTickets(paid, r.buyX, r.getFree);
+  const total = paid + free;
+  const amt = paid * r.price;
+  let txt = total > 0
+    ? `${paid} paid + ${free} free = ${total} entries · R${amt.toLocaleString()}`
+    : '—';
+  if (free > 0 && total > 0) txt += ` (every ${r.buyX} tickets = ${r.getFree} free)`;
+  document.getElementById('ticket-preview-text').textContent = txt;
+}
+async function saveTicket() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const name = document.getElementById('tk-name').value.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  const paid = parseInt(document.getElementById('tk-count').value)||0;
+  if (paid < 1) { alert('Please enter at least 1 ticket.'); return; }
+  const free = calcFreeTickets(paid, r.buyX, r.getFree);
+  const payment = document.getElementById('tk-payment').value;
+  const ref = document.getElementById('tk-ref').value.trim();
+
+  if (editingTicketIdx !== null) {
+    const old = r.tickets[editingTicketIdx];
+    const oldPaid = old.paidNums.length;
+    if (oldPaid !== paid) {
+      const diff = paid - oldPaid;
+      if (diff > 0) {
+        const extra = assignTicketNumbers(r, diff, 0);
+        old.paidNums = [...old.paidNums, ...extra.paidNums];
+      } else {
+        old.paidNums = old.paidNums.slice(0, paid);
+      }
+      const newFree = calcFreeTickets(paid, r.buyX, r.getFree);
+      old.freeNums = newFree > 0 ? old.freeNums.slice(0, newFree) : [];
+      if (old.freeNums.length < newFree) {
+        const extra = assignTicketNumbers(r, 0, newFree - old.freeNums.length);
+        old.freeNums = [...old.freeNums, ...extra.freeNums];
+      }
+    }
+    old.name = name; old.payment = payment; old.ref = ref;
+  } else {
+    const nums = assignTicketNumbers(r, paid, free);
+    r.tickets.push({ id:uid(), name, paidNums:nums.paidNums, freeNums:nums.freeNums, payment, ref, addedAt:Date.now() });
+  }
+
+  // Auto-flag target reached
+  const totalCollected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  if (r.target > 0 && totalCollected >= r.target && r.status === 'open') r.status = 'target_reached';
+
+  await saveState();
+  closeModal('modal-ticket');
+  renderDetail();
+}
+async function deleteTicket(idx) {
+  if (!confirm('Remove this buyer?')) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  r.tickets.splice(idx,1);
+  await saveState();
+  renderDetail();
+}
+
+// ═══════════════════════════════════════════════
+// PRIZE CRUD
+// ═══════════════════════════════════════════════
+function openAddPrizeModal() {
+  editingPrizeIdx = null;
+  document.getElementById('modal-prize-title').textContent = 'Add Prize';
+  document.getElementById('pz-name').value = '';
+  document.getElementById('pz-desc').value = '';
+  document.getElementById('pz-photo').value = '';
+  document.getElementById('pz-preview-img').src = '';
+  document.getElementById('pz-photo-preview').style.display = 'none';
+  openModal('modal-prize');
+}
+function previewPrizePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('pz-preview-img').src = e.target.result;
+    document.getElementById('pz-photo-preview').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+async function savePrize() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const name = document.getElementById('pz-name').value.trim();
+  if (!name) { alert('Please enter a prize name.'); return; }
+  const desc = document.getElementById('pz-desc').value.trim();
+  const imgEl = document.getElementById('pz-preview-img');
+  const img = imgEl.src && imgEl.src.startsWith('data:') ? imgEl.src : '';
+  if (editingPrizeIdx !== null) {
+    r.prizes[editingPrizeIdx] = { ...r.prizes[editingPrizeIdx], name, desc, img: img || r.prizes[editingPrizeIdx].img };
+  } else {
+    r.prizes.push({ id:uid(), name, desc, img });
+  }
+  await saveState();
+  closeModal('modal-prize');
+  renderPrizes();
+}
+async function deletePrize(idx) {
+  if (!confirm('Remove this prize?')) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  r.prizes.splice(idx,1);
+  await saveState();
+  renderPrizes();
+}
+function editPrize(idx) {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  const p = r.prizes[idx];
+  editingPrizeIdx = idx;
+  document.getElementById('modal-prize-title').textContent = 'Edit Prize';
+  document.getElementById('pz-name').value = p.name;
+  document.getElementById('pz-desc').value = p.desc||'';
+  if (p.img) {
+    document.getElementById('pz-preview-img').src = p.img;
+    document.getElementById('pz-photo-preview').style.display = '';
+  } else {
+    document.getElementById('pz-photo-preview').style.display = 'none';
+  }
+  openModal('modal-prize');
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function renderRaffles() {
+  const grid = document.getElementById('raffle-grid');
+  const none = document.getElementById('no-raffles');
+  const active = state.raffles.filter(r=>r.status!=='drawn');
+  grid.innerHTML = '';
+  if (!active.length) { none.style.display=''; grid.style.display='none'; return; }
+  none.style.display = 'none'; grid.style.display = '';
+  active.forEach(r => {
+    const totalTickets = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+    const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+    const pct = r.target > 0 ? Math.min(100, Math.round(collected/r.target*100)) : 0;
+    const firstPrizeImg = r.prizes[0]?.img || '';
+    const card = document.createElement('div');
+    card.className = 'raffle-card';
+    card.onclick = () => openDetail(r.id);
+    card.innerHTML = `
+      <div class="raffle-card-img">
+        ${firstPrizeImg ? `<img src="${firstPrizeImg}">` : '<span style="font-size:2.5rem;">🏆</span>'}
+        <div class="prize-count">${r.prizes.length} prize${r.prizes.length!==1?'s':''}</div>
+      </div>
+      <div class="raffle-card-body">
+        <div class="raffle-card-name">${r.name}</div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <span class="badge ${r.status==='open'?'badge-open':r.status==='target_reached'?'badge-drawn':'badge-closed'}">${r.status==='target_reached'?'Target Reached':r.status}</span>
+          <span style="font-size:0.75rem;color:var(--muted);">R${r.price}/ticket</span>
+        </div>
+        ${r.target>0?`<div class="raffle-progress"><div class="raffle-progress-bar" style="width:${pct}%"></div></div>
+        <div class="raffle-stats"><div>Collected <strong>R${collected.toLocaleString()}</strong></div><div>Target <strong>R${r.target.toLocaleString()}</strong></div></div>`:''}
+        <div class="raffle-stats" style="margin-top:0.4rem;">
+          <div>Entries <strong>${totalTickets}</strong></div>
+          <div>Buyers <strong>${r.tickets.length}</strong></div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openDetail(id) {
+  currentRaffleId = id;
+  showTab('detail');
+  renderDetail();
+}
+function renderDetail() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  document.getElementById('detail-name').textContent = r.name;
+  const badgeMap = { open:'badge-open', target_reached:'badge-drawn', closed:'badge-closed', drawn:'badge-drawn' };
+  const badgeText = { open:'Open', target_reached:'Target Reached', closed:'Closed', drawn:'Drawn' };
+  document.getElementById('detail-badge').innerHTML = `<span class="badge ${badgeMap[r.status]||'badge-open'}">${badgeText[r.status]||r.status}</span>`;
+  const totalPaid = r.tickets.reduce((s,t)=>s+t.paidNums.length,0);
+  const totalFree = r.tickets.reduce((s,t)=>s+t.freeNums.length,0);
+  const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  const pending = r.tickets.filter(t=>t.payment==='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  document.getElementById('detail-stats').innerHTML = `
+    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.tickets.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Buyers</div></div>
+    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--violet);">${totalPaid+totalFree}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Total Entries</div></div>
+    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--emerald);">R${collected.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Collected</div></div>
+    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--rose);">R${pending.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Pending EFT</div></div>
+    ${r.target>0?`<div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${Math.round(collected/r.target*100)}%</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Of Target</div></div>`:''}
+    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.prizes.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Prizes</div></div>`;
+  renderTickets();
+  renderPrizes();
+}
+function renderTickets() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const tbody = document.getElementById('ticket-tbody');
+  tbody.innerHTML = '';
+  if (!r.tickets.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No buyers yet — add the first one!</td></tr>';
+    return;
+  }
+  r.tickets.forEach((t,i) => {
+    const amt = t.paidNums.length * r.price;
+    const pBadge = t.payment==='confirmed'?'badge-confirmed':t.payment==='eft'?'badge-open':'badge-pending';
+    const pText = t.payment==='confirmed'?'Confirmed':t.payment==='eft'?'EFT Received':'Pending';
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="font-weight:700;">${t.name}</td>
+      <td style="text-align:center;">${t.paidNums.length}</td>
+      <td style="text-align:center;color:var(--violet);">${t.freeNums.length}</td>
+      <td><div class="ticket-nums">${t.paidNums.map(n=>`<span class="tnum">#${n}</span>`).join('')}${t.freeNums.map(n=>`<span class="tnum free">#${n}</span>`).join('')}</div></td>
+      <td style="font-weight:700;">R${amt.toLocaleString()}</td>
+      <td><span class="badge ${pBadge}">${pText}</span>${t.ref?`<div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${t.ref}</div>`:''}</td>
+      <td><div style="display:flex;gap:0.4rem;"><button class="btn btn-ghost btn-sm" onclick="editTicket(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deleteTicket(${i})">✕</button></div></td>`;
+    tbody.appendChild(row);
+  });
+}
+function renderPrizes() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const list = document.getElementById('prizes-list');
+  list.innerHTML = '';
+  if (!r.prizes.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">No prizes yet — add your first prize!</div>';
+    return;
+  }
+  r.prizes.forEach((p,i) => {
+    const div = document.createElement('div');
+    div.className = 'prize-item';
+    div.innerHTML = `
+      <div class="prize-thumb">${p.img ? `<img src="${p.img}">` : '🏆'}</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:0.9rem;">${p.name}</div>${p.desc?`<div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">${p.desc}</div>`:''}</div>
+      <div style="display:flex;gap:0.5rem;"><button class="btn btn-ghost btn-sm" onclick="editPrize(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deletePrize(${i})">✕</button></div>`;
+    list.appendChild(div);
+  });
+}
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const drawn = state.raffles.filter(r=>r.status==='drawn');
+  if (!drawn.length) { list.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--muted);">No completed raffles yet.</div>'; return; }
+  list.innerHTML = drawn.map(r => {
+    const winners = (r.winners||[]).map(w=>`<div style="display:flex;gap:0.5rem;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+      <span style="color:var(--gold);font-size:0.75rem;font-weight:700;">🏆 ${w.prize}</span>
+      <span style="font-size:0.82rem;">→ ${w.name} <span style="color:var(--muted);">#${w.ticket}</span></span>
+    </div>`).join('');
+    return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;"><h3 style="font-size:1.1rem;">${r.name}</h3><span class="badge badge-drawn">Drawn</span></div>${winners||'<p style="color:var(--muted);font-size:0.82rem;">No winner data.</p>'}</div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// WHATSAPP
+// ═══════════════════════════════════════════════
+function copyWhatsApp() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+  const allNums = r.tickets.flatMap(t=>[...t.paidNums,...t.freeNums]);
+  const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  let msg = `🎟️ *${r.name}*\n\n`;
+  msg += `💰 Ticket price: R${r.price}\n`;
+  msg += `🎁 Prizes: ${r.prizes.length ? r.prizes.map(p=>p.name).join(', ') : 'TBA'}\n`;
+  msg += `🎫 Buy ${r.buyX} get ${r.getFree} free!\n\n`;
+  msg += `📊 *${totalEntries} tickets sold*\n`;
+  if (r.target > 0) msg += `💵 Collected R${collected.toLocaleString()} of R${r.target.toLocaleString()} target\n`;
+  msg += `\n_Reply to grab your tickets!_ 🙌`;
+  navigator.clipboard.writeText(msg).then(()=>alert('WhatsApp message copied!')).catch(()=>prompt('Copy this:', msg));
+}
+
+// ═══════════════════════════════════════════════
+// DRAW SCREEN
+// ═══════════════════════════════════════════════
+function openDrawScreen() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  if (!r.prizes.length) { alert('Add at least one prize before drawing.'); return; }
+  if (!r.tickets.length) { alert('Add ticket buyers before drawing.'); return; }
+  document.getElementById('draw-raffle-name').textContent = r.name;
+  const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+  document.getElementById('draw-ticket-count').textContent = `${totalEntries} total entries · ${r.prizes.length} prizes to draw`;
+  document.getElementById('spin-duration-input').value = state.settings.spinDuration;
+  buildSpinners(r);
+  document.getElementById('btn-start-draw').style.display = '';
+  document.getElementById('btn-stop-next').style.display = 'none';
+  document.getElementById('btn-close-draw').style.display = 'none';
+  document.getElementById('draw-screen').style.display = 'flex';
+  drawState = { spinners: r.prizes.map(()=>({spinning:false, stopped:false, interval:null, timer:null})), winners:[] };
+}
+function buildSpinners(r) {
+  const grid = document.getElementById('spinners-grid');
+  grid.innerHTML = '';
+  r.prizes.forEach((p,i) => {
+    const box = document.createElement('div');
+    box.className = 'spinner-box';
+    box.id = 'spinner-'+i;
+    box.innerHTML = `
+      <div class="spinner-prize-img">${p.img?`<img src="${p.img}">`:'🏆'}</div>
+      <div class="spinner-prize-name">${p.name}</div>
+      <div class="spinner-drum" id="drum-${i}">
+        <div class="spinner-drum-inner" id="drum-inner-${i}"><div class="spinner-number">?</div></div>
+      </div>
+      <div class="spinner-name" id="spinner-name-${i}">—</div>
+      <div class="spinner-status" id="spinner-status-${i}">Waiting...</div>`;
+    grid.appendChild(box);
+  });
+}
+function startDraw() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  if (!r) return;
+  const spinDuration = (parseInt(document.getElementById('spin-duration-input').value)||5) * 1000;
+  const pool = r.tickets.flatMap(t => [
+    ...t.paidNums.map(n=>({num:n, name:t.name})),
+    ...t.freeNums.map(n=>({num:n, name:t.name}))
+  ]);
+  // Pre-determine winners — 1 prize per person
+  const usedNames = new Set();
+  const shuffled = [...pool].sort(()=>Math.random()-0.5);
+  drawState.winners = r.prizes.map(p => {
+    const winner = shuffled.find(e=>!usedNames.has(e.name));
+    if (winner) { usedNames.add(winner.name); return { prize:p.name, num:winner.num, name:winner.name }; }
+    const any = shuffled[Math.floor(Math.random()*shuffled.length)];
+    return { prize:p.name, num:any.num, name:any.name };
+  });
+  // Spin all simultaneously
+  r.prizes.forEach((_,i) => {
+    const box = document.getElementById('spinner-'+i);
+    const inner = document.getElementById('drum-inner-'+i);
+    box.classList.add('spinning');
+    document.getElementById('spinner-status-'+i).textContent = 'Spinning...';
+    drawState.spinners[i].spinning = true;
+    drawState.spinners[i].interval = setInterval(() => {
+      inner.innerHTML = `<div class="spinner-number">#${Math.floor(Math.random()*Math.max(1,pool.length))+1}</div>`;
+    }, 80);
+    // Auto stop staggered — spinDuration + 500ms per prize after the first
+    drawState.spinners[i].timer = setTimeout(() => {
+      if (drawState.spinners[i].spinning) stopSpinner(i);
+    }, spinDuration + i * 600);
+  });
+  document.getElementById('btn-start-draw').style.display = 'none';
+  document.getElementById('btn-stop-next').style.display = '';
+  const nextIdx = drawState.spinners.findIndex(s=>s.spinning);
+  document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`;
+}
+function stopNextSpinner() {
+  for (let i=0;i<drawState.spinners.length;i++) {
+    if (drawState.spinners[i].spinning) { stopSpinner(i); return; }
+  }
+}
+async function stopSpinner(i) {
+  const s = drawState.spinners[i];
+  if (!s.spinning) return;
+  clearInterval(s.interval);
+  clearTimeout(s.timer);
+  s.spinning = false;
+  s.stopped = true;
+  const w = drawState.winners[i];
+  document.getElementById('drum-inner-'+i).innerHTML = `<div class="spinner-number" style="color:var(--gold);">#${w.num}</div>`;
+  document.getElementById('spinner-name-'+i).textContent = '🎉 ' + w.name;
+  document.getElementById('spinner-status-'+i).textContent = 'WINNER!';
+  const box = document.getElementById('spinner-'+i);
+  box.classList.remove('spinning');
+  box.classList.add('won');
+  launchConfetti();
+  const anySpinning = drawState.spinners.some(s=>s.spinning);
+  if (!anySpinning) {
+    document.getElementById('btn-stop-next').style.display = 'none';
+    document.getElementById('btn-close-draw').style.display = '';
+    const r = state.raffles.find(x=>x.id===currentRaffleId);
+    if (r) {
+      r.winners = drawState.winners.map(w=>({prize:w.prize, name:w.name, ticket:w.num}));
+      r.status = 'drawn';
+      await saveState();
+    }
+  } else {
+    const nextIdx = drawState.spinners.findIndex(s=>s.spinning);
+    document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`;
+  }
+}
+function closeDraw() {
+  drawState.spinners.forEach((s,i) => { clearInterval(s.interval); clearTimeout(s.timer); });
+  document.getElementById('draw-screen').style.display = 'none';
+  renderRaffles();
+  if (currentRaffleId) renderDetail();
+}
+function launchConfetti() {
+  const colors = ['#f5c842','#10b981','#f43f5e','#8b5cf6','#60a5fa','#ffffff'];
+  for (let i=0;i<40;i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 3000);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════
+async function saveSettings() {
+  state.settings.buyX = parseInt(document.getElementById('set-buy').value)||5;
+  state.settings.getFree = parseInt(document.getElementById('set-free').value)||2;
+  state.settings.spinDuration = parseInt(document.getElementById('set-spin').value)||5;
+  state.settings.defaultPrice = parseFloat(document.getElementById('set-price').value)||50;
+  await saveState();
+  alert('Settings saved!');
+}
+function loadSettingsUI() {
+  document.getElementById('set-buy').value = state.settings.buyX;
+  document.getElementById('set-free').value = state.settings.getFree;
+  document.getElementById('set-spin').value = state.settings.spinDuration;
+  document.getElementById('set-price').value = state.settings.defaultPrice;
+}
+
+// ═══════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(m => { m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }); });
-function buildStars() { const c = document.getElementById('stars'); for (let i=0;i<80;i++) { const s = document.createElement('div'); s.className = 'star'; s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.1+Math.random()*0.4};`; c.appendChild(s); } }
-async function init() { buildStars(); await waitForStorage(); await loadState(); loadSettingsUI(); document.getElementById('loading-screen').style.display = 'none'; document.getElementById('pin-screen').style.display = 'flex'; }
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ═══════════════════════════════════════════════
+// STARS
+// ═══════════════════════════════════════════════
+function buildStars() {
+  const c = document.getElementById('stars');
+  for (let i=0;i<80;i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.1+Math.random()*0.4};`;
+    c.appendChild(s);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INIT — wait for Firebase, load data, show PIN
+// ═══════════════════════════════════════════════
+async function init() {
+  buildStars();
+  await waitForStorage();
+  await loadState();
+  loadSettingsUI();
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+}
+
 init();
 </script>
 </body>
