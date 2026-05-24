@@ -3,199 +3,211 @@
 <head>
 <meta charset="UTF-8">
 <script type="module" src="firebase-helper.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Raffle Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0d0d14;
-  --surface: #13131f;
-  --surface2: #1a1a2e;
-  --border: rgba(255,255,255,0.07);
-  --gold: #f5c842;
-  --gold2: #e8a020;
-  --rose: #f43f5e;
-  --emerald: #10b981;
-  --violet: #8b5cf6;
-  --text: #f0eff6;
-  --muted: #6b7280;
-  --radius: 1rem;
+:root{
+  --bg:#0d0d14;--surface:#13131f;--surface2:#1a1a2e;--border:rgba(255,255,255,0.07);
+  --gold:#f5c842;--gold2:#e8a020;--rose:#f43f5e;--emerald:#10b981;--violet:#8b5cf6;
+  --text:#f0eff6;--muted:#6b7280;--radius:1rem;
+  --tap:48px; /* minimum tap target */
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 h1,h2,h3{font-family:'Playfair Display',serif;}
+img{max-width:100%;display:block;}
 
-/* PIN SCREEN */
-#pin-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;}
-.pin-title{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.pin-subtitle{color:var(--muted);font-size:0.85rem;letter-spacing:0.1em;text-transform:uppercase;}
-.pin-dots{display:flex;gap:1rem;}
-.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold);transition:background 0.2s;}
-.pin-dot.filled{background:var(--gold);}
-.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;width:240px;}
-.pin-btn{background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;color:var(--text);font-size:1.4rem;font-weight:700;padding:1rem;cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
-.pin-btn:hover{background:rgba(245,200,66,0.12);border-color:var(--gold);}
-.pin-btn.wide{grid-column:span 2;}
-.pin-error{color:var(--rose);font-size:0.8rem;min-height:1rem;text-align:center;}
-
-/* LOADING */
-#loading-screen{position:fixed;inset:0;background:var(--bg);z-index:9998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
-.spinner-ring{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+/* ── LOADING ── */
+#loading-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+.ring{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* MAIN LAYOUT */
-#app{display:none;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.tab-bar{display:flex;gap:0.5rem;}
-.tab{background:none;border:1px solid var(--border);border-radius:0.6rem;color:var(--muted);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 1rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;}
+/* ── PIN ── */
+#pin-screen{position:fixed;inset:0;background:var(--bg);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1rem;}
+.pin-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;}
+.pin-dots{display:flex;gap:1rem;}
+.pin-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--gold);transition:background .2s;}
+.pin-dot.filled{background:var(--gold);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;width:min(280px,90vw);}
+.pin-btn{background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;color:var(--text);font-size:1.5rem;font-weight:700;height:var(--tap);min-height:var(--tap);cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;}
+.pin-btn:active{background:rgba(245,200,66,0.2);border-color:var(--gold);}
+.pin-error{color:var(--rose);font-size:0.82rem;min-height:1.2rem;text-align:center;}
+
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;min-height:100vh;min-height:100dvh;}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:0.75rem;}
+.logo{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
+.tab-bar{display:flex;gap:0.35rem;flex-wrap:nowrap;}
+.tab{background:none;border:1px solid var(--border);border-radius:0.5rem;color:var(--muted);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:0.45rem 0.7rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;min-height:36px;}
 .tab.active{background:var(--gold);color:#0d0d14;border-color:var(--gold);}
-.content{padding:1.5rem;max-width:1200px;margin:0 auto;width:100%;}
 
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;}
-.card-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+/* ── CONTENT ── */
+.content{padding:1rem;max-width:900px;margin:0 auto;width:100%;}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.6rem 1.2rem;border-radius:0.75rem;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:0.875rem;}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;padding:0 1.1rem;height:var(--tap);min-height:var(--tap);border-radius:0.75rem;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap;}
 .btn-gold{background:var(--gold);color:#0d0d14;}
-.btn-gold:hover{background:var(--gold2);}
+.btn-gold:active{background:var(--gold2);}
 .btn-ghost{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);}
-.btn-ghost:hover{background:rgba(255,255,255,0.1);}
+.btn-ghost:active{background:rgba(255,255,255,0.12);}
 .btn-rose{background:rgba(244,63,94,0.15);border:1px solid rgba(244,63,94,0.3);color:var(--rose);}
-.btn-rose:hover{background:rgba(244,63,94,0.25);}
 .btn-emerald{background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--emerald);}
-.btn-emerald:hover{background:rgba(16,185,129,0.25);}
 .btn-violet{background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:var(--violet);}
-.btn-violet:hover{background:rgba(139,92,246,0.25);}
-.btn-sm{padding:0.35rem 0.75rem;font-size:0.7rem;}
+.btn-sm{height:36px;min-height:36px;padding:0 0.75rem;font-size:0.7rem;}
+.btn-full{width:100%;}
 
-/* FORMS */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
-.form-group{display:flex;flex-direction:column;gap:0.4rem;}
-.form-group.full{grid-column:1/-1;}
-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);}
-input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:0.6rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.6rem 0.9rem;outline:none;transition:border-color 0.2s;width:100%;}
+/* ── FORMS ── */
+.form-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.875rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);}
+input,select,textarea{background:var(--surface2);border:1px solid var(--border);border-radius:0.6rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.95rem;padding:0.75rem 0.9rem;outline:none;transition:border-color .2s;width:100%;min-height:var(--tap);}
 input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+textarea{min-height:80px;resize:vertical;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 input[type=number]{-moz-appearance:textfield;}
+input[type=file]{min-height:auto;padding:0.5rem;}
 
-/* BADGE */
-.badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:0.4rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;}
+/* ── BADGES ── */
+.badge{display:inline-block;padding:0.2rem 0.65rem;border-radius:0.4rem;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
 .badge-open{background:rgba(16,185,129,0.15);color:var(--emerald);border:1px solid rgba(16,185,129,0.3);}
 .badge-closed{background:rgba(107,114,128,0.2);color:var(--muted);border:1px solid rgba(107,114,128,0.3);}
 .badge-drawn{background:rgba(245,200,66,0.15);color:var(--gold);border:1px solid rgba(245,200,66,0.3);}
 .badge-pending{background:rgba(244,63,94,0.12);color:var(--rose);border:1px solid rgba(244,63,94,0.2);}
 .badge-confirmed{background:rgba(16,185,129,0.12);color:var(--emerald);border:1px solid rgba(16,185,129,0.2);}
+.badge-eft{background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.2);}
 
-/* RAFFLE CARDS */
-.raffle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;}
-.raffle-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s;}
-.raffle-card:hover{border-color:rgba(245,200,66,0.3);transform:translateY(-2px);}
-.raffle-card-img{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+/* ── RAFFLE CARDS ── */
+.raffle-grid{display:grid;grid-template-columns:1fr;gap:0.875rem;}
+@media(min-width:540px){.raffle-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}}
+.raffle-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .2s;active-color:var(--gold);}
+.raffle-card:active{border-color:rgba(245,200,66,0.4);}
+.raffle-card-img{height:150px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
 .raffle-card-img img{width:100%;height:100%;object-fit:cover;}
-.raffle-card-img .prize-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);border-radius:0.5rem;padding:3px 8px;font-size:0.7rem;font-weight:700;color:var(--gold);}
-.raffle-card-body{padding:1rem;}
-.raffle-card-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;}
-.raffle-progress{background:rgba(255,255,255,0.05);border-radius:100px;height:6px;margin:0.75rem 0 0.4rem;}
-.raffle-progress-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.5s ease;}
-.raffle-stats{display:flex;gap:1rem;font-size:0.75rem;color:var(--muted);}
+.prize-count{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);border:1px solid var(--border);border-radius:0.4rem;padding:3px 8px;font-size:0.68rem;font-weight:700;color:var(--gold);}
+.raffle-card-body{padding:0.875rem;}
+.raffle-card-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:0.5rem;}
+.raffle-progress{background:rgba(255,255,255,0.06);border-radius:100px;height:5px;margin:0.65rem 0 0.35rem;}
+.raffle-progress-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .5s ease;}
+.raffle-stats{display:flex;gap:0.75rem;font-size:0.75rem;color:var(--muted);flex-wrap:wrap;}
 .raffle-stats strong{color:var(--text);}
 
-/* TICKET TABLE */
-.ticket-table{width:100%;border-collapse:collapse;font-size:0.82rem;}
-.ticket-table th{text-align:left;padding:0.5rem 0.75rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);border-bottom:1px solid var(--border);}
-.ticket-table td{padding:0.55rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
-.ticket-table tr:hover td{background:rgba(255,255,255,0.02);}
-.ticket-nums{display:flex;flex-wrap:wrap;gap:4px;}
-.tnum{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:0.7rem;font-weight:700;color:var(--gold);}
+/* ── TICKET CARDS (mobile replaces table) ── */
+.ticket-card{background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;padding:0.875rem;margin-bottom:0.5rem;}
+.ticket-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;gap:0.5rem;flex-wrap:wrap;}
+.ticket-card-name{font-weight:700;font-size:0.95rem;}
+.ticket-card-actions{display:flex;gap:0.4rem;flex-shrink:0;}
+.ticket-nums{display:flex;flex-wrap:wrap;gap:4px;margin:0.4rem 0;}
+.tnum{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:0.7rem;font-weight:700;color:var(--gold);}
 .tnum.free{border-color:rgba(139,92,246,0.4);color:var(--violet);}
+.ticket-meta{display:flex;gap:0.75rem;font-size:0.75rem;color:var(--muted);flex-wrap:wrap;margin-top:0.35rem;align-items:center;}
 
-/* PRIZE LIST */
-.prize-item{display:flex;align-items:center;gap:1rem;padding:0.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;margin-bottom:0.5rem;}
-.prize-thumb{width:56px;height:56px;border-radius:0.5rem;object-fit:cover;background:rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.2rem;}
-.prize-thumb img{width:56px;height:56px;border-radius:0.5rem;object-fit:cover;}
+/* ── PRIZE ITEMS ── */
+.prize-item{display:flex;align-items:center;gap:0.875rem;padding:0.75rem;background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;margin-bottom:0.5rem;}
+.prize-thumb{width:52px;height:52px;border-radius:0.5rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:1.3rem;background:var(--surface);overflow:hidden;}
+.prize-thumb img{width:52px;height:52px;object-fit:cover;border-radius:0.5rem;}
+.prize-info{flex:1;min-width:0;}
+.prize-info strong{display:block;font-size:0.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prize-info span{font-size:0.78rem;color:var(--muted);}
 
-/* MODAL */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);z-index:500;align-items:center;justify-content:center;padding:1rem;}
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:500;align-items:flex-end;justify-content:center;padding:0;}
+@media(min-width:540px){.modal-bg{align-items:center;padding:1rem;}}
 .modal-bg.open{display:flex;}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
-.modal-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:1.5rem;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:1.25rem 1.25rem 0 0;padding:1.5rem 1.25rem;width:100%;max-height:92vh;max-height:92dvh;overflow-y:auto;}
+@media(min-width:540px){.modal{border-radius:1.5rem;max-width:520px;}}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;margin-bottom:1.25rem;}
+.modal-drag{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem;}
 
-/* DRAW SCREEN */
-#draw-screen{display:none;position:fixed;inset:0;background:#07070f;z-index:900;flex-direction:column;align-items:center;overflow-y:auto;}
-.draw-header{padding:1.5rem;text-align:center;width:100%;}
-.draw-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#fff6cc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.spinners-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1.5rem;padding:1rem 1.5rem 2rem;width:100%;}
-.spinner-box{background:var(--surface);border:2px solid var(--border);border-radius:1.25rem;width:220px;display:flex;flex-direction:column;align-items:center;overflow:hidden;transition:border-color 0.3s;}
-.spinner-box.spinning{border-color:var(--gold);box-shadow:0 0 24px rgba(245,200,66,0.2);}
-.spinner-box.won{border-color:var(--emerald);box-shadow:0 0 30px rgba(16,185,129,0.3);}
-.spinner-prize-img{width:100%;height:120px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;}
-.spinner-prize-img img{width:100%;height:120px;object-fit:cover;}
-.spinner-prize-name{font-size:0.78rem;font-weight:700;text-align:center;padding:0.5rem 0.75rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);width:100%;}
-.spinner-drum{height:72px;overflow:hidden;width:100%;position:relative;background:var(--surface2);}
-.spinner-drum-inner{display:flex;flex-direction:column;transition:none;}
-.spinner-number{height:72px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--text);flex-shrink:0;}
-.spinner-name{font-size:0.75rem;font-weight:700;text-align:center;padding:0.4rem;color:var(--muted);min-height:32px;display:flex;align-items:center;justify-content:center;}
-.spinner-box.won .spinner-name{color:var(--emerald);}
-.spinner-status{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.3rem 0.5rem;font-weight:700;color:var(--muted);text-align:center;width:100%;}
-.spinner-box.won .spinner-status{color:var(--emerald);}
-.draw-controls{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;justify-content:center;padding:0 1.5rem 2rem;}
-.spin-time-control{display:flex;align-items:center;gap:0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:0.5rem 1rem;}
-.spin-time-control label{font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-.spin-time-control input{width:60px;background:transparent;border:none;color:var(--gold);font-size:0.9rem;font-weight:700;text-align:center;padding:0;}
-
-/* TABS in detail view */
-.detail-tabs{display:flex;gap:0.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;}
-.detail-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.5rem 1rem 0.75rem;cursor:pointer;transition:all 0.2s;font-family:'DM Sans',sans-serif;margin-bottom:-1px;}
+/* ── DETAIL TABS ── */
+.detail-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;}
+.detail-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:0.6rem 1rem 0.7rem;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;margin-bottom:-1px;min-height:var(--tap);display:flex;align-items:center;}
 .detail-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 
-/* STARS BG */
-.stars{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
-.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;animation:twinkle var(--d,3s) infinite var(--delay,0s);}
-@keyframes twinkle{0%,100%{opacity:0.1;}50%{opacity:0.8;}}
+/* ── STAT CHIPS ── */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1.25rem;}
+.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:0.75rem 0.5rem;text-align:center;}
+.stat-val{font-size:1.35rem;font-weight:900;line-height:1;}
+.stat-lbl{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;}
 
-/* CONFETTI */
-@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
-.confetti-piece{position:fixed;width:8px;height:8px;pointer-events:none;z-index:9999;animation:confetti-fall linear forwards;}
-
-/* WINNER PULSE */
+/* ── DRAW SCREEN ── */
+#draw-screen{display:none;position:fixed;inset:0;background:#07070f;z-index:900;flex-direction:column;align-items:center;overflow-y:auto;overflow-x:hidden;}
+.draw-header{padding:1.25rem 1rem 0.5rem;text-align:center;width:100%;}
+.draw-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#fff6cc,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.2;}
+.spinners-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;padding:1rem;width:100%;}
+.spinner-box{background:var(--surface);border:2px solid var(--border);border-radius:1.1rem;width:160px;display:flex;flex-direction:column;align-items:center;overflow:hidden;transition:border-color .3s;flex-shrink:0;}
+@media(min-width:420px){.spinner-box{width:180px;}}
+@media(min-width:600px){.spinner-box{width:210px;}}
+.spinner-box.spinning{border-color:var(--gold);box-shadow:0 0 20px rgba(245,200,66,0.2);}
 @keyframes winner-pulse{0%,100%{box-shadow:0 0 20px rgba(16,185,129,0.3);}50%{box-shadow:0 0 50px rgba(16,185,129,0.7);}}
-.spinner-box.won{animation:winner-pulse 1.5s infinite;}
+.spinner-box.won{border-color:var(--emerald);animation:winner-pulse 1.5s infinite;}
+.spinner-prize-img{width:100%;height:100px;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;overflow:hidden;}
+.spinner-prize-img img{width:100%;height:100%;object-fit:cover;}
+.spinner-prize-name{font-size:0.7rem;font-weight:700;text-align:center;padding:0.4rem 0.5rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);width:100%;line-height:1.3;}
+.spinner-drum{height:68px;overflow:hidden;width:100%;background:var(--surface2);}
+.spinner-number{height:68px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--text);}
+.spinner-winner-name{font-size:0.72rem;font-weight:700;text-align:center;padding:0.35rem 0.4rem;color:var(--muted);min-height:30px;display:flex;align-items:center;justify-content:center;line-height:1.3;}
+.spinner-box.won .spinner-winner-name{color:var(--emerald);}
+.spinner-status{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.25rem 0.4rem;font-weight:700;color:var(--muted);text-align:center;width:100%;}
+.spinner-box.won .spinner-status{color:var(--emerald);}
+.draw-controls{display:flex;flex-direction:column;gap:0.6rem;align-items:center;padding:0.5rem 1rem 2rem;width:100%;max-width:400px;}
+.spin-time-row{display:flex;align-items:center;gap:0.5rem;background:var(--surface);border:1px solid var(--border);border-radius:0.75rem;padding:0.5rem 1rem;width:100%;justify-content:center;}
+.spin-time-row label{font-size:0.72rem;font-weight:700;text-transform:uppercase;color:var(--muted);}
+.spin-time-row input{width:55px;background:transparent;border:none;color:var(--gold);font-size:1rem;font-weight:700;text-align:center;padding:0;min-height:auto;}
 
-@media(max-width:640px){
-  .form-grid{grid-template-columns:1fr;}
-  .tab-bar{gap:0.25rem;}
-  .tab{padding:0.4rem 0.6rem;font-size:0.7rem;}
-  .spinner-box{width:160px;}
-  .spinner-number{font-size:1.5rem;}
-}
+/* ── STARS ── */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;width:2px;height:2px;background:white;border-radius:50%;animation:twinkle var(--d,3s) infinite var(--delay,0s);}
+@keyframes twinkle{0%,100%{opacity:0.1;}50%{opacity:0.7;}}
+
+/* ── CONFETTI ── */
+@keyframes cffall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+.cf{position:fixed;pointer-events:none;z-index:9999;animation:cffall linear forwards;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(120%);background:var(--surface);border:1px solid var(--border);border-radius:0.875rem;padding:0.75rem 1.25rem;font-size:0.82rem;font-weight:600;color:var(--text);z-index:8000;transition:transform .3s ease;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(16,185,129,0.4);color:var(--emerald);}
+.toast.error{border-color:rgba(244,63,94,0.4);color:var(--rose);}
+
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:0.75rem;flex-wrap:wrap;}
+.section-header h2{font-size:1.4rem;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.empty-icon{font-size:2.5rem;margin-bottom:0.75rem;}
+.empty p{font-size:0.9rem;font-weight:600;margin-bottom:0.3rem;color:var(--text);}
+.empty small{font-size:0.78rem;}
 </style>
 </head>
 <body>
-
 <div class="stars" id="stars"></div>
 
 <!-- LOADING -->
 <div id="loading-screen">
   <div style="font-size:2.5rem;margin-bottom:0.5rem;">🎟️</div>
-  <div style="font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--gold);">Raffle Manager</div>
-  <div class="spinner-ring" style="margin-top:1rem;"></div>
-  <div style="color:var(--muted);font-size:0.8rem;margin-top:0.75rem;">Loading from Firebase...</div>
+  <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold);">Raffle Manager</div>
+  <div class="ring" style="margin-top:1rem;"></div>
+  <div style="color:var(--muted);font-size:0.78rem;margin-top:0.6rem;">Connecting to Firebase…</div>
 </div>
 
-<!-- PIN SCREEN -->
-<div id="pin-screen" style="display:none;">
+<!-- PIN -->
+<div id="pin-screen">
   <div style="text-align:center;">
-    <div style="font-size:3rem;margin-bottom:0.5rem;">🎟️</div>
+    <div style="font-size:2.5rem;margin-bottom:0.3rem;">🎟️</div>
     <div class="pin-title">Raffle Manager</div>
-    <div class="pin-subtitle" style="margin-top:0.25rem;">Enter your PIN to continue</div>
+    <div style="color:var(--muted);font-size:0.8rem;margin-top:0.25rem;text-transform:uppercase;letter-spacing:0.1em;">Enter PIN</div>
   </div>
   <div class="pin-dots" id="pin-dots">
-    <div class="pin-dot" id="d0"></div>
-    <div class="pin-dot" id="d1"></div>
-    <div class="pin-dot" id="d2"></div>
-    <div class="pin-dot" id="d3"></div>
+    <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
   </div>
   <div class="pin-pad">
     <button class="pin-btn" onclick="pinPress(1)">1</button>
@@ -209,116 +221,95 @@ input[type=number]{-moz-appearance:textfield;}
     <button class="pin-btn" onclick="pinPress(9)">9</button>
     <button class="pin-btn btn-rose" onclick="pinClear()" style="font-size:1rem;">✕</button>
     <button class="pin-btn" onclick="pinPress(0)">0</button>
-    <button class="pin-btn btn-gold" onclick="pinBackspace()" style="font-size:1rem;">⌫</button>
+    <button class="pin-btn" onclick="pinBackspace()" style="font-size:1rem;color:var(--gold);">⌫</button>
   </div>
   <div class="pin-error" id="pin-error"></div>
-  <button class="btn btn-ghost btn-sm" onclick="showChangePinModal()" style="margin-top:0.5rem;">Change PIN</button>
+  <button class="btn btn-ghost btn-sm" onclick="showChangePinModal()" style="margin-top:0.25rem;">Change PIN</button>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div class="logo">🎟️ Raffle Manager</div>
+    <div class="logo">🎟️ Raffles</div>
     <div class="tab-bar">
-      <button class="tab active" onclick="showTab('raffles')">Raffles</button>
+      <button class="tab active" onclick="showTab('raffles')">Active</button>
       <button class="tab" onclick="showTab('history')">History</button>
       <button class="tab" onclick="showTab('settings')">Settings</button>
     </div>
   </div>
 
-  <!-- RAFFLES TAB -->
+  <!-- TAB: RAFFLES -->
   <div id="tab-raffles" class="content">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
-      <div>
-        <h2 style="font-size:1.6rem;">Active Raffles</h2>
-        <p style="color:var(--muted);font-size:0.82rem;margin-top:0.2rem;">Manage your ongoing draws</p>
-      </div>
-      <button class="btn btn-gold" onclick="openNewRaffleModal()">+ New Raffle</button>
+    <div class="section-header">
+      <h2>Active Raffles</h2>
+      <button class="btn btn-gold" onclick="openNewRaffleModal()">+ New</button>
     </div>
     <div class="raffle-grid" id="raffle-grid"></div>
-    <div id="no-raffles" style="display:none;text-align:center;padding:4rem 1rem;color:var(--muted);">
-      <div style="font-size:3rem;margin-bottom:1rem;">🎟️</div>
-      <p style="font-size:1rem;font-weight:700;">No active raffles yet</p>
-      <p style="font-size:0.82rem;margin-top:0.4rem;">Create your first raffle to get started</p>
+    <div id="no-raffles" style="display:none;" class="empty">
+      <div class="empty-icon">🎟️</div>
+      <p>No active raffles yet</p>
+      <small>Tap + New to create your first raffle</small>
     </div>
   </div>
 
-  <!-- HISTORY TAB -->
+  <!-- TAB: HISTORY -->
   <div id="tab-history" class="content" style="display:none;">
-    <h2 style="font-size:1.6rem;margin-bottom:1.5rem;">Completed Raffles</h2>
+    <h2 style="font-size:1.4rem;margin-bottom:1rem;">Completed Raffles</h2>
     <div id="history-list"></div>
   </div>
 
-  <!-- SETTINGS TAB -->
+  <!-- TAB: SETTINGS -->
   <div id="tab-settings" class="content" style="display:none;">
-    <div class="card" style="max-width:500px;">
-      <div class="card-title">⚙️ Default Settings</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Free tickets trigger (buy X)</label>
-          <input type="number" id="set-buy" value="5" min="1">
-        </div>
-        <div class="form-group">
-          <label>Free tickets given (get Y)</label>
-          <input type="number" id="set-free" value="2" min="0">
-        </div>
-        <div class="form-group">
-          <label>Default spin duration (sec)</label>
-          <input type="number" id="set-spin" value="5" min="1" max="60">
-        </div>
-        <div class="form-group">
-          <label>Default ticket price (R)</label>
-          <input type="number" id="set-price" value="50" min="1">
-        </div>
+    <div class="card">
+      <div class="card-title">⚙️ Defaults</div>
+      <div class="form-row">
+        <div class="form-group"><label>Buy X tickets</label><input type="number" id="set-buy" value="5" min="1"></div>
+        <div class="form-group"><label>Get Y free</label><input type="number" id="set-free" value="2" min="0"></div>
       </div>
-      <button class="btn btn-gold" style="margin-top:1.25rem;" onclick="saveSettings()">Save Settings</button>
+      <div class="form-row">
+        <div class="form-group"><label>Spin time (sec)</label><input type="number" id="set-spin" value="5" min="1" max="60"></div>
+        <div class="form-group"><label>Default price (R)</label><input type="number" id="set-price" value="50" min="1"></div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="saveSettings()">Save Settings</button>
     </div>
-    <div class="card" style="max-width:500px;margin-top:1rem;">
+    <div class="card">
       <div class="card-title">🔐 Security</div>
-      <button class="btn btn-ghost" onclick="showChangePinModal()">Change PIN</button>
+      <button class="btn btn-ghost btn-full" onclick="showChangePinModal()">Change PIN</button>
     </div>
   </div>
 
-  <!-- RAFFLE DETAIL VIEW -->
+  <!-- TAB: DETAIL -->
   <div id="tab-detail" class="content" style="display:none;">
-    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;flex-wrap:wrap;">
       <button class="btn btn-ghost btn-sm" onclick="showTab('raffles')">← Back</button>
-      <h2 id="detail-name" style="font-size:1.5rem;flex:1;"></h2>
+      <h2 id="detail-name" style="font-size:1.2rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h2>
       <span id="detail-badge"></span>
-      <button class="btn btn-violet" onclick="openDrawScreen()">🎰 Draw!</button>
+    </div>
+    <!-- Action buttons row -->
+    <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+      <button class="btn btn-violet" onclick="openDrawScreen()" style="flex:1;">🎰 Draw!</button>
       <button class="btn btn-ghost btn-sm" onclick="editRaffle()">Edit</button>
       <button class="btn btn-rose btn-sm" onclick="deleteRaffle()">Delete</button>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.75rem;margin-bottom:1.5rem;" id="detail-stats"></div>
+    <!-- Stats -->
+    <div class="stat-row" id="detail-stats"></div>
+    <!-- Sub tabs -->
     <div class="detail-tabs">
       <button class="detail-tab active" onclick="showDetailTab('tickets')">🎟️ Tickets</button>
       <button class="detail-tab" onclick="showDetailTab('prizes')">🏆 Prizes</button>
     </div>
+    <!-- Tickets panel -->
     <div id="dtab-tickets">
-      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
-        <button class="btn btn-gold" onclick="openAddTicketModal()">+ Add Buyer</button>
-        <button class="btn btn-ghost btn-sm" onclick="copyWhatsApp()">📋 Copy for WhatsApp</button>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.875rem;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="openAddTicketModal()" style="flex:1;">+ Add Buyer</button>
+        <button class="btn btn-ghost btn-sm" onclick="copyWhatsApp()">📋 WhatsApp</button>
       </div>
-      <div class="card" style="padding:0;overflow:hidden;">
-        <table class="ticket-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Paid</th>
-              <th>Free</th>
-              <th>Ticket Numbers</th>
-              <th>Amount</th>
-              <th>Payment</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="ticket-tbody"></tbody>
-        </table>
-      </div>
+      <div id="ticket-list"></div>
     </div>
+    <!-- Prizes panel -->
     <div id="dtab-prizes" style="display:none;">
-      <div style="margin-bottom:1rem;">
-        <button class="btn btn-gold" onclick="openAddPrizeModal()">+ Add Prize</button>
+      <div style="margin-bottom:0.875rem;">
+        <button class="btn btn-gold btn-full" onclick="openAddPrizeModal()">+ Add Prize</button>
       </div>
       <div id="prizes-list"></div>
     </div>
@@ -329,179 +320,191 @@ input[type=number]{-moz-appearance:textfield;}
 <div id="draw-screen">
   <div class="draw-header">
     <div class="draw-title" id="draw-raffle-name"></div>
-    <p style="color:var(--muted);font-size:0.82rem;margin-top:0.4rem;" id="draw-ticket-count"></p>
+    <p style="color:var(--muted);font-size:0.78rem;margin-top:0.3rem;" id="draw-ticket-count"></p>
   </div>
   <div class="spinners-grid" id="spinners-grid"></div>
   <div class="draw-controls">
-    <div class="spin-time-control">
+    <div class="spin-time-row">
       <label>Spin time</label>
       <input type="number" id="spin-duration-input" value="5" min="1" max="60">
       <label>sec</label>
     </div>
-    <button class="btn btn-gold" id="btn-start-draw" onclick="startDraw()">🎰 Spin All!</button>
-    <button class="btn btn-ghost" id="btn-stop-next" onclick="stopNextSpinner()" style="display:none;">⏹ Stop Next</button>
-    <button class="btn btn-emerald" id="btn-close-draw" onclick="closeDraw()" style="display:none;">✓ Done</button>
-    <button class="btn btn-ghost btn-sm" onclick="closeDraw()">✕ Close</button>
+    <button class="btn btn-gold btn-full" id="btn-start-draw" onclick="startDraw()">🎰 Spin All!</button>
+    <button class="btn btn-ghost btn-full" id="btn-stop-next" onclick="stopNextSpinner()" style="display:none;">⏹ Reveal Next Winner</button>
+    <button class="btn btn-emerald btn-full" id="btn-close-draw" onclick="closeDraw()" style="display:none;">✓ Done — Save & Close</button>
+    <button class="btn btn-ghost btn-sm" onclick="closeDraw()">✕ Close Without Saving</button>
   </div>
 </div>
 
-<!-- MODALS -->
+<!-- ── MODALS ── -->
+
+<!-- Raffle modal -->
 <div class="modal-bg" id="modal-raffle">
   <div class="modal">
-    <div class="modal-title" id="modal-raffle-title">Create New Raffle</div>
-    <div class="form-grid">
-      <div class="form-group full"><label>Raffle Name</label><input type="text" id="rf-name" placeholder="e.g. June Fundraiser"></div>
-      <div class="form-group"><label>Ticket Price (R)</label><input type="number" id="rf-price" placeholder="50"></div>
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="modal-raffle-title">New Raffle</div>
+    <div class="form-group"><label>Raffle Name *</label><input type="text" id="rf-name" placeholder="e.g. June Fundraiser"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Ticket Price (R) *</label><input type="number" id="rf-price" placeholder="50"></div>
       <div class="form-group"><label>Target Amount (R)</label><input type="number" id="rf-target" placeholder="5000"></div>
+    </div>
+    <div class="form-row">
       <div class="form-group"><label>Buy X tickets →</label><input type="number" id="rf-buy" placeholder="5"></div>
       <div class="form-group"><label>Get Y free</label><input type="number" id="rf-free" placeholder="2"></div>
-      <div class="form-group full"><label>Description (optional)</label><textarea id="rf-desc" rows="2" placeholder="What is this raffle for?"></textarea></div>
     </div>
-    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-raffle')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveRaffle()">Save Raffle</button>
+    <div class="form-group"><label>Description</label><textarea id="rf-desc" placeholder="What is this raffle for?"></textarea></div>
+    <div style="display:flex;gap:0.6rem;margin-top:0.5rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-raffle')">Cancel</button>
+      <button class="btn btn-gold" style="flex:2;" onclick="saveRaffle()">Save Raffle</button>
     </div>
   </div>
 </div>
 
+<!-- Ticket modal -->
 <div class="modal-bg" id="modal-ticket">
   <div class="modal">
-    <div class="modal-title" id="modal-ticket-title">Add Ticket Buyer</div>
-    <div class="form-grid">
-      <div class="form-group full"><label>Buyer Name</label><input type="text" id="tk-name" placeholder="Full name"></div>
-      <div class="form-group"><label>Number of Tickets</label><input type="number" id="tk-count" placeholder="1" min="1" oninput="updateTicketPreview()"></div>
-      <div class="form-group"><label>Payment Status</label>
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="modal-ticket-title">Add Buyer</div>
+    <div class="form-group"><label>Buyer Name *</label><input type="text" id="tk-name" placeholder="Full name"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Tickets *</label><input type="number" id="tk-count" placeholder="1" min="1" oninput="updateTicketPreview()"></div>
+      <div class="form-group"><label>Payment</label>
         <select id="tk-payment">
           <option value="pending">Pending</option>
           <option value="eft">EFT Received</option>
           <option value="confirmed">Confirmed</option>
         </select>
       </div>
-      <div class="form-group full"><label>EFT Reference (optional)</label><input type="text" id="tk-ref" placeholder="Payment reference"></div>
     </div>
-    <div id="ticket-preview-box" style="background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;padding:1rem;margin-top:1rem;">
-      <div style="color:var(--muted);font-size:0.7rem;font-weight:700;text-transform:uppercase;margin-bottom:0.5rem;">Ticket Preview</div>
-      <div id="ticket-preview-text" style="color:var(--gold);font-size:0.85rem;"></div>
+    <div class="form-group"><label>EFT Reference</label><input type="text" id="tk-ref" placeholder="Payment reference"></div>
+    <div id="ticket-preview-box" style="background:var(--surface2);border:1px solid var(--border);border-radius:0.75rem;padding:0.875rem;margin-bottom:1rem;">
+      <div style="color:var(--muted);font-size:0.68rem;font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Preview</div>
+      <div id="ticket-preview-text" style="color:var(--gold);font-size:0.85rem;line-height:1.5;">—</div>
     </div>
-    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-ticket')">Cancel</button>
-      <button class="btn btn-gold" onclick="saveTicket()">Save</button>
+    <div style="display:flex;gap:0.6rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-ticket')">Cancel</button>
+      <button class="btn btn-gold" style="flex:2;" onclick="saveTicket()">Save</button>
     </div>
   </div>
 </div>
 
+<!-- Prize modal -->
 <div class="modal-bg" id="modal-prize">
   <div class="modal">
+    <div class="modal-drag"></div>
     <div class="modal-title" id="modal-prize-title">Add Prize</div>
-    <div class="form-grid">
-      <div class="form-group full"><label>Prize Name</label><input type="text" id="pz-name" placeholder="e.g. Luxury Hamper"></div>
-      <div class="form-group full"><label>Description (optional)</label><input type="text" id="pz-desc" placeholder="e.g. Worth R500"></div>
-      <div class="form-group full">
-        <label>Prize Photo</label>
-        <input type="file" id="pz-photo" accept="image/*" onchange="previewPrizePhoto(this)">
-        <div id="pz-photo-preview" style="margin-top:0.5rem;display:none;">
-          <img id="pz-preview-img" style="max-height:140px;border-radius:0.5rem;border:1px solid var(--border);">
-        </div>
+    <div class="form-group"><label>Prize Name *</label><input type="text" id="pz-name" placeholder="e.g. Luxury Hamper"></div>
+    <div class="form-group"><label>Description</label><input type="text" id="pz-desc" placeholder="e.g. Worth R500"></div>
+    <div class="form-group">
+      <label>Prize Photo</label>
+      <input type="file" id="pz-photo" accept="image/*" capture="environment" onchange="previewPrizePhoto(this)">
+      <div id="pz-photo-preview" style="margin-top:0.6rem;display:none;">
+        <img id="pz-preview-img" style="max-height:160px;border-radius:0.75rem;border:1px solid var(--border);width:100%;object-fit:cover;">
       </div>
     </div>
-    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-prize')">Cancel</button>
-      <button class="btn btn-gold" onclick="savePrize()">Add Prize</button>
+    <div style="display:flex;gap:0.6rem;margin-top:0.5rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-prize')">Cancel</button>
+      <button class="btn btn-gold" style="flex:2;" onclick="savePrize()">Add Prize</button>
     </div>
   </div>
 </div>
 
+<!-- Change PIN modal -->
 <div class="modal-bg" id="modal-pin">
-  <div class="modal" style="max-width:360px;">
+  <div class="modal">
+    <div class="modal-drag"></div>
     <div class="modal-title">Change PIN</div>
-    <div class="form-group" style="margin-bottom:1rem;"><label>Current PIN</label><input type="password" id="pin-current" maxlength="4" placeholder="••••"></div>
-    <div class="form-group" style="margin-bottom:1rem;"><label>New PIN (4 digits)</label><input type="password" id="pin-new" maxlength="4" placeholder="••••"></div>
-    <div class="form-group" style="margin-bottom:1.5rem;"><label>Confirm New PIN</label><input type="password" id="pin-confirm" maxlength="4" placeholder="••••"></div>
-    <div class="pin-error" id="pin-change-error" style="margin-bottom:1rem;"></div>
-    <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-pin')">Cancel</button>
-      <button class="btn btn-gold" onclick="changePIN()">Change PIN</button>
+    <div class="form-group"><label>Current PIN</label><input type="password" id="pin-current" maxlength="4" placeholder="••••" inputmode="numeric"></div>
+    <div class="form-group"><label>New PIN (4 digits)</label><input type="password" id="pin-new" maxlength="4" placeholder="••••" inputmode="numeric"></div>
+    <div class="form-group"><label>Confirm New PIN</label><input type="password" id="pin-confirm" maxlength="4" placeholder="••••" inputmode="numeric"></div>
+    <div class="pin-error" id="pin-change-error" style="margin-bottom:0.75rem;"></div>
+    <div style="display:flex;gap:0.6rem;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeModal('modal-pin')">Cancel</button>
+      <button class="btn btn-gold" style="flex:2;" onclick="changePIN()">Change PIN</button>
     </div>
   </div>
 </div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 const STORAGE_KEY = 'RAFFLE_DATA';
-
 let state = {
   raffles: [],
-  settings: { buyX: 5, getFree: 2, spinDuration: 5, defaultPrice: 50 },
+  settings: { buyX:5, getFree:2, spinDuration:5, defaultPrice:50 },
   pin: '1234'
 };
 let currentRaffleId = null;
 let editingTicketIdx = null;
 let editingPrizeIdx = null;
 let editingRaffleId = null;
-let drawState = { spinners: [], winners: [] };
+let drawState = { spinners:[], winners:[] };
 
-// ═══════════════════════════════════════════════
-// FIREBASE STORAGE — wait for cloudStorage to be ready
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// FIREBASE
+// ══════════════════════════════════════════════
 async function waitForStorage() {
   return new Promise(res => {
-    const t = setInterval(() => {
-      if (typeof cloudStorage !== 'undefined') { clearInterval(t); res(); }
-    }, 50);
-    setTimeout(() => { clearInterval(t); res(); }, 5000); // timeout fallback
+    const t = setInterval(() => { if (typeof cloudStorage !== 'undefined') { clearInterval(t); res(); } }, 50);
+    setTimeout(() => { clearInterval(t); res(); }, 6000);
   });
 }
-
 async function saveState() {
-  try {
-    await cloudStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) { console.error('Save error:', e); }
+  try { await cloudStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { console.error('Save:', e); }
 }
-
 async function loadState() {
   try {
     const raw = await cloudStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const loaded = JSON.parse(raw);
-      state = { ...state, ...loaded };
-    }
-  } catch(e) { console.error('Load error:', e); }
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e) { console.error('Load:', e); }
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════
 // PIN
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 let pinEntry = '';
 function pinPress(n) {
   if (pinEntry.length >= 4) return;
-  pinEntry += n;
-  updatePinDots();
-  if (pinEntry.length === 4) setTimeout(checkPin, 100);
+  pinEntry += n; updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 120);
 }
 function pinBackspace() { pinEntry = pinEntry.slice(0,-1); updatePinDots(); document.getElementById('pin-error').textContent=''; }
 function pinClear() { pinEntry = ''; updatePinDots(); document.getElementById('pin-error').textContent=''; }
-function updatePinDots() {
-  for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i < pinEntry.length);
-}
+function updatePinDots() { for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled', i<pinEntry.length); }
 function checkPin() {
   if (pinEntry === state.pin) {
     document.getElementById('pin-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    document.getElementById('app').style.flexDirection = 'column';
+    const app = document.getElementById('app');
+    app.style.display = 'flex'; app.style.flexDirection = 'column';
     renderRaffles();
   } else {
-    document.getElementById('pin-error').textContent = 'Incorrect PIN. Try again.';
-    pinEntry = '';
-    updatePinDots();
+    document.getElementById('pin-error').textContent = 'Incorrect PIN';
+    pinEntry = ''; updatePinDots();
+    // Shake animation
+    const screen = document.getElementById('pin-screen');
+    screen.style.animation = 'none';
+    setTimeout(() => { screen.style.animation = ''; }, 10);
   }
 }
 function showChangePinModal() {
-  document.getElementById('pin-current').value='';
-  document.getElementById('pin-new').value='';
-  document.getElementById('pin-confirm').value='';
-  document.getElementById('pin-change-error').textContent='';
+  ['pin-current','pin-new','pin-confirm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pin-change-error').textContent = '';
   openModal('modal-pin');
 }
 async function changePIN() {
@@ -512,40 +515,51 @@ async function changePIN() {
   if (cur !== state.pin) { err.textContent = 'Current PIN is incorrect.'; return; }
   if (!/^\d{4}$/.test(nw)) { err.textContent = 'New PIN must be exactly 4 digits.'; return; }
   if (nw !== cnf) { err.textContent = 'PINs do not match.'; return; }
-  state.pin = nw;
-  await saveState();
-  closeModal('modal-pin');
+  state.pin = nw; await saveState();
+  closeModal('modal-pin'); showToast('PIN changed ✓', 'success');
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // TABS
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function showTab(name) {
   ['raffles','history','settings','detail'].forEach(t => {
     document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
   });
   document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-  const map = { raffles:0, history:1, settings:2 };
-  if (map[name] !== undefined) document.querySelectorAll('.tab')[map[name]].classList.add('active');
-  if (name === 'history') renderHistory();
-  if (name === 'raffles') renderRaffles();
+  const map={raffles:0,history:1,settings:2};
+  if (map[name]!==undefined) document.querySelectorAll('.tab')[map[name]].classList.add('active');
+  if (name==='history') renderHistory();
+  if (name==='raffles') renderRaffles();
+  if (name==='settings') loadSettingsUI();
+  window.scrollTo(0,0);
 }
 function showDetailTab(name) {
-  ['tickets','prizes'].forEach(t => {
-    document.getElementById('dtab-'+t).style.display = t===name ? '' : 'none';
-  });
+  ['tickets','prizes'].forEach(t => document.getElementById('dtab-'+t).style.display = t===name?'':'none');
   document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.detail-tab')[name==='tickets'?0:1].classList.add('active');
 }
 
-// ═══════════════════════════════════════════════
-// RAFFLE CRUD
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function calcFreeTickets(paid, buyX, getFree) { return Math.floor(paid/buyX)*getFree; }
+function assignTicketNumbers(raffle, paid, free) {
+  const allNums = raffle.tickets.flatMap(t=>[...t.paidNums,...t.freeNums]);
+  let next = allNums.length>0 ? Math.max(...allNums)+1 : 1;
+  return {
+    paidNums: Array.from({length:paid},(_,i)=>next+i),
+    freeNums:  Array.from({length:free},(_,i)=>next+paid+i)
+  };
+}
 
+// ══════════════════════════════════════════════
+// RAFFLE CRUD
+// ══════════════════════════════════════════════
 function openNewRaffleModal() {
   editingRaffleId = null;
-  document.getElementById('modal-raffle-title').textContent = 'Create New Raffle';
+  document.getElementById('modal-raffle-title').textContent = 'New Raffle';
   document.getElementById('rf-name').value = '';
   document.getElementById('rf-price').value = state.settings.defaultPrice;
   document.getElementById('rf-target').value = '';
@@ -555,8 +569,7 @@ function openNewRaffleModal() {
   openModal('modal-raffle');
 }
 function editRaffle() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
   editingRaffleId = r.id;
   document.getElementById('modal-raffle-title').textContent = 'Edit Raffle';
   document.getElementById('rf-name').value = r.name;
@@ -569,50 +582,37 @@ function editRaffle() {
 }
 async function saveRaffle() {
   const name = document.getElementById('rf-name').value.trim();
-  if (!name) { alert('Please enter a raffle name.'); return; }
-  const price = parseFloat(document.getElementById('rf-price').value)||50;
-  const target = parseFloat(document.getElementById('rf-target').value)||0;
-  const buyX = parseInt(document.getElementById('rf-buy').value)||5;
-  const getFree = parseInt(document.getElementById('rf-free').value)||2;
-  const desc = document.getElementById('rf-desc').value.trim();
+  if (!name) { showToast('Please enter a raffle name', 'error'); return; }
+  const price = parseFloat(document.getElementById('rf-price').value)||0;
+  if (!price) { showToast('Please enter a ticket price', 'error'); return; }
+  const target   = parseFloat(document.getElementById('rf-target').value)||0;
+  const buyX     = parseInt(document.getElementById('rf-buy').value)||5;
+  const getFree  = parseInt(document.getElementById('rf-free').value)||2;
+  const desc     = document.getElementById('rf-desc').value.trim();
   if (editingRaffleId) {
     const r = state.raffles.find(x=>x.id===editingRaffleId);
-    if (r) { r.name=name; r.price=price; r.target=target; r.buyX=buyX; r.getFree=getFree; r.desc=desc; }
+    if (r) Object.assign(r, {name,price,target,buyX,getFree,desc});
   } else {
-    state.raffles.push({ id:uid(), name, price, target, buyX, getFree, desc, tickets:[], prizes:[], status:'open', createdAt:Date.now() });
+    state.raffles.push({id:uid(),name,price,target,buyX,getFree,desc,tickets:[],prizes:[],status:'open',createdAt:Date.now()});
   }
-  await saveState();
-  closeModal('modal-raffle');
-  renderRaffles();
-  if (editingRaffleId) renderDetail();
+  await saveState(); closeModal('modal-raffle');
+  renderRaffles(); if(editingRaffleId) renderDetail();
+  showToast(editingRaffleId ? 'Raffle updated ✓' : 'Raffle created ✓', 'success');
 }
 async function deleteRaffle() {
   if (!confirm('Delete this raffle and all its data?')) return;
   state.raffles = state.raffles.filter(x=>x.id!==currentRaffleId);
-  await saveState();
-  showTab('raffles');
+  await saveState(); showTab('raffles'); showToast('Raffle deleted');
 }
 
-// ═══════════════════════════════════════════════
-// TICKET LOGIC
-// ═══════════════════════════════════════════════
-function calcFreeTickets(paid, buyX, getFree) {
-  return Math.floor(paid / buyX) * getFree;
-}
-function assignTicketNumbers(raffle, paid, free) {
-  const allNums = raffle.tickets.flatMap(t => [...t.paidNums, ...t.freeNums]);
-  let next = allNums.length > 0 ? Math.max(...allNums) + 1 : 1;
-  const paidNums = Array.from({length:paid}, (_,i) => next+i);
-  const freeNums = Array.from({length:free}, (_,i) => next+paid+i);
-  return { paidNums, freeNums };
-}
+// ══════════════════════════════════════════════
+// TICKETS
+// ══════════════════════════════════════════════
 function openAddTicketModal() {
   editingTicketIdx = null;
-  document.getElementById('modal-ticket-title').textContent = 'Add Ticket Buyer';
-  document.getElementById('tk-name').value = '';
-  document.getElementById('tk-count').value = '';
+  document.getElementById('modal-ticket-title').textContent = 'Add Buyer';
+  ['tk-name','tk-count','tk-ref'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('tk-payment').value = 'pending';
-  document.getElementById('tk-ref').value = '';
   document.getElementById('ticket-preview-text').textContent = '—';
   openModal('modal-ticket');
 }
@@ -629,115 +629,74 @@ function editTicket(idx) {
   openModal('modal-ticket');
 }
 function updateTicketPreview() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
   const paid = parseInt(document.getElementById('tk-count').value)||0;
   const free = calcFreeTickets(paid, r.buyX, r.getFree);
-  const total = paid + free;
-  const amt = paid * r.price;
-  let txt = total > 0
-    ? `${paid} paid + ${free} free = ${total} entries · R${amt.toLocaleString()}`
+  const total = paid+free;
+  const amt = paid*r.price;
+  document.getElementById('ticket-preview-text').textContent = total>0
+    ? `${paid} paid + ${free} free = ${total} entries · R${amt.toLocaleString()}${free>0?' (every '+r.buyX+' = '+r.getFree+' free)':''}`
     : '—';
-  if (free > 0 && total > 0) txt += ` (every ${r.buyX} tickets = ${r.getFree} free)`;
-  document.getElementById('ticket-preview-text').textContent = txt;
 }
 async function saveTicket() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
   const name = document.getElementById('tk-name').value.trim();
-  if (!name) { alert('Please enter a name.'); return; }
+  if (!name) { showToast('Please enter a name', 'error'); return; }
   const paid = parseInt(document.getElementById('tk-count').value)||0;
-  if (paid < 1) { alert('Please enter at least 1 ticket.'); return; }
-  const free = calcFreeTickets(paid, r.buyX, r.getFree);
+  if (paid<1) { showToast('At least 1 ticket required', 'error'); return; }
+  const free    = calcFreeTickets(paid, r.buyX, r.getFree);
   const payment = document.getElementById('tk-payment').value;
-  const ref = document.getElementById('tk-ref').value.trim();
+  const ref     = document.getElementById('tk-ref').value.trim();
 
   if (editingTicketIdx !== null) {
     const old = r.tickets[editingTicketIdx];
     const oldPaid = old.paidNums.length;
     if (oldPaid !== paid) {
-      const diff = paid - oldPaid;
-      if (diff > 0) {
-        const extra = assignTicketNumbers(r, diff, 0);
+      if (paid > oldPaid) {
+        const extra = assignTicketNumbers(r, paid-oldPaid, 0);
         old.paidNums = [...old.paidNums, ...extra.paidNums];
       } else {
         old.paidNums = old.paidNums.slice(0, paid);
       }
       const newFree = calcFreeTickets(paid, r.buyX, r.getFree);
-      old.freeNums = newFree > 0 ? old.freeNums.slice(0, newFree) : [];
-      if (old.freeNums.length < newFree) {
-        const extra = assignTicketNumbers(r, 0, newFree - old.freeNums.length);
-        old.freeNums = [...old.freeNums, ...extra.freeNums];
+      if (newFree > old.freeNums.length) {
+        const extra = assignTicketNumbers(r, 0, newFree-old.freeNums.length);
+        old.freeNums = [...old.freeNums.slice(0,newFree), ...extra.freeNums].slice(0,newFree);
+      } else {
+        old.freeNums = old.freeNums.slice(0, newFree);
       }
     }
-    old.name = name; old.payment = payment; old.ref = ref;
+    Object.assign(old, {name, payment, ref});
   } else {
     const nums = assignTicketNumbers(r, paid, free);
-    r.tickets.push({ id:uid(), name, paidNums:nums.paidNums, freeNums:nums.freeNums, payment, ref, addedAt:Date.now() });
+    r.tickets.push({id:uid(), name, paidNums:nums.paidNums, freeNums:nums.freeNums, payment, ref, addedAt:Date.now()});
   }
 
-  // Auto-flag target reached
-  const totalCollected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
-  if (r.target > 0 && totalCollected >= r.target && r.status === 'open') r.status = 'target_reached';
+  // Auto flag target reached
+  const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  if (r.target>0 && collected>=r.target && r.status==='open') r.status='target_reached';
 
-  await saveState();
-  closeModal('modal-ticket');
-  renderDetail();
+  await saveState(); closeModal('modal-ticket'); renderDetail();
+  showToast(editingTicketIdx!==null ? 'Buyer updated ✓' : 'Buyer added ✓', 'success');
 }
 async function deleteTicket(idx) {
   if (!confirm('Remove this buyer?')) return;
   const r = state.raffles.find(x=>x.id===currentRaffleId);
   r.tickets.splice(idx,1);
-  await saveState();
-  renderDetail();
+  await saveState(); renderDetail(); showToast('Buyer removed');
 }
 
-// ═══════════════════════════════════════════════
-// PRIZE CRUD
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// PRIZES
+// ══════════════════════════════════════════════
 function openAddPrizeModal() {
   editingPrizeIdx = null;
   document.getElementById('modal-prize-title').textContent = 'Add Prize';
-  document.getElementById('pz-name').value = '';
-  document.getElementById('pz-desc').value = '';
-  document.getElementById('pz-photo').value = '';
-  document.getElementById('pz-preview-img').src = '';
-  document.getElementById('pz-photo-preview').style.display = 'none';
+  ['pz-name','pz-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pz-photo').value='';
+  document.getElementById('pz-preview-img').src='';
+  document.getElementById('pz-photo-preview').style.display='none';
   openModal('modal-prize');
-}
-function previewPrizePhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById('pz-preview-img').src = e.target.result;
-    document.getElementById('pz-photo-preview').style.display = '';
-  };
-  reader.readAsDataURL(file);
-}
-async function savePrize() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
-  const name = document.getElementById('pz-name').value.trim();
-  if (!name) { alert('Please enter a prize name.'); return; }
-  const desc = document.getElementById('pz-desc').value.trim();
-  const imgEl = document.getElementById('pz-preview-img');
-  const img = imgEl.src && imgEl.src.startsWith('data:') ? imgEl.src : '';
-  if (editingPrizeIdx !== null) {
-    r.prizes[editingPrizeIdx] = { ...r.prizes[editingPrizeIdx], name, desc, img: img || r.prizes[editingPrizeIdx].img };
-  } else {
-    r.prizes.push({ id:uid(), name, desc, img });
-  }
-  await saveState();
-  closeModal('modal-prize');
-  renderPrizes();
-}
-async function deletePrize(idx) {
-  if (!confirm('Remove this prize?')) return;
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  r.prizes.splice(idx,1);
-  await saveState();
-  renderPrizes();
 }
 function editPrize(idx) {
   const r = state.raffles.find(x=>x.id===currentRaffleId);
@@ -746,335 +705,388 @@ function editPrize(idx) {
   document.getElementById('modal-prize-title').textContent = 'Edit Prize';
   document.getElementById('pz-name').value = p.name;
   document.getElementById('pz-desc').value = p.desc||'';
-  if (p.img) {
-    document.getElementById('pz-preview-img').src = p.img;
-    document.getElementById('pz-photo-preview').style.display = '';
-  } else {
-    document.getElementById('pz-photo-preview').style.display = 'none';
-  }
+  if (p.img) { document.getElementById('pz-preview-img').src=p.img; document.getElementById('pz-photo-preview').style.display=''; }
+  else document.getElementById('pz-photo-preview').style.display='none';
   openModal('modal-prize');
 }
+function previewPrizePhoto(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('pz-preview-img').src = e.target.result;
+    document.getElementById('pz-photo-preview').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+async function savePrize() {
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
+  const name = document.getElementById('pz-name').value.trim();
+  if (!name) { showToast('Please enter a prize name', 'error'); return; }
+  const desc = document.getElementById('pz-desc').value.trim();
+  const imgEl = document.getElementById('pz-preview-img');
+  const img = imgEl.src && imgEl.src.startsWith('data:') ? imgEl.src : '';
+  if (editingPrizeIdx !== null) {
+    Object.assign(r.prizes[editingPrizeIdx], {name, desc, img: img||r.prizes[editingPrizeIdx].img});
+  } else {
+    r.prizes.push({id:uid(), name, desc, img});
+  }
+  await saveState(); closeModal('modal-prize'); renderPrizes();
+  showToast(editingPrizeIdx!==null ? 'Prize updated ✓' : 'Prize added ✓', 'success');
+}
+async function deletePrize(idx) {
+  if (!confirm('Remove this prize?')) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId);
+  r.prizes.splice(idx,1);
+  await saveState(); renderPrizes(); showToast('Prize removed');
+}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // RENDER
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function renderRaffles() {
   const grid = document.getElementById('raffle-grid');
   const none = document.getElementById('no-raffles');
   const active = state.raffles.filter(r=>r.status!=='drawn');
-  grid.innerHTML = '';
+  grid.innerHTML='';
   if (!active.length) { none.style.display=''; grid.style.display='none'; return; }
-  none.style.display = 'none'; grid.style.display = '';
+  none.style.display='none'; grid.style.display='';
   active.forEach(r => {
-    const totalTickets = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
-    const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
-    const pct = r.target > 0 ? Math.min(100, Math.round(collected/r.target*100)) : 0;
-    const firstPrizeImg = r.prizes[0]?.img || '';
-    const card = document.createElement('div');
-    card.className = 'raffle-card';
-    card.onclick = () => openDetail(r.id);
-    card.innerHTML = `
+    const total    = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+    const collected= r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+    const pct      = r.target>0 ? Math.min(100,Math.round(collected/r.target*100)) : 0;
+    const img      = r.prizes[0]?.img||'';
+    const statClass= r.status==='open'?'badge-open':r.status==='target_reached'?'badge-drawn':'badge-closed';
+    const statText = r.status==='target_reached'?'Target Reached':r.status==='open'?'Open':'Closed';
+    const el = document.createElement('div');
+    el.className='raffle-card'; el.onclick=()=>openDetail(r.id);
+    el.innerHTML=`
       <div class="raffle-card-img">
-        ${firstPrizeImg ? `<img src="${firstPrizeImg}">` : '<span style="font-size:2.5rem;">🏆</span>'}
+        ${img?`<img src="${img}" loading="lazy">`:'<span style="font-size:2.5rem;">🏆</span>'}
         <div class="prize-count">${r.prizes.length} prize${r.prizes.length!==1?'s':''}</div>
       </div>
       <div class="raffle-card-body">
         <div class="raffle-card-name">${r.name}</div>
-        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.5rem;">
-          <span class="badge ${r.status==='open'?'badge-open':r.status==='target_reached'?'badge-drawn':'badge-closed'}">${r.status==='target_reached'?'Target Reached':r.status}</span>
-          <span style="font-size:0.75rem;color:var(--muted);">R${r.price}/ticket</span>
+        <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
+          <span class="badge ${statClass}">${statText}</span>
+          <span style="font-size:0.75rem;color:var(--muted);">R${r.price}/ticket · Buy ${r.buyX} get ${r.getFree} free</span>
         </div>
         ${r.target>0?`<div class="raffle-progress"><div class="raffle-progress-bar" style="width:${pct}%"></div></div>
-        <div class="raffle-stats"><div>Collected <strong>R${collected.toLocaleString()}</strong></div><div>Target <strong>R${r.target.toLocaleString()}</strong></div></div>`:''}
-        <div class="raffle-stats" style="margin-top:0.4rem;">
-          <div>Entries <strong>${totalTickets}</strong></div>
+        <div class="raffle-stats"><div>R${collected.toLocaleString()} <strong>of R${r.target.toLocaleString()}</strong></div><div>${pct}%</div></div>`:''}
+        <div class="raffle-stats" style="margin-top:0.35rem;">
           <div>Buyers <strong>${r.tickets.length}</strong></div>
+          <div>Entries <strong>${total}</strong></div>
+          <div>Prizes <strong>${r.prizes.length}</strong></div>
         </div>
       </div>`;
-    grid.appendChild(card);
+    grid.appendChild(el);
   });
 }
 
-function openDetail(id) {
-  currentRaffleId = id;
-  showTab('detail');
-  renderDetail();
-}
+function openDetail(id) { currentRaffleId=id; showTab('detail'); renderDetail(); }
+
 function renderDetail() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
   document.getElementById('detail-name').textContent = r.name;
-  const badgeMap = { open:'badge-open', target_reached:'badge-drawn', closed:'badge-closed', drawn:'badge-drawn' };
-  const badgeText = { open:'Open', target_reached:'Target Reached', closed:'Closed', drawn:'Drawn' };
-  document.getElementById('detail-badge').innerHTML = `<span class="badge ${badgeMap[r.status]||'badge-open'}">${badgeText[r.status]||r.status}</span>`;
-  const totalPaid = r.tickets.reduce((s,t)=>s+t.paidNums.length,0);
-  const totalFree = r.tickets.reduce((s,t)=>s+t.freeNums.length,0);
-  const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
-  const pending = r.tickets.filter(t=>t.payment==='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
-  document.getElementById('detail-stats').innerHTML = `
-    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.tickets.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Buyers</div></div>
-    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--violet);">${totalPaid+totalFree}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Total Entries</div></div>
-    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--emerald);">R${collected.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Collected</div></div>
-    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--rose);">R${pending.toLocaleString()}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Pending EFT</div></div>
-    ${r.target>0?`<div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${Math.round(collected/r.target*100)}%</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Of Target</div></div>`:''}
-    <div class="card" style="padding:1rem;text-align:center;"><div style="font-size:1.6rem;font-weight:900;color:var(--gold);">${r.prizes.length}</div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;margin-top:2px;">Prizes</div></div>`;
-  renderTickets();
-  renderPrizes();
+  const bMap={open:'badge-open',target_reached:'badge-drawn',closed:'badge-closed',drawn:'badge-drawn'};
+  const bTxt={open:'Open',target_reached:'Target Reached',closed:'Closed',drawn:'Drawn'};
+  document.getElementById('detail-badge').innerHTML=`<span class="badge ${bMap[r.status]||'badge-open'}">${bTxt[r.status]||r.status}</span>`;
+
+  const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+  const collected    = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+  const pending      = r.tickets.filter(t=>t.payment==='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
+
+  document.getElementById('detail-stats').innerHTML=`
+    <div class="stat-chip"><div class="stat-val" style="color:var(--gold);">${r.tickets.length}</div><div class="stat-lbl">Buyers</div></div>
+    <div class="stat-chip"><div class="stat-val" style="color:var(--violet);">${totalEntries}</div><div class="stat-lbl">Entries</div></div>
+    <div class="stat-chip"><div class="stat-val" style="color:var(--emerald);">R${collected>=1000?(collected/1000).toFixed(1)+'k':collected}</div><div class="stat-lbl">Collected</div></div>
+    <div class="stat-chip"><div class="stat-val" style="color:var(--rose);">R${pending>=1000?(pending/1000).toFixed(1)+'k':pending}</div><div class="stat-lbl">Pending</div></div>
+    ${r.target>0?`<div class="stat-chip"><div class="stat-val" style="color:var(--gold);">${Math.round(collected/r.target*100)}%</div><div class="stat-lbl">Of Target</div></div>`:''}
+    <div class="stat-chip"><div class="stat-val" style="color:var(--gold);">${r.prizes.length}</div><div class="stat-lbl">Prizes</div></div>`;
+
+  renderTickets(); renderPrizes();
 }
+
 function renderTickets() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
-  const tbody = document.getElementById('ticket-tbody');
-  tbody.innerHTML = '';
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
+  const list = document.getElementById('ticket-list');
+  list.innerHTML='';
   if (!r.tickets.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No buyers yet — add the first one!</td></tr>';
+    list.innerHTML='<div class="empty"><div class="empty-icon">🎫</div><p>No buyers yet</p><small>Tap + Add Buyer to get started</small></div>';
     return;
   }
   r.tickets.forEach((t,i) => {
-    const amt = t.paidNums.length * r.price;
-    const pBadge = t.payment==='confirmed'?'badge-confirmed':t.payment==='eft'?'badge-open':'badge-pending';
-    const pText = t.payment==='confirmed'?'Confirmed':t.payment==='eft'?'EFT Received':'Pending';
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td style="font-weight:700;">${t.name}</td>
-      <td style="text-align:center;">${t.paidNums.length}</td>
-      <td style="text-align:center;color:var(--violet);">${t.freeNums.length}</td>
-      <td><div class="ticket-nums">${t.paidNums.map(n=>`<span class="tnum">#${n}</span>`).join('')}${t.freeNums.map(n=>`<span class="tnum free">#${n}</span>`).join('')}</div></td>
-      <td style="font-weight:700;">R${amt.toLocaleString()}</td>
-      <td><span class="badge ${pBadge}">${pText}</span>${t.ref?`<div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">${t.ref}</div>`:''}</td>
-      <td><div style="display:flex;gap:0.4rem;"><button class="btn btn-ghost btn-sm" onclick="editTicket(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deleteTicket(${i})">✕</button></div></td>`;
-    tbody.appendChild(row);
+    const amt = t.paidNums.length*r.price;
+    const payBadge = t.payment==='confirmed'?'badge-confirmed':t.payment==='eft'?'badge-eft':'badge-pending';
+    const payText  = t.payment==='confirmed'?'Confirmed ✓':t.payment==='eft'?'EFT Received':'Pending';
+    const el = document.createElement('div');
+    el.className='ticket-card';
+    el.innerHTML=`
+      <div class="ticket-card-header">
+        <div class="ticket-card-name">${t.name}</div>
+        <div class="ticket-card-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editTicket(${i})">Edit</button>
+          <button class="btn btn-rose btn-sm" onclick="deleteTicket(${i})">✕</button>
+        </div>
+      </div>
+      <div class="ticket-nums">
+        ${t.paidNums.map(n=>`<span class="tnum">#${n}</span>`).join('')}
+        ${t.freeNums.map(n=>`<span class="tnum free">#${n} 🎁</span>`).join('')}
+      </div>
+      <div class="ticket-meta">
+        <span>${t.paidNums.length} paid${t.freeNums.length>0?' + '+t.freeNums.length+' free':''}</span>
+        <span style="font-weight:700;color:var(--text);">R${amt.toLocaleString()}</span>
+        <span class="badge ${payBadge}">${payText}</span>
+        ${t.ref?`<span style="color:var(--muted);font-size:0.72rem;">Ref: ${t.ref}</span>`:''}
+      </div>`;
+    list.appendChild(el);
   });
 }
+
 function renderPrizes() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
   const list = document.getElementById('prizes-list');
-  list.innerHTML = '';
+  list.innerHTML='';
   if (!r.prizes.length) {
-    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">No prizes yet — add your first prize!</div>';
+    list.innerHTML='<div class="empty"><div class="empty-icon">🏆</div><p>No prizes yet</p><small>Tap + Add Prize to add your first prize</small></div>';
     return;
   }
   r.prizes.forEach((p,i) => {
-    const div = document.createElement('div');
-    div.className = 'prize-item';
-    div.innerHTML = `
-      <div class="prize-thumb">${p.img ? `<img src="${p.img}">` : '🏆'}</div>
-      <div style="flex:1;"><div style="font-weight:700;font-size:0.9rem;">${p.name}</div>${p.desc?`<div style="font-size:0.78rem;color:var(--muted);margin-top:2px;">${p.desc}</div>`:''}</div>
-      <div style="display:flex;gap:0.5rem;"><button class="btn btn-ghost btn-sm" onclick="editPrize(${i})">Edit</button><button class="btn btn-rose btn-sm" onclick="deletePrize(${i})">✕</button></div>`;
-    list.appendChild(div);
+    const el = document.createElement('div');
+    el.className='prize-item';
+    el.innerHTML=`
+      <div class="prize-thumb">${p.img?`<img src="${p.img}" loading="lazy">`:'🏆'}</div>
+      <div class="prize-info"><strong>${p.name}</strong>${p.desc?`<span>${p.desc}</span>`:''}</div>
+      <div style="display:flex;flex-direction:column;gap:0.35rem;">
+        <button class="btn btn-ghost btn-sm" onclick="editPrize(${i})">Edit</button>
+        <button class="btn btn-rose btn-sm" onclick="deletePrize(${i})">✕</button>
+      </div>`;
+    list.appendChild(el);
   });
 }
+
 function renderHistory() {
   const list = document.getElementById('history-list');
   const drawn = state.raffles.filter(r=>r.status==='drawn');
-  if (!drawn.length) { list.innerHTML = '<div style="text-align:center;padding:4rem;color:var(--muted);">No completed raffles yet.</div>'; return; }
-  list.innerHTML = drawn.map(r => {
-    const winners = (r.winners||[]).map(w=>`<div style="display:flex;gap:0.5rem;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-      <span style="color:var(--gold);font-size:0.75rem;font-weight:700;">🏆 ${w.prize}</span>
-      <span style="font-size:0.82rem;">→ ${w.name} <span style="color:var(--muted);">#${w.ticket}</span></span>
-    </div>`).join('');
-    return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;"><h3 style="font-size:1.1rem;">${r.name}</h3><span class="badge badge-drawn">Drawn</span></div>${winners||'<p style="color:var(--muted);font-size:0.82rem;">No winner data.</p>'}</div>`;
+  if (!drawn.length) { list.innerHTML='<div class="empty"><div class="empty-icon">📜</div><p>No completed raffles yet</p></div>'; return; }
+  list.innerHTML = drawn.reverse().map(r=>{
+    const winners = (r.winners||[]).map(w=>`
+      <div style="display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:1rem;">🏆</span>
+        <div><div style="font-size:0.82rem;font-weight:700;">${w.prize}</div>
+        <div style="font-size:0.78rem;color:var(--muted);">${w.name} · Ticket #${w.ticket}</div></div>
+      </div>`).join('');
+    return `<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+      <h3 style="font-size:1rem;">${r.name}</h3><span class="badge badge-drawn">Drawn</span></div>
+      ${winners||'<p style="color:var(--muted);font-size:0.82rem;">No winner data.</p>'}</div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // WHATSAPP
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function copyWhatsApp() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
-  const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
-  const allNums = r.tickets.flatMap(t=>[...t.paidNums,...t.freeNums]);
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
+  const total     = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
   const collected = r.tickets.filter(t=>t.payment!=='pending').reduce((s,t)=>s+t.paidNums.length*r.price,0);
   let msg = `🎟️ *${r.name}*\n\n`;
-  msg += `💰 Ticket price: R${r.price}\n`;
-  msg += `🎁 Prizes: ${r.prizes.length ? r.prizes.map(p=>p.name).join(', ') : 'TBA'}\n`;
-  msg += `🎫 Buy ${r.buyX} get ${r.getFree} free!\n\n`;
-  msg += `📊 *${totalEntries} tickets sold*\n`;
-  if (r.target > 0) msg += `💵 Collected R${collected.toLocaleString()} of R${r.target.toLocaleString()} target\n`;
-  msg += `\n_Reply to grab your tickets!_ 🙌`;
-  navigator.clipboard.writeText(msg).then(()=>alert('WhatsApp message copied!')).catch(()=>prompt('Copy this:', msg));
+  msg += `💰 R${r.price} per ticket\n`;
+  msg += `🎁 Buy ${r.buyX} get ${r.getFree} FREE!\n`;
+  if (r.prizes.length) msg += `🏆 Prizes: ${r.prizes.map(p=>p.name).join(', ')}\n`;
+  msg += `\n📊 *${total} tickets sold*`;
+  if (r.target>0) msg += ` · R${collected.toLocaleString()} of R${r.target.toLocaleString()} raised`;
+  msg += `\n\n_Reply to get your tickets!_ 🙌`;
+  navigator.clipboard.writeText(msg)
+    .then(()=>showToast('Copied to clipboard ✓', 'success'))
+    .catch(()=>{ const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('Copied ✓','success'); });
 }
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // DRAW SCREEN
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function openDrawScreen() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
-  if (!r.prizes.length) { alert('Add at least one prize before drawing.'); return; }
-  if (!r.tickets.length) { alert('Add ticket buyers before drawing.'); return; }
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
+  if (!r.prizes.length) { showToast('Add prizes first', 'error'); return; }
+  if (!r.tickets.length) { showToast('Add ticket buyers first', 'error'); return; }
+
   document.getElementById('draw-raffle-name').textContent = r.name;
-  const totalEntries = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
-  document.getElementById('draw-ticket-count').textContent = `${totalEntries} total entries · ${r.prizes.length} prizes to draw`;
+  const total = r.tickets.reduce((s,t)=>s+t.paidNums.length+t.freeNums.length,0);
+  document.getElementById('draw-ticket-count').textContent = `${total} entries · ${r.prizes.length} prize${r.prizes.length!==1?'s':''}`;
   document.getElementById('spin-duration-input').value = state.settings.spinDuration;
+
   buildSpinners(r);
-  document.getElementById('btn-start-draw').style.display = '';
-  document.getElementById('btn-stop-next').style.display = 'none';
-  document.getElementById('btn-close-draw').style.display = 'none';
-  document.getElementById('draw-screen').style.display = 'flex';
-  drawState = { spinners: r.prizes.map(()=>({spinning:false, stopped:false, interval:null, timer:null})), winners:[] };
+  document.getElementById('btn-start-draw').style.display='';
+  document.getElementById('btn-stop-next').style.display='none';
+  document.getElementById('btn-close-draw').style.display='none';
+  document.getElementById('draw-screen').style.display='flex';
+
+  drawState = { spinners: r.prizes.map(()=>({spinning:false,stopped:false,interval:null,timer:null})), winners:[] };
 }
+
 function buildSpinners(r) {
   const grid = document.getElementById('spinners-grid');
-  grid.innerHTML = '';
-  r.prizes.forEach((p,i) => {
+  grid.innerHTML='';
+  r.prizes.forEach((p,i)=>{
     const box = document.createElement('div');
-    box.className = 'spinner-box';
-    box.id = 'spinner-'+i;
-    box.innerHTML = `
+    box.className='spinner-box'; box.id='spinner-'+i;
+    box.innerHTML=`
       <div class="spinner-prize-img">${p.img?`<img src="${p.img}">`:'🏆'}</div>
       <div class="spinner-prize-name">${p.name}</div>
       <div class="spinner-drum" id="drum-${i}">
-        <div class="spinner-drum-inner" id="drum-inner-${i}"><div class="spinner-number">?</div></div>
+        <div id="drum-inner-${i}"><div class="spinner-number">?</div></div>
       </div>
-      <div class="spinner-name" id="spinner-name-${i}">—</div>
-      <div class="spinner-status" id="spinner-status-${i}">Waiting...</div>`;
+      <div class="spinner-winner-name" id="spinner-name-${i}">—</div>
+      <div class="spinner-status" id="spinner-status-${i}">Waiting…</div>`;
     grid.appendChild(box);
   });
 }
+
 function startDraw() {
-  const r = state.raffles.find(x=>x.id===currentRaffleId);
-  if (!r) return;
-  const spinDuration = (parseInt(document.getElementById('spin-duration-input').value)||5) * 1000;
-  const pool = r.tickets.flatMap(t => [
-    ...t.paidNums.map(n=>({num:n, name:t.name})),
-    ...t.freeNums.map(n=>({num:n, name:t.name}))
+  const r = state.raffles.find(x=>x.id===currentRaffleId); if(!r) return;
+  const spinMs = (parseInt(document.getElementById('spin-duration-input').value)||5)*1000;
+
+  // Build entry pool
+  const pool = r.tickets.flatMap(t=>[
+    ...t.paidNums.map(n=>({num:n,name:t.name})),
+    ...t.freeNums.map(n=>({num:n,name:t.name}))
   ]);
+
   // Pre-determine winners — 1 prize per person
   const usedNames = new Set();
   const shuffled = [...pool].sort(()=>Math.random()-0.5);
-  drawState.winners = r.prizes.map(p => {
-    const winner = shuffled.find(e=>!usedNames.has(e.name));
-    if (winner) { usedNames.add(winner.name); return { prize:p.name, num:winner.num, name:winner.name }; }
-    const any = shuffled[Math.floor(Math.random()*shuffled.length)];
-    return { prize:p.name, num:any.num, name:any.name };
+  drawState.winners = r.prizes.map(p=>{
+    const w = shuffled.find(e=>!usedNames.has(e.name));
+    if (w) { usedNames.add(w.name); return {prize:p.name,num:w.num,name:w.name}; }
+    // fallback — allow repeat if everyone already won
+    const fb = shuffled[Math.floor(Math.random()*shuffled.length)];
+    return {prize:p.name,num:fb.num,name:fb.name};
   });
-  // Spin all simultaneously
-  r.prizes.forEach((_,i) => {
-    const box = document.getElementById('spinner-'+i);
+
+  // Spin all at once
+  r.prizes.forEach((_,i)=>{
     const inner = document.getElementById('drum-inner-'+i);
+    const box   = document.getElementById('spinner-'+i);
     box.classList.add('spinning');
-    document.getElementById('spinner-status-'+i).textContent = 'Spinning...';
-    drawState.spinners[i].spinning = true;
-    drawState.spinners[i].interval = setInterval(() => {
-      inner.innerHTML = `<div class="spinner-number">#${Math.floor(Math.random()*Math.max(1,pool.length))+1}</div>`;
+    document.getElementById('spinner-status-'+i).textContent='Spinning…';
+    drawState.spinners[i].spinning=true;
+    drawState.spinners[i].interval = setInterval(()=>{
+      inner.innerHTML=`<div class="spinner-number">#${Math.floor(Math.random()*Math.max(1,pool.length))+1}</div>`;
     }, 80);
-    // Auto stop staggered — spinDuration + 500ms per prize after the first
-    drawState.spinners[i].timer = setTimeout(() => {
+    // Auto-stop staggered: each prize stops 700ms after previous
+    drawState.spinners[i].timer = setTimeout(()=>{
       if (drawState.spinners[i].spinning) stopSpinner(i);
-    }, spinDuration + i * 600);
+    }, spinMs + i*700);
   });
-  document.getElementById('btn-start-draw').style.display = 'none';
-  document.getElementById('btn-stop-next').style.display = '';
-  const nextIdx = drawState.spinners.findIndex(s=>s.spinning);
-  document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`;
+
+  document.getElementById('btn-start-draw').style.display='none';
+  document.getElementById('btn-stop-next').style.display='';
+  document.getElementById('btn-stop-next').textContent='⏹ Reveal Prize 1';
 }
+
 function stopNextSpinner() {
   for (let i=0;i<drawState.spinners.length;i++) {
     if (drawState.spinners[i].spinning) { stopSpinner(i); return; }
   }
 }
+
 async function stopSpinner(i) {
-  const s = drawState.spinners[i];
-  if (!s.spinning) return;
-  clearInterval(s.interval);
-  clearTimeout(s.timer);
-  s.spinning = false;
-  s.stopped = true;
+  const s = drawState.spinners[i]; if(!s.spinning) return;
+  clearInterval(s.interval); clearTimeout(s.timer);
+  s.spinning=false; s.stopped=true;
   const w = drawState.winners[i];
-  document.getElementById('drum-inner-'+i).innerHTML = `<div class="spinner-number" style="color:var(--gold);">#${w.num}</div>`;
-  document.getElementById('spinner-name-'+i).textContent = '🎉 ' + w.name;
-  document.getElementById('spinner-status-'+i).textContent = 'WINNER!';
+  document.getElementById('drum-inner-'+i).innerHTML=`<div class="spinner-number" style="color:var(--gold);">#${w.num}</div>`;
+  document.getElementById('spinner-name-'+i).textContent='🎉 '+w.name;
+  document.getElementById('spinner-status-'+i).textContent='WINNER!';
   const box = document.getElementById('spinner-'+i);
-  box.classList.remove('spinning');
-  box.classList.add('won');
+  box.classList.remove('spinning'); box.classList.add('won');
   launchConfetti();
+
   const anySpinning = drawState.spinners.some(s=>s.spinning);
   if (!anySpinning) {
-    document.getElementById('btn-stop-next').style.display = 'none';
-    document.getElementById('btn-close-draw').style.display = '';
-    const r = state.raffles.find(x=>x.id===currentRaffleId);
-    if (r) {
-      r.winners = drawState.winners.map(w=>({prize:w.prize, name:w.name, ticket:w.num}));
-      r.status = 'drawn';
-      await saveState();
-    }
+    document.getElementById('btn-stop-next').style.display='none';
+    document.getElementById('btn-close-draw').style.display='';
   } else {
     const nextIdx = drawState.spinners.findIndex(s=>s.spinning);
-    document.getElementById('btn-stop-next').textContent = `⏹ Reveal Prize ${nextIdx+1}`;
-  }
-}
-function closeDraw() {
-  drawState.spinners.forEach((s,i) => { clearInterval(s.interval); clearTimeout(s.timer); });
-  document.getElementById('draw-screen').style.display = 'none';
-  renderRaffles();
-  if (currentRaffleId) renderDetail();
-}
-function launchConfetti() {
-  const colors = ['#f5c842','#10b981','#f43f5e','#8b5cf6','#60a5fa','#ffffff'];
-  for (let i=0;i<40;i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    el.style.cssText = `left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'2px'};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;`;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(), 3000);
+    document.getElementById('btn-stop-next').textContent=`⏹ Reveal Prize ${nextIdx+1}`;
   }
 }
 
-// ═══════════════════════════════════════════════
-// SETTINGS
-// ═══════════════════════════════════════════════
-async function saveSettings() {
-  state.settings.buyX = parseInt(document.getElementById('set-buy').value)||5;
-  state.settings.getFree = parseInt(document.getElementById('set-free').value)||2;
-  state.settings.spinDuration = parseInt(document.getElementById('set-spin').value)||5;
-  state.settings.defaultPrice = parseFloat(document.getElementById('set-price').value)||50;
-  await saveState();
-  alert('Settings saved!');
+async function closeDraw() {
+  drawState.spinners.forEach(s=>{ clearInterval(s.interval); clearTimeout(s.timer); });
+  // Only save winners if at least one spinner was stopped
+  const anyStopped = drawState.spinners.some(s=>s.stopped);
+  if (anyStopped && drawState.winners.length) {
+    const r = state.raffles.find(x=>x.id===currentRaffleId);
+    if (r) {
+      r.winners = drawState.winners.map(w=>({prize:w.prize,name:w.name,ticket:w.num}));
+      r.status  = 'drawn';
+      await saveState();
+      showToast('Draw saved ✓', 'success');
+    }
+  }
+  document.getElementById('draw-screen').style.display='none';
+  renderRaffles(); if(currentRaffleId) renderDetail();
 }
+
+function launchConfetti() {
+  const colors=['#f5c842','#10b981','#f43f5e','#8b5cf6','#60a5fa','#fff'];
+  for(let i=0;i<50;i++){
+    const el=document.createElement('div');
+    el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;animation-duration:${1.2+Math.random()*2}s;animation-delay:${Math.random()*.4}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3500);
+  }
+}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
 function loadSettingsUI() {
-  document.getElementById('set-buy').value = state.settings.buyX;
-  document.getElementById('set-free').value = state.settings.getFree;
-  document.getElementById('set-spin').value = state.settings.spinDuration;
+  document.getElementById('set-buy').value   = state.settings.buyX;
+  document.getElementById('set-free').value  = state.settings.getFree;
+  document.getElementById('set-spin').value  = state.settings.spinDuration;
   document.getElementById('set-price').value = state.settings.defaultPrice;
 }
+async function saveSettings() {
+  state.settings.buyX          = parseInt(document.getElementById('set-buy').value)||5;
+  state.settings.getFree       = parseInt(document.getElementById('set-free').value)||2;
+  state.settings.spinDuration  = parseInt(document.getElementById('set-spin').value)||5;
+  state.settings.defaultPrice  = parseFloat(document.getElementById('set-price').value)||50;
+  await saveState(); showToast('Settings saved ✓', 'success');
+}
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // MODALS
-// ═══════════════════════════════════════════════
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+// ══════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-bg').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('open'); });
 });
 
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 // STARS
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function buildStars() {
   const c = document.getElementById('stars');
-  for (let i=0;i<80;i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${0.1+Math.random()*0.4};`;
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div'); s.className='star';
+    s.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;opacity:${.1+Math.random()*.3};`;
     c.appendChild(s);
   }
 }
 
-// ═══════════════════════════════════════════════
-// INIT — wait for Firebase, load data, show PIN
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
 async function init() {
   buildStars();
   await waitForStorage();
   await loadState();
   loadSettingsUI();
-  document.getElementById('loading-screen').style.display = 'none';
-  document.getElementById('pin-screen').style.display = 'flex';
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('pin-screen').style.display='flex';
 }
-
 init();
 </script>
 </body>
