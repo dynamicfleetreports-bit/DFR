@@ -9,286 +9,221 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ink:          #0a0f1e;
-            --ink2:         #1e293b;
-            --green:        #059669;
-            --green-light:  #10b981;
-            --red:          #dc2626;
-            --red-light:    #ef4444;
-            --gold:         #d97706;
-            --blue:         #2563eb;
-            --slate:        #64748b;
-            --paper:        #f8fafc;
+            --ink:#0a0f1e; --ink2:#1e293b;
+            --green:#059669; --green-light:#10b981;
+            --red:#dc2626; --red-light:#ef4444;
+            --gold:#d97706; --blue:#2563eb;
+            --purple:#7c3aed; --purple-light:#8b5cf6;
+            --orange:#ea580c;
+            --slate:#64748b; --paper:#f8fafc;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Outfit', sans-serif; background: #cbd5e1; color: var(--ink); }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Outfit',sans-serif; background:#cbd5e1; color:var(--ink); }
+        .report-wrap { width:210mm; margin:10mm auto; }
 
-        /* ════════════════════════════════
-           SCREEN WRAPPER
-           ════════════════════════════════ */
-        .report-wrap { width: 210mm; margin: 10mm auto; }
+        /* Control bar */
+        .control-bar { background:var(--ink); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-radius:10px 10px 0 0; position:sticky; top:0; z-index:100; }
+        .control-bar .brand { font-family:'Bebas Neue',sans-serif; letter-spacing:3px; color:var(--green-light); font-size:14px; }
+        .ctrl-btn { padding:7px 16px; border-radius:7px; font-family:'Outfit',sans-serif; font-weight:900; font-size:10px; text-transform:uppercase; letter-spacing:1px; cursor:pointer; border:none; }
+        .mode-btns { display:flex; gap:6px; align-items:center; }
+        .mode-btn { padding:5px 12px; border-radius:6px; font-family:'Outfit',sans-serif; font-weight:900; font-size:9px; text-transform:uppercase; letter-spacing:1px; cursor:pointer; border:2px solid rgba(255,255,255,0.2); background:transparent; color:rgba(255,255,255,0.5); transition:all 0.2s; }
+        .mode-btn.active { background:var(--green-light); color:var(--ink); border-color:var(--green-light); }
+        .filename-hint { font-size:9px; font-weight:700; color:rgba(255,255,255,0.35); margin-top:2px; }
 
-        /* ════════════════════════════════
-           CONTROL BAR (screen only)
-           ════════════════════════════════ */
-        .control-bar {
-            background: var(--ink); padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-radius: 10px 10px 0 0; position: sticky; top: 0; z-index: 100;
+        /* Page header */
+        .page-header { background:var(--ink); margin:0 0 5mm 0; padding:4mm 6mm; display:flex; justify-content:space-between; align-items:center; border-radius:6px; }
+        .ph-brand  { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:3px; color:var(--green-light); }
+        .ph-client { font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.6); }
+        .ph-right  { text-align:right; }
+        .ph-period { font-size:8px; font-weight:700; color:rgba(255,255,255,0.4); }
+        .ph-page   { font-family:'Bebas Neue',sans-serif; font-size:13px; color:rgba(255,255,255,0.3); letter-spacing:2px; }
+
+        /* Hero block */
+        .hero-block { background:var(--ink); border-radius:10px; padding:6mm; margin-bottom:4mm; position:relative; overflow:hidden; }
+        .hero-block::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; background:radial-gradient(circle,rgba(5,150,105,0.15) 0%,transparent 70%); }
+        .hero-top { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:4mm; position:relative; z-index:1; }
+        .hero-title .eyebrow { font-size:8px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:var(--green-light); opacity:0.8; margin-bottom:3px; }
+        .hero-title h1 { font-family:'Bebas Neue',sans-serif; font-size:36px; line-height:0.9; letter-spacing:2px; color:white; }
+        .hero-title h1 span { color:var(--green-light); }
+        .hero-title .client-name { font-size:13px; font-weight:700; color:rgba(255,255,255,0.6); margin-top:4px; text-transform:uppercase; letter-spacing:2px; }
+        .hero-badges { display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
+        .active-badge { background:var(--green); color:white; padding:4px 12px; border-radius:999px; font-size:8px; font-weight:900; text-transform:uppercase; letter-spacing:2px; }
+        .period-badge { background:rgba(255,255,255,0.1); color:white; padding:6px 14px; border-radius:8px; text-align:right; }
+        .period-badge .lbl { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:2px; opacity:0.5; display:block; }
+        .period-badge .val { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px; display:block; }
+
+        /* Hero tiles */
+        .hero-tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; position:relative; z-index:1; }
+        .hero-tile { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); border-top:2px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 6px; text-align:center; }
+        .hero-tile.t-loss   { background:rgba(220,38,38,0.15); border-top-color:var(--red-light); }
+        .hero-tile.t-green  { border-top-color:var(--green-light); background:rgba(16,185,129,0.1); }
+        .hero-tile.t-red    { border-top-color:var(--red-light); background:rgba(220,38,38,0.1); }
+        .hero-tile.t-orange { border-top-color:#f97316; background:rgba(249,115,22,0.1); }
+        .hero-tile.t-purple { border-top-color:var(--purple-light); background:rgba(139,92,246,0.1); }
+        .hero-tile.t-delta-good { border-top-color:var(--green-light); background:rgba(16,185,129,0.1); }
+        .hero-tile.t-delta-bad  { border-top-color:var(--red-light); background:rgba(220,38,38,0.1); }
+        .tile-icon  { font-size:13px; display:block; margin-bottom:2px; }
+        .tile-label { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); display:block; }
+        .tile-value { font-family:'Bebas Neue',sans-serif; font-size:20px; color:white; line-height:1; display:block; }
+        .hero-tile.t-loss .tile-value   { font-size:22px; color:var(--red-light); }
+        .hero-tile.t-green .tile-value  { color:var(--green-light); }
+        .hero-tile.t-red .tile-value    { color:#fca5a5; }
+        .hero-tile.t-orange .tile-value { color:#fb923c; }
+        .hero-tile.t-purple .tile-value { color:#c4b5fd; }
+        .hero-tile.t-delta-good .tile-value { color:var(--green-light); font-size:16px; }
+        .hero-tile.t-delta-bad  .tile-value { color:#fca5a5; font-size:16px; }
+        .tile-sub { font-size:6.5px; color:rgba(255,255,255,0.3); font-weight:600; display:block; }
+
+        /* Charts */
+        .p1-charts { display:grid; grid-template-columns:44mm 1fr; gap:3mm; margin-bottom:4mm; }
+        .p1-right  { display:flex; flex-direction:column; gap:3mm; }
+        .chart-card { background:var(--paper); border:1px solid #e2e8f0; border-radius:8px; padding:4mm; }
+        .chart-card-title { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:var(--slate); margin-bottom:6px; }
+        .gauge-wrap  { display:flex; flex-direction:column; align-items:center; }
+        .gauge-score { font-family:'Bebas Neue',sans-serif; font-size:28px; line-height:1; }
+        .gauge-desc  { font-size:9px; font-weight:700; }
+        .trend-delta .dval { font-family:'Bebas Neue',sans-serif; font-size:18px; }
+        .trend-delta .dlbl { font-size:7px; font-weight:700; color:var(--slate); }
+
+        /* Podium */
+        .podium-item { display:flex; align-items:center; gap:6px; background:white; border:1px solid #e2e8f0; border-radius:6px; padding:5px 8px; margin-bottom:4px; }
+        .podium-rank { width:18px; height:18px; border-radius:50%; color:white; font-weight:900; font-size:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .podium-reg  { font-weight:900; font-size:10px; color:#1e40af; font-style:italic; flex:1; }
+        .podium-bar-wrap { flex:2; height:4px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
+        .podium-bar-fill { height:100%; background:linear-gradient(90deg,var(--red),#f87171); border-radius:999px; }
+        .podium-loss { font-weight:900; font-size:10px; color:var(--red); min-width:55px; text-align:right; }
+
+        /* Section title */
+        .section-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:3px; color:var(--ink); text-transform:uppercase; border-bottom:2px solid var(--green); padding-bottom:3px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+        .section-title .accent { color:var(--green); }
+        .section-title.spd { border-bottom-color:#f97316; }
+        .section-title.spd .accent { color:#f97316; }
+        .section-title.idl { border-bottom-color:var(--purple-light); }
+        .section-title.idl .accent { color:var(--purple-light); }
+        .section-title.hab { border-bottom-color:#3b82f6; }
+        .section-title.hab .accent { color:#3b82f6; }
+
+        /* Summary loss cards */
+        .loss-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:4mm; }
+        .loss-card { border-radius:8px; padding:5px 6px; text-align:center; }
+        .loss-card .lc-label { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:2px; }
+        .loss-card .lc-val   { font-family:'Bebas Neue',sans-serif; font-size:18px; line-height:1; display:block; }
+        .loss-card .lc-sub   { font-size:6.5px; font-weight:600; display:block; margin-top:2px; }
+        .lc-total   { background:linear-gradient(135deg,#7f1d1d,#991b1b); }
+        .lc-total   .lc-label,.lc-total .lc-sub { color:rgba(255,255,255,0.5); }
+        .lc-total   .lc-val  { color:#fca5a5; }
+        .lc-speed   { background:#fff7ed; border:1px solid #fed7aa; border-top:3px solid #f97316; }
+        .lc-speed   .lc-label { color:#c2410c; } .lc-speed .lc-val { color:#ea580c; } .lc-speed .lc-sub { color:var(--slate); }
+        .lc-idle    { background:#f5f3ff; border:1px solid #ddd6fe; border-top:3px solid var(--purple-light); }
+        .lc-idle    .lc-label { color:#6d28d9; } .lc-idle .lc-val { color:var(--purple); } .lc-idle .lc-sub { color:var(--slate); }
+        .lc-habit   { background:#eff6ff; border:1px solid #bfdbfe; border-top:3px solid #3b82f6; }
+        .lc-habit   .lc-label { color:#1d4ed8; } .lc-habit .lc-val { color:#2563eb; } .lc-habit .lc-sub { color:var(--slate); }
+        .lc-note    { font-size:7.5px; color:var(--slate); font-weight:600; margin-bottom:3mm; font-style:italic; }
+
+        /* Tables */
+        .dfr-table { width:100%; border-collapse:collapse; font-size:8.5px; margin-bottom:1mm; }
+        .dfr-table thead tr { background:var(--ink); }
+        .dfr-table thead th { color:white; font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; padding:6px 5px; border:1px solid #334155; text-align:center; }
+        .dfr-table thead th.left { text-align:left; padding-left:8px; }
+        .dfr-table thead th.spd { background:#9a3412; }
+        .dfr-table thead th.idl { background:#4c1d95; }
+        .dfr-table thead th.hab { background:#1e3a8a; }
+        .dfr-table thead th.tot { background:#7f1d1d; }
+        .dfr-table tbody tr { border-bottom:1px solid #f1f5f9; }
+        .dfr-table tbody tr:nth-child(even) { background:#f8fafc; }
+        .dfr-table td { padding:5px 4px; text-align:center; font-weight:700; font-size:8px; }
+        .dfr-table td.left { text-align:left; padding-left:8px; }
+        .dfr-table td.reg   { font-style:italic; font-weight:900; color:#1e40af; border-left:3px solid #3b82f6; }
+        .dfr-table td.red   { color:var(--red); }
+        .dfr-table td.green { color:var(--green); }
+        .dfr-table td.muted { color:var(--slate); font-weight:600; }
+        .dfr-table td.loss  { font-style:italic; font-weight:900; color:var(--red); }
+        .dfr-table td.spd-loss { color:#ea580c; font-weight:900; }
+        .dfr-table td.idl-loss { color:var(--purple); font-weight:900; }
+        .dfr-table td.hab-loss { color:#2563eb; font-weight:900; }
+        .dfr-table td.zero     { color:#cbd5e1; font-weight:600; }
+        .score-pill { display:inline-block; padding:1px 6px; border-radius:999px; font-size:7.5px; font-weight:900; }
+        .tier-bar { height:5px; border-radius:999px; background:#e2e8f0; overflow:hidden; width:50px; display:inline-block; vertical-align:middle; }
+        .tier-bar-fill { height:100%; border-radius:999px; }
+        .table-note { font-size:7.5px; color:var(--slate); font-weight:600; font-style:italic; margin-top:3px; margin-bottom:5mm; }
+
+        /* Driver of period */
+        .dotm-card { background:linear-gradient(135deg,var(--ink),var(--ink2)); border-radius:10px; padding:10px 16px; display:flex; align-items:center; gap:14px; margin-bottom:5mm; position:relative; overflow:hidden; }
+        .dotm-card::before { content:'🏆'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:48px; opacity:0.1; }
+        .dotm-trophy { font-size:28px; }
+        .dotm-info { flex:1; }
+        .dotm-eyebrow { font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:3px; color:var(--green-light); }
+        .dotm-name   { font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:2px; color:white; line-height:1; }
+        .dotm-sub    { font-size:9px; font-weight:700; color:rgba(255,255,255,0.4); }
+        .dotm-stats  { display:flex; gap:14px; }
+        .dotm-stat .val { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--green-light); }
+        .dotm-stat .lbl { font-size:7px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:1px; }
+
+        /* Action report */
+        .action-section { border-radius:8px; padding:10px 14px; margin-bottom:6px; }
+        .action-section.critical   { background:#fff1f2; border-left:4px solid var(--red); }
+        .action-section.speeding   { background:#fff7ed; border-left:4px solid #f97316; }
+        .action-section.efficiency { background:#eff6ff; border-left:4px solid #3b82f6; }
+        .action-section.acceptable { background:#f0fdf4; border-left:4px solid var(--green); }
+        .action-header { display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+        .action-icon  { font-size:16px; }
+        .action-title { font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:2px; }
+        .action-bullets { font-size:8.5px; font-weight:600; color:#475569; margin-left:23px; margin-bottom:6px; }
+        .action-bullets li { margin-bottom:1px; list-style:none; }
+        .action-inner-table { width:100%; border-collapse:collapse; font-size:8.5px; }
+        .action-inner-table th { padding:5px 7px; font-size:7px; font-weight:900; text-transform:uppercase; letter-spacing:0.5px; color:white; text-align:center; }
+        .action-inner-table th.left { text-align:left; }
+        .action-inner-table td { padding:4px 7px; font-weight:700; text-align:center; border-bottom:1px solid rgba(0,0,0,0.04); }
+        .action-inner-table td.left { text-align:left; font-style:italic; }
+
+        .print-section { background:white; padding:8mm; margin-bottom:4px; }
+
+        /* Footer */
+        .report-footer { border-top:3px solid var(--green); margin-top:8mm; padding-top:5mm; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:14px; }
+        .footer-brand .sub { font-family:'Outfit',sans-serif; font-size:7.5px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--slate); display:block; }
+        .footer-contact { font-size:8.5px; font-weight:700; color:var(--slate); text-align:right; line-height:1.9; }
+        .footer-qr canvas { border:2px solid white; border-radius:4px; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+        .footer-qr .qr-label { font-size:6.5px; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:var(--slate); }
+        .footer-micro { font-size:6.5px; color:#cbd5e1; font-weight:600; text-align:center; margin-top:3mm; }
+
+        /* Search & Collapse */
+        .table-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:8px;}
+        .table-search{flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:5px 10px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;color:#0a0f1e;outline:none;}
+        .table-search:focus{border-color:#10b981;}
+        .table-search::placeholder{color:#94a3b8;}
+        .toggle-btn{background:#0f172a;color:white;border:none;padding:5px 14px;border-radius:6px;font-family:'Outfit',sans-serif;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;}
+        .toggle-btn:hover{background:#1e293b;}
+        .toggle-btn .arrow{font-size:10px;transition:transform 0.2s;display:inline-block;}
+        .toggle-btn.collapsed .arrow{transform:rotate(-90deg);}
+        .table-wrap{overflow:hidden;}
+        .table-wrap.collapsed{display:none;}
+        .no-results{text-align:center;color:#94a3b8;padding:10px;font-weight:600;font-size:8.5px;font-style:italic;}
+        @media print{
+            .table-controls{display:flex!important;}
+            .table-search{display:none!important;}
+            .toggle-btn{display:none!important;}
+            .table-wrap{display:block!important;}
+            .table-wrap.collapsed{display:none!important;}
         }
-        .control-bar .brand { font-family: 'Bebas Neue', sans-serif; letter-spacing: 3px; color: var(--green-light); font-size: 14px; }
-        .ctrl-btn { padding: 7px 16px; border-radius: 7px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: none; }
-        .mode-btns { display: flex; gap: 6px; align-items: center; }
-        .mode-btn { padding: 5px 12px; border-radius: 6px; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); background: transparent; color: rgba(255,255,255,0.5); transition: all 0.2s; }
-        .mode-btn.active { background: var(--green-light); color: var(--ink); border-color: var(--green-light); }
-        .filename-hint { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.35); margin-top: 2px; }
-
-        /* ════════════════════════════════
-           RUNNING PAGE HEADER (every page)
-           ════════════════════════════════ */
-        .page-header {
-            background: var(--ink);
-            margin: 0 0 5mm 0;
-            padding: 4mm 6mm;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 6px;
-        }
-        .ph-brand { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 3px; color: var(--green-light); }
-        .ph-client { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.6); }
-        .ph-right { text-align: right; }
-        .ph-period { font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4); }
-        .ph-page { font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: rgba(255,255,255,0.3); letter-spacing: 2px; }
-
-        /* ════════════════════════════════
-           PAGE 1 — BOSS PAGE
-           ════════════════════════════════ */
-        .hero-block {
-            background: var(--ink);
-            border-radius: 10px;
-            padding: 6mm;
-            margin-bottom: 4mm;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-block::before {
-            content: '';
-            position: absolute; top: -40px; right: -40px;
-            width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%);
-        }
-        .hero-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4mm; position: relative; z-index: 1; }
-        .hero-title { color: white; }
-        .hero-title .eyebrow { font-size: 8px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--green-light); opacity: 0.8; margin-bottom: 3px; }
-        .hero-title h1 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 0.9; letter-spacing: 2px; }
-        .hero-title h1 span { color: var(--green-light); }
-        .hero-title .client-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); margin-top: 4px; text-transform: uppercase; letter-spacing: 2px; }
-        .hero-badges { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
-        .active-badge { background: var(--green); color: white; padding: 4px 12px; border-radius: 999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-        .period-badge { background: rgba(255,255,255,0.1); color: white; padding: 6px 14px; border-radius: 8px; text-align: right; }
-        .period-badge .lbl { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; display: block; }
-        .period-badge .val { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; display: block; }
-
-        /* ── Hero tiles 4x2 grid ── */
-        .hero-tiles {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            position: relative; z-index: 1;
-        }
-        .hero-tile {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-top: 2px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 8px 6px;
-            text-align: center;
-        }
-        .hero-tile.t-loss {
-            background: rgba(220,38,38,0.15);
-            border-top-color: var(--red-light);
-        }
-        .hero-tile.t-green { border-top-color: var(--green-light); background: rgba(16,185,129,0.1); }
-        .hero-tile.t-red   { border-top-color: var(--red-light);   background: rgba(220,38,38,0.1); }
-        .hero-tile.t-delta-good { border-top-color: var(--green-light); background: rgba(16,185,129,0.1); }
-        .hero-tile.t-delta-bad  { border-top-color: var(--red-light);   background: rgba(220,38,38,0.1); }
-
-        .tile-icon  { font-size: 13px; display: block; margin-bottom: 2px; }
-        .tile-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); display: block; }
-        .tile-value { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: white; line-height: 1; display: block; }
-        .hero-tile.t-loss .tile-value { font-size: 22px; color: var(--red-light); }
-        .hero-tile.t-green .tile-value { color: var(--green-light); }
-        .hero-tile.t-red   .tile-value { color: #fca5a5; }
-        .hero-tile.t-delta-good .tile-value { color: var(--green-light); font-size: 16px; }
-        .hero-tile.t-delta-bad  .tile-value { color: #fca5a5; font-size: 16px; }
-        .tile-sub   { font-size: 6.5px; color: rgba(255,255,255,0.3); font-weight: 600; display: block; }
-
-        /* ── P1 Charts row ── */
-        .p1-charts { display: grid; grid-template-columns: 44mm 1fr; gap: 3mm; margin-bottom: 4mm; }
-        .p1-right { display: flex; flex-direction: column; gap: 3mm; }
-        .chart-card { background: var(--paper); border: 1px solid #e2e8f0; border-radius: 8px; padding: 4mm; }
-        .chart-card-title { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate); margin-bottom: 6px; }
-
-        /* ── Gauge ── */
-        .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
-        .gauge-score { font-family: 'Bebas Neue', sans-serif; font-size: 28px; line-height: 1; }
-        .gauge-desc  { font-size: 9px; font-weight: 700; }
-
-        /* ── Trend delta ── */
-        .trend-delta .dval { font-family: 'Bebas Neue', sans-serif; font-size: 18px; }
-        .trend-delta .dlbl { font-size: 7px; font-weight: 700; color: var(--slate); }
-
-        /* ── Top 5 podium ── */
-        .podium-item { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; margin-bottom: 4px; }
-        .podium-rank { width: 18px; height: 18px; border-radius: 50%; color: white; font-weight: 900; font-size: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .podium-reg  { font-weight: 900; font-size: 10px; color: #1e40af; font-style: italic; flex: 1; }
-        .podium-bar-wrap { flex: 2; height: 4px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
-        .podium-bar-fill { height: 100%; background: linear-gradient(90deg, var(--red), #f87171); border-radius: 999px; }
-        .podium-loss { font-weight: 900; font-size: 10px; color: var(--red); min-width: 55px; text-align: right; }
-
-        /* ════════════════════════════════
-           SECTION TITLE
-           ════════════════════════════════ */
-        .section-title {
-            font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 3px;
-            color: var(--ink); text-transform: uppercase;
-            border-bottom: 2px solid var(--green); padding-bottom: 3px; margin-bottom: 8px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .section-title .accent { color: var(--green); }
-
-        /* ════════════════════════════════
-           PAGE 2 — PEOPLE PAGE
-           ════════════════════════════════ */
-        .dotm-card {
-            background: linear-gradient(135deg, var(--ink), var(--ink2));
-            border-radius: 10px; padding: 10px 16px;
-            display: flex; align-items: center; gap: 14px;
-            margin-bottom: 5mm; position: relative; overflow: hidden;
-        }
-        .dotm-card::before { content: '🏆'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 48px; opacity: 0.1; }
-        .dotm-trophy { font-size: 28px; }
-        .dotm-info { flex: 1; }
-        .dotm-eyebrow { font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; color: var(--green-light); }
-        .dotm-name  { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: white; line-height: 1; }
-        .dotm-sub   { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); }
-        .dotm-stats { display: flex; gap: 14px; }
-        .dotm-stat .val { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--green-light); }
-        .dotm-stat .lbl { font-size: 7px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
-
-        /* ════════════════════════════════
-           TABLES
-           ════════════════════════════════ */
-        .dfr-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
-        .dfr-table thead tr { background: var(--ink); }
-        .dfr-table thead th {
-            color: white; font-size: 7px; font-weight: 900; text-transform: uppercase;
-            letter-spacing: 0.5px; padding: 6px 5px; border: 1px solid #334155; text-align: center;
-        }
-        .dfr-table thead th.left { text-align: left; padding-left: 8px; }
-        .dfr-table tbody tr { border-bottom: 1px solid #f1f5f9; }
-        .dfr-table tbody tr:nth-child(even) { background: #f8fafc; }
-        .dfr-table td { padding: 5px 4px; text-align: center; font-weight: 700; }
-        .dfr-table td.left { text-align: left; padding-left: 8px; }
-        .dfr-table td.reg { font-style: italic; font-weight: 900; color: #1e40af; border-left: 3px solid #3b82f6; }
-        .dfr-table td.red   { color: var(--red); }
-        .dfr-table td.green { color: var(--green); }
-        .dfr-table td.muted { color: var(--slate); font-weight: 600; }
-        .dfr-table td.loss  { font-style: italic; font-weight: 900; color: var(--red); }
-        .score-pill { display: inline-block; padding: 1px 6px; border-radius: 999px; font-size: 7.5px; font-weight: 900; }
-        .tier-bar { height: 5px; border-radius: 999px; background: #e2e8f0; overflow: hidden; width: 50px; display: inline-block; vertical-align: middle; }
-        .tier-bar-fill { height: 100%; border-radius: 999px; }
-        .table-note { font-size: 7.5px; color: var(--slate); font-weight: 600; font-style: italic; margin-top: 5px; }
-
-        /* ════════════════════════════════
-           ACTION REPORT
-           ════════════════════════════════ */
-        .action-section { border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; }
-        .action-section.critical   { background: #fff1f2; border-left: 4px solid var(--red); }
-        .action-section.speeding   { background: #fff7ed; border-left: 4px solid #f97316; }
-        .action-section.efficiency { background: #eff6ff; border-left: 4px solid #3b82f6; }
-        .action-section.acceptable { background: #f0fdf4; border-left: 4px solid var(--green); }
-        .action-header { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
-        .action-icon  { font-size: 16px; }
-        .action-title { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; }
-        .action-bullets { font-size: 8.5px; font-weight: 600; color: #475569; margin-left: 23px; margin-bottom: 6px; }
-        .action-bullets li { margin-bottom: 1px; list-style: none; }
-        .action-inner-table { width: 100%; border-collapse: collapse; font-size: 8.5px; }
-        .action-inner-table th { padding: 5px 7px; font-size: 7px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: white; text-align: center; }
-        .action-inner-table th.left { text-align: left; }
-        .action-inner-table td { padding: 4px 7px; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.04); }
-        .action-inner-table td.left { text-align: left; font-style: italic; }
-
-        /* ════════════════════════════════
-           FOOTER
-           ════════════════════════════════ */
-        .report-footer {
-            border-top: 3px solid var(--green); margin-top: 8mm; padding-top: 5mm;
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px;
-        }
-        .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 3px; color: var(--ink); }
-        .footer-brand .sub { font-family: 'Outfit', sans-serif; font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--slate); display: block; }
-        .footer-contact { font-size: 8.5px; font-weight: 700; color: var(--slate); text-align: right; line-height: 1.9; }
-        .footer-qr { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-        .footer-qr canvas { border: 2px solid white; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
-        .footer-qr .qr-label { font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--slate); }
-        .footer-micro { font-size: 6.5px; color: #cbd5e1; font-weight: 600; text-align: center; margin-top: 3mm; }
-
-        /* ════════════════════════════════
-           PAGE SPACING (screen)
-           ════════════════════════════════ */
-        .print-section { background: white; padding: 8mm; margin-bottom: 4px; }
-
-        /* ════════════════════════════════
-           PRINT STYLES
-           ════════════════════════════════ */
         @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-
-            body { background: white !important; }
-            .report-wrap { width: 100% !important; margin: 0 !important; }
-            .control-bar { display: none !important; }
-
-            .print-section {
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-            }
-
-            /* Natural page breaks — let content flow, break before each new section */
-            .page-break-before { page-break-before: always; break-before: page; }
-
-            /* Tables flow naturally across pages — header repeats */
-            thead { display: table-header-group; }
-            tr    { page-break-inside: avoid; break-inside: avoid; }
-
-            /* Keep these blocks together */
-            .action-section { page-break-inside: avoid; break-inside: avoid; }
-            .dotm-card      { page-break-inside: avoid; break-inside: avoid; }
-            .podium-item    { page-break-inside: avoid; break-inside: avoid; }
-            .hero-block     { page-break-inside: avoid; break-inside: avoid; }
-            .p1-charts      { page-break-inside: avoid; break-inside: avoid; }
-
-            /* Section titles stay with their content */
-            .section-title  { page-break-after: avoid; break-after: avoid; }
-
-            /* Hide mode buttons in print */
-            .mode-btns { display: none !important; }
-
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size:A4 portrait; margin:8mm; }
+            body { background:white !important; }
+            .report-wrap { width:100% !important; margin:0 !important; }
+            .control-bar { display:none !important; }
+            .print-section { padding:0 !important; margin:0 !important; box-shadow:none !important; }
+            .page-break-before { page-break-before:always; break-before:page; }
+            thead { display:table-header-group; }
+            tr { page-break-inside:avoid; break-inside:avoid; }
+            .action-section,.dotm-card,.podium-item,.hero-block,.p1-charts,.loss-cards { page-break-inside:avoid; break-inside:avoid; }
+            .section-title { page-break-after:avoid; break-after:avoid; }
+            .mode-btns { display:none !important; }
+            * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         }
-
-        /* ── Mode visibility ── */
-        .exec-only, .summary-only, .full-only { display: block; }
     </style>
 </head>
 <body>
 <div class="report-wrap">
 
-    <!-- ══════════════════════════════════
-         CONTROL BAR
-         ══════════════════════════════════ -->
     <div class="control-bar">
         <div>
             <div class="brand">DFR — Active Client Report</div>
@@ -306,22 +241,14 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-         PAGE 1 — THE BOSS PAGE
-         ══════════════════════════════════ -->
+    <!-- ══ PAGE 1 — EXECUTIVE SUMMARY ══ -->
     <div class="print-section">
-
-        <!-- Running header -->
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph1-client">—</div>
-            <div class="ph-right">
-                <div class="ph-period" id="ph1-period">—</div>
-                <div class="ph-page">Page 1</div>
-            </div>
+            <div class="ph-right"><div class="ph-period" id="ph1-period">—</div><div class="ph-page">Executive Summary</div></div>
         </div>
 
-        <!-- Hero block -->
         <div class="hero-block">
             <div class="hero-top">
                 <div class="hero-title">
@@ -339,57 +266,15 @@
                     <div style="color:rgba(255,255,255,0.3);font-size:7.5px;font-weight:700;text-align:right;">Issued: <span id="repDate">—</span></div>
                 </div>
             </div>
-
-            <!-- 4x2 Hero Tiles -->
             <div class="hero-tiles">
-                <div class="hero-tile">
-                    <span class="tile-icon">🛣️</span>
-                    <span class="tile-label">Total Distance</span>
-                    <span class="tile-value" id="statKM">—</span>
-                    <span class="tile-sub">Kilometres</span>
-                </div>
-                <div class="hero-tile">
-                    <span class="tile-icon">⛽</span>
-                    <span class="tile-label">Total Fuel Used</span>
-                    <span class="tile-value" id="statFuel">—</span>
-                    <span class="tile-sub">Litres</span>
-                </div>
-                <div class="hero-tile t-green">
-                    <span class="tile-icon">📊</span>
-                    <span class="tile-label">Fleet km/L</span>
-                    <span class="tile-value" id="statEff">—</span>
-                    <span class="tile-sub">Avg efficiency</span>
-                </div>
-                <div class="hero-tile t-red">
-                    <span class="tile-icon">💧</span>
-                    <span class="tile-label">Litres Wasted</span>
-                    <span class="tile-value" id="statWasted">—</span>
-                    <span class="tile-sub">Inefficiency</span>
-                </div>
-                <div class="hero-tile t-red">
-                    <span class="tile-icon">🚨</span>
-                    <span class="tile-label">Speed Violations</span>
-                    <span class="tile-value" id="statEvents">—</span>
-                    <span class="tile-sub">Recorded events</span>
-                </div>
-                <div class="hero-tile">
-                    <span class="tile-icon">📉</span>
-                    <span class="tile-label">Efficiency Loss</span>
-                    <span class="tile-value" id="statEffLoss">—</span>
-                    <span class="tile-sub">Wholesale</span>
-                </div>
-                <div class="hero-tile t-loss">
-                    <span class="tile-icon">💰</span>
-                    <span class="tile-label">Total Money Lost This Period</span>
-                    <span class="tile-value" id="statTotal">—</span>
-                    <span class="tile-sub" id="statTotalSub">—</span>
-                </div>
-                <div class="hero-tile" id="deltaCard">
-                    <span class="tile-icon" id="deltaIcon">📈</span>
-                    <span class="tile-label">vs Last Period</span>
-                    <span class="tile-value" id="statDelta">—</span>
-                    <span class="tile-sub" id="statDeltaSub">No prior data</span>
-                </div>
+                <div class="hero-tile"><span class="tile-icon">🛣️</span><span class="tile-label">Total Distance</span><span class="tile-value" id="statKM">—</span><span class="tile-sub">Kilometres</span></div>
+                <div class="hero-tile"><span class="tile-icon">⛽</span><span class="tile-label">Total Fuel Used</span><span class="tile-value" id="statFuel">—</span><span class="tile-sub">Litres</span></div>
+                <div class="hero-tile t-green"><span class="tile-icon">📊</span><span class="tile-label">Fleet km/L</span><span class="tile-value" id="statEff">—</span><span class="tile-sub">Avg efficiency</span></div>
+                <div class="hero-tile t-red"><span class="tile-icon">🚨</span><span class="tile-label">Speed Violations</span><span class="tile-value" id="statEvents">—</span><span class="tile-sub">Recorded events</span></div>
+                <div class="hero-tile t-orange"><span class="tile-icon">💰</span><span class="tile-label">Speed Loss</span><span class="tile-value" id="statSpeedLoss">—</span><span class="tile-sub">Wholesale</span></div>
+                <div class="hero-tile t-purple"><span class="tile-icon">⏸️</span><span class="tile-label">Idle Loss</span><span class="tile-value" id="statIdleLoss">—</span><span class="tile-sub">Wholesale</span></div>
+                <div class="hero-tile t-loss"><span class="tile-icon">💸</span><span class="tile-label">Total Loss This Period</span><span class="tile-value" id="statTotal">—</span><span class="tile-sub" id="statTotalSub">—</span></div>
+                <div class="hero-tile" id="deltaCard"><span class="tile-icon" id="deltaIcon">📈</span><span class="tile-label">vs Last Period</span><span class="tile-value" id="statDelta">—</span><span class="tile-sub" id="statDeltaSub">No prior data</span></div>
             </div>
         </div>
 
@@ -400,14 +285,8 @@
                 <div style="font-size:7.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;">Professional Fleet Intelligence &amp; Forensic Auditing</div>
             </div>
             <div style="display:flex;gap:28px;">
-                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-                    <span style="font-size:18px;">📞</span>
-                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;">083 314 9592</span>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-                    <span style="font-size:18px;">✉️</span>
-                    <span style="font-size:11px;font-weight:900;color:#0a0f1e;"><span class="dfr-email"></span></span>
-                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font-size:18px;">📞</span><span style="font-size:11px;font-weight:900;color:#0a0f1e;">083 314 9592</span></div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><span style="font-size:18px;">✉️</span><span style="font-size:11px;font-weight:900;color:#0a0f1e;"><span class="dfr-email"></span></span></div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
                 <canvas id="qrCanvasP1" width="54" height="54" style="border-radius:4px;display:block;box-shadow:0 1px 4px rgba(0,0,0,0.15);"></canvas>
@@ -417,9 +296,9 @@
 
         <!-- Charts row -->
         <div class="p1-charts">
-            <!-- Loss doughnut + gauge stacked -->
+            <!-- Bar chart (replaces doughnut) + gauge -->
             <div class="chart-card">
-                <div class="chart-card-title">Loss Distribution</div>
+                <div class="chart-card-title">Loss Breakdown</div>
                 <canvas id="lossChart" height="130"></canvas>
                 <div style="border-top:1px solid #e2e8f0;margin-top:8px;padding-top:8px;">
                     <div class="chart-card-title">Fleet Health Score</div>
@@ -430,42 +309,31 @@
                     </div>
                 </div>
             </div>
-
             <div class="p1-right">
-            <div class="chart-card">
-                <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
-                <div class="trend-delta" style="margin-bottom:6px;">
-                    <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
-                    <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
+                <div class="chart-card">
+                    <div class="chart-card-title">Performance Trend — Total Loss Per Period</div>
+                    <div class="trend-delta" style="margin-bottom:6px;">
+                        <span class="dval" id="trendDelta" style="color:var(--green);">—</span>
+                        <span class="dlbl" id="trendDeltaLabel" style="margin-left:6px;">vs previous period</span>
+                    </div>
+                    <canvas id="trendChart" height="120"></canvas>
                 </div>
-                <canvas id="trendChart" height="120"></canvas>
+                <div class="chart-card">
+                    <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
+                    <div id="podium"></div>
+                </div>
             </div>
-
-            <div class="chart-card">
-                <div class="chart-card-title">Top 5 Critical Risk Vehicles</div>
-                <div id="podium"></div>
-            </div>
-            </div><!-- /p1-right -->
         </div>
+    </div>
 
-    </div><!-- /PAGE 1 -->
-
-    <!-- ══════════════════════════════════
-         PAGE 2 — PEOPLE PAGE
-         ══════════════════════════════════ -->
-    <div class="print-section page-break-before summary-only full-only" id="page2">
-
-        <!-- Running header -->
+    <!-- ══ PAGE 2 — PEOPLE ══ -->
+    <div class="print-section page-break-before" id="page2">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph2-client">—</div>
-            <div class="ph-right">
-                <div class="ph-period" id="ph2-period">—</div>
-                <div class="ph-page">Page 2</div>
-            </div>
+            <div class="ph-right"><div class="ph-period" id="ph2-period">—</div><div class="ph-page">Driver Performance</div></div>
         </div>
 
-        <!-- Driver of Period -->
         <div class="dotm-card" id="dotmCard">
             <div class="dotm-trophy">🏆</div>
             <div class="dotm-info">
@@ -480,7 +348,6 @@
             </div>
         </div>
 
-        <!-- Driver League -->
         <div class="section-title">Driver <span class="accent">Performance</span> League</div>
         <table class="dfr-table">
             <thead>
@@ -491,86 +358,162 @@
                     <th>Actual km</th>
                     <th>Litres</th>
                     <th>Act km/L</th>
+                    <th>Net km/L</th>
                     <th>Score</th>
                     <th>Tier</th>
                 </tr>
             </thead>
             <tbody id="leagueBody"></tbody>
         </table>
+    </div>
 
-    </div><!-- /PAGE 2 -->
-
-    <!-- ══════════════════════════════════
-         PAGES 3+ — VEHICLE BREAKDOWN
-         (flows naturally across pages)
-         ══════════════════════════════════ -->
-    <div class="print-section page-break-before full-only" id="page3">
-
-        <!-- Running header -->
+    <!-- ══ PAGE 3 — LOSS SUMMARY + TABLE 1 ══ -->
+    <div class="print-section page-break-before" id="page3">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph3-client">—</div>
-            <div class="ph-right">
-                <div class="ph-period" id="ph3-period">—</div>
-                <div class="ph-page">Vehicle Detail</div>
-            </div>
+            <div class="ph-right"><div class="ph-period" id="ph3-period">—</div><div class="ph-page">Loss Summary</div></div>
         </div>
 
-        <div class="section-title">Full Vehicle <span class="accent">Breakdown</span></div>
-        <table class="dfr-table">
-            <thead>
-                <tr>
+        <!-- Wholesale cards -->
+        <div style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:var(--slate);margin-bottom:4px;">Wholesale (at cost price)</div>
+        <div class="loss-cards" id="wholesaleCards"></div>
+
+        <!-- Retail cards -->
+        <div style="font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:3px;color:var(--slate);margin-bottom:4px;margin-top:3mm;">Retail (at pump price)</div>
+        <div class="loss-cards" id="retailCards"></div>
+
+        <div class="lc-note" style="margin-bottom:4mm;">Speed and Idle losses are estimated from telematics data. Driving Habit loss is derived from net driving litres (total fuel minus speed and idle fuel) compared to the target consumption rate.</div>
+
+        <!-- Table 1 — Fleet Loss Summary -->
+        <div class="section-title">Fleet Loss <span class="accent">Summary</span> — All Vehicles</div>
+        <div class="table-controls">
+            <input class="table-search" type="text" placeholder="🔍 Search registration..." oninput="filterTable('summaryBody',this.value,'summaryNoResults')">
+            <button class="toggle-btn" onclick="toggleTable('wrapT1',this)"><span class="arrow">▼</span> Collapse</button>
+        </div>
+        <div class="table-wrap" id="wrapT1">
+            <table class="dfr-table">
+                <thead><tr>
                     <th class="left">Registration</th>
-                    <th>GPS km</th>
-                    <th>Actual km</th>
-                    <th>Litres</th>
-                    <th>Act km/L</th>
-                    <th style="color:#93c5fd;">Mfr Min</th>
-                    <th style="color:#6ee7b7;">Suggested</th>
-                    <th style="color:#fcd34d;">Target</th>
-                    <th>Wasted L</th>
-                    <th>Eff. Loss</th>
-                    <th>Speed Loss</th>
-                    <th style="background:#7f1d1d;">Total Loss</th>
-                    <th>Score</th>
-                </tr>
-            </thead>
-            <tbody id="repBody"></tbody>
-        </table>
-        <div class="table-note">* Speed violations and max speed detail available in Driver Performance League. Score reflects efficiency, violations, duration and peak speed.</div>
+                    <th class="spd">Speed Loss</th><th class="idl">Idle Loss</th>
+                    <th class="hab">Habit Loss</th><th class="tot">Total Loss</th>
+                </tr></thead>
+                <tbody id="summaryBody"></tbody>
+                <tfoot id="summaryFoot"></tfoot>
+            </table>
+            <div class="no-results" id="summaryNoResults" style="display:none;">No vehicles match your search.</div>
+            <div class="table-note">All figures at wholesale price. Sorted by total loss descending. Zero values shown to recognise clean performers.</div>
+        </div>
+    </div>
 
-    </div><!-- /PAGE 3+ -->
-
-    <!-- ══════════════════════════════════
-         LAST PAGE — ACTION REPORT + FOOTER
-         ══════════════════════════════════ -->
-    <div class="print-section page-break-before summary-only full-only" id="page-action">
-
-        <!-- Running header -->
+    <!-- ══ PAGE 4 — TABLE 2: CONSUMPTION & DRIVING HABITS ══ -->
+    <div class="print-section page-break-before" id="page4">
         <div class="page-header">
             <div class="ph-brand">Dynamic Fleet Reporting</div>
             <div class="ph-client" id="ph4-client">—</div>
-            <div class="ph-right">
-                <div class="ph-period" id="ph4-period">—</div>
-                <div class="ph-page">Action Report</div>
-            </div>
+            <div class="ph-right"><div class="ph-period" id="ph4-period">—</div><div class="ph-page">Driving Habits</div></div>
         </div>
 
+        <div class="section-title hab">Consumption &amp; <span class="accent">Driving Habits</span></div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #3b82f6;border-radius:0 6px 6px 0;padding:3mm 4mm;margin-bottom:4mm;font-size:8.5px;color:#1e40af;font-weight:700;line-height:1.6;">
+            Only vehicles below target consumption are shown. Net km/L is actual driving efficiency after removing speed and idle fuel from the total.
+        </div>
+        <div class="table-controls">
+            <input class="table-search" type="text" placeholder="🔍 Search registration..." oninput="filterTable('habitBody',this.value,'habitNoResults')">
+            <button class="toggle-btn" onclick="toggleTable('wrapT2',this)"><span class="arrow">▼</span> Collapse</button>
+        </div>
+        <div class="table-wrap" id="wrapT2">
+            <table class="dfr-table">
+                <thead><tr>
+                    <th class="left">Registration</th><th>Actual km</th><th>Litres</th>
+                    <th>Act km/L</th><th style="color:#c4b5fd;">Net km/L</th>
+                    <th style="color:#fcd34d;">Target km/L</th><th class="hab">Habit Loss</th>
+                </tr></thead>
+                <tbody id="habitBody"></tbody>
+            </table>
+            <div class="no-results" id="habitNoResults" style="display:none;">No vehicles match your search.</div>
+            <div class="table-note">Sorted by Habit Loss descending. Net km/L = distance ÷ (total litres − speed litres − idle litres).</div>
+        </div>
+    </div>
+
+    <!-- ══ PAGE 5 — TABLE 3: SPEEDING ══ -->
+    <div class="print-section page-break-before" id="page5">
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph5-client">—</div>
+            <div class="ph-right"><div class="ph-period" id="ph5-period">—</div><div class="ph-page">Speed Violations</div></div>
+        </div>
+
+        <div class="section-title spd">Speed <span class="accent">Violations</span></div>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f97316;border-radius:0 6px 6px 0;padding:3mm 4mm;margin-bottom:4mm;font-size:8.5px;color:#9a3412;font-weight:700;line-height:1.6;">
+            Only vehicles with recorded speed violations are shown. Speed loss is an estimated fuel cost based on aerodynamic drag above the speed limit.
+        </div>
+        <div class="table-controls">
+            <input class="table-search" type="text" placeholder="🔍 Search registration..." oninput="filterTable('speedBody',this.value,'speedNoResults')">
+            <button class="toggle-btn" onclick="toggleTable('wrapT3',this)"><span class="arrow">▼</span> Collapse</button>
+        </div>
+        <div class="table-wrap" id="wrapT3">
+            <table class="dfr-table">
+                <thead><tr>
+                    <th class="left">Registration</th><th>Violations</th><th>Total Duration</th>
+                    <th>Avg per Event</th><th>Max Speed</th><th class="spd">Speed Loss</th>
+                </tr></thead>
+                <tbody id="speedBody"></tbody>
+            </table>
+            <div class="no-results" id="speedNoResults" style="display:none;">No vehicles match your search.</div>
+            <div class="table-note">Sorted by Speed Loss descending. Speed limit: <span id="speedLimitNote">80</span> km/h.</div>
+        </div>
+    </div>
+
+    <!-- ══ PAGE 6 — TABLE 4: EXCESSIVE IDLING ══ -->
+    <div class="print-section page-break-before" id="page6">
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph6-client">—</div>
+            <div class="ph-right"><div class="ph-period" id="ph6-period">—</div><div class="ph-page">Excessive Idling</div></div>
+        </div>
+
+        <div class="section-title idl">Excessive <span class="accent">Idling</span></div>
+        <div style="background:#f5f3ff;border:1px solid #ddd6fe;border-left:4px solid var(--purple-light);border-radius:0 6px 6px 0;padding:3mm 4mm;margin-bottom:4mm;font-size:8.5px;color:#5b21b6;font-weight:700;line-height:1.6;">
+            Only vehicles with recorded excess idle events are shown. Idle loss is calculated from total idle duration × the fleet idle burn rate. Thresholds are configured on your tracking platform.
+        </div>
+        <div class="table-controls">
+            <input class="table-search" type="text" placeholder="🔍 Search registration..." oninput="filterTable('idleBody',this.value,'idleNoResults')">
+            <button class="toggle-btn" onclick="toggleTable('wrapT4',this)"><span class="arrow">▼</span> Collapse</button>
+        </div>
+        <div class="table-wrap" id="wrapT4">
+            <table class="dfr-table">
+                <thead><tr>
+                    <th class="left">Registration</th><th>Idle Events</th>
+                    <th>Total Duration</th><th>Avg per Event</th><th class="idl">Idle Loss</th>
+                </tr></thead>
+                <tbody id="idleBody"></tbody>
+            </table>
+            <div class="no-results" id="idleNoResults" style="display:none;">No vehicles match your search.</div>
+            <div class="table-note">Sorted by Idle Loss descending. Idle burn rate: <span id="idleBurnNote">3.5</span> L/hr.</div>
+        </div>
+    </div>
+
+    <!-- ══ LAST PAGE — ACTION REPORT ══ -->
+    <div class="print-section page-break-before" id="page-action">
+        <div class="page-header">
+            <div class="ph-brand">Dynamic Fleet Reporting</div>
+            <div class="ph-client" id="ph7-client">—</div>
+            <div class="ph-right"><div class="ph-period" id="ph7-period">—</div><div class="ph-page">Action Report</div></div>
+        </div>
         <div class="section-title">Vehicle <span class="accent">Action</span> Report</div>
         <div id="actionReport" style="margin-bottom:8mm;"></div>
-
-        <!-- Slim footer -->
         <div style="border-top:3px solid #059669;margin-top:3mm;padding-top:3mm;display:flex;justify-content:space-between;align-items:center;">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;color:#0a0f1e;">Dynamic Fleet Reporting</div>
-            <div style="font-size:7px;color:#cbd5e1;font-weight:600;">Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; Audit Engine v2.0 &nbsp;|&nbsp; CONFIDENTIAL</div>
+            <div style="font-size:7px;color:#cbd5e1;font-weight:600;">Report generated: <span id="reportCreated">—</span> &nbsp;|&nbsp; CONFIDENTIAL</div>
             <div style="font-size:10px;font-weight:900;color:#0a0f1e;">📞 083 314 9592 &nbsp;&nbsp; ✉️ <span class="dfr-email"></span></div>
         </div>
-    </div><!-- /ACTION + FOOTER -->
+    </div>
 
-</div><!-- /report-wrap -->
+</div>
 
 <script>
-// ── Mode control ──────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────
 let currentMode = 'executive';
 
 function setMode(mode) {
@@ -578,389 +521,395 @@ function setMode(mode) {
     ['executive','summary','full'].forEach(m => {
         document.getElementById('btn-' + m).classList.toggle('active', m === mode);
     });
-    // Page 2 (people) — shown in summary + full
-    const p2 = document.getElementById('page2');
-    if (p2) p2.style.display = (mode === 'summary' || mode === 'full') ? 'block' : 'none';
-    // Page 3 (breakdown) — full only
-    const p3 = document.getElementById('page3');
-    if (p3) p3.style.display = mode === 'full' ? 'block' : 'none';
-    // Action report — summary + full
-    const pa = document.getElementById('page-action');
-    if (pa) pa.style.display = (mode === 'summary' || mode === 'full') ? 'block' : 'none';
+    const p2  = document.getElementById('page2');
+    const p3  = document.getElementById('page3');
+    const p4  = document.getElementById('page4');
+    const p5  = document.getElementById('page5');
+    const p6  = document.getElementById('page6');
+    const pa  = document.getElementById('page-action');
+    const show = (el, v) => { if(el) el.style.display = v ? 'block' : 'none'; };
+    show(p2,  mode==='summary'||mode==='full');
+    show(p3,  mode==='summary'||mode==='full');
+    show(p4,  mode==='full');
+    show(p5,  mode==='full');
+    show(p6,  mode==='full');
+    show(pa,  mode==='summary'||mode==='full');
 }
 
-// ── QR — local PNG file (same folder as HTML) ─────────────
+function fmtDuration(secs) {
+    if(!secs||secs<=0) return '—';
+    const h = Math.floor(secs/3600);
+    const m = Math.floor((secs%3600)/60);
+    if(h>0) return h+'h '+m+'m';
+    return m+'m';
+}
+function fmtAvg(totalSecs, count) {
+    if(!totalSecs||!count||count<=0) return '—';
+    const avg = totalSecs/count;
+    const m = Math.floor(avg/60);
+    const s = Math.round(avg%60);
+    if(m>0) return m+'m';
+    return s+'s';
+}
 function drawQR(id) {
-    const canvas = document.getElementById(id);
-    if (!canvas) return;
+    const canvas = document.getElementById(id); if(!canvas) return;
     const img = new Image();
-    img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    img.onload = () => canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
     img.src = 'qr-discover.png';
 }
-
-// ── Gauge ─────────────────────────────────────────────────────
 function drawGauge(id, score) {
-    const c = document.getElementById(id);
-    const ctx = c.getContext('2d');
-    const cx = c.width/2, cy = c.height - 6, r = Math.min(cx - 6, cy - 4);
-    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.lineWidth = 10; ctx.strokeStyle = '#e2e8f0'; ctx.stroke();
-    const color = score >= 80 ? '#059669' : score >= 60 ? '#d97706' : '#dc2626';
-    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, Math.PI + Math.PI * score / 100);
-    ctx.lineWidth = 10; ctx.strokeStyle = color; ctx.lineCap = 'round'; ctx.stroke();
+    const c = document.getElementById(id), ctx = c.getContext('2d');
+    const cx=c.width/2, cy=c.height-6, r=Math.min(cx-6,cy-4);
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,0); ctx.lineWidth=10; ctx.strokeStyle='#e2e8f0'; ctx.stroke();
+    const color = score>=80?'#059669':score>=60?'#d97706':'#dc2626';
+    ctx.beginPath(); ctx.arc(cx,cy,r,Math.PI,Math.PI+Math.PI*score/100);
+    ctx.lineWidth=10; ctx.strokeStyle=color; ctx.lineCap='round'; ctx.stroke();
     return color;
 }
-
-// ── Filename ──────────────────────────────────────────────────
 function buildFilename(name, period) {
     const clean = name.toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_]/g,'');
     const months = {JAN:'JAN',FEB:'FEB',MAR:'MAR',APR:'APR',MAY:'MAY',JUN:'JUN',JUL:'JUL',AUG:'AUG',SEP:'SEP',OCT:'OCT',NOV:'NOV',DEC:'DEC'};
     const parts = period.toUpperCase().split(/[\s\-\/]+/);
-    let mo = '', yr = '';
-    parts.forEach(p => { if (months[p]) mo = p; if (/^\d{4}$/.test(p)) yr = p; });
+    let mo='',yr='';
+    parts.forEach(p => { if(months[p]) mo=p; if(/^\d{4}$/.test(p)) yr=p; });
     return `${clean}_${mo||''}${yr||''}`;
 }
-
 function emailReport() {
     const c = document.getElementById('repClient').innerText;
-    window.location.href = `mailto:?subject=${encodeURIComponent('Fleet Performance Report — ' + c)}&body=${encodeURIComponent('Please find attached your fleet performance report.\n\nBest regards,\nDynamic Fleet Reporting')}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent('Fleet Performance Report — '+c)}&body=${encodeURIComponent('Please find attached your fleet performance report.\n\nBest regards,\nDynamic Fleet Reporting')}`;
 }
+const tierInfo  = s => s>=95?['#92400e','#fef3c7','🏆 Elite']:s>=90?['#065f46','#d1fae5','⭐ High']:s>=80?['#1e40af','#dbeafe','👍 Good']:['#991b1b','#fee2e2','⚠️ Training'];
+const scorePill = (s,has) => { if(!has) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>'; const[col,bg]=tierInfo(s); return `<span class="score-pill" style="background:${bg};color:${col};">${s}%</span>`; };
 
-// ── Tier helpers ──────────────────────────────────────────────
-const tierInfo  = s => s >= 95 ? ['#92400e','#fef3c7','🏆 Elite']
-                     : s >= 90 ? ['#065f46','#d1fae5','⭐ High']
-                     : s >= 80 ? ['#1e40af','#dbeafe','👍 Good']
-                     :           ['#991b1b','#fee2e2','⚠️ Training'];
-const scorePill = (s, has) => {
-    if (!has) return '<span class="score-pill" style="background:#f1f5f9;color:#94a3b8;">—</span>';
-    const [col, bg] = tierInfo(s);
-    return `<span class="score-pill" style="background:${bg};color:${col};">${s}%</span>`;
-};
-
-// ── Cloud storage wait ────────────────────────────────────────
-function waitForCloudStorage(cb, n=0) {
-    if (typeof cloudStorage !== 'undefined') cb();
-    else if (n < 50) setTimeout(() => waitForCloudStorage(cb, n+1), 100);
+function waitForCloudStorage(cb,n=0){
+    if(typeof cloudStorage!=='undefined') cb();
+    else if(n<50) setTimeout(()=>waitForCloudStorage(cb,n+1),100);
     else console.error('cloudStorage unavailable');
 }
 
-// ── VEHICLE DB + SUGGESTED CALC ─────────────────────────────
-let _vdb = {};
-waitForCloudStorage(async () => {
-    try { const r = await cloudStorage.getItem('VEHICLE_DB'); _vdb = r ? JSON.parse(r) : {}; } catch(e){ _vdb={}; }
-});
-function _dbk(make,model){ return ((make||'').trim().toLowerCase()+'|'+(model||'').trim().toLowerCase()); }
-function _lookupMfr(make,model){
-    if(!make) return null;
-    const e=_vdb[_dbk(make,model)]; if(e) return e;
-    for(const k of Object.keys(_vdb)){ if(k.startsWith((make||'').trim().toLowerCase()+'|')) return _vdb[k]; }
-    return null;
-}
-
-// ── REPORT READS PRE-CALCULATED VALUES FROM AUDIT_FINAL ──────────────────
-// The audit page (audit.html) runs calcVehicle() for every vehicle and saves
-// all results into AUDIT_FINAL.fleet[reg]. Reports read those stored values
-// directly — no recalculation here. This guarantees audit and report figures
-// are always identical.
-//
-// Legacy field support: if pre-calculated fields are missing (older audit),
-// falls back to on-the-fly calculation using the same formulas.
-
-const DFR_TERRAIN_FACTOR = {'Flat / Highveld':1.00,'Mixed / Undulating':0.93,'Mountainous':0.84,'Severe Mountain':0.75};
-const DFR_AERO_DRAG = {'Long Distance':0.42,'Mixed':0.32,'Local Distribution':0.22,'Construction / Mining':0.18,'Agricultural':0.18};
-
-function calcSuggested(v) {
-    // Uses mfr_avg as base (SA real-world), falls back to mfr_min
-    const base = parseFloat(v.mfr_avg) || parseFloat(v.mfr_min) || null;
-    if (!base) return null;
-    const loadAdj    = {'Fully Loaded':0,'Loaded Out / Empty Return':0.18,'Mixed / Variable':0.10,'Local Stop-Start':-0.15}[v.loadProfile]??0;
-    const trailerAdj = {'Tautliner / Curtainsider':-0.05,'Flatdeck / Lowbed':0,'Tanker':0.03,'Side Tipper':-0.10,'Rear Tipper':-0.12,'Livestock / Animal Trailer':-0.06,'Rigid Body (No Trailer)':0}[v.trailerType]??0;
-    const intAdj     = (v.interlink===true||v.interlink==='true'||v.interlink==='Yes') ? -0.04 : 0;
-    const aeroAdj    = {'None':0,'Roof Fairing Only':0.05,'Full Aerokit':0.10}[v.aerokit]??0;
-    const terrain    = DFR_TERRAIN_FACTOR[v.terrain] ?? DFR_TERRAIN_FACTOR['Mixed / Undulating'];
-    return Math.round(base*(1+loadAdj+trailerAdj+intAdj+aeroAdj)*terrain*100)/100;
-}
-
-// resolveVehicle — get calculated fields, preferring pre-calculated from audit
-function resolveVehicle(v, wPrice, rPrice, globalTarget, speedLimit) {
-    // Pre-calculated fields from audit engine — use directly if present
-    if (v.effLoss_w != null && v.speedLoss_w != null) {
-        return {
-            ...v,
-            km:        parseFloat(v.mK||v.gpsDist||0),
-            lit:       parseFloat(v.mL||0),
-            actEff:    v.actKmL || 0,
-            eWaste:    v.wastedL || 0,
-            eLoss:     v.effLoss_w,   eLoss_r: v.effLoss_r,
-            sLoss:     v.speedLoss_w, sLoss_r: v.speedLoss_r,
-            tLoss:     v.totalLoss_w, tLoss_r: v.totalLoss_r,
-            vSuggested:v.suggestedTarget || calcSuggested(v),
-            vTarget:   v.activeTarget || globalTarget,
-            score:     v.score || 0
-        };
-    }
-    // Fallback: legacy audit data — calculate on the fly
-    const km    = (v.mK&&v.mK>0) ? parseFloat(v.mK) : parseFloat(v.gpsDist||0);
-    const lit   = parseFloat(v.mL||0);
-    const dbEntry   = _lookupMfr(v.make, v.model);
-    const vMfrAvg   = parseFloat(v.mfr_avg)||dbEntry?.mfr_avg||null;
-    const vMfrMin   = parseFloat(v.mfr_min)||dbEntry?.mfr_min||null;
-    const vSuggested= calcSuggested({...v, mfr_avg:vMfrAvg, mfr_min:vMfrMin});
-    const vTarget   = parseFloat(v.clientTarget)||parseFloat(v.targetKmL)||vSuggested||globalTarget;
-    const actEff    = (lit>0&&km>0) ? km/lit : 0;
-    const eWaste    = (lit>0&&km>0&&actEff<vTarget) ? (lit-km/vTarget) : 0;
-    const aeroDrag  = DFR_AERO_DRAG[v.usage] ?? DFR_AERO_DRAG['Mixed'];
-    const events    = v.violations||0;
-    let sLitres = 0;
-    if (v.speeds&&v.speeds.length>0) {
-        const over=v.speeds.filter(s=>s>speedLimit);
-        const totalHrs=v.duration>0?v.duration/3600:over.length*5/60;
-        const perHrs=Math.max(5/60,over.length>0?totalHrs/over.length:5/60);
-        over.forEach(spd=>{ sLitres+=(spd*0.9*perHrs/vTarget)*aeroDrag*((spd/speedLimit)**2-1); });
-    } else if (events>0) {
-        const assumed=speedLimit+15;
-        sLitres=events*(assumed*0.9*(5/60)/vTarget)*aeroDrag*((assumed/speedLimit)**2-1);
-    }
-    sLitres=Math.max(0,sLitres);
-    const eLoss=eWaste*wPrice, sLoss=sLitres*wPrice;
-    let score=100;
-    if(actEff>0&&actEff<vTarget) score-=Math.min(40,(((vTarget-actEff)/vTarget)*100/100)*40);
-    if(events>0) score-=Math.min(30,events*0.3);
-    const peak=(v.speeds&&v.speeds.length>0)?Math.max(...v.speeds):(v.maxSpeed||0);
-    if(v.duration>300&&peak>speedLimit+1) score-=Math.min(20,(v.duration/60/30)*20);
-    if(peak>speedLimit+20) score-=Math.min(10,(peak-(speedLimit+20))*0.5);
-    score=Math.max(0,Math.min(100,Math.round(score)));
-    return { ...v, km, lit, actEff, eWaste, eLoss, eLoss_r:eWaste*rPrice,
-        sLoss, sLoss_r:sLitres*rPrice, tLoss:eLoss+sLoss, tLoss_r:(eWaste*rPrice)+(sLitres*rPrice),
-        vSuggested, vTarget, score };
-}
-
-// ── MAIN ─────────────────────────────────────────────────────
+// ── MAIN ──────────────────────────────────────────────────────────────────
 waitForCloudStorage(async () => {
     const raw = await cloudStorage.getItem('AUDIT_FINAL');
-    if (!raw) { alert('No audit data found. Please generate from the audit page.'); return; }
+    if(!raw){ alert('No audit data found. Please generate from the audit page.'); return; }
 
-    const data      = JSON.parse(raw);
-    const fleet     = Object.values(data.fleet);
-    const client    = data.client;
-    const target    = parseFloat(client.target) || 2.3;
-    const speedLimit= data.speedLimit || 80;
-    const results   = data.auditResults || {};
-    const wPrice    = data.fuelPrice || 21.50;
+    const data       = JSON.parse(raw);
+    const fleet      = Object.values(data.fleet);
+    const client     = data.client;
+    const target     = parseFloat(client.target)||2.3;
+    const speedLimit = data.speedLimit||80;
+    const wPrice     = data.fuelPrice||21.50;
+    const rPrice     = data.rPrice||(wPrice+2.35);
+    const idleBurn   = data.idleBurnRate||3.5;
+    const t          = data.totals||{};
 
     // History
-    const allClients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
-    const clientData  = allClients.find(c => c.company === client.company);
-    const historyKey  = `AUDIT_HISTORY_${clientData?.id}`;
-    const history     = (JSON.parse(await cloudStorage.getItem(historyKey)) || []).sort((a,b) => new Date(a.date)-new Date(b.date));
+    const allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    const clientData = allClients.find(c=>c.company===client.company);
+    const historyKey = `AUDIT_HISTORY_${clientData?.id}`;
+    const history    = (JSON.parse(await cloudStorage.getItem(historyKey))||[]).sort((a,b)=>new Date(a.date)-new Date(b.date));
 
-    // ── Header ──
-    const now = new Date();
-    const fmtDate = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
-    const fmtFull = d => d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase();
+    const now      = new Date();
+    const fmtDate  = d => d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+    const fmtFull  = d => d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).toUpperCase();
+    const fmtR     = v => 'R '+Math.round(v).toLocaleString();
 
-    ['repClient','ph1-client','ph2-client','ph3-client','ph4-client'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = client.company;
+    // ── Headers ──
+    ['ph1-client','ph2-client','ph3-client','ph4-client','ph5-client','ph6-client','ph7-client','repClient'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.innerText=client.company;
     });
-    ['ph1-period','ph2-period','ph3-period','ph4-period'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = data.month;
+    ['ph1-period','ph2-period','ph3-period','ph4-period','ph5-period','ph6-period','ph7-period'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.innerText=data.month;
     });
-    document.getElementById('repPeriod').innerText = data.month;
-    document.getElementById('repDate').innerText   = fmtDate(now);
+    document.getElementById('repPeriod').innerText     = data.month;
+    document.getElementById('repDate').innerText       = fmtDate(now);
     document.getElementById('reportCreated').innerText = fmtFull(now);
-
-    // Filename + title
+    document.getElementById('speedLimitNote').innerText = speedLimit;
+    document.getElementById('idleBurnNote').innerText   = idleBurn;
     const fname = buildFilename(client.company, data.month);
     document.title = fname;
-    document.getElementById('suggestedFilename').innerText = fname + '.pdf';
+    document.getElementById('suggestedFilename').innerText = fname+'.pdf';
 
-    // Frequency label
-    if (history.length >= 2) {
-        const diff = (new Date(history[history.length-1].date) - new Date(history[history.length-2].date)) / 86400000;
-        document.getElementById('reportFreqLabel').innerText = diff <= 10 ? 'Weekly Report' : diff <= 20 ? 'Bi-Weekly Report' : 'Monthly Report';
+    // Frequency
+    if(history.length>=2){
+        const diff=(new Date(history[history.length-1].date)-new Date(history[history.length-2].date))/86400000;
+        document.getElementById('reportFreqLabel').innerText=diff<=10?'Weekly Report':diff<=20?'Bi-Weekly Report':'Monthly Report';
     }
 
-    const rPrice    = data.rPrice || (parseFloat(data.fuelPrice||21.50) + 2.35);
+    // ── Fleet totals from pre-calculated values ──
+    const totalKM      = t.totalKM      ?? fleet.reduce((s,v)=>s+(parseFloat(v.mK||v.gpsDist||0)),0);
+    const totalLitres  = t.totalLitres  ?? fleet.reduce((s,v)=>s+(parseFloat(v.mL||0)),0);
+    const effLoss_w    = t.effLoss_w    ?? fleet.reduce((s,v)=>s+(v.effLoss_w||0),0);
+    const speedLoss_w  = t.speedLoss_w  ?? fleet.reduce((s,v)=>s+(v.speedLoss_w||0),0);
+    const idleLoss_w   = t.idleLoss_w   ?? fleet.reduce((s,v)=>s+(v.idleLoss_w||0),0);
+    const totalLoss_w  = t.totalLoss_w  ?? fleet.reduce((s,v)=>s+(v.totalLoss_w||0),0);
+    const effLoss_r    = t.effLoss_r    ?? fleet.reduce((s,v)=>s+(v.effLoss_r||0),0);
+    const speedLoss_r  = t.speedLoss_r  ?? fleet.reduce((s,v)=>s+(v.speedLoss_r||0),0);
+    const idleLoss_r   = t.idleLoss_r   ?? fleet.reduce((s,v)=>s+(v.idleLoss_r||0),0);
+    const totalLoss_r  = t.totalLoss_r  ?? fleet.reduce((s,v)=>s+(v.totalLoss_r||0),0);
+    const avgKmL       = totalLitres>0 ? (totalKM/totalLitres).toFixed(2) : '—';
+    const totalViol    = fleet.reduce((s,v)=>s+(v.violations||0),0);
+    const totalIdle    = fleet.reduce((s,v)=>s+(v.idleCount||0),0);
+    const avgScore     = fleet.length>0 ? Math.round(fleet.reduce((s,v)=>s+(v.score||0),0)/fleet.length) : 0;
 
-    // ── Process fleet — uses resolveVehicle() which reads pre-calculated values ──
-    const processed = fleet.map(v => resolveVehicle(v, wPrice, rPrice, target, speedLimit));
-    const byScore   = [...processed].sort((a,b) => b.score - a.score);
-    const byLoss    = [...processed].sort((a,b) => b.tLoss - a.tLoss);
-    const avgScore  = processed.length > 0 ? Math.round(processed.reduce((s,v)=>s+v.score,0)/processed.length) : 0;
-    const totalWasted = processed.reduce((s,v)=>s+(v.eWaste||0),0);
-    const totalEvents = processed.reduce((s,v)=>s+(v.violations||0),0);
-
-    // Fleet totals — read from pre-calculated totals if available, else sum vehicles
-    const t = data.totals || {};
-    const totalLoss = t.totalLoss_w  != null ? t.totalLoss_w  : processed.reduce((s,v)=>s+v.tLoss,0);
-    const effLoss   = t.effLoss_w    != null ? t.effLoss_w    : processed.reduce((s,v)=>s+v.eLoss,0);
-    const speedLoss = t.speedLoss_w  != null ? t.speedLoss_w  : processed.reduce((s,v)=>s+v.sLoss,0);
-    const totalLoss_r = t.totalLoss_r!= null ? t.totalLoss_r  : processed.reduce((s,v)=>s+(v.tLoss_r||0),0);
-    const effLoss_r   = t.effLoss_r  != null ? t.effLoss_r    : processed.reduce((s,v)=>s+(v.eLoss_r||0),0);
-    const speedLoss_r = t.speedLoss_r!= null ? t.speedLoss_r  : processed.reduce((s,v)=>s+(v.sLoss_r||0),0);
-    const fleetKM   = t.totalKM      != null ? t.totalKM      : processed.reduce((s,v)=>s+(v.km||0),0);
-    const fleetFuel = t.totalLitres  != null ? t.totalLitres  : processed.reduce((s,v)=>s+(v.lit||0),0);
-    const avgKmL    = fleetFuel > 0 ? (fleetKM/fleetFuel).toFixed(2) : '—';
+    const byLoss  = [...fleet].sort((a,b)=>(b.totalLoss_w||0)-(a.totalLoss_w||0));
+    const byScore = [...fleet].sort((a,b)=>(b.score||0)-(a.score||0));
 
     // ── Hero tiles ──
-    document.getElementById('statKM').innerText      = Math.round(fleetKM).toLocaleString();
-    document.getElementById('statFuel').innerText    = Math.round(fleetFuel).toLocaleString();
-    document.getElementById('statEff').innerText     = avgKmL;
-    document.getElementById('statWasted').innerText  = Math.round(totalWasted).toLocaleString();
-    document.getElementById('statEvents').innerText  = totalEvents.toLocaleString();
-    document.getElementById('statEffLoss').innerText = 'R ' + Math.round(effLoss).toLocaleString();
-    document.getElementById('statTotal').innerText   = 'R ' + Math.round(totalLoss).toLocaleString();
-    // Retail totals — show if element exists
-    const rEffEl  = document.getElementById('statEffLossR');  if(rEffEl)  rEffEl.innerText  = 'R ' + Math.round(effLoss_r).toLocaleString();
-    const rSpdEl  = document.getElementById('statSpeedLossR');if(rSpdEl)  rSpdEl.innerText  = 'R ' + Math.round(speedLoss_r).toLocaleString();
-    const rTotEl  = document.getElementById('statTotalR');    if(rTotEl)  rTotEl.innerText  = 'R ' + Math.round(totalLoss_r).toLocaleString();
-    document.getElementById('statTotalSub').innerText= data.month;
+    document.getElementById('statKM').innerText        = Math.round(totalKM).toLocaleString();
+    document.getElementById('statFuel').innerText      = Math.round(totalLitres).toLocaleString();
+    document.getElementById('statEff').innerText       = avgKmL;
+    document.getElementById('statEvents').innerText    = totalViol.toLocaleString();
+    document.getElementById('statSpeedLoss').innerText = fmtR(speedLoss_w);
+    document.getElementById('statIdleLoss').innerText  = fmtR(idleLoss_w);
+    document.getElementById('statTotal').innerText     = fmtR(totalLoss_w);
+    document.getElementById('statTotalSub').innerText  = data.month;
 
     // Delta
-    if (history.length >= 2) {
-        const prev    = history[history.length-2].fuelLoss;
-        const delta   = totalLoss - prev;
-        const good    = delta < 0;
-        const deltaEl = document.getElementById('statDelta');
-        deltaEl.innerText = (good ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
-        document.getElementById('statDeltaSub').innerText = (good ? 'Saved vs ' : 'More than ') + history[history.length-2].week;
-        document.getElementById('deltaCard').className = 'hero-tile ' + (good ? 't-delta-good' : 't-delta-bad');
-        document.getElementById('deltaIcon').innerText = good ? '📉' : '📈';
-        document.getElementById('trendDelta').innerText = (good ? '↓ R ' : '↑ R ') + Math.abs(Math.round(delta)).toLocaleString();
-        document.getElementById('trendDelta').style.color = good ? 'var(--green-light)' : 'var(--red-light)';
-        document.getElementById('trendDeltaLabel').innerText = (good ? 'improvement' : 'increase') + ' vs ' + history[history.length-2].week;
+    if(history.length>=2){
+        const prev=history[history.length-2].fuelLoss;
+        const delta=totalLoss_w-prev;
+        const good=delta<0;
+        document.getElementById('statDelta').innerText     = (good?'↓ R ':'↑ R ')+Math.abs(Math.round(delta)).toLocaleString();
+        document.getElementById('statDeltaSub').innerText  = (good?'Saved vs ':'More than ')+history[history.length-2].week;
+        document.getElementById('deltaCard').className     = 'hero-tile '+(good?'t-delta-good':'t-delta-bad');
+        document.getElementById('deltaIcon').innerText     = good?'📉':'📈';
+        document.getElementById('trendDelta').innerText    = (good?'↓ R ':'↑ R ')+Math.abs(Math.round(delta)).toLocaleString();
+        document.getElementById('trendDelta').style.color  = good?'var(--green-light)':'var(--red-light)';
+        document.getElementById('trendDeltaLabel').innerText=(good?'improvement':'increase')+' vs '+history[history.length-2].week;
     } else {
-        document.getElementById('statDelta').innerText   = 'First';
-        document.getElementById('statDeltaSub').innerText= 'No prior data yet';
-        document.getElementById('trendDelta').innerText  = 'First report';
-        document.getElementById('trendDeltaLabel').innerText = 'No trend data yet';
+        document.getElementById('statDelta').innerText    = 'First';
+        document.getElementById('statDeltaSub').innerText = 'No prior data yet';
+        document.getElementById('trendDelta').innerText   = 'First report';
+        document.getElementById('trendDeltaLabel').innerText='No trend data yet';
     }
 
     // ── Gauge ──
     const gColor = drawGauge('gaugeChart', avgScore);
-    document.getElementById('gaugeScore').innerText = avgScore + '%';
-    document.getElementById('gaugeScore').style.color = gColor;
-    document.getElementById('gaugeDesc').innerText  = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
-    document.getElementById('gaugeDesc').style.color = gColor;
+    document.getElementById('gaugeScore').innerText     = avgScore+'%';
+    document.getElementById('gaugeScore').style.color   = gColor;
+    document.getElementById('gaugeDesc').innerText      = avgScore>=90?'Excellent':avgScore>=80?'Good':avgScore>=70?'Fair':avgScore>=60?'Poor':'Critical';
+    document.getElementById('gaugeDesc').style.color    = gColor;
 
-    // ── Loss doughnut ──
+    // ── Bar chart — three loss categories ──
     new Chart(document.getElementById('lossChart'), {
-        type: 'doughnut',
-        data: { labels:['Efficiency','Speeding'], datasets:[{ data:[effLoss,speedLoss], backgroundColor:['#0f172a','#ef4444'], borderWidth:0 }] },
-        options: { cutout:'70%', plugins:{ legend:{ position:'bottom', labels:{ font:{weight:'bold',family:'Outfit',size:8}, padding:6 } } } }
-    });
-
-    // ── Trend chart ──
-    const tLabels = history.map(h => h.week);
-    const tValues = history.map(h => h.fuelLoss);
-    new Chart(document.getElementById('trendChart'), {
-        type: 'bar',
-        data: { labels:tLabels, datasets:[{ data:tValues,
-            backgroundColor: tValues.map((_,i) => i===tValues.length-1 ? '#dc2626' : '#cbd5e1'),
-            borderRadius:4, borderSkipped:false }] },
-        options: { responsive:true, plugins:{ legend:{display:false} },
+        type:'bar',
+        data:{
+            labels:['Speed Loss','Idle Loss','Habit Loss'],
+            datasets:[{
+                data:[Math.round(speedLoss_w), Math.round(idleLoss_w), Math.round(effLoss_w)],
+                backgroundColor:['#ea580c','#7c3aed','#2563eb'],
+                borderRadius:4, borderSkipped:false
+            }]
+        },
+        options:{
+            indexAxis:'y',
+            responsive:true,
+            plugins:{legend:{display:false},
+                tooltip:{callbacks:{label:ctx=>' '+fmtR(ctx.raw)}}},
             scales:{
-                y:{ ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k',font:{size:8}}, grid:{color:'#f1f5f9'} },
-                x:{ ticks:{font:{size:8}}, grid:{display:false} }
+                x:{ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k',font:{size:7,family:'Outfit',weight:'bold'},color:'#64748b'},grid:{color:'#f1f5f9'}},
+                y:{ticks:{font:{size:8,family:'Outfit',weight:'bold'},color:'#0f172a'},grid:{display:false}}
             }
         }
     });
 
+    // ── Trend chart ──
+    const tLabels = history.map(h=>h.week);
+    const tValues = history.map(h=>h.fuelLoss);
+    new Chart(document.getElementById('trendChart'),{
+        type:'bar',
+        data:{labels:tLabels,datasets:[{data:tValues,
+            backgroundColor:tValues.map((_,i)=>i===tValues.length-1?'#dc2626':'#cbd5e1'),
+            borderRadius:4,borderSkipped:false}]},
+        options:{responsive:true,plugins:{legend:{display:false}},
+            scales:{
+                y:{ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k',font:{size:8}},grid:{color:'#f1f5f9'}},
+                x:{ticks:{font:{size:8}},grid:{display:false}}
+            }}
+    });
+
     // ── Podium ──
-    const maxL = byLoss[0]?.tLoss || 1;
-    document.getElementById('podium').innerHTML = byLoss.slice(0,5).map((v,i) => `
+    const maxL = byLoss[0]?.totalLoss_w||1;
+    document.getElementById('podium').innerHTML = byLoss.slice(0,5).map((v,i)=>`
         <div class="podium-item">
             <div class="podium-rank" style="background:${['#7f1d1d','#dc2626','#f97316','#d97706','#64748b'][i]}">${i+1}</div>
             <div class="podium-reg">${v.reg}</div>
-            <div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:${(v.tLoss/maxL*100).toFixed(0)}%"></div></div>
-            <div class="podium-loss">R ${Math.round(v.tLoss).toLocaleString()}</div>
+            <div class="podium-bar-wrap"><div class="podium-bar-fill" style="width:${((v.totalLoss_w||0)/maxL*100).toFixed(0)}%"></div></div>
+            <div class="podium-loss">${fmtR(v.totalLoss_w||0)}</div>
         </div>`).join('');
 
     // ── Driver of Period ──
     const top = byScore[0];
-    if (top && top.actEff > 0) {
-        document.getElementById('dotmName').innerText = top.reg;
-        document.getElementById('dotmSub').innerText  = 'Performance Score: ' + top.score + '%';
-        document.getElementById('dotmEff').innerText  = top.actEff.toFixed(2);
-        document.getElementById('dotmViol').innerText = top.violations || 0;
-        document.getElementById('dotmScore').innerText= top.score + '%';
+    if(top&&(top.actKmL||0)>0){
+        document.getElementById('dotmName').innerText  = top.reg;
+        document.getElementById('dotmSub').innerText   = 'Performance Score: '+top.score+'%';
+        document.getElementById('dotmEff').innerText   = (top.actKmL||0).toFixed(2);
+        document.getElementById('dotmViol').innerText  = top.violations||0;
+        document.getElementById('dotmScore').innerText = top.score+'%';
     } else {
-        document.getElementById('dotmCard').style.display = 'none';
+        document.getElementById('dotmCard').style.display='none';
     }
 
-    // ── League table (8 cols — no duration, no period loss) ──
-    document.getElementById('leagueBody').innerHTML = byScore.map((v,i) => {
-        const [col,bg,tier] = tierInfo(v.score);
-        const bColor = v.score>=80?'#059669':v.score>=60?'#d97706':'#dc2626';
+    // ── League table ──
+    document.getElementById('leagueBody').innerHTML = byScore.map((v,i)=>{
+        const[col,bg,tier]=tierInfo(v.score);
+        const bColor=v.score>=80?'#059669':v.score>=60?'#d97706':'#dc2626';
+        const actK=parseFloat(v.actKmL||0), netK=parseFloat(v.netDrivingKmL||0);
         return `<tr>
             <td><div style="width:20px;height:20px;border-radius:50%;background:${bg};color:${col};font-weight:900;font-size:9px;display:flex;align-items:center;justify-content:center;">${i+1}</div></td>
             <td class="left reg">${v.reg}</td>
             <td class="muted" style="font-size:8px;">${v.type||'Heavy'}</td>
-            <td>${(v.km||0).toFixed(0)}</td>
-            <td class="muted">${v.lit>0?v.lit.toFixed(1):'—'}</td>
-            <td class="${v.actEff>0&&v.actEff<target?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
+            <td>${(parseFloat(v.mK||v.gpsDist||0)).toFixed(0)}</td>
+            <td class="muted">${parseFloat(v.mL||0)>0?parseFloat(v.mL||0).toFixed(1):'—'}</td>
+            <td class="${actK>0&&actK<target?'red':actK>0?'green':'muted'}">${actK>0?actK.toFixed(2):'—'}</td>
+            <td style="color:${netK>0&&netK<target?'#f87171':netK>0?'#c4b5fd':'#94a3b8'};font-weight:700;">${netK>0?netK.toFixed(2):'—'}</td>
             <td><div class="tier-bar"><div class="tier-bar-fill" style="width:${v.score}%;background:${bColor};"></div></div></td>
             <td><span class="score-pill" style="background:${bg};color:${col};">${tier}</span></td>
         </tr>`;
     }).join('');
 
-    // ── Full breakdown (11 cols — no violations, no max speed) ──
-    document.getElementById('repBody').innerHTML = byLoss.map(v => `
-        <tr>
+    // ── Summary loss cards ──
+    const mkCard = (cls,label,wVal,rVal,sub) => `
+        <div class="loss-card ${cls}">
+            <span class="lc-label">${label}</span>
+            <span class="lc-val">${fmtR(wVal)}</span>
+            <span class="lc-sub">${sub}</span>
+        </div>`;
+    const wCards = mkCard('lc-total','Total Loss',totalLoss_w,totalLoss_r,'All causes combined')
+        + mkCard('lc-speed','Speed Loss',speedLoss_w,speedLoss_r,'Aero drag above limit')
+        + mkCard('lc-idle','Idle Loss',idleLoss_w,idleLoss_r,'Fuel burned stationary')
+        + mkCard('lc-habit','Habit Loss',effLoss_w,effLoss_r,'Net driving vs target');
+    document.getElementById('wholesaleCards').innerHTML = wCards;
+
+    const mkCardR = (cls,label,rVal,sub) => `
+        <div class="loss-card ${cls}">
+            <span class="lc-label">${label}</span>
+            <span class="lc-val">${fmtR(rVal)}</span>
+            <span class="lc-sub">${sub}</span>
+        </div>`;
+    const rCards = mkCardR('lc-total','Total Loss',totalLoss_r,'All causes combined')
+        + mkCardR('lc-speed','Speed Loss',speedLoss_r,'At pump price')
+        + mkCardR('lc-idle','Idle Loss',idleLoss_r,'At pump price')
+        + mkCardR('lc-habit','Habit Loss',effLoss_r,'At pump price');
+    document.getElementById('retailCards').innerHTML = rCards;
+
+    // ── Table 1 — Fleet Loss Summary (all vehicles) ──
+    document.getElementById('summaryBody').innerHTML = byLoss.map(v=>{
+        const spd=v.speedLoss_w||0, idl=v.idleLoss_w||0, hab=v.effLoss_w||0, tot=v.totalLoss_w||0;
+        const zero = v => v<=0?'zero':'';
+        return `<tr>
             <td class="left reg">${v.reg}</td>
-            <td class="muted">${(parseFloat(v.gpsDist||v.mK)||0).toFixed(0)}</td>
-            <td>${(v.km||0).toFixed(0)}</td>
-            <td class="muted">${v.lit>0?v.lit.toFixed(1):'—'}</td>
-            <td class="${v.actEff>0&&v.actEff<v.vTarget?'red':v.actEff>0?'green':'muted'}">${v.actEff>0?v.actEff.toFixed(2):'—'}</td>
-            <td class="muted" style="color:#93c5fd;">${v.mfr_avg?parseFloat(v.mfr_avg).toFixed(2):(v.mfr_min?parseFloat(v.mfr_min).toFixed(2):'—')}</td>
-            <td class="muted" style="color:#6ee7b7;">${v.vSuggested?v.vSuggested.toFixed(2):'—'}</td>
-            <td class="muted" style="color:#fcd34d;font-weight:700;">${v.vTarget.toFixed(2)}</td>
-            <td class="${(v.eWaste||0)>0?'red':'muted'}">${(v.eWaste||0)>0?(v.eWaste||0).toFixed(1):'—'}</td>
-            <td>R ${Math.round(v.eLoss).toLocaleString()}</td>
-            <td>R ${Math.round(v.sLoss).toLocaleString()}</td>
-            <td class="loss">R ${Math.round(v.tLoss).toLocaleString()}</td>
-            <td>${scorePill(v.score, v.actEff>0)}</td>
-        </tr>`).join('');
+            <td class="${zero(spd)||'spd-loss'}">${spd>0?fmtR(spd):'—'}</td>
+            <td class="${zero(idl)||'idl-loss'}">${idl>0?fmtR(idl):'—'}</td>
+            <td class="${zero(hab)||'hab-loss'}">${hab>0?fmtR(hab):'—'}</td>
+            <td class="${tot>0?'loss':'zero'}">${tot>0?fmtR(tot):'—'}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('summaryFoot').innerHTML = `
+        <tr style="background:#0f172a;color:white;">
+            <td class="left" style="color:white;font-weight:900;font-size:9px;">FLEET TOTAL</td>
+            <td style="color:#fb923c;font-weight:900;">${fmtR(speedLoss_w)}</td>
+            <td style="color:#c4b5fd;font-weight:900;">${fmtR(idleLoss_w)}</td>
+            <td style="color:#93c5fd;font-weight:900;">${fmtR(effLoss_w)}</td>
+            <td style="color:#fca5a5;font-weight:900;font-size:10px;">${fmtR(totalLoss_w)}</td>
+        </tr>`;
 
-    // ── Action report ──
-    const critical  = byLoss.filter(v => v.actEff>0 && v.actEff<v.vTarget && (v.violations||0)>5);
-    const speedOnly = byLoss.filter(v => (v.actEff>=v.vTarget||v.actEff===0) && (v.violations||0)>5);
-    const effOnly   = byLoss.filter(v => v.actEff>0 && v.actEff<v.vTarget && (v.violations||0)<=5);
-    const acceptable= byLoss.filter(v => (v.actEff>=target||v.actEff===0) && (v.violations||0)<=5);
+    // ── Table 2 — Driving Habits (below target only) ──
+    const habitVehicles = byLoss.filter(v=>(v.netDrivingKmL||0)>0&&(v.netDrivingKmL||0)<(v.activeTarget||target));
+    document.getElementById('habitBody').innerHTML = habitVehicles.length
+        ? [...habitVehicles].sort((a,b)=>(b.effLoss_w||0)-(a.effLoss_w||0)).map(v=>`<tr>
+            <td class="left reg">${v.reg}</td>
+            <td>${parseFloat(v.mK||v.gpsDist||0).toFixed(0)}</td>
+            <td class="muted">${parseFloat(v.mL||0).toFixed(1)}</td>
+            <td class="red">${(v.actKmL||0).toFixed(2)}</td>
+            <td style="color:#a78bfa;font-weight:900;">${(v.netDrivingKmL||0).toFixed(2)}</td>
+            <td style="color:#fcd34d;font-weight:700;">${(v.activeTarget||target).toFixed(2)}</td>
+            <td class="hab-loss">${fmtR(v.effLoss_w||0)}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:12px;font-weight:600;">✅ All vehicles meeting target consumption</td></tr>';
 
-    const aTable = (items, bg) => `
+    // ── Table 3 — Speeding (violations only) ──
+    const speedVehicles = [...byLoss].filter(v=>(v.violations||0)>0).sort((a,b)=>(b.speedLoss_w||0)-(a.speedLoss_w||0));
+    document.getElementById('speedBody').innerHTML = speedVehicles.length
+        ? speedVehicles.map(v=>`<tr>
+            <td class="left reg">${v.reg}</td>
+            <td class="red">${v.violations||0}</td>
+            <td>${fmtDuration(v.duration||0)}</td>
+            <td class="muted">${fmtAvg(v.duration||0,v.violations||0)}</td>
+            <td class="${(v.maxSpeed||0)>speedLimit?'red':'muted'}">${v.maxSpeed||'—'}</td>
+            <td class="spd-loss">${fmtR(v.speedLoss_w||0)}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:12px;font-weight:600;">✅ No speed violations recorded this period</td></tr>';
+
+    // ── Table 4 — Idling (idle events only) ──
+    const idleVehicles = [...byLoss].filter(v=>(v.idleCount||0)>0).sort((a,b)=>(b.idleLoss_w||0)-(a.idleLoss_w||0));
+    document.getElementById('idleBody').innerHTML = idleVehicles.length
+        ? idleVehicles.map(v=>`<tr>
+            <td class="left reg">${v.reg}</td>
+            <td style="color:#7c3aed;font-weight:900;">${v.idleCount||0}</td>
+            <td>${fmtDuration(v.idleSecs||0)}</td>
+            <td class="muted">${fmtAvg(v.idleSecs||0,v.idleCount||0)}</td>
+            <td class="idl-loss">${fmtR(v.idleLoss_w||0)}</td>
+        </tr>`).join('')
+        : '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:12px;font-weight:600;">✅ No excessive idle events recorded this period</td></tr>';
+
+    // ── Action Report ──
+    const critical  = byLoss.filter(v=>v.actKmL>0&&v.actKmL<(v.activeTarget||target)&&(v.violations||0)>5);
+    const speedOnly = byLoss.filter(v=>(v.actKmL>=(v.activeTarget||target)||!v.actKmL)&&(v.violations||0)>5);
+    const effOnly   = byLoss.filter(v=>v.actKmL>0&&v.actKmL<(v.activeTarget||target)&&(v.violations||0)<=5);
+    const acceptable= byLoss.filter(v=>(v.actKmL>=(v.activeTarget||target)||!v.actKmL)&&(v.violations||0)<=5);
+    const aTable = (items,bg) => `
         <table class="action-inner-table">
             <thead><tr style="background:${bg};">
-                <th class="left">Vehicle</th><th>Score</th><th>Violations</th><th>Efficiency</th><th>Period Loss</th>
+                <th class="left">Vehicle</th><th>Score</th><th>Violations</th><th>Act km/L</th><th>Net km/L</th><th>Total Loss</th>
             </tr></thead>
             <tbody>${items.map(v=>`
                 <tr>
                     <td class="left">${v.reg}</td>
                     <td>${v.score}%</td>
                     <td>${v.violations||0}</td>
-                    <td>${v.actEff>0?v.actEff.toFixed(2)+' km/L':'—'}</td>
-                    <td style="color:#dc2626;font-weight:900;">R ${Math.round(v.tLoss).toLocaleString()}</td>
+                    <td>${v.actKmL?v.actKmL.toFixed(2):'—'} km/L</td>
+                    <td style="color:#7c3aed;">${v.netDrivingKmL?v.netDrivingKmL.toFixed(2):'—'} km/L</td>
+                    <td style="color:#dc2626;font-weight:900;">${fmtR(v.totalLoss_w||0)}</td>
                 </tr>`).join('')}
             </tbody>
         </table>`;
-
-    let html = '';
-    if (critical.length)   html += `<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${aTable(critical,'#7f1d1d')}</div>`;
-    if (speedOnly.length)  html += `<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speeding Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${aTable(speedOnly,'#c2410c')}</div>`;
-    if (effOnly.length)    html += `<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Efficiency Issues — Maintenance Required</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${aTable(effOnly,'#1d4ed8')}</div>`;
-    if (acceptable.length) html += `<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:9px;color:#047857;font-weight:600;margin-left:23px;">Continue current practices. Monitor for consistency.</p></div>`;
+    let html='';
+    if(critical.length)   html+=`<div class="action-section critical"><div class="action-header"><span class="action-icon">🚨</span><span class="action-title" style="color:#991b1b;">Critical — Multiple Issues</span></div><ul class="action-bullets"><li>• Immediate driver training required</li><li>• Vehicle maintenance inspection</li><li>• Management review recommended</li></ul>${aTable(critical,'#7f1d1d')}</div>`;
+    if(speedOnly.length)  html+=`<div class="action-section speeding"><div class="action-header"><span class="action-icon">⚠️</span><span class="action-title" style="color:#9a3412;">Speed Violations Only</span></div><ul class="action-bullets"><li>• Governor settings check</li><li>• Driver counselling session</li></ul>${aTable(speedOnly,'#c2410c')}</div>`;
+    if(effOnly.length)    html+=`<div class="action-section efficiency"><div class="action-header"><span class="action-icon">🔧</span><span class="action-title" style="color:#1e40af;">Driving Efficiency Issues</span></div><ul class="action-bullets"><li>• Vehicle maintenance inspection</li><li>• Driver efficiency training</li></ul>${aTable(effOnly,'#1d4ed8')}</div>`;
+    if(acceptable.length) html+=`<div class="action-section acceptable"><div class="action-header"><span class="action-icon">✅</span><span class="action-title" style="color:#065f46;">Acceptable — ${acceptable.length} Vehicle${acceptable.length>1?'s':''} Meeting Standards</span></div><p style="font-size:9px;color:#047857;font-weight:600;margin-left:23px;">Continue current practices. Monitor for consistency.</p></div>`;
     document.getElementById('actionReport').innerHTML = html;
 
-    // ── QR ──
-    drawQR('qrCanvasP1');
-
-    // ── Init mode ──
-
-    // Build email to avoid Cloudflare obfuscation
-    document.querySelectorAll('.dfr-email').forEach(el => {
-        el.textContent = ['dynamicfleetreports','gmail.com'].join('@');
+    // ── Search & Collapse ────────────────────────────────────────────────────
+function filterTable(bodyId, query, noResultsId) {
+    const tbody = document.getElementById(bodyId);
+    const noRes = document.getElementById(noResultsId);
+    if (!tbody) return;
+    const q = query.trim().toLowerCase();
+    let visible = 0;
+    Array.from(tbody.rows).forEach(row => {
+        const reg = (row.cells[0] ? row.cells[0].innerText : '').toLowerCase();
+        const show = !q || reg.includes(q);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
     });
+    if (noRes) noRes.style.display = (q && visible === 0) ? 'block' : 'none';
+}
+
+function toggleTable(wrapId, btn) {
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+    const collapsed = wrap.classList.toggle('collapsed');
+    btn.classList.toggle('collapsed', collapsed);
+    btn.innerHTML = collapsed
+        ? '<span class="arrow">▼</span> Expand'
+        : '<span class="arrow">▼</span> Collapse';
+}
+
+// ── QR + email ──
+    drawQR('qrCanvasP1');
+    document.querySelectorAll('.dfr-email').forEach(el=>{ el.textContent=['dynamicfleetreports','gmail.com'].join('@'); });
     setMode('executive');
 });
 </script>
