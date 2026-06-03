@@ -310,6 +310,7 @@ const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0
 // Read ?ref= from URL
 let _refCode     = null;
 let _partnerName = null;
+let _partnerId   = null;
 
 function getUrlParam(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -320,6 +321,8 @@ async function init() {
     const ref = getUrlParam('ref');
     if (!ref) return;
     _refCode = ref;
+    // Persist to sessionStorage immediately so it survives any async delays
+    try { sessionStorage.setItem('dfr_refCode', ref); } catch(e) {}
 
     try {
         await waitFor(() => typeof cloudStorage !== 'undefined');
@@ -329,14 +332,17 @@ async function init() {
             return code === ref || p.id === ref;
         });
         if (partner) {
-            _partnerName = partner.name;
+            _partnerName  = partner.name;
+            _partnerId    = partner.id;
+            // Also store partner id in sessionStorage
+            try { sessionStorage.setItem('dfr_partnerId', partner.id); } catch(e) {}
             const banner = document.getElementById('partnerBanner');
             banner.style.display = 'block';
             banner.textContent   = '\uD83D\uDC4B You were referred by ' + partner.name + ' \u2014 your audit request will be linked to their account.';
             document.getElementById('heroEyebrow').textContent = '\uD83D\uDC4B Referred by ' + partner.name + ' \u2014 Free Audit';
         }
     } catch(e) {
-        // Firebase not available on public page - that's fine, store ref code anyway
+        // Firebase not available on public page - that's fine, _refCode already set
     }
 }
 
@@ -383,6 +389,14 @@ async function submitAudit() {
     if (!validate()) {
         showAlert('Please fill in all required fields.', 'err');
         return;
+    }
+
+    // Recover refCode from sessionStorage in case init() async timing caused a gap
+    if (!_refCode) {
+        try { _refCode = sessionStorage.getItem('dfr_refCode') || null; } catch(e) {}
+    }
+    if (!_partnerId) {
+        try { _partnerId = sessionStorage.getItem('dfr_partnerId') || null; } catch(e) {}
     }
 
     const company     = document.getElementById('f-company').value.trim().toUpperCase();
@@ -437,6 +451,7 @@ async function submitAudit() {
         manualDataNote:   manualData || '',
         referredByClient: referredBy || null,
         referralCode:     _refCode   || null,
+        referralPartnerId:_partnerId  || null,
         city:             'NATIONAL',
         fuelPrice:        22.50,
         speedLimit:       80,
