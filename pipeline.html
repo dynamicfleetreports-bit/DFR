@@ -24,6 +24,20 @@
         .sla-step.done { border-top-color: #10b981; color: #10b981; }
         .sla-step.done::before { content: "✓ "; }
         .sla-step.current { border-top-color: #3b82f6; color: #60a5fa; }
+
+        /* ── Data indicators ── */
+        .data-indicators { display: flex; gap: 6px; margin: 8px 0 12px 0; }
+        .di { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none; cursor: default; border: 1px solid transparent; }
+        .di.green { background: rgba(16,185,129,0.12); color: #10b981; border-color: rgba(16,185,129,0.25); cursor: pointer; }
+        .di.green:hover { background: rgba(16,185,129,0.22); }
+        .di.yellow { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: rgba(251,191,36,0.25); cursor: pointer; }
+        .di.yellow:hover { background: rgba(251,191,36,0.2); }
+        .di.red { background: rgba(239,68,68,0.08); color: #ef4444; border-color: rgba(239,68,68,0.15); }
+        .di-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+        .di.green  .di-dot { background: #10b981; }
+        .di.yellow .di-dot { background: #fbbf24; }
+        .di.red    .di-dot { background: #ef4444; }
+
         #toast { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.35s; pointer-events: none; }
         #toast.show { transform: translateY(0); opacity: 1; }
 
@@ -45,7 +59,6 @@
             .grid.grid-cols-2{grid-template-columns:1fr!important;gap:0.75rem!important;}
             .grid.grid-cols-3{grid-template-columns:1fr!important;gap:0.75rem!important;}
             .grid.grid-cols-4{grid-template-columns:1fr 1fr!important;gap:0.75rem!important;}
-            table{display:block;overflow-x:auto;white-space:nowrap;}
             .card:hover{transform:none;}
         }
         @media(min-width:769px){.mob-topbar{display:none!important;}}
@@ -56,18 +69,18 @@
 <aside id="sidebar">
     <div class="logo-area"><img src="Logo.png" alt="Logo" style="max-width:140px;"></div>
     <nav>
-        <a href="index.html"    class="nav-item">Dashboard</a>
-        <a href="pipeline.html" class="nav-item active">Prospect Pipeline</a>
-        <a href="database.html" class="nav-item">Active Database</a>
-        <a href="churned.html"  class="nav-item">Churned Clients</a>
-        <a href="audit.html"    class="nav-item">Forensic Audit</a>
-        <a href="invoice.html"  class="nav-item">Invoices</a>
-        <a href="sla.html"      class="nav-item">SLA</a>
-        <a href="quotation.html" class="nav-item">📋 Quotation</a>
-        <a href="partners.html" class="nav-item">🤝 Referral Partners</a>
+        <a href="index.html"        class="nav-item">Dashboard</a>
+        <a href="pipeline.html"     class="nav-item active">Prospect Pipeline</a>
+        <a href="database.html"     class="nav-item">Active Database</a>
+        <a href="churned.html"      class="nav-item">Churned Clients</a>
+        <a href="audit.html"        class="nav-item">Forensic Audit</a>
+        <a href="invoice.html"      class="nav-item">Invoices</a>
+        <a href="sla.html"          class="nav-item">SLA</a>
+        <a href="quotation.html"    class="nav-item">📋 Quotation</a>
+        <a href="partners.html"     class="nav-item">🤝 Referral Partners</a>
         <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
-        <a href="settings.html" class="nav-item">⚙ Settings</a>
-        <a href="marketing.html" class="nav-item">📣 Marketing</a>
+        <a href="settings.html"     class="nav-item">⚙ Settings</a>
+        <a href="marketing.html"    class="nav-item">📣 Marketing</a>
     </nav>
 </aside>
 
@@ -111,7 +124,6 @@
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nxeETXYy03FR46_imbRQepdzQkDJbhxrN-M6xuq5OatsM/exec';
     var _cbCounter = 0;
 
-    // ── Country flag lookup ───────────────────────────────────────────────────
     function getCountryFlag(code) {
         var flags = {
             ZA:'🇿🇦', US:'🇺🇸', GB:'🇬🇧', EU:'🇪🇺', AU:'🇦🇺', AE:'🇦🇪',
@@ -148,6 +160,55 @@
         return '<span class="status-badge status-not-started">&#9675; No Audit Yet</span>';
     }
 
+    // ── Data indicators ───────────────────────────────────────────────────────
+    // Three states per indicator:
+    //   green  = data received AND audit in-progress or complete → clickable → Drive folder
+    //   yellow = data received BUT audit not yet started → clickable → Drive folder
+    //   red    = no data received → not clickable
+    function getDataIndicatorsHtml(p) {
+        var auditActive = (p.auditStatus === 'in-progress' || p.auditStatus === 'complete');
+        var driveUrl    = p.driveFolderUrl || null;
+
+        function indicator(label, hasData, tooltip) {
+            var state;
+            if (!hasData)         state = 'red';
+            else if (auditActive) state = 'green';
+            else                  state = 'yellow';
+
+            var clickable = (state !== 'red') && driveUrl;
+            var tag       = clickable ? 'a' : 'span';
+            var href      = clickable ? ' href="' + driveUrl + '" target="_blank"' : '';
+            var title     = ' title="' + tooltip + '"';
+
+            return '<' + tag + ' class="di ' + state + '"' + href + title + '>'
+                + '<span class="di-dot"></span>'
+                + label
+                + (state === 'green' ? ' 🔗' : '')
+                + '</' + tag + '>';
+        }
+
+        // Usage CSV
+        var hasUsage = !!(p.usageCsvNote);
+        // Speed CSV
+        var hasSpeed = !!(p.speedCsvNote);
+        // Fuel data — yes if manualDataNote starts with 'Yes'
+        var hasFuel  = !!(p.manualDataNote && p.manualDataNote.toString().toLowerCase().startsWith('yes'));
+
+        // Only render if at least one field exists on the record
+        // (older records may not have these fields at all)
+        if (!p.usageCsvNote && !p.speedCsvNote && !p.manualDataNote && p.source !== 'web-form') return '';
+
+        var usageTip = hasUsage ? 'Usage CSV: ' + p.usageCsvNote : 'No usage CSV submitted';
+        var speedTip = hasSpeed ? 'Speed CSV: ' + p.speedCsvNote : 'No speed CSV submitted';
+        var fuelTip  = hasFuel  ? 'Fuel data: ' + p.manualDataNote : 'No fuel data submitted';
+
+        return '<div class="data-indicators">'
+            + indicator('Usage', hasUsage, usageTip)
+            + indicator('Speed', hasSpeed, speedTip)
+            + indicator('Fuel',  hasFuel,  fuelTip)
+            + '</div>';
+    }
+
     function buildButtons(p) {
         var id         = p.id;
         var co         = p.company.replace(/'/g, "\\'");
@@ -156,26 +217,21 @@
         var auditLabel = auditDone ? 'View / Re-run Audit' : (p.auditStatus === 'in-progress' ? 'Continue Audit' : 'Run Free Audit');
         var html       = '<div class="space-y-2 mt-4">';
 
-        // Audit button — always present
         html += '<button onclick="runAudit(\'' + co + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:white;" onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\'">' + auditLabel + '</button>';
 
-        // Quotation button — visible once audit is complete
         if (auditDone) {
             var qtLabel = p.quotationFirstSentDate ? '📋 Re-open Quotation' : '📋 Generate Quotation';
             html += '<button onclick="generateQuotation(\'' + id + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);color:#6ee7b7;" onmouseover="this.style.background=\'rgba(16,185,129,0.2)\'" onmouseout="this.style.background=\'rgba(16,185,129,0.1)\'">' + qtLabel + '</button>';
         }
 
-        // SLA flow buttons
         if (slaStatus === 'none') {
             var hint = !auditDone ? ' — audit first?' : '';
             html += '<button onclick="generateSLA(\'' + id + '\')" style="width:100%;padding:10px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;" onmouseover="this.style.background=\'rgba(59,130,246,0.22)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.12)\'">📄 Generate &amp; Send SLA' + hint + '</button>';
-
         } else if (slaStatus === 'sent') {
             html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
                 + '<button onclick="generateSLA(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#93c5fd;" onmouseover="this.style.background=\'rgba(59,130,246,0.18)\'" onmouseout="this.style.background=\'rgba(59,130,246,0.08)\'">&#8599; Resend SLA</button>'
                 + '<button onclick="markSlaReceived(\'' + id + '\')" style="padding:10px 0;border-radius:12px;font-size:8px;font-weight:900;text-transform:uppercase;cursor:pointer;background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);color:#fbbf24;" onmouseover="this.style.background=\'rgba(251,191,36,0.22)\'" onmouseout="this.style.background=\'rgba(251,191,36,0.12)\'">&#9993;&#65039; Mark Received</button>'
                 + '</div>';
-
         } else if (slaStatus === 'received' || slaStatus === 'executed') {
             if (p.driveFolderUrl) {
                 html += '<a href="' + p.driveFolderUrl + '" target="_blank" style="display:block;width:100%;padding:9px 0;border-radius:12px;font-size:9px;font-weight:900;text-transform:uppercase;text-align:center;text-decoration:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">📁 Open Drive Folder</a>';
@@ -225,7 +281,6 @@
             if (slaStatus === 'received') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#fbbf24;margin-top:4px;">&#9993;&#65039; Signed SLA received ' + (p.slaReceivedDate ? '· ' + new Date(p.slaReceivedDate).toLocaleDateString('en-ZA') : '') + '</div>';
             if (slaStatus === 'executed') slaInfoHtml = '<div style="font-size:9px;font-weight:900;color:#10b981;margin-top:4px;">&#10003; SLA executed digitally · ' + (p.slaDate ? new Date(p.slaDate).toLocaleDateString('en-ZA') : '') + '</div>';
 
-            // Country flag
             var flag = p.countryCode ? '<span style="font-size:1rem;margin-right:6px;">' + getCountryFlag(p.countryCode) + '</span>' : '';
 
             return '<div class="prospect-card">'
@@ -234,11 +289,12 @@
                 +   '<button onclick="churnClient(\'' + p.id + '\',\'prospect\')" style="background:none;border:none;color:rgba(255,255,255,0.18);font-size:9px;font-weight:900;text-transform:uppercase;cursor:pointer;" onmouseover="this.style.color=\'#f97316\'" onmouseout="this.style.color=\'rgba(255,255,255,0.18)\'">Churn</button>'
                 + '</div>'
                 + '<h3 style="font-size:1.2rem;font-weight:900;font-style:italic;color:white;text-transform:uppercase;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + flag + p.company + '</h3>'
-                + '<p style="color:#10b981;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">' + (p.contactName || 'NO CONTACT') + '</p>'
+                + '<p style="color:#10b981;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">' + (p.contactName || 'NO CONTACT') + '</p>'
+                + getDataIndicatorsHtml(p)
                 + getAuditBadgeHtml(p)
                 + slaInfoHtml
                 + getSlaTrailHtml(slaStatus)
-                + '<div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;margin-top:4px;space-y:8px;">'
+                + '<div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:12px;margin-top:4px;">'
                 +   '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px;"><span style="color:rgba(255,255,255,0.3);font-weight:900;text-transform:uppercase;">' + fleetLabel + '</span><span style="color:' + (p.fleetSizeConfirmed ? '#10b981' : 'rgba(255,255,255,0.5)') + ';font-weight:900;">' + (p.fleetSize || '?') + ' units</span></div>'
                 +   lossHtml
                 + '</div>'
@@ -247,98 +303,55 @@
         }).join('');
     }
 
-    // ── Generate & Send SLA ───────────────────────────────────────────────────
     async function generateSLA(id) {
         var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         var idx = allClients.findIndex(function(c) { return c.id == id; });
         if (idx === -1) return;
         var client = allClients[idx];
-
         var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
         var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
         var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
         var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
-
-        var auditFinal = {
-            client: {
-                company:     client.company,
-                id:          client.id,
-                contactName: client.contactName || '',
-                contact:     client.contactName || '',
-                fleetSize:   fleetSize,
-                city:        client.city || ''
-            },
-            fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [],
-            month: auditDraft ? (auditDraft.auditPeriod || '') : ''
-        };
+        var auditFinal = { client: { company: client.company, id: client.id, contactName: client.contactName || '', contact: client.contactName || '', fleetSize: fleetSize, city: client.city || '' }, fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [], month: auditDraft ? (auditDraft.auditPeriod || '') : '' };
         await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
-
-        if (!allClients[idx].slaSentDate) {
-            allClients[idx].slaSentDate = new Date().toISOString();
-        }
+        if (!allClients[idx].slaSentDate) allClients[idx].slaSentDate = new Date().toISOString();
         allClients[idx].slaLastOpenedDate = new Date().toISOString();
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-
         showToast('📄 Opening SLA for ' + client.company + '...', 'blue');
         setTimeout(function() { window.open('sla.html', '_blank'); renderPipeline(); }, 400);
     }
 
-    // ── Generate Quotation ────────────────────────────────────────────────────
     async function generateQuotation(id) {
         var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         var idx = allClients.findIndex(function(c) { return c.id == id; });
         if (idx === -1) return;
         var client = allClients[idx];
-
         var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
         var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
         var auditDraft = draftRaw ? JSON.parse(draftRaw) : null;
         var fleetSize  = auditDraft && auditDraft.auditData ? Object.keys(auditDraft.auditData).length : (client.fleetSize || 0);
-
-        var auditFinal = {
-            client: {
-                company:     client.company,
-                id:          client.id,
-                contactName: client.contactName || '',
-                contact:     client.contactName || '',
-                email:       client.email || '',
-                address:     client.address || client.city || '',
-                fleetSize:   fleetSize,
-                city:        client.city || ''
-            },
-            fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [],
-            month: auditDraft ? (auditDraft.auditPeriod || '') : ''
-        };
+        var auditFinal = { client: { company: client.company, id: client.id, contactName: client.contactName || '', contact: client.contactName || '', email: client.email || '', address: client.address || client.city || '', fleetSize: fleetSize, city: client.city || '' }, fleet: auditDraft ? Object.values(auditDraft.auditData || {}) : [], month: auditDraft ? (auditDraft.auditPeriod || '') : '' };
         await cloudStorage.setItem('AUDIT_FINAL', JSON.stringify(auditFinal));
-
         allClients[idx].quotationLastOpenedDate = new Date().toISOString();
-        if (!allClients[idx].quotationFirstSentDate) {
-            allClients[idx].quotationFirstSentDate = new Date().toISOString();
-        }
+        if (!allClients[idx].quotationFirstSentDate) allClients[idx].quotationFirstSentDate = new Date().toISOString();
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         await cloudStorage.setItem('QUOTE_SESSION_TOKEN', String(Date.now()));
-
         showToast('📋 Opening Quotation for ' + client.company + '...', 'blue');
         setTimeout(function() { window.open('quotation.html', '_blank'); renderPipeline(); }, 400);
     }
 
-    // ── Mark SLA received ─────────────────────────────────────────────────────
     async function markSlaReceived(id) {
         if (!confirm('Confirm you have received the signed SLA back from this client.\n\nThis will unlock the Activate button.')) return;
-
         var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         var idx = allClients.findIndex(function(c) { return c.id == id; });
         if (idx === -1) return;
-
         allClients[idx].slaReceivedDate = new Date().toISOString();
         allClients[idx].slaStatus       = 'received';
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
-
         showToast('&#9993;&#65039; SLA marked as received. Activate is now unlocked.', 'yellow');
         renderPipeline();
     }
 
-    // ── Save SLA link from pipeline card paste ────────────────────────────────
     async function savePipelineSlaLink(id, pasteEvent, directValue) {
         var url = directValue || '';
         if (pasteEvent) {
@@ -354,59 +367,33 @@
         allClients[idx].slaFileUrl = url;
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         var inputEl2 = document.getElementById('slaPaste-' + id);
-        if (inputEl2) { inputEl2.style.borderColor = '#10b981'; inputEl2.style.color = '#10b981'; inputEl2.value = '&#10003; Saved!'; }
+        if (inputEl2) { inputEl2.style.borderColor = '#10b981'; inputEl2.style.color = '#10b981'; inputEl2.value = '✓ Saved!'; }
         showToast('📄 SLA link saved!', 'blue');
         setTimeout(function() { renderPipeline(); }, 700);
     }
 
-    // ── Activate client ───────────────────────────────────────────────────────
     async function activateClient(id) {
         var allClients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         var idx = allClients.findIndex(function(c) { return c.id == id; });
         if (idx === -1) return;
         var client    = allClients[idx];
         var slaStatus = getSlaStatus(client);
-
-        if (slaStatus !== 'received' && slaStatus !== 'executed') {
-            showToast('&#9888;&#65039; Cannot activate — SLA must be received first.', 'red');
-            return;
-        }
-
+        if (slaStatus !== 'received' && slaStatus !== 'executed') { showToast('⚠️ Cannot activate — SLA must be received first.', 'red'); return; }
         var companyKey = client.company.toUpperCase().replace(/\s+/g, '_');
         var draftRaw   = await cloudStorage.getItem('AUDIT_DRAFT_' + companyKey);
         var auditData  = draftRaw ? (JSON.parse(draftRaw).auditData || {}) : {};
-        var fleetArray = Object.keys(auditData).map(function(k) {
-            var v = auditData[k];
-            return { reg: v.reg || k, type: v.type || 'Heavy', make: v.make || '', model: v.model || '', year: v.year || '', usedFor: v.usedFor || 'Long Distance', targetKmL: v.targetKmL || client.targetCons || '2.3' };
-        });
-
+        var fleetArray = Object.keys(auditData).map(function(k) { var v = auditData[k]; return { reg: v.reg || k, type: v.type || 'Heavy', make: v.make || '', model: v.model || '', year: v.year || '', usedFor: v.usedFor || 'Long Distance', targetKmL: v.targetKmL || client.targetCons || '2.3' }; });
         var fleetSize = fleetArray.length || client.fleetSize || 0;
         var tier      = fleetSize <= 15 ? 1 : fleetSize <= 30 ? 2 : 3;
         var rate      = [0, 200, 175, 150][tier];
         var monthly   = 1500 + (fleetSize * rate);
-
-        allClients[idx] = Object.assign({}, client, {
-            status: 'active', activationDate: new Date().toISOString(),
-            convertedDate: new Date().toLocaleDateString('en-ZA'),
-            fleetSize: fleetSize, fleet: fleetArray,
-            pricingTier: tier, monthlyRetainer: monthly, onDemandPool: fleetSize,
-            reportSchedule: client.reportSchedule || 'weekly',
-            speedLimit: parseInt(client.speedLimit) || 80,
-            fuelPrice: parseFloat(client.fuelPrice) || 21.50,
-            targetCons: parseFloat(client.targetCons) || 2.3,
-            lastReportSent: null, reportHistory: client.reportHistory || [],
-            slaFileUrl:      client.slaFileUrl      || null,
-            driveFolderUrl:  client.driveFolderUrl  || null
-        });
-
+        allClients[idx] = Object.assign({}, client, { status: 'active', activationDate: new Date().toISOString(), convertedDate: new Date().toLocaleDateString('en-ZA'), fleetSize: fleetSize, fleet: fleetArray, pricingTier: tier, monthlyRetainer: monthly, onDemandPool: fleetSize, reportSchedule: client.reportSchedule || 'weekly', speedLimit: parseInt(client.speedLimit) || 80, fuelPrice: parseFloat(client.fuelPrice) || 21.50, targetCons: parseFloat(client.targetCons) || 2.3, lastReportSent: null, reportHistory: client.reportHistory || [], slaFileUrl: client.slaFileUrl || null, driveFolderUrl: client.driveFolderUrl || null });
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(allClients));
         try { await sheetRequest('update', client.company, 'Active'); } catch(e) {}
-
-        showToast('&#9889; ' + client.company + ' activated! Redirecting...', 'green');
+        showToast('⚡ ' + client.company + ' activated! Redirecting...', 'green');
         setTimeout(function() { window.location.href = 'database.html'; }, 1600);
     }
 
-    // ── Churn ─────────────────────────────────────────────────────────────────
     function churnClient(id, fromStatus) {
         var reason = prompt('Reason for churning this prospect?\n(Optional — press OK to leave blank)');
         if (reason === null) return;
@@ -417,10 +404,7 @@
         var clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
         var idx = clients.findIndex(function(c) { return c.id == id; });
         if (idx === -1) { renderPipeline(); return; }
-        clients[idx] = Object.assign({}, clients[idx], {
-            status: 'churned', churnDate: new Date().toLocaleDateString('en-ZA'),
-            churnReason: reason || '', churnedFrom: fromStatus
-        });
+        clients[idx] = Object.assign({}, clients[idx], { status: 'churned', churnDate: new Date().toLocaleDateString('en-ZA'), churnReason: reason || '', churnedFrom: fromStatus });
         await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
         try { await sheetRequest('update', clients[idx].company, 'Churned'); } catch(e) {}
         renderPipeline();
