@@ -638,7 +638,10 @@
 <script>
     // Set current year/date
     var now = new Date();
-    document.getElementById('packDate').innerText = now.toLocaleDateString('en-ZA', { month:
+    var packDateEl = document.getElementById('packDate');
+    if (packDateEl) packDateEl.innerText = now.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+    var footerDateEl = document.getElementById('footerDate');
+    if (footerDateEl) footerDateEl.innerText = now.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
 
     // ── Partner ref passthrough ─────────────────────────────────────────────
     (function() {
