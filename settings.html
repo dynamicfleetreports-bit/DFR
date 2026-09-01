@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
      <script type="module" src="firebase-helper.js"></script>
+     <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global System Settings | Fleet Intelligence</title>
@@ -57,9 +58,68 @@
                     <button onclick="window.location.href='index.html'" class="w-full mt-4 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all italic">← Back to Dashboard</button>
                 </div>
             </div>
+
+            <div class="glass-card p-8 rounded-[2.5rem] space-y-6 mt-8">
+                <div>
+                    <h3 class="text-lg font-black uppercase italic tracking-tighter text-emerald-400">Service Pricing</h3>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">Changing these does NOT change what existing clients pay — new rates only apply to clients added after you save. Existing clients keep whatever rate is locked on their record.</p>
+                </div>
+
+                <div>
+                    <label>Setup Fee (once-off, ZAR)</label>
+                    <input type="number" id="pSetupFee" step="1" class="input-box" placeholder="2500">
+                </div>
+                <div>
+                    <label>Monthly Admin Fee (ZAR)</label>
+                    <input type="number" id="pAdminFee" step="1" class="input-box" placeholder="1500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label>Tier 1 Rate (R/vehicle)</label>
+                        <input type="number" id="pTier1Rate" step="1" class="input-box" placeholder="200">
+                    </div>
+                    <div>
+                        <label>Tier 1 Up To</label>
+                        <input type="number" id="pTier1Max" step="1" class="input-box" placeholder="15">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label>Tier 2 Rate (R/vehicle)</label>
+                        <input type="number" id="pTier2Rate" step="1" class="input-box" placeholder="175">
+                    </div>
+                    <div>
+                        <label>Tier 2 Up To</label>
+                        <input type="number" id="pTier2Max" step="1" class="input-box" placeholder="30">
+                    </div>
+                </div>
+                <div>
+                    <label>Tier 3 Rate (R/vehicle, above Tier 2)</label>
+                    <input type="number" id="pTier3Rate" step="1" class="input-box" placeholder="150">
+                </div>
+                <div>
+                    <label>On-Demand Report Rate (R/report)</label>
+                    <input type="number" id="pOnDemandRate" step="1" class="input-box" placeholder="150">
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="savePricing()" class="w-full btn-primary bg-emerald-600 hover:bg-emerald-500 p-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-500/20 transition-all">
+                        Save Pricing
+                    </button>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800">
+                    <p class="text-[10px] text-slate-500 font-bold mt-4 mb-2 leading-relaxed">Run this once now, before you ever change pricing, so every client currently in the system keeps today's rate permanently:</p>
+                    <button onclick="lockInExistingClients()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all">
+                        🔒 Lock In Current Pricing For Existing Clients
+                    </button>
+                    <p id="lockInStatus" class="text-[10px] text-emerald-400 font-bold mt-2"></p>
+                </div>
+            </div>
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:col-span-2 space-y-8">
             <div class="glass-card rounded-[2.5rem] overflow-hidden h-full flex flex-col border border-slate-800">
                 <div class="p-6 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
                     <h3 class="text-xs font-black uppercase italic tracking-widest">Fuel Price History Log</h3>
@@ -79,6 +139,25 @@
                     </table>
                 </div>
             </div>
+
+            <div class="glass-card rounded-[2.5rem] overflow-hidden h-full flex flex-col border border-slate-800">
+                <div class="p-6 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
+                    <h3 class="text-xs font-black uppercase italic tracking-widest">Service Pricing Change History</h3>
+                    <button onclick="clearPricingHistory()" class="text-[8px] font-black text-red-500/50 hover:text-red-500 uppercase tracking-widest">Clear Log</button>
+                </div>
+                <div class="p-6 overflow-y-auto max-h-[500px]">
+                    <table class="w-full text-left">
+                        <thead class="text-[9px] font-black uppercase text-slate-500 tracking-widest">
+                            <tr>
+                                <th class="pb-4">Date</th>
+                                <th class="pb-4">What Changed</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pricingHistoryBody" class="text-[11px] font-bold text-slate-300">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,6 +167,17 @@
     document.getElementById('globalTarget').value = await cloudStorage.getItem('GLOBAL_TARGET') || '2.2';
     document.getElementById('globalSpeed').value = await cloudStorage.getItem('GLOBAL_SPEED') || '85';
             renderHistory();
+
+            const p = await DFR_PRICING.getGlobalSettings();
+            document.getElementById('pSetupFee').value     = p.setupFee;
+            document.getElementById('pAdminFee').value      = p.adminFee;
+            document.getElementById('pTier1Rate').value     = p.tier1Rate;
+            document.getElementById('pTier1Max').value      = p.tier1Max;
+            document.getElementById('pTier2Rate').value     = p.tier2Rate;
+            document.getElementById('pTier2Max').value      = p.tier2Max;
+            document.getElementById('pTier3Rate').value     = p.tier3Rate;
+            document.getElementById('pOnDemandRate').value  = p.onDemandRate;
+            renderPricingHistory();
         };
 
        async function saveSettings() {
@@ -133,6 +223,51 @@
             if(confirm("Wipe all historical price records?")) {
                 await cloudStorage.removeItem('FUEL_HISTORY');
                 renderHistory();
+            }
+        }
+
+        async function savePricing() {
+            const newSettings = {
+                setupFee:     parseFloat(document.getElementById('pSetupFee').value)    || DFR_PRICING.DEFAULTS.setupFee,
+                adminFee:     parseFloat(document.getElementById('pAdminFee').value)     || DFR_PRICING.DEFAULTS.adminFee,
+                tier1Rate:    parseFloat(document.getElementById('pTier1Rate').value)    || DFR_PRICING.DEFAULTS.tier1Rate,
+                tier1Max:     parseFloat(document.getElementById('pTier1Max').value)     || DFR_PRICING.DEFAULTS.tier1Max,
+                tier2Rate:    parseFloat(document.getElementById('pTier2Rate').value)    || DFR_PRICING.DEFAULTS.tier2Rate,
+                tier2Max:     parseFloat(document.getElementById('pTier2Max').value)     || DFR_PRICING.DEFAULTS.tier2Max,
+                tier3Rate:    parseFloat(document.getElementById('pTier3Rate').value)    || DFR_PRICING.DEFAULTS.tier3Rate,
+                onDemandRate: parseFloat(document.getElementById('pOnDemandRate').value) || DFR_PRICING.DEFAULTS.onDemandRate
+            };
+            await DFR_PRICING.saveGlobalSettings(newSettings);
+            renderPricingHistory();
+            alert("Pricing updated. Existing clients are unaffected — this only applies to clients added from now on. Use \"Lock In Current Pricing\" if you haven't already locked in your current client base.");
+        }
+
+        async function lockInExistingClients() {
+            if (!confirm("This will permanently lock every client that doesn't already have a saved rate onto TODAY's pricing. Clients who already have a locked or custom rate are left untouched. Continue?")) return;
+            const settings = await DFR_PRICING.getGlobalSettings();
+            const clients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+            const result   = DFR_PRICING.migrateAllClients(clients, settings);
+            await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(result.clients));
+            document.getElementById('lockInStatus').textContent =
+                result.migratedCount > 0
+                    ? `✅ Locked in today's pricing for ${result.migratedCount} client(s). Everyone else already had a rate saved.`
+                    : `✅ Nothing to do — every client already has a locked-in rate.`;
+        }
+
+        async function renderPricingHistory() {
+            const history = JSON.parse(await cloudStorage.getItem('PRICING_HISTORY')) || [];
+            document.getElementById('pricingHistoryBody').innerHTML = history.map(h => `
+                <tr class="border-b border-slate-800/50">
+                    <td class="py-4 text-slate-500 font-black italic uppercase align-top whitespace-nowrap">${h.date}</td>
+                    <td class="py-4 text-emerald-400 font-bold">${h.changes.join('<br>')}</td>
+                </tr>
+            `).join('') || '<tr><td class="py-4 text-slate-600 italic" colspan="2">No pricing changes logged yet.</td></tr>';
+        }
+
+        async function clearPricingHistory() {
+            if(confirm("Wipe all pricing change history?")) {
+                await cloudStorage.removeItem('PRICING_HISTORY');
+                renderPricingHistory();
             }
         }
     </script>

@@ -263,14 +263,14 @@ I'm offering FREE forensic fuel audits this month (normally R 8,500 value).
 
 Want to know what YOUR fleet is really costing you?
 
-📧 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="35514c5b54585c5653595050414750455a474146755258545c591b565a58">[email&#160;protected]</a>
+📧 dynamicfleetreports@gmail.com
 📞 083 314 9592</div>
             <button class="copy-btn" onclick="copyText('linkedin-bio')">📋 Copy LinkedIn Bio</button>
         </div>
         
         <div class="bio-section">
             <div class="bio-title">🐦 Twitter/X Bio</div>
-            <div class="bio-text" id="twitter-bio">🚛 Fleet efficiency specialist | Saved clients R 12M+ in 2024
+            <div class="bio-text" id="twitter-bio">🚛 Fleet efficiency specialist | Saved clients R 12M+ to date
 💸 FREE audits reveal hidden losses
 📊 Real data. Real savings.</div>
             <button class="copy-btn" onclick="copyText('twitter-bio')">📋 Copy Twitter Bio</button>
@@ -288,7 +288,7 @@ We identify exactly where your fleet is bleeding money and show you how to fix i
 
 No obligations. No payment required. Just brutal honesty about your fleet's performance.
 
-Contact: 083 314 9592 | <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4125382f202c2822272d2424353324312e33353201262c20282d6f222e2c">[email&#160;protected]</a></div>
+Contact: 083 314 9592 | dynamicfleetreports@gmail.com</div>
             <button class="copy-btn" onclick="copyText('facebook-bio')">📋 Copy Facebook Bio</button>
         </div>
         
@@ -302,7 +302,7 @@ Contact: 083 314 9592 | <a href="/cdn-cgi/l/email-protection" class="__cf_email_
             <div class="profile-stats">
                 <div class="stat">
                     <div class="stat-number">R 12M+</div>
-                    <div class="stat-label">Saved in 2024</div>
+                    <div class="stat-label">Saved to date</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">87%</div>
@@ -325,7 +325,7 @@ Contact: 083 314 9592 | <a href="/cdn-cgi/l/email-protection" class="__cf_email_
             </div>
         </a>
         
-        <a href="landing-page.html" target="_blank" class="link-btn">
+        <a href="infopack.html" target="_blank" class="link-btn">
             <div class="link-content">
                 <span class="link-icon">📊</span>
                 <div class="link-text">
@@ -345,12 +345,12 @@ Contact: 083 314 9592 | <a href="/cdn-cgi/l/email-protection" class="__cf_email_
             </div>
         </a>
         
-        <a href="/cdn-cgi/l/email-protection#35514c5b54585c5653595050414750455a474146755258545c591b565a58" class="link-btn">
+        <a href="mailto:dynamicfleetreports@gmail.com" class="link-btn">
             <div class="link-content">
                 <span class="link-icon">✉️</span>
                 <div class="link-text">
                     <div class="link-title">Email Us</div>
-                    <div class="link-subtitle"><span class="__cf_email__" data-cfemail="86e2ffe8e7ebefe5e0eae3e3f2f4e3f6e9f4f2f5c6e1ebe7efeaa8e5e9eb">[email&#160;protected]</span></div>
+                    <div class="link-subtitle">dynamicfleetreports@gmail.com</div>
                 </div>
             </div>
         </a>
@@ -373,5 +373,20 @@ Contact: 083 314 9592 | <a href="/cdn-cgi/l/email-protection" class="__cf_email_
             <a href="#" class="social-btn" title="Twitter">🐦</a>
         </div>
     </div>
-    
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/emai
+
+    <script>
+    function copyText(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        var btn = event && event.target ? event.target.closest('.copy-btn') : null;
+        navigator.clipboard.writeText(el.innerText || el.textContent).then(function() {
+            if (btn) {
+                var orig = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(function(){ btn.textContent = orig; }, 2000);
+            }
+        });
+    }
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quotation | Dynamic Fleet Reporting</title>
@@ -205,7 +206,7 @@
             </div>
         </div>
         <div style="background:#f8fafc;padding:0.6rem 1.25rem;text-align:center;">
-            <p style="font-size:9px;color:#94a3b8;">All amounts exclude VAT · Billed in advance on the 25th of each month · On-demand reports beyond pool: R 150/report</p>
+            <p style="font-size:9px;color:#94a3b8;">All amounts exclude VAT · Billed in advance on the 25th of each month · On-demand reports beyond pool: R <span id="footerOnDemandRate">150</span>/report</p>
         </div>
     </div>
 
@@ -271,21 +272,21 @@
     <div class="grid grid-cols-3 gap-0 border border-slate-200 rounded overflow-hidden mb-4 text-center">
         <div id="tierCard1" class="p-4 border-r border-slate-200">
             <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 1</p>
-            <p class="text-2xl font-black text-blue-700">R 200</p>
+            <p class="text-2xl font-black text-blue-700"><span id="tierCard1Rate">R 200</span></p>
             <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
-            <p class="text-[9px] text-slate-400 mt-1">1 – 15 vehicles</p>
+            <p class="text-[9px] text-slate-400 mt-1" id="tierCard1Range">1 – 15 vehicles</p>
         </div>
         <div id="tierCard2" class="p-4 border-r border-slate-200">
             <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 2</p>
-            <p class="text-2xl font-black text-blue-700">R 175</p>
+            <p class="text-2xl font-black text-blue-700"><span id="tierCard2Rate">R 175</span></p>
             <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
-            <p class="text-[9px] text-slate-400 mt-1">16 – 30 vehicles</p>
+            <p class="text-[9px] text-slate-400 mt-1" id="tierCard2Range">16 – 30 vehicles</p>
         </div>
         <div id="tierCard3" class="p-4">
             <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Tier 3</p>
-            <p class="text-2xl font-black text-blue-700">R 150</p>
+            <p class="text-2xl font-black text-blue-700"><span id="tierCard3Rate">R 150</span></p>
             <p class="text-[10px] font-bold text-slate-500">per vehicle / month</p>
-            <p class="text-[9px] text-slate-400 mt-1">31+ vehicles</p>
+            <p class="text-[9px] text-slate-400 mt-1" id="tierCard3Range">31+ vehicles</p>
         </div>
     </div>
 
@@ -354,10 +355,9 @@
 
 <script>
     // ── Pricing helpers ───────────────────────────────────────────────────────
+    var _pricingSettings = DFR_PRICING.DEFAULTS;
     function getTieredRate(fleetSize) {
-        if (fleetSize <= 15) return { rate: 200, tier: 1, label: 'Tier 1 (1–15 vehicles)' };
-        if (fleetSize <= 30) return { rate: 175, tier: 2, label: 'Tier 2 (16–30 vehicles)' };
-        return { rate: 150, tier: 3, label: 'Tier 3 (31+ vehicles)' };
+        return DFR_PRICING.getTierForFleetSize(_pricingSettings, fleetSize);
     }
 
     function fmt(n) { return 'R ' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -418,7 +418,7 @@
             'Monthly Administration Fee:   R 1,500.00/month\n' +
             'Fleet Monitoring Fee:         R ' + _fleetFeeAmt.toLocaleString('en-ZA') + '/month (' + _fleet + ' vehicles × R' + _tiered.rate + ')\n' +
             'Total Monthly Retainer:       R ' + _monthly.toLocaleString('en-ZA') + '/month (excl. VAT)\n' +
-            'Estimated First Invoice:      R ' + (2500 + _monthly).toLocaleString('en-ZA') + ' (excl. VAT)\n\n' +
+            'Estimated First Invoice:      R ' + (_pricingSettings.setupFee + _monthly).toLocaleString('en-ZA') + ' (excl. VAT)\n\n' +
             '── TO ACCEPT ───────────────────────────────────\n' +
             'Simply reply to this email or contact us on 083 314 9592.\n' +
             'A Master Service Agreement will be prepared for your signature.\n\n' +
@@ -444,6 +444,15 @@
     // ── Page load ─────────────────────────────────────────────────────────────
     window.onload = async function() {
         var now = new Date();
+
+        _pricingSettings = await DFR_PRICING.getGlobalSettings();
+        document.getElementById('tierCard1Rate').innerText  = 'R ' + _pricingSettings.tier1Rate;
+        document.getElementById('tierCard1Range').innerText = '1 – ' + _pricingSettings.tier1Max + ' vehicles';
+        document.getElementById('tierCard2Rate').innerText  = 'R ' + _pricingSettings.tier2Rate;
+        document.getElementById('tierCard2Range').innerText = (_pricingSettings.tier1Max + 1) + ' – ' + _pricingSettings.tier2Max + ' vehicles';
+        document.getElementById('tierCard3Rate').innerText  = 'R ' + _pricingSettings.tier3Rate;
+        document.getElementById('tierCard3Range').innerText = (_pricingSettings.tier2Max + 1) + '+ vehicles';
+        document.getElementById('footerOnDemandRate').innerText = _pricingSettings.onDemandRate;
 
         // Generate quote number and dates
         var counter = parseInt(await cloudStorage.getItem('QUOTE_COUNTER') || '0') + 1;
@@ -514,8 +523,8 @@
         _fleet        = fleetSize;
         _tiered       = getTieredRate(fleetSize);
         _fleetFeeAmt  = fleetSize * _tiered.rate;
-        _monthly      = 1500 + _fleetFeeAmt;
-        var firstMonth = 2500 + _monthly;
+        _monthly      = _pricingSettings.adminFee + _fleetFeeAmt;
+        var firstMonth = _pricingSettings.setupFee + _monthly;
 
         // Save counter
         await cloudStorage.setItem('QUOTE_COUNTER', String(counter));
@@ -531,7 +540,7 @@
         // Tier badge
         var tierBadge = document.getElementById('tierBadge');
         tierBadge.className = 'tier-badge tier-' + _tiered.tier;
-        tierBadge.innerText = _tiered.label;
+        tierBadge.innerText = _tiered.label + ' (' + _tiered.range + ')';
         tierBadge.classList.remove('hidden');
 
         // Highlight active tier card
@@ -550,14 +559,14 @@
                 '<td style="text-align:right;font-weight:900;">R 1,500.00</td>' +
             '</tr>' +
             '<tr>' +
-                '<td><strong>Fleet Monitoring Fee</strong><br><span style="font-size:10px;color:#94a3b8;">' + fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label + '</span></td>' +
+                '<td><strong>Fleet Monitoring Fee</strong><br><span style="font-size:10px;color:#94a3b8;">' + fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label + ' (' + _tiered.range + ')' + '</span></td>' +
                 '<td style="color:#94a3b8;font-size:11px;">Per month</td>' +
                 '<td style="text-align:right;font-weight:900;color:#2563eb;">R ' + _fleetFeeAmt.toLocaleString('en-ZA', {minimumFractionDigits:2}) + '</td>' +
             '</tr>' +
             '<tr>' +
                 '<td><strong>On-Demand Report Overage</strong><br><span style="font-size:10px;color:#94a3b8;">Pool of ' + fleetSize + ' reports/month included · overage only if exceeded</span></td>' +
                 '<td style="color:#94a3b8;font-size:11px;">Per report (overage)</td>' +
-                '<td style="text-align:right;font-weight:700;color:#94a3b8;">R 150.00</td>' +
+                '<td style="text-align:right;font-weight:700;color:#94a3b8;">R ' + _pricingSettings.onDemandRate.toFixed(2) + '</td>' +
             '</tr>' +
             '<tr class="highlight-row">' +
                 '<td colspan="2"><strong>Total Monthly Retainer</strong> <span style="font-size:10px;font-weight:600;color:#3b82f6;">(from Month 2 · excl. VAT)</span></td>' +
@@ -571,7 +580,7 @@
         // Total card
         document.getElementById('totalCardClient').innerText = clientInfo.company;
         document.getElementById('totalCardTier').innerText   = _tiered.label + ' · ' + fleetSize + ' vehicles';
-        document.getElementById('fleetFeeDetail').innerText  = fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label;
+        document.getElementById('fleetFeeDetail').innerText  = fleetSize + ' vehicles × R' + _tiered.rate + '/vehicle · ' + _tiered.label + ' (' + _tiered.range + ')';
         document.getElementById('fleetFeeAmt').innerHTML     = 'R ' + _fleetFeeAmt.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span>';
         document.getElementById('monthlyNote').innerText     = 'Admin R1,500 + Fleet R' + _fleetFeeAmt.toLocaleString('en-ZA') + ' · excl. VAT · from Month 2';
         document.getElementById('monthlyTotal').innerHTML    = 'R ' + _monthly.toLocaleString('en-ZA') + ' <span style="font-size:10px;font-weight:600;color:#94a3b8;">/month</span>';
@@ -583,7 +592,7 @@
         document.getElementById('poolSection').innerHTML =
             '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">' +
                 '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Monthly Pool</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">' + fleetSize + '</p><p style="font-size:9px;color:#94a3b8;">reports included</p></div>' +
-                '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Overage Rate</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">R 150</p><p style="font-size:9px;color:#94a3b8;">per additional report</p></div>' +
+                '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Overage Rate</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">R ' + _pricingSettings.onDemandRate + '</p><p style="font-size:9px;color:#94a3b8;">per additional report</p></div>' +
                 '<div><p style="font-size:9px;font-weight:900;text-transform:uppercase;color:#475569;margin-bottom:4px;">Billing Day</p><p style="font-size:1.8rem;font-weight:900;color:#1d4ed8;">25th</p><p style="font-size:9px;color:#94a3b8;">of each month</p></div>' +
             '</div>';
     };
