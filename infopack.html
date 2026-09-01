@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module" src="firebase-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Information Pack | Dynamic Fleet Reporting</title>
@@ -112,7 +113,7 @@
         .term-block ul li::before { content: "·"; position: absolute; left: 0; color: var(--blue); font-weight: 900; }
 
         /* ── Contact ── */
-        .contact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
         .contact-card { background: white; border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; text-align: center; transition: box-shadow 0.2s; }
         .contact-card:hover { box-shadow: 0 4px 16px rgba(30,58,95,0.08); }
         .contact-card-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
@@ -228,7 +229,7 @@
             /* ── Contact ── */
             .contact-grid {
                 display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
                 gap: 0.35rem !important;
                 margin-top: 0.5rem !important;
                 break-inside: avoid;
@@ -595,6 +596,12 @@
         <p class="section-body" style="margin-bottom:0;">Ready to start measuring your fleet's performance? Have questions before committing? We're happy to chat — no obligation.</p>
 
         <div class="contact-grid">
+            <div class="contact-card" id="partnerContactCard" style="display:none;border-color:rgba(16,185,129,0.35);">
+                <div class="contact-card-icon">🤝</div>
+                <h3>Your Referral Partner</h3>
+                <p id="partnerContactPhone"></p>
+                <span id="partnerContactName"></span>
+            </div>
             <div class="contact-card">
                 <div class="contact-card-icon">📧</div>
                 <h3>Email</h3>
@@ -644,15 +651,51 @@
     if (footerDateEl) footerDateEl.innerText = now.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
 
     // ── Partner ref passthrough ─────────────────────────────────────────────
+    function waitFor(fn) {
+        return new Promise(function(resolve) {
+            var t = setInterval(function() { if (fn()) { clearInterval(t); resolve(); } }, 60);
+            setTimeout(function() { clearInterval(t); resolve(); }, 4000); // give up after 4s
+        });
+    }
+
     (function() {
         var p = new URLSearchParams(window.location.search);
         var ref = p.get('ref');
-        if (ref) {
-            var db = document.getElementById('discoverBtn');
-            if (db) db.href = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref=' + encodeURIComponent(ref);
-            var rb = document.getElementById('refBadge');
-            if (rb) rb.style.display = 'inline-block';
-        }
+        if (!ref) return;
+
+        var db = document.getElementById('discoverBtn');
+        if (db) db.href = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref=' + encodeURIComponent(ref);
+        var rb = document.getElementById('refBadge');
+        if (rb) rb.style.display = 'inline-block';
+
+        // Look up the partner's name and phone so both their contact details
+        // and Pieter's own appear on the info pack.
+        (async function() {
+            try {
+                await waitFor(function() { return typeof cloudStorage !== 'undefined'; });
+                if (typeof cloudStorage === 'undefined') return;
+                var partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+                var partner = partners.find(function(pt) {
+                    var code = 'ref_' + pt.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+                    return code === ref || pt.id === ref;
+                });
+                if (!partner) return;
+
+                if (rb) rb.textContent = '🤝 Referred by ' + partner.name;
+
+                var cardEl  = document.getElementById('partnerContactCard');
+                var nameEl  = document.getElementById('partnerContactName');
+                var phoneEl = document.getElementById('partnerContactPhone');
+                if (cardEl && nameEl && phoneEl && partner.phone) {
+                    phoneEl.textContent = partner.phone;
+                    nameEl.textContent  = partner.name;
+                    cardEl.style.display = '';
+                }
+            } catch (e) {
+                // Partner lookup unavailable (e.g. offline copy) - page still works
+                // fine showing only Pieter's own contact details.
+            }
+        })();
     })();
 
 </script>

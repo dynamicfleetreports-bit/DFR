@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partner Portal | Dynamic Fleet Reporting</title>
@@ -339,6 +340,7 @@ async function login(){
         await ready();
         _allPartners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
         _allClients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))      || [];
+        _liveSettings = await DFR_PRICING.getGlobalSettings();
         var refCode  = input.startsWith('ref_') ? input : 'ref_' + input.replace(/\s+/g,'_');
         _partner     = _allPartners.find(function(p){
             var code = 'ref_' + p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
@@ -620,9 +622,10 @@ function goMarketing(){
     window.location.href = 'partner-marketing.html?ref=' + getRefCode(_partner);
 }
 function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
-function getTier(f){ return f<=15?{rate:200,lbl:'T1'}:f<=30?{rate:175,lbl:'T2'}:{rate:150,lbl:'T3'}; }
-function getFS(c){ return c.fleet?c.fleet.length:(c.fleetSize||0); }
-function getRetainer(c){ const f=getFS(c),t=getTier(f); return 1500+(f*t.rate); }
+var _liveSettings = DFR_PRICING.DEFAULTS;
+function getTier(f){ return DFR_PRICING.getTierForFleetSize(_liveSettings, f); }
+function getFS(c){ return DFR_PRICING.getFleetSize(c); }
+function getRetainer(c){ return DFR_PRICING.getRetainer(c, _liveSettings); }
 function getMyClients(status){
     var code = getRefCode(_partner);
     return _allClients.filter(function(c){
@@ -745,7 +748,7 @@ function renderActive(){
     document.getElementById('actBody').innerHTML = active.map(function(c){
         var f     = getFS(c), r = getRetainer(c), comm = Math.round(r*(rate/100));
         var since = c.activationDate ? new Date(c.activationDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-        return '<tr><td><strong>'+c.company+'</strong><br><span style="font-size:11px;color:var(--mut);">'+(c.contactName||'—')+'</span></td><td>'+f+' veh<br><span style="font-size:10px;color:var(--mut);">'+getTier(f).lbl+'</span></td><td>R '+r.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);">/mo</span></td><td style="color:var(--grn);font-weight:800;">R '+comm.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);font-weight:600;">/mo</span></td><td>'+(c.reportSchedule==='weekly'?'📅 Weekly':'📆 Monthly')+'</td><td style="color:var(--mut);font-size:12px;">'+since+'</td></tr>';
+        return '<tr><td><strong>'+c.company+'</strong><br><span style="font-size:11px;color:var(--mut);">'+(c.contactName||'—')+'</span></td><td>'+f+' veh<br><span style="font-size:10px;color:var(--mut);">'+getTier(f).label+'</span></td><td>R '+r.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);">/mo</span></td><td style="color:var(--grn);font-weight:800;">R '+comm.toLocaleString('en-ZA')+'<span style="font-size:10px;color:var(--mut);font-weight:600;">/mo</span></td><td>'+(c.reportSchedule==='weekly'?'📅 Weekly':'📆 Monthly')+'</td><td style="color:var(--mut);font-size:12px;">'+since+'</td></tr>';
     }).join('');
 }
 

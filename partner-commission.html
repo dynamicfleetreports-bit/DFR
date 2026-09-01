@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commission Statement | DFR</title>
@@ -118,13 +119,15 @@ ready().then(async()=>{
     if(!pid) return;
     _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
     _clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    _liveSettings=await DFR_PRICING.getGlobalSettings();
     _partner=_partners.find(p=>p.id===pid);
     if(_partner) renderStatement();
 });
 
-function getTier(f){return f<=15?{rate:200}:f<=30?{rate:175}:{rate:150};}
-function getFS(c){return c.fleet?c.fleet.length:(c.fleetSize||0);}
-function getRetainer(c){const f=getFS(c),t=getTier(f);return 1500+(f*t.rate);}
+let _liveSettings=DFR_PRICING.DEFAULTS;
+function getTier(f){return DFR_PRICING.getTierForFleetSize(_liveSettings, f);}
+function getFS(c){return DFR_PRICING.getFleetSize(c);}
+function getRetainer(c){return DFR_PRICING.getRetainer(c, _liveSettings);}
 function getRefCode(p){return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');}
 
 function renderStatement(){

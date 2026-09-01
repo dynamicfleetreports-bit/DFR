@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loyalty Statement | DFR</title>
@@ -113,7 +114,7 @@
     </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 var _client=null;
 function waitFor(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);});}
 waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async function(){
@@ -121,10 +122,12 @@ waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async functi
     if(!id) return;
     var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
     _client=clients.find(function(c){return c.id==id;});
+    _liveSettings = await DFR_PRICING.getGlobalSettings();
     if(_client) renderStatement();
 });
-function getTierRate(f){return f<=15?200:f<=30?175:150;}
-function getRetainer(c){var f=c.fleet?c.fleet.length:(c.fleetSize||0);return 1500+(f*getTierRate(f));}
+var _liveSettings = DFR_PRICING.DEFAULTS;
+function getTierRate(f){return DFR_PRICING.getTierRate(f, _liveSettings);}
+function getRetainer(c){return DFR_PRICING.getRetainer(c, _liveSettings);}
 function renderStatement(){
     var c=_client;
     var now=new Date();
@@ -177,9 +180,7 @@ function renderStatement(){
 function emailStatement(){
     if(!_client) return;
     var sub=encodeURIComponent('Your DFR Loyalty Club Statement');
-    var bod=encodeURIComponent('Hi '+(_client.contactName||'')+',
-
-Please find your DFR Loyalty Club statement attached. It shows your referral history, credits earned, and free months banked.\n\nThank you for being a valued DFR Loyalty Club member!\n\nDynamic Fleet Reporting\n083 314 9592');
+    var bod=encodeURIComponent('Hi '+(_client.contactName||'')+',\n\nPlease find your DFR Loyalty Club statement attached. It shows your referral history, credits earned, and free months banked.\n\nThank you for being a valued DFR Loyalty Club member!\n\nDynamic Fleet Reporting\n083 314 9592');
     window.location.href='mailto:'+(_client.email||'')+'?subject='+sub+'&body='+bod;
 }
 </script>
