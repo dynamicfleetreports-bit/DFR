@@ -87,7 +87,7 @@
 
 <div class="doc-wrap">
     <div class="doc-cover">
-        <div class="cv-brand">Pieter Nell t/a Dynamic Fleet Reportingg<span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing Services</span></div>
+        <div class="cv-brand">Pieter Nell t/a Dynamic Fleet Reporting<span class="sub">Professional Fleet Intelligence &amp; Forensic Auditing Services</span></div>
         <div class="cv-title">REFERRAL PARTNER<br>AGREEMENT</div>
         <div class="cv-sub">Commission-Based Referral Partnership</div>
         <div class="cv-ref" id="cvRef">REF: RPA-LOADING &nbsp;·&nbsp; DATE: —</div>
@@ -97,7 +97,7 @@
             <div class="pb-title">The Parties</div>
             <div class="pb-row">
                 <div class="pb-item"><strong>Service Provider</strong>Pieter Nell t/a Dynamic Fleet Reporting</div>
-                <div class="pb-item"><strong>Address</strong>Spitskop Farm, Moorreesburg</div>
+                <div class="pb-item"><strong>Address</strong>Brittania Bay, Western Cape</div>
                 <div class="pb-item"><strong>Contact</strong>083 314 9592 · dynamicfleetreports&#64;gmail&#46;com</div>
             </div>
             <div class="pb-row">
@@ -192,7 +192,7 @@
         </div>
     </div>
     <div class="doc-footer">
-        <span>Pieter Nell t/a Dynamic Fleet Reporting · Spitskop Farm, Moorreesburg · 083 314 9592</span>
+        <span>Pieter Nell t/a Dynamic Fleet Reporting · Brittania Bay, Western Cape · 083 314 9592</span>
         <span id="footRef">RPA-LOADING</span>
     </div>
 </div>
@@ -256,7 +256,6 @@ async function checkAndSubmit(){
         await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(partners));
         document.getElementById('tbStatus').textContent='✅ Active Partner';
         document.getElementById('submitBtn').disabled=true;
-        document.getEleme
         document.getElementById('submitBtn').textContent='\u2705 Signed & Activated';
         alert('Agreement signed. Partner is now active. Return to partners.html and click "Resend Link" to send their referral link via WhatsApp.');
     }
