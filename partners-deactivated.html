@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deactivated Partners | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);display:flex;min-height:100vh;}
+        #sidebar{width:260px;background:var(--panel);border-right:1px solid var(--brd);display:flex;flex-direction:column;padding:2rem 1rem;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+        .logo-area{padding:0 1rem 2.5rem;}
+        .nav-item{display:flex;align-items:center;padding:0.85rem 1rem;margin-bottom:0.25rem;border-radius:0.75rem;color:#64748b;text-transform:uppercase;font-size:11px;font-weight:900;letter-spacing:0.1em;text-decoration:none;transition:all 0.2s;}
+        .nav-item:hover{color:#e2e8f0;background:rgba(255,255,255,0.03);}
+        .nav-item.active{background:rgba(16,185,129,0.1);color:var(--grn);}
+        .main{flex:1;padding:3rem;overflow-y:auto;}
+        .eyebrow{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.4em;color:var(--mut);margin-bottom:0.75rem;}
+        .page-title{font-size:3rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;color:white;}
+        .page-title span{color:var(--mut);}
+        .page-sub{font-size:13px;color:#64748b;margin-top:0.5rem;font-weight:600;}
+        .back-link{display:inline-block;margin-top:1.25rem;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:var(--grn);text-decoration:none;}
+        .back-link:hover{text-decoration:underline;}
+        .partners-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:1.5rem;margin-top:2rem;}
+        .partner-card{background:rgba(15,23,42,0.8);border:1px solid var(--brd);border-radius:16px;overflow:hidden;opacity:0.85;}
+        .pc-header{padding:1.25rem 1.5rem;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--brd);}
+        .pc-name{font-size:16px;font-weight:900;color:white;}
+        .pc-code{font-size:11px;color:var(--mut);margin-top:2px;font-weight:700;}
+        .sbadge{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;padding:4px 10px;border-radius:20px;background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.3);white-space:nowrap;}
+        .pc-body{padding:1.25rem 1.5rem;}
+        .pc-info-row{display:flex;flex-wrap:wrap;gap:1.5rem;margin-bottom:1rem;}
+        .pc-info{font-size:12px;color:var(--txt);}
+        .pc-info strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--mut);font-weight:900;margin-bottom:2px;}
+        .pc-meta{font-size:11px;color:var(--mut);margin-bottom:1rem;line-height:1.6;}
+        .pc-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+        .btn-sm{padding:8px 14px;border-radius:8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all 0.2s;}
+        .bsgr{background:rgba(16,185,129,0.12);color:var(--grn);border:1px solid rgba(16,185,129,0.3);} .bsgr:hover{background:rgba(16,185,129,0.22);}
+        .bsr{background:rgba(255,255,255,0.04);color:#94a3b8;border:1px solid var(--brd);} .bsr:hover{background:rgba(255,255,255,0.08);}
+        .bsdel{background:rgba(255,255,255,0.03);color:#64748b;border:1px solid var(--brd);} .bsdel:hover{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.3);color:#f87171;}
+        .empty-state{text-align:center;padding:4rem 2rem;color:var(--mut);}
+        .empty-state .icon{font-size:3rem;margin-bottom:1rem;}
+        .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:#0f172a;border:1px solid var(--brd);color:white;padding:0.85rem 1.5rem;border-radius:10px;font-size:12px;font-weight:700;z-index:999;transition:transform 0.3s;box-shadow:0 10px 30px rgba(0,0,0,0.4);}
+        .toast.show{transform:translateX(-50%) translateY(0);}
+    </style>
+</head>
+<body>
+
+<aside id="sidebar">
+    <div class="logo-area"><img src="Logo.png" alt="DFR" style="max-width:140px;" onerror="this.style.display='none'"></div>
+    <nav>
+        <a href="index.html"     class="nav-item">Dashboard</a>
+        <a href="pipeline.html"  class="nav-item">Prospect Pipeline</a>
+        <a href="database.html"  class="nav-item">Active Database</a>
+        <a href="audit.html"     class="nav-item">Forensic Audit</a>
+        <a href="churned.html"   class="nav-item">Churned Clients</a>
+        <a href="invoice.html"   class="nav-item">Invoices</a>
+        <a href="partners.html"  class="nav-item">🤝 Referral Partners</a>
+        <a href="loyalty-club.html" class="nav-item">🏆 Loyalty Club</a>
+        <a href="settings.html"  class="nav-item">⚙ Settings</a>
+        <a href="marketing.html" class="nav-item">📣 Marketing</a>
+    </nav>
+</aside>
+
+<main class="main">
+    <div class="eyebrow">Business Development · Record Keeping</div>
+    <h1 class="page-title">Deactivated <span>Partners</span></h1>
+    <p class="page-sub">Partners who are no longer active. Kept here for your records rather than on the main list — reactivate at any time, or delete permanently once you're sure they won't be back.</p>
+    <a href="partners.html" class="back-link">← Back to Referral Partners</a>
+
+    <div class="partners-grid" id="deactivatedGrid">
+        <div class="empty-state"><div class="icon">🗄</div><p>No deactivated partners.</p></div>
+    </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let _partners=[];
+function waitFor(fn){return new Promise(r=>{const t=setInterval(()=>{if(fn()){clearInterval(t);r();}},60);});}
+
+waitFor(()=>typeof cloudStorage!=='undefined').then(async()=>{
+    _partners=JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+    render();
+});
+
+function render(){
+    const inactive=_partners.filter(p=>p.status==='inactive');
+    const grid=document.getElementById('deactivatedGrid');
+    if(!inactive.length){
+        grid.innerHTML='<div class="empty-state"><div class="icon">🗄</div><p>No deactivated partners.</p></div>';
+        return;
+    }
+    grid.innerHTML=inactive.map(p=>{
+        const deactivatedDate=p.deactivatedDate?new Date(p.deactivatedDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—';
+        const signedDate=p.agreementSignedDate?new Date(p.agreementSignedDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'}):'—';
+        return `<div class="partner-card">
+            <div class="pc-header">
+                <div>
+                    <div class="pc-name">${p.name}</div>
+                    <div class="pc-code">Code: ${(p.name||'').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'')}</div>
+                </div>
+                <span class="sbadge">⏸ Deactivated</span>
+            </div>
+            <div class="pc-body">
+                <div class="pc-info-row">
+                    <div class="pc-info"><strong>Phone</strong>${p.phone||'—'}</div>
+                    <div class="pc-info"><strong>Email</strong>${p.email||'—'}</div>
+                </div>
+                <div class="pc-meta">
+                    Originally signed: ${signedDate}<br>
+                    Deactivated: ${deactivatedDate}
+                </div>
+                <div class="pc-actions">
+                    <button class="btn-sm bsgr" onclick="reactivate('${p.id}')">▶ Reactivate</button>
+                    <button class="btn-sm bsdel" onclick="permanentDelete('${p.id}','${(p.name||'').replace(/'/g,"\\'")}')">🗑 Delete Permanently</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function reactivate(id){
+    const p=_partners.find(x=>x.id===id);
+    if(!p) return;
+    if(!confirm('Reactivate '+p.name+'? They will show up on the main Referral Partners page again and can start earning commission on new referrals.')) return;
+    p.status='active';
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    toast(p.name+' reactivated ✓');
+    render();
+}
+
+async function permanentDelete(id,name){
+    if(!confirm('Permanently delete '+name+'?\n\nThis removes them completely, including their commission history. This cannot be undone.')) return;
+    if(!confirm('Are you absolutely sure? Type OK to confirm there is no way to recover this partner\'s record afterwards.')) return;
+    _partners=_partners.filter(x=>x.id!==id);
+    await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
+    toast(name+' permanently deleted');
+    render();
+}
+
+function toast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
