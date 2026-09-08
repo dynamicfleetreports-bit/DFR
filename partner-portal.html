@@ -340,7 +340,7 @@ async function login(){
         await ready();
         _allPartners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
         _allClients  = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))      || [];
-        _liveSettings = await DFR_PRICING.getGlobalSettings();
+        try { if (typeof DFR_PRICING!=='undefined') _liveSettings = await DFR_PRICING.getGlobalSettings(); } catch(e) { /* keep default rates - never blocks login */ }
         var refCode  = input.startsWith('ref_') ? input : 'ref_' + input.replace(/\s+/g,'_');
         _partner     = _allPartners.find(function(p){
             var code = 'ref_' + p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
@@ -622,10 +622,10 @@ function goMarketing(){
     window.location.href = 'partner-marketing.html?ref=' + getRefCode(_partner);
 }
 function getRefCode(p){ return 'ref_'+p.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''); }
-var _liveSettings = DFR_PRICING.DEFAULTS;
-function getTier(f){ return DFR_PRICING.getTierForFleetSize(_liveSettings, f); }
-function getFS(c){ return DFR_PRICING.getFleetSize(c); }
-function getRetainer(c){ return DFR_PRICING.getRetainer(c, _liveSettings); }
+var _liveSettings = (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.DEFAULTS : {setupFee:2500,adminFee:1500,tier1Rate:200,tier1Max:15,tier2Rate:175,tier2Max:30,tier3Rate:150,onDemandRate:150};
+function getTier(f){ return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getTierForFleetSize(_liveSettings, f) : (f<=15?{rate:200,label:'Tier 1'}:f<=30?{rate:175,label:'Tier 2'}:{rate:150,label:'Tier 3'}); }
+function getFS(c){ return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getFleetSize(c) : (c.fleet?(Array.isArray(c.fleet)?c.fleet.length:Object.keys(c.fleet).length):(c.fleetSize||0)); }
+function getRetainer(c){ return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getRetainer(c, _liveSettings) : (_liveSettings.adminFee + getFS(c)*getTier(getFS(c)).rate); }
 function getMyClients(status){
     var code = getRefCode(_partner);
     return _allClients.filter(function(c){

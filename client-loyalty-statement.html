@@ -122,12 +122,12 @@ waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async functi
     if(!id) return;
     var clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
     _client=clients.find(function(c){return c.id==id;});
-    _liveSettings = await DFR_PRICING.getGlobalSettings();
+    try { if (typeof DFR_PRICING!=='undefined') _liveSettings = await DFR_PRICING.getGlobalSettings(); } catch(e) { /* keep default rates */ }
     if(_client) renderStatement();
 });
-var _liveSettings = DFR_PRICING.DEFAULTS;
-function getTierRate(f){return DFR_PRICING.getTierRate(f, _liveSettings);}
-function getRetainer(c){return DFR_PRICING.getRetainer(c, _liveSettings);}
+var _liveSettings = (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.DEFAULTS : {setupFee:2500,adminFee:1500,tier1Rate:200,tier1Max:15,tier2Rate:175,tier2Max:30,tier3Rate:150,onDemandRate:150};
+function getTierRate(f){return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getTierRate(f, _liveSettings) : (f<=15?200:f<=30?175:150);}
+function getRetainer(c){return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getRetainer(c, _liveSettings) : (_liveSettings.adminFee+((c.fleet?c.fleet.length:(c.fleetSize||0))*getTierRate(c.fleet?c.fleet.length:(c.fleetSize||0))));}
 function renderStatement(){
     var c=_client;
     var now=new Date();

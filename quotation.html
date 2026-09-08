@@ -355,9 +355,10 @@
 
 <script>
     // ── Pricing helpers ───────────────────────────────────────────────────────
-    var _pricingSettings = DFR_PRICING.DEFAULTS;
+    var _pricingSettings = (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.DEFAULTS : {setupFee:2500,adminFee:1500,tier1Rate:200,tier1Max:15,tier2Rate:175,tier2Max:30,tier3Rate:150,onDemandRate:150};
     function getTieredRate(fleetSize) {
-        return DFR_PRICING.getTierForFleetSize(_pricingSettings, fleetSize);
+        if (typeof DFR_PRICING!=='undefined') return DFR_PRICING.getTierForFleetSize(_pricingSettings, fleetSize);
+        return fleetSize<=15?{rate:200,tier:1,label:'Tier 1',range:'1–15 vehicles'}:fleetSize<=30?{rate:175,tier:2,label:'Tier 2',range:'16–30 vehicles'}:{rate:150,tier:3,label:'Tier 3',range:'31+ vehicles'};
     }
 
     function fmt(n) { return 'R ' + n.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
@@ -445,7 +446,7 @@
     window.onload = async function() {
         var now = new Date();
 
-        _pricingSettings = await DFR_PRICING.getGlobalSettings();
+        try { if (typeof DFR_PRICING!=='undefined') _pricingSettings = await DFR_PRICING.getGlobalSettings(); } catch(e) { /* keep default rates */ }
         document.getElementById('tierCard1Rate').innerText  = 'R ' + _pricingSettings.tier1Rate;
         document.getElementById('tierCard1Range').innerText = '1 – ' + _pricingSettings.tier1Max + ' vehicles';
         document.getElementById('tierCard2Rate').innerText  = 'R ' + _pricingSettings.tier2Rate;

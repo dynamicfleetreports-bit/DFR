@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loyalty Club | Dynamic Fleet Reporting</title>
@@ -223,9 +224,9 @@ const APPS_URL='https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0nx
 var LOYALTY_TIERS=[{min:1,max:1,mult:1.0,disc50:false},{min:2,max:2,mult:1.5,disc50:false},{min:3,max:4,mult:2.0,disc50:true},{min:5,max:99,mult:3.0,disc50:true}];
 var ANNUAL_MILESTONE=10;
 function getLoyaltyTier(r){return LOYALTY_TIERS.find(function(t){return r>=t.min&&r<=t.max;})||null;}
-var _liveSettings = DFR_PRICING.DEFAULTS;
-function getTierRate(f){return DFR_PRICING.getTierRate(f, _liveSettings);}
-function getRetainer(c){return DFR_PRICING.getRetainer(c, _liveSettings);}
+var _liveSettings = (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.DEFAULTS : {setupFee:2500,adminFee:1500,tier1Rate:200,tier1Max:15,tier2Rate:175,tier2Max:30,tier3Rate:150,onDemandRate:150};
+function getTierRate(f){return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getTierRate(f, _liveSettings) : (f<=15?200:f<=30?175:150);}
+function getRetainer(c){return (typeof DFR_PRICING!=='undefined') ? DFR_PRICING.getRetainer(c, _liveSettings) : (_liveSettings.adminFee+((c.fleet?c.fleet.length:(c.fleetSize||0))*getTierRate(c.fleet?c.fleet.length:(c.fleetSize||0))));}
 function calcCredit(refs,refClients){
     if(!refs||!refClients||!refClients.length) return {credit:0,disc50:false,breakdown:[],tier:null};
     var t=getLoyaltyTier(refs);
@@ -244,6 +245,7 @@ function waitFor(fn){return new Promise(function(r){var t=setInterval(function()
 var _clients=[], _freeMonthClientId=null;
 waitFor(function(){return typeof cloudStorage!=='undefined';}).then(async function(){
     _clients=JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS'))||[];
+    try { if (typeof DFR_PRICING!=='undefined') _liveSettings = await DFR_PRICING.getGlobalSettings(); } catch(e) { /* keep default rates */ }
     renderAll();
     initPickers();
 });

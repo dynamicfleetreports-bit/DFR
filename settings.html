@@ -168,6 +168,11 @@
     document.getElementById('globalSpeed').value = await cloudStorage.getItem('GLOBAL_SPEED') || '85';
             renderHistory();
 
+            if (typeof DFR_PRICING === 'undefined') {
+                document.getElementById('lockInStatus').innerHTML = '⚠️ pricing-helper.js failed to load — Service Pricing cannot be edited right now. Make sure pricing-helper.js is uploaded to the same folder as this page, then refresh.';
+                document.getElementById('lockInStatus').style.color = '#f87171';
+                return;
+            }
             const p = await DFR_PRICING.getGlobalSettings();
             document.getElementById('pSetupFee').value     = p.setupFee;
             document.getElementById('pAdminFee').value      = p.adminFee;
