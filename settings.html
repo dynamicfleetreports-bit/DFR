@@ -117,6 +117,39 @@
                     <p id="lockInStatus" class="text-[10px] text-emerald-400 font-bold mt-2"></p>
                 </div>
             </div>
+
+            <div class="glass-card p-8 rounded-[2.5rem] space-y-6 mt-8">
+                <div>
+                    <h3 class="text-lg font-black uppercase italic tracking-tighter text-blue-400">Exchange Rates</h3>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">Used to show foreign-currency pricing on your Info Pack. Enter how many Rand equal 1 unit of each currency — look this up on any forex site (e.g. xe.com) and update whenever rates move meaningfully. Your Info Pack's foreign prices are calculated live from your Rand pricing above ÷ these rates, so they stay in sync automatically.</p>
+                </div>
+                <div>
+                    <label>1 USD ($) = R</label>
+                    <input type="number" id="fxUSD" step="0.01" class="input-box" placeholder="18.50">
+                </div>
+                <div>
+                    <label>1 GBP (£) = R</label>
+                    <input type="number" id="fxGBP" step="0.01" class="input-box" placeholder="23.50">
+                </div>
+                <div>
+                    <label>1 EUR (€) = R</label>
+                    <input type="number" id="fxEUR" step="0.01" class="input-box" placeholder="20.00">
+                </div>
+                <div>
+                    <label>1 AUD (A$) = R</label>
+                    <input type="number" id="fxAUD" step="0.01" class="input-box" placeholder="12.50">
+                </div>
+                <div>
+                    <label>1 AED (د.إ) = R</label>
+                    <input type="number" id="fxAED" step="0.01" class="input-box" placeholder="5.00">
+                </div>
+                <div class="pt-2">
+                    <button onclick="saveExchangeRates()" class="w-full btn-primary bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-500/20 transition-all">
+                        Save Exchange Rates
+                    </button>
+                </div>
+                <p id="fxSaveStatus" class="text-[10px] text-blue-400 font-bold"></p>
+            </div>
         </div>
 
         <div class="md:col-span-2 space-y-8">
@@ -168,6 +201,12 @@
     document.getElementById('globalSpeed').value = await cloudStorage.getItem('GLOBAL_SPEED') || '85';
             renderHistory();
 
+            document.getElementById('fxUSD').value = await cloudStorage.getItem('FX_USD') || '18.50';
+            document.getElementById('fxGBP').value = await cloudStorage.getItem('FX_GBP') || '23.50';
+            document.getElementById('fxEUR').value = await cloudStorage.getItem('FX_EUR') || '20.00';
+            document.getElementById('fxAUD').value = await cloudStorage.getItem('FX_AUD') || '12.50';
+            document.getElementById('fxAED').value = await cloudStorage.getItem('FX_AED') || '5.00';
+
             if (typeof DFR_PRICING === 'undefined') {
                 document.getElementById('lockInStatus').innerHTML = '⚠️ pricing-helper.js failed to load — Service Pricing cannot be edited right now. Make sure pricing-helper.js is uploaded to the same folder as this page, then refresh.';
                 document.getElementById('lockInStatus').style.color = '#f87171';
@@ -184,6 +223,16 @@
             document.getElementById('pOnDemandRate').value  = p.onDemandRate;
             renderPricingHistory();
         };
+
+        async function saveExchangeRates() {
+            await cloudStorage.setItem('FX_USD', document.getElementById('fxUSD').value || '18.50');
+            await cloudStorage.setItem('FX_GBP', document.getElementById('fxGBP').value || '23.50');
+            await cloudStorage.setItem('FX_EUR', document.getElementById('fxEUR').value || '20.00');
+            await cloudStorage.setItem('FX_AUD', document.getElementById('fxAUD').value || '12.50');
+            await cloudStorage.setItem('FX_AED', document.getElementById('fxAED').value || '5.00');
+            document.getElementById('fxSaveStatus').textContent = '✅ Exchange rates saved — Info Pack will reflect these next time it loads.';
+            setTimeout(() => { document.getElementById('fxSaveStatus').textContent = ''; }, 4000);
+        }
 
        async function saveSettings() {
     const newPrice = document.getElementById('globalFuel').value;

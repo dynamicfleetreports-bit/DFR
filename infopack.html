@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script type="module" src="firebase-helper.js"></script>
+    <script src="pricing-helper.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Information Pack | Dynamic Fleet Reporting</title>
@@ -700,19 +701,65 @@
 
 </script>
 <script>
-    // ── Country / pricing swap ───────────────────────────────────────────────
-    var IP_RATES = {
-        ZA:    { setup:'R 2,500',   admin:'R 1,500',   t1:'R 200',  t2:'R 175',  t3:'R 150',  od:'R 150',  ex_setup:'R 2,500',   ex_admin:'R 1,500',   ex_fleet:'R 2,000',   ex_retainer:'R 3,500 / month', ex_first:'R 6,000',   ex_unit:'R200',  label:'ZAR' },
-        US:    { setup:'$135',       admin:'$80',       t1:'$11',    t2:'$9.50',  t3:'$8',     od:'$8',     ex_setup:'$135',       ex_admin:'$80',       ex_fleet:'$110',       ex_retainer:'$190 / month',    ex_first:'$325',      ex_unit:'$11',   label:'USD' },
-        GB:    { setup:'£105',       admin:'£65',       t1:'£9',     t2:'£7.50',  t3:'£6.50',  od:'£6.50',  ex_setup:'£105',       ex_admin:'£65',       ex_fleet:'£90',        ex_retainer:'£155 / month',    ex_first:'£260',      ex_unit:'£9',    label:'GBP' },
-        EU:    { setup:'€120',       admin:'€75',       t1:'€10',    t2:'€9',     t3:'€7.50',  od:'€7.50',  ex_setup:'€120',       ex_admin:'€75',       ex_fleet:'€100',       ex_retainer:'€175 / month',    ex_first:'€295',      ex_unit:'€10',   label:'EUR' },
-        AU:    { setup:'A$200',      admin:'A$120',     t1:'A$16',   t2:'A$14',   t3:'A$12',   od:'A$12',   ex_setup:'A$200',      ex_admin:'A$120',     ex_fleet:'A$160',      ex_retainer:'A$280 / month',   ex_first:'A$480',     ex_unit:'A$16',  label:'AUD' },
-        AE:    { setup:'د.إ500',     admin:'د.إ300',    t1:'د.إ40',  t2:'د.إ35',  t3:'د.إ30',  od:'د.إ30',  ex_setup:'د.إ500',     ex_admin:'د.إ300',    ex_fleet:'د.إ400',     ex_retainer:'د.إ700 / month',  ex_first:'د.إ1,200', ex_unit:'د.إ40', label:'AED' },
+    // ── Country / pricing swap — now computed live from Settings ──────────────
+    var FX_DEFAULTS = { USD: 18.50, GBP: 23.50, EUR: 20.00, AUD: 12.50, AED: 5.00 };
+    var CURRENCY_META = {
+        ZA: { symbol: 'R',    label: 'ZAR', dp: 0 },
+        US: { symbol: '$',    label: 'USD', dp: 2, fx: 'USD' },
+        GB: { symbol: '£',    label: 'GBP', dp: 2, fx: 'GBP' },
+        EU: { symbol: '€',    label: 'EUR', dp: 2, fx: 'EUR' },
+        AU: { symbol: 'A$',   label: 'AUD', dp: 2, fx: 'AUD' },
+        AE: { symbol: 'د.إ',  label: 'AED', dp: 0, fx: 'AED' }
     };
-    function applyPricing() {
+
+    function fmtMoney(amount, symbol, dp) {
+        return symbol + ' ' + amount.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+    }
+
+    async function applyPricing() {
         var p = new URLSearchParams(window.location.search);
         var c = p.get('country') || 'ZA';
-        var r = IP_RATES[c] || IP_RATES.ZA;
+        var meta = CURRENCY_META[c] || CURRENCY_META.ZA;
+
+        // Live ZAR pricing from Settings (falls back to sensible defaults if
+        // pricing-helper.js didn't load, so the page still shows something).
+        var zar = (typeof DFR_PRICING !== 'undefined')
+            ? await DFR_PRICING.getGlobalSettings()
+            : { setupFee: 2500, adminFee: 1500, tier1Rate: 200, tier1Max: 15, tier2Rate: 175, tier2Max: 30, tier3Rate: 150, onDemandRate: 150 };
+
+        // Worked example uses a 10-vehicle fleet, same as the original example.
+        var exFleetSize = 10;
+        var exTier = (typeof DFR_PRICING !== 'undefined')
+            ? DFR_PRICING.getTierForFleetSize(zar, exFleetSize)
+            : { rate: zar.tier1Rate };
+        var exFleetFee  = exFleetSize * exTier.rate;
+        var exRetainer  = zar.adminFee + exFleetFee;
+        var exFirst     = zar.setupFee + exRetainer;
+
+        // FX rate: how many Rand equal 1 unit of the selected currency.
+        var fxRate = 1;
+        if (meta.fx) {
+            var stored = await cloudStorage.getItem('FX_' + meta.fx);
+            fxRate = parseFloat(stored) || FX_DEFAULTS[meta.fx];
+        }
+        function conv(zarAmount) { return c === 'ZA' ? zarAmount : (zarAmount / fxRate); }
+
+        var r = {
+            setup:       fmtMoney(conv(zar.setupFee),   meta.symbol, meta.dp),
+            admin:       fmtMoney(conv(zar.adminFee),    meta.symbol, meta.dp),
+            t1:          fmtMoney(conv(zar.tier1Rate),   meta.symbol, meta.dp),
+            t2:          fmtMoney(conv(zar.tier2Rate),   meta.symbol, meta.dp),
+            t3:          fmtMoney(conv(zar.tier3Rate),   meta.symbol, meta.dp),
+            od:          fmtMoney(conv(zar.onDemandRate),meta.symbol, meta.dp),
+            ex_setup:    fmtMoney(conv(zar.setupFee),    meta.symbol, meta.dp),
+            ex_admin:    fmtMoney(conv(zar.adminFee),    meta.symbol, meta.dp),
+            ex_fleet:    fmtMoney(conv(exFleetFee),      meta.symbol, meta.dp),
+            ex_retainer: fmtMoney(conv(exRetainer),      meta.symbol, meta.dp) + ' / month',
+            ex_first:    fmtMoney(conv(exFirst),         meta.symbol, meta.dp),
+            ex_unit:     fmtMoney(conv(exTier.rate),     meta.symbol, meta.dp),
+            label: meta.label
+        };
+
         function s(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
         s('ip-setup',r.setup); s('ip-admin',r.admin);
         s('ip-t1',r.t1); s('ip-t2',r.t2); s('ip-t3',r.t3);
@@ -722,12 +769,11 @@
         s('ip-ex-first',r.ex_first); s('ip-ex-unit',r.ex_unit);
         if (c !== 'ZA') {
             var b = document.getElementById('ip-currency-badge');
-            if (b) { b.style.display = 'inline-block'; b.textContent = 'Prices in ' + r.label; }
+            if (b) { b.style.display = 'inline-block'; b.textContent = 'Prices in ' + r.label + ' (approx, at today\'s exchange rate)'; }
         }
     }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', applyPricing);
-    } else { applyPricing(); }
+    function waitForCS(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);setTimeout(function(){clearInterval(t);r();},4000);});}
+    waitForCS(function(){return typeof cloudStorage!=='undefined';}).then(applyPricing);
 </script>
 </body>
 </html>
