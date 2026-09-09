@@ -581,6 +581,8 @@ function renderPartners(){
                 <div>
                 <div class="pc-name">${(typeof DFR_UOM !== 'undefined' && p.countryCode) ? DFR_UOM.getProfile(p).flag+' ' : ''}${p.name}</div>
                 <div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm${p.countryCode && p.countryCode!=='ZA' ? ' &middot; '+p.countryCode : ''}</div>
+                ${p.parentPartnerId ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#f59e0b;margin-top:3px;">👥 Sub-partner of ${(_partners.find(x=>x.id===p.parentPartnerId)||{}).name||'Unknown'}${typeof p.overrideRate==='number' ? ' · '+p.overrideRate+'% override' : ' · override not set yet'}</div>` : ''}
+                ${_partners.filter(x=>x.parentPartnerId===p.id).length ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#10b981;margin-top:3px;">👑 ${_partners.filter(x=>x.parentPartnerId===p.id).length} sub-partner(s) under this partner</div>` : ''}
                 </div>
                 <span class="sbadge ${sc}">${sl}</span>
             </div>
@@ -783,18 +785,36 @@ function previewComm(){
     const year=parseInt(document.getElementById('commYear').value);
     _pendingComm=[];
     const active=_partners.filter(p=>p.status==='active');
-    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Paid Clients</th><th>MRR</th><th>Commission</th></tr></thead><tbody>';
+    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Paid Clients</th><th>MRR</th><th>Own Commission</th><th>Override (Sub-Partners)</th><th>Total</th></tr></thead><tbody>';
     let grand=0;
     active.forEach(p=>{
         const pc=getPartnerClients(p.id,'active');
         const paid=pc.filter(c=>(c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
         const mrr=paid.reduce((s,c)=>s+getRetainer(c),0);
         const comm=Math.round(mrr*((p.commRate||15)/100));
-        grand+=comm;
-        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:paid.length,mrr,comm,month,year});
-        html+=`<tr><td>${p.name}</td><td style="color:#60a5fa;">${paid.length}</td><td style="color:#10b981;">R ${mrr.toLocaleString('en-ZA')}</td><td style="color:#f59e0b;font-weight:800;">R ${comm.toLocaleString('en-ZA')}</td></tr>`;
+
+        // Override earnings from this partner's sub-partners, if any
+        const subPartners=_partners.filter(sp=>sp.parentPartnerId===p.id);
+        let override=0;
+        const overrideBreakdown=[];
+        subPartners.forEach(sp=>{
+            if(typeof sp.overrideRate!=='number') return; // override not set yet - skip, don't guess a rate
+            const spClients=getPartnerClients(sp.id,'active');
+            const spPaid=spClients.filter(c=>(c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
+            const spMrr=spPaid.reduce((s,c)=>s+getRetainer(c),0);
+            const spOverride=Math.round(spMrr*(sp.overrideRate/100));
+            if(spOverride>0){
+                override+=spOverride;
+                overrideBreakdown.push({subPartnerId:sp.id,subPartnerName:sp.name,mrr:spMrr,rate:sp.overrideRate,amount:spOverride});
+            }
+        });
+
+        const total=comm+override;
+        grand+=total;
+        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:paid.length,mrr,comm,override,overrideBreakdown,total:total,month,year});
+        html+=`<tr><td>${p.name}</td><td style="color:#60a5fa;">${paid.length}</td><td style="color:#10b981;">R ${mrr.toLocaleString('en-ZA')}</td><td style="color:#f59e0b;">R ${comm.toLocaleString('en-ZA')}</td><td style="color:${override>0?'#a78bfa':'#475569'};">${override>0?'R '+override.toLocaleString('en-ZA'):'—'}</td><td style="font-weight:900;">R ${total.toLocaleString('en-ZA')}</td></tr>`;
     });
-    html+=`<tr><td colspan="3" style="font-weight:900;padding-top:8px;">Total Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
+    html+=`<tr><td colspan="5" style="font-weight:900;padding-top:8px;">Total Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
     html+='</tbody></table>';
     document.getElementById('commPreview').innerHTML=html;
     document.getElementById('confirmCommBtn').style.display='inline-block';
@@ -804,8 +824,9 @@ async function confirmComm(){
     for(const c of _pendingComm){
         const p=_partners.find(x=>x.id===c.partnerId); if(!p) continue;
         if(!p.commissionHistory) p.commissionHistory=[];
-        p.commissionHistory.push({date:new Date().toISOString(),month:c.month,year:c.year,clients:c.clients,mrr:c.mrr,amount:c.comm,paid:false});
-        if(c.comm>0){
+        p.commissionHistory.push({date:new Date().toISOString(),month:c.month,year:c.year,clients:c.clients,mrr:c.mrr,amount:c.total,ownCommission:c.comm,override:c.override,overrideBreakdown:c.overrideBreakdown,paid:false});
+        if(c.total>0){
+            const overrideLine = c.override>0 ? `\nSub-Partner Override: R ${c.override.toLocaleString('en-ZA')}` : '';
             // ── FIX: Use template literal (backticks) so all variables resolve ──
             const msg=`💰 Commission Statement — ${MONTHS[c.month]} ${c.year}
 
@@ -815,7 +836,8 @@ Your commission for ${MONTHS[c.month]} ${c.year} has been calculated:
 
 Clients: ${c.clients}
 MRR Generated: R ${c.mrr.toLocaleString('en-ZA')}
-Your Commission (${p.commRate||15}%): R ${c.comm.toLocaleString('en-ZA')}
+Your Commission (${p.commRate||15}%): R ${c.comm.toLocaleString('en-ZA')}${overrideLine}
+Total: R ${c.total.toLocaleString('en-ZA')}
 
 This will be paid to your ${p.bank||'nominated'} account within 7 business days.
 

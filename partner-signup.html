@@ -92,6 +92,7 @@
             <div class="eyebrow">Earn With Us</div>
             <h1>Become a Referral <span>Partner</span></h1>
             <p class="sub">Refer fleet operators to Dynamic Fleet Reporting and earn 15% commission on every invoice they pay — for the lifetime of their contract. No experience needed. No targets. Just refer and earn.</p>
+            <div id="parentBanner" style="display:none;margin-top:1rem;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;color:#10b981;"></div>
         </div>
 
         <div class="comm-box">
@@ -192,6 +193,22 @@ const checks = {chk1:false,chk2:false,chk3:false};
 
 function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
 
+let _parentPartnerId = null;
+waitFor(()=>typeof cloudStorage!=='undefined').then(async()=>{
+    const parentId = new URLSearchParams(window.location.search).get('parent');
+    if(!parentId) return;
+    try {
+        const partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS'))||[];
+        const parent = partners.find(p=>p.id===parentId && p.status==='active');
+        if(parent){
+            _parentPartnerId = parent.id;
+            const b = document.getElementById('parentBanner');
+            b.textContent = '🤝 You\'re signing up as part of '+parent.name+'\'s team.';
+            b.style.display = 'block';
+        }
+    } catch(e) { /* parent lookup failed - proceed as a normal top-level signup */ }
+});
+
 function toggleCheck(id){
     checks[id]=!checks[id];
     document.getElementById(id).classList.toggle('checked',checks[id]);
@@ -233,6 +250,7 @@ async function submitApplication(){
         approach:  document.getElementById('approach').value.trim(),
         commRate:  15,
         status:    'pending',
+        parentPartnerId: _parentPartnerId || null,
         createdAt: new Date().toISOString(),
         signupDate: new Date().toISOString(),
         selfSignup: true,
@@ -259,7 +277,8 @@ async function submitApplication(){
 
         // Notify DFR via WhatsApp
         document.getElementById('loaderTxt').textContent='Notifying DFR team...';
-        await notifyWA('🤝 NEW PARTNER APPLICATION\nName: '+name+'\nPhone: '+phone+'\nEmail: '+email+'\nBank: '+bank+' | Acc: '+accNum+'\nReview in partners.html and activate to send their referral link.');
+        const parentNote = _parentPartnerId ? '\n⚠️ Signed up via a SUB-PARTNER link (parent partner ID: '+_parentPartnerId+') - review the relationship in partners.html' : '';
+        await notifyWA('🤝 NEW PARTNER APPLICATION\nName: '+name+'\nPhone: '+phone+'\nEmail: '+email+'\nBank: '+bank+' | Acc: '+accNum+parentNote+'\nReview in partners.html and activate to send their referral link.');
 
         document.getElementById('loader').classList.remove('on');
         document.getElementById('successCode').textContent = 'https://dynamicfleetreports-bit.github.io/DFR/discover.html?ref='+refCode;

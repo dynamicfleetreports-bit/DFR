@@ -166,7 +166,10 @@ function renderStatement(){
             const per=MONTHS[h.month]+' '+h.year;
             const badge=h.paid?'<span class="paid-b">Paid</span>':'<span class="unpaid-b">Outstanding</span>';
             const btn=!h.paid?`<button class="mark-btn" onclick="markPaid(${idx})">Mark Paid</button>`:'';
-            return `<tr><td>${per}</td><td>${h.clients}</td><td>R ${(h.mrr||0).toLocaleString('en-ZA')}</td><td style="font-weight:800;color:#059669;">R ${h.amount.toLocaleString('en-ZA')}</td><td>${badge}</td><td>${btn}</td></tr>`;
+            const overrideNote = h.override>0
+                ? `<br><span style="font-size:10px;color:#a78bfa;">Own: R ${(h.ownCommission||h.amount-h.override).toLocaleString('en-ZA')} + Override: R ${h.override.toLocaleString('en-ZA')}${h.overrideBreakdown&&h.overrideBreakdown.length?' ('+h.overrideBreakdown.map(b=>b.subPartnerName+' '+b.rate+'%').join(', ')+')':''}</span>`
+                : '';
+            return `<tr><td>${per}</td><td>${h.clients}</td><td>R ${(h.mrr||0).toLocaleString('en-ZA')}</td><td style="font-weight:800;color:#059669;">R ${h.amount.toLocaleString('en-ZA')}${overrideNote}</td><td>${badge}</td><td>${btn}</td></tr>`;
         }).join('');
     }
     document.getElementById('footTotal').textContent='R '+totalEarned.toLocaleString('en-ZA');
