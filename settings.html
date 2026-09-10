@@ -150,6 +150,23 @@
                 </div>
                 <p id="fxSaveStatus" class="text-[10px] text-blue-400 font-bold"></p>
             </div>
+
+            <div class="glass-card p-8 rounded-[2.5rem] space-y-6 mt-8">
+                <div>
+                    <h3 class="text-lg font-black uppercase italic tracking-tighter text-amber-400">Admin Master PIN</h3>
+                    <p class="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">Lets you open ANY partner's portal (clients, commission, sub-partners) using this PIN instead of their own personal one — so you can check what's happening with each partner without needing to know every individual PIN. Keep this private; anyone with it can view every partner's financial data. Viewing a portal this way does not count as a login in that partner's activity log.</p>
+                </div>
+                <div>
+                    <label>Your Admin Master PIN (4 digits)</label>
+                    <input type="text" id="adminPin" maxlength="4" pattern="[0-9]{4}" class="input-box" placeholder="e.g. 9271">
+                </div>
+                <div class="pt-2">
+                    <button onclick="saveAdminPin()" class="w-full btn-primary bg-amber-600 hover:bg-amber-500 p-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-amber-500/20 transition-all">
+                        Save Admin PIN
+                    </button>
+                </div>
+                <p id="adminPinStatus" class="text-[10px] text-amber-400 font-bold"></p>
+            </div>
         </div>
 
         <div class="md:col-span-2 space-y-8">
@@ -206,6 +223,7 @@
             document.getElementById('fxEUR').value = await cloudStorage.getItem('FX_EUR') || '20.00';
             document.getElementById('fxAUD').value = await cloudStorage.getItem('FX_AUD') || '12.50';
             document.getElementById('fxAED').value = await cloudStorage.getItem('FX_AED') || '5.00';
+            document.getElementById('adminPin').value = await cloudStorage.getItem('ADMIN_MASTER_PIN') || '';
 
             if (typeof DFR_PRICING === 'undefined') {
                 document.getElementById('lockInStatus').innerHTML = '⚠️ pricing-helper.js failed to load — Service Pricing cannot be edited right now. Make sure pricing-helper.js is uploaded to the same folder as this page, then refresh.';
@@ -232,6 +250,19 @@
             await cloudStorage.setItem('FX_AED', document.getElementById('fxAED').value || '5.00');
             document.getElementById('fxSaveStatus').textContent = '✅ Exchange rates saved — Info Pack will reflect these next time it loads.';
             setTimeout(() => { document.getElementById('fxSaveStatus').textContent = ''; }, 4000);
+        }
+
+        async function saveAdminPin() {
+            var pin = document.getElementById('adminPin').value.trim();
+            if (!/^\d{4}$/.test(pin)) {
+                document.getElementById('adminPinStatus').style.color = '#f87171';
+                document.getElementById('adminPinStatus').textContent = '⚠️ Enter exactly 4 digits.';
+                return;
+            }
+            await cloudStorage.setItem('ADMIN_MASTER_PIN', pin);
+            document.getElementById('adminPinStatus').style.color = '#f59e0b';
+            document.getElementById('adminPinStatus').textContent = '✅ Admin PIN saved. Use this PIN on any partner\'s portal login screen to view their data.';
+            setTimeout(() => { document.getElementById('adminPinStatus').textContent = ''; }, 5000);
         }
 
        async function saveSettings() {

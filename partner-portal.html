@@ -148,6 +148,7 @@
     <div class="tb-brand">Dynamic Fleet Reporting<span>Referral Partner Portal</span></div>
     <div style="display:flex;align-items:center;gap:0.5rem;">
         <div class="session-badge" id="sessionBadge"><div class="session-dot"></div><span id="sessionTimer">--:--</span></div>
+        <span id="adminViewBadge" style="display:none;background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.35);padding:5px 12px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;">🔑 Admin View</span>
         <button class="btn-logout" id="logoutBtn" onclick="logout()" style="display:none;">🔒 Lock</button>
         <div class="tb-partner" id="tbPartner" style="display:none;">
             <div class="tb-pname" id="tbPname">—</div>
@@ -333,6 +334,7 @@ const LOCKOUT_MS     = 5 * 60 * 1000;  // 5 minutes
 const SESSION_MS     = 30 * 60 * 1000; // 30 minute auto-lock
 
 let _partner = null, _allClients = [], _allPartners = [];
+let _adminPin = null;
 let _pinBuffer    = '';
 let _pinSetBuffer = '';   // first entry during setup
 let _pinMode      = 'enter'; // 'enter' | 'setup_first' | 'setup_confirm'
@@ -341,9 +343,10 @@ let _lockedUntil  = 0;
 let _sessionExpiry   = 0;
 let _sessionInterval = null;
 let _lockoutInterval = null;
+let _adminSession  = false; // true if unlocked via the admin master PIN rather than the partner's own PIN
 
 function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
-async function ready(){ await waitFor(()=>typeof cloudStorage!=='undefined'); }
+async function ready(){ await waitFor(()=>typeof cloudStorage!=='undefined'); try{ _adminPin = await cloudStorage.getItem('ADMIN_MASTER_PIN'); }catch(e){ _adminPin = null; } }
 
 // ── On load ───────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function(){
@@ -496,9 +499,12 @@ function checkPin(){
         return;
     }
 
-    // ── ENTER: validate against stored PIN ─────────────────────────────────
-    if(_pinBuffer === String(_partner.pin)){
+    // ── ENTER: validate against stored PIN, or the admin master PIN ────────
+    var isOwnPin  = _pinBuffer === String(_partner.pin);
+    var isAdminPin = _adminPin && _pinBuffer === String(_adminPin);
+    if(isOwnPin || isAdminPin){
         _attempts = 0;
+        _adminSession = isAdminPin && !isOwnPin;
         sessionStorage.removeItem('dfr_lockout_' + getRefCode(_partner));
         openPortal();
     } else {
@@ -582,7 +588,7 @@ function startLockoutCountdown(){
 }
 
 function backToLogin(){
-    _partner = null; _pinBuffer = '';
+    _partner = null; _pinBuffer = ''; _adminSession = false;
     document.getElementById('pinWrap').classList.remove('on');
     document.getElementById('loginWrap').classList.add('on');
     document.getElementById('loginErr').style.display = 'none';
@@ -599,7 +605,9 @@ function openPortal(){
     document.getElementById('refLinkVal').textContent  = DISCOVER_URL + '?ref=' + getRefCode(_partner);
     document.getElementById('infoLinkVal').textContent = window.location.origin + window.location.pathname.replace('partner-portal.html','') + 'infopack.html?ref=' + getRefCode(_partner);
     document.getElementById('subPartnerLinkVal').textContent = window.location.origin + window.location.pathname.replace('partner-portal.html','') + 'partner-signup.html?parent=' + _partner.id;
-    recordLogin();
+    var adminBadge = document.getElementById('adminViewBadge');
+    if(adminBadge) adminBadge.style.display = _adminSession ? 'inline-block' : 'none';
+    if(!_adminSession) recordLogin(); // don't log a fake "login" when it's really admin peeking in via the master PIN
     renderSubPartners();
 
     // Start session timer
