@@ -222,6 +222,17 @@
 
 <!-- PORTAL -->
 <div class="portal" id="portal">
+    <div class="ref-box" id="amendmentBanner" style="display:none;border-color:rgba(245,158,11,0.4);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.03));">
+        <div class="ref-icon">📝</div>
+        <div class="ref-body">
+            <div class="ref-label" id="amendmentTitle" style="color:#f59e0b;">New Commission Structure — Action Needed</div>
+            <div class="ref-sub" id="amendmentSub">We've updated to a sliding commission scale — your rate now rises automatically as your referred business grows. Please review and sign to move onto the new structure.</div>
+            <div class="ref-link-row" style="margin-top:0.75rem;">
+                <button id="amendmentBtn" style="background:#f59e0b;color:#1a1200;border:none;padding:10px 22px;border-radius:8px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;" onclick="openMyAmendment()">📝 Review &amp; Sign Now</button>
+            </div>
+        </div>
+    </div>
+
     <div class="stats-row">
         <div class="sc"><div class="sc-label">Total Referrals</div><div class="sc-val blu" id="sTot">0</div><div class="sc-sub">All time</div></div>
         <div class="sc"><div class="sc-label">Prospects</div><div class="sc-val" style="color:#f97316;" id="sPros">0</div><div class="sc-sub">Submitted info</div></div>
@@ -608,6 +619,7 @@ function openPortal(){
     var adminBadge = document.getElementById('adminViewBadge');
     if(adminBadge) adminBadge.style.display = _adminSession ? 'inline-block' : 'none';
     if(!_adminSession) recordLogin(); // don't log a fake "login" when it's really admin peeking in via the master PIN
+    renderAmendmentBanner();
     renderSubPartners();
 
     // Start session timer
@@ -651,6 +663,38 @@ function logout(){
     } else {
         document.getElementById('loginWrap').classList.add('on');
     }
+}
+
+// ── Commission amendment ─────────────────────────────────────────────────────
+function renderAmendmentBanner(){
+    var banner = document.getElementById('amendmentBanner');
+    if(_partner.principalRole){ banner.style.display = 'none'; return; } // doesn't apply to owner/co-owner
+    banner.style.display = 'flex';
+    if(_partner.commissionAmendment1SignedDate){
+        var d = new Date(_partner.commissionAmendment1SignedDate).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'});
+        banner.style.borderColor = 'rgba(16,185,129,0.35)';
+        banner.style.background = 'linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.03))';
+        document.getElementById('amendmentTitle').style.color = '#10b981';
+        document.getElementById('amendmentTitle').textContent = '✅ New Commission Structure — Signed';
+        document.getElementById('amendmentSub').textContent = 'You signed the updated sliding commission scale on ' + d + '. Your rate now rises automatically as your referred business grows.';
+        document.getElementById('amendmentBtn').textContent = '📄 View Signed Amendment';
+        document.getElementById('amendmentBtn').style.background = 'rgba(16,185,129,0.15)';
+        document.getElementById('amendmentBtn').style.color = '#10b981';
+    } else {
+        banner.style.borderColor = 'rgba(245,158,11,0.4)';
+        banner.style.background = 'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.03))';
+        document.getElementById('amendmentTitle').style.color = '#f59e0b';
+        document.getElementById('amendmentTitle').textContent = 'New Commission Structure — Action Needed';
+        document.getElementById('amendmentSub').textContent = 'We\'ve updated to a sliding commission scale — your rate now rises automatically as your referred business grows. Please review and sign to move onto the new structure.';
+        document.getElementById('amendmentBtn').textContent = '📝 Review & Sign Now';
+        document.getElementById('amendmentBtn').style.background = '#f59e0b';
+        document.getElementById('amendmentBtn').style.color = '#1a1200';
+    }
+}
+
+function openMyAmendment(){
+    if(!_partner) return;
+    window.open('partner-commission-amendment.html?pid=' + encodeURIComponent(_partner.id), '_blank');
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

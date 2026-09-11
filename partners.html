@@ -371,8 +371,16 @@ Time is short. April 1st is coming fast. 🔥</div></div>
       <div class="form-group"><label>Account Number</label><input type="text" id="pAccNum"></div>
       <div class="form-group"><label>Branch Code</label><input type="text" id="pBranch"></div>
       <div class="form-group"><label>Account Type</label><select id="pAccType"><option>Cheque</option><option>Savings</option><option>Current</option></select></div>
-      <div class="form-group"><label>Commission Rate (%)</label><input type="number" id="pCommRate" value="15" min="1" max="30" step="0.5"></div>
+      <div class="form-group"><label>Commission Rate (%) <span style="font-weight:400;color:#64748b;">(used as fallback - overridden by the sliding scale below)</span></label><input type="number" id="pCommRate" value="15" min="1" max="30" step="0.5"></div>
       <div class="form-group"><label>Status</label><select id="pStatus"><option value="pending">Pending</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+      <div class="form-group full">
+        <label>Principal Role <span style="font-weight:400;color:#64748b;">(leave as "Regular Partner" unless this is you or Tanja)</span></label>
+        <select id="pPrincipalRole">
+            <option value="">Regular Partner</option>
+            <option value="owner">Pieter (Owner) — 15% override on all company-wide paid turnover, tier-escalating</option>
+            <option value="coowner">Tanja (Co-Owner) — 5% override on all company-wide paid turnover, tier-escalating</option>
+        </select>
+      </div>
       <div class="form-group full"><label>Notes</label><textarea id="pNotes"></textarea></div>
     </div>
     <div class="modal-footer">
@@ -583,6 +591,8 @@ function renderPartners(){
                 <div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm${p.countryCode && p.countryCode!=='ZA' ? ' &middot; '+p.countryCode : ''}</div>
                 ${p.parentPartnerId ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#f59e0b;margin-top:3px;">👥 Sub-partner of ${(_partners.find(x=>x.id===p.parentPartnerId)||{}).name||'Unknown'}${typeof p.overrideRate==='number' ? ' · '+p.overrideRate+'% override' : ' · override not set yet'}</div>` : ''}
                 ${_partners.filter(x=>x.parentPartnerId===p.id).length ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#10b981;margin-top:3px;">👑 ${_partners.filter(x=>x.parentPartnerId===p.id).length} sub-partner(s) under this partner</div>` : ''}
+                ${p.principalRole==='owner' ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#a78bfa;margin-top:3px;">💠 Owner — company-wide override on all paid turnover</div>` : ''}
+                ${p.principalRole==='coowner' ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#a78bfa;margin-top:3px;">💠 Co-Owner — company-wide override on all paid turnover</div>` : ''}
                 </div>
                 <span class="sbadge ${sc}">${sl}</span>
             </div>
@@ -631,6 +641,7 @@ function openAddModal(){
     document.getElementById('pCommRate').value='15';
     document.getElementById('pAccType').value='Cheque';
     document.getElementById('pStatus').value='pending';
+    document.getElementById('pPrincipalRole').value='';
     document.getElementById('partnerModal').classList.add('open');
 }
 
@@ -651,6 +662,7 @@ function editPartner(id){
     document.getElementById('pCommRate').value=p.commRate||15;
     document.getElementById('pAccType').value=p.accType||'Cheque';
     document.getElementById('pStatus').value=p.status||'pending';
+    document.getElementById('pPrincipalRole').value=p.principalRole||'';
     document.getElementById('partnerModal').classList.add('open');
 }
 
@@ -661,7 +673,7 @@ async function savePartner(){
     if(!name||!phone||!email){ toast('Name, phone and email required','red'); return; }
     const _pCountry = document.getElementById('pCountry') ? document.getElementById('pCountry').value : 'ZA';
     const _pUomProf = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile({countryCode:_pCountry}) : null;
-    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim(),countryCode:_pCountry,currency:_pUomProf?_pUomProf.currency:'ZAR',currencySymbol:_pUomProf?_pUomProf.symbol:'R'};
+    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim(),countryCode:_pCountry,currency:_pUomProf?_pUomProf.currency:'ZAR',currencySymbol:_pUomProf?_pUomProf.symbol:'R',principalRole:document.getElementById('pPrincipalRole').value||null};
     if(_editId){
         const idx=_partners.findIndex(p=>p.id===_editId);
         if(idx>-1) _partners[idx]=Object.assign({},_partners[idx],data);
@@ -780,20 +792,41 @@ function initPickers(){
 function openCommModal(){ initPickers(); document.getElementById('commModal').classList.add('open'); document.getElementById('commPreview').innerHTML=''; document.getElementById('confirmCommBtn').style.display='none'; }
 function openBonusModal(){ initPickers(); document.getElementById('bonusModal').classList.add('open'); document.getElementById('bonusPreview').innerHTML=''; document.getElementById('confirmBonusBtn').style.display='none'; }
 
+// ── Sliding commission scale — same bands used for regular partners' own
+// sales AND for the company-wide principal override (Pieter/Tanja) ──────────
+const COMMISSION_TIERS = [
+    {min:0,     max:25000,    partnerRate:15,   overrideRate:5},
+    {min:25000, max:45000,    partnerRate:17.5, overrideRate:6.25},
+    {min:45000, max:65000,    partnerRate:20,   overrideRate:7.5},
+    {min:65000, max:85000,    partnerRate:22.5, overrideRate:8.75},
+    {min:85000, max:Infinity, partnerRate:25,   overrideRate:10}
+];
+function getCommissionTier(turnover){
+    return COMMISSION_TIERS.find(t=>turnover>=t.min && turnover<t.max) || COMMISSION_TIERS[COMMISSION_TIERS.length-1];
+}
+
 function previewComm(){
     const month=parseInt(document.getElementById('commMonth').value);
     const year=parseInt(document.getElementById('commYear').value);
     _pendingComm=[];
-    const active=_partners.filter(p=>p.status==='active');
-    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Paid Clients</th><th>MRR</th><th>Own Commission</th><th>Override (Sub-Partners)</th><th>Total</th></tr></thead><tbody>';
+    const active=_partners.filter(p=>p.status==='active' && !p.principalRole);
+    const principals=_partners.filter(p=>p.status==='active' && p.principalRole);
+    let html='<table class="prev-table"><thead><tr><th>Partner</th><th>Paid Clients</th><th>MRR</th><th>Tier</th><th>Own Commission</th><th>Override (Sub-Partners)</th><th>Total</th></tr></thead><tbody>';
     let grand=0;
+
+    // ── Total company-wide paid turnover, every client, regardless of partner ──
+    const allPaidClients=_clients.filter(c=>c.status==='active' && (c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
+    const companyTurnover=allPaidClients.reduce((s,c)=>s+getRetainer(c),0);
+    const companyTier=getCommissionTier(companyTurnover);
+
     active.forEach(p=>{
         const pc=getPartnerClients(p.id,'active');
         const paid=pc.filter(c=>(c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
         const mrr=paid.reduce((s,c)=>s+getRetainer(c),0);
-        const comm=Math.round(mrr*((p.commRate||15)/100));
+        const tier=getCommissionTier(mrr);
+        const comm=Math.round(mrr*(tier.partnerRate/100));
 
-        // Override earnings from this partner's sub-partners, if any
+        // Override earnings from this partner's sub-partners, if any (partner freely sets this rate per sub-partner)
         const subPartners=_partners.filter(sp=>sp.parentPartnerId===p.id);
         let override=0;
         const overrideBreakdown=[];
@@ -811,10 +844,21 @@ function previewComm(){
 
         const total=comm+override;
         grand+=total;
-        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:paid.length,mrr,comm,override,overrideBreakdown,total:total,month,year});
-        html+=`<tr><td>${p.name}</td><td style="color:#60a5fa;">${paid.length}</td><td style="color:#10b981;">R ${mrr.toLocaleString('en-ZA')}</td><td style="color:#f59e0b;">R ${comm.toLocaleString('en-ZA')}</td><td style="color:${override>0?'#a78bfa':'#475569'};">${override>0?'R '+override.toLocaleString('en-ZA'):'—'}</td><td style="font-weight:900;">R ${total.toLocaleString('en-ZA')}</td></tr>`;
+        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:paid.length,mrr,tierRate:tier.partnerRate,comm,override,overrideBreakdown,total:total,month,year});
+        html+=`<tr><td>${p.name}</td><td style="color:#60a5fa;">${paid.length}</td><td style="color:#10b981;">R ${mrr.toLocaleString('en-ZA')}</td><td style="color:#94a3b8;">${tier.partnerRate}%</td><td style="color:#f59e0b;">R ${comm.toLocaleString('en-ZA')}</td><td style="color:${override>0?'#a78bfa':'#475569'};">${override>0?'R '+override.toLocaleString('en-ZA'):'—'}</td><td style="font-weight:900;">R ${total.toLocaleString('en-ZA')}</td></tr>`;
     });
-    html+=`<tr><td colspan="5" style="font-weight:900;padding-top:8px;">Total Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
+
+    // ── Company Principals — override on TOTAL company-wide paid turnover ──
+    principals.forEach(p=>{
+        const rate = p.principalRole==='owner' ? companyTier.partnerRate : companyTier.overrideRate;
+        const total = Math.round(companyTurnover*(rate/100));
+        grand+=total;
+        _pendingComm.push({partnerId:p.id,partnerName:p.name,clients:allPaidClients.length,mrr:companyTurnover,tierRate:rate,comm:total,override:0,overrideBreakdown:[],total,month,year,isPrincipal:true,principalRole:p.principalRole});
+        const roleLabel = p.principalRole==='owner' ? 'Owner' : 'Co-Owner';
+        html+=`<tr style="background:rgba(167,139,250,0.06);"><td>💠 ${p.name} <span style="font-size:9px;color:#a78bfa;">(${roleLabel} — company-wide)</span></td><td style="color:#60a5fa;">${allPaidClients.length}</td><td style="color:#10b981;">R ${companyTurnover.toLocaleString('en-ZA')}</td><td style="color:#94a3b8;">${rate}%</td><td style="color:#f59e0b;">R ${total.toLocaleString('en-ZA')}</td><td style="color:#475569;">—</td><td style="font-weight:900;">R ${total.toLocaleString('en-ZA')}</td></tr>`;
+    });
+
+    html+=`<tr><td colspan="6" style="font-weight:900;padding-top:8px;">Total Due</td><td style="color:#f59e0b;font-weight:900;font-size:14px;">R ${grand.toLocaleString('en-ZA')}</td></tr>`;
     html+='</tbody></table>';
     document.getElementById('commPreview').innerHTML=html;
     document.getElementById('confirmCommBtn').style.display='inline-block';
@@ -824,11 +868,24 @@ async function confirmComm(){
     for(const c of _pendingComm){
         const p=_partners.find(x=>x.id===c.partnerId); if(!p) continue;
         if(!p.commissionHistory) p.commissionHistory=[];
-        p.commissionHistory.push({date:new Date().toISOString(),month:c.month,year:c.year,clients:c.clients,mrr:c.mrr,amount:c.total,ownCommission:c.comm,override:c.override,overrideBreakdown:c.overrideBreakdown,paid:false});
+        p.commissionHistory.push({date:new Date().toISOString(),month:c.month,year:c.year,clients:c.clients,mrr:c.mrr,amount:c.total,ownCommission:c.comm,tierRate:c.tierRate,override:c.override,overrideBreakdown:c.overrideBreakdown,paid:false,isPrincipal:!!c.isPrincipal,principalRole:c.principalRole||null});
         if(c.total>0){
             const overrideLine = c.override>0 ? `\nSub-Partner Override: R ${c.override.toLocaleString('en-ZA')}` : '';
-            // ── FIX: Use template literal (backticks) so all variables resolve ──
-            const msg=`💰 Commission Statement — ${MONTHS[c.month]} ${c.year}
+            const msg = c.isPrincipal
+                ? `💰 Company Override — ${MONTHS[c.month]} ${c.year}
+
+Hi ${p.name},
+
+Your ${c.principalRole==='owner'?'owner':'co-owner'} override for ${MONTHS[c.month]} ${c.year} has been calculated:
+
+Total Company Paid Turnover: R ${c.mrr.toLocaleString('en-ZA')}
+Your Override Rate (${c.tierRate}%): R ${c.total.toLocaleString('en-ZA')}
+
+This will be paid to your ${p.bank||'nominated'} account within 7 business days.
+
+Thank you!
+Dynamic Fleet Reporting`
+                : `💰 Commission Statement — ${MONTHS[c.month]} ${c.year}
 
 Hi ${p.name},
 
@@ -836,7 +893,7 @@ Your commission for ${MONTHS[c.month]} ${c.year} has been calculated:
 
 Clients: ${c.clients}
 MRR Generated: R ${c.mrr.toLocaleString('en-ZA')}
-Your Commission (${p.commRate||15}%): R ${c.comm.toLocaleString('en-ZA')}${overrideLine}
+Your Commission (${c.tierRate}%): R ${c.comm.toLocaleString('en-ZA')}${overrideLine}
 Total: R ${c.total.toLocaleString('en-ZA')}
 
 This will be paid to your ${p.bank||'nominated'} account within 7 business days.
