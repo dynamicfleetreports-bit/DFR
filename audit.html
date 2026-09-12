@@ -431,6 +431,14 @@ function calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate) {
     const effLoss_w = Math.round(effLitres*wPrice*100)/100;
     const effLoss_r = Math.round(effLitres*rPrice*100)/100;
 
+    // Net driving litres/km-L: strip speeding and idling litres out of total fuel used,
+    // leaving what was actually burned driving - compared against target this isolates
+    // habit-driven inefficiency the same way effLitres does, just expressed as a rate
+    // rather than a litres figure. (litres - speedL - idleL - dist/target) is algebraically
+    // identical to totalWastedL - speedL - idleL above, so this always agrees with effLitres.
+    const netDrivingLitres = Math.max(0, Math.round((litres - spd.litres - idle.litres)*100)/100);
+    const netDrivingKmL    = (netDrivingLitres>0 && distKm>0) ? Math.round(distKm/netDrivingLitres*100)/100 : null;
+
     const totalLoss_w = Math.round((effLoss_w + spd.lossW + idle.lossW)*100)/100;
     const totalLoss_r = Math.round((effLoss_r + spd.lossR + idle.lossR)*100)/100;
 
@@ -448,6 +456,7 @@ function calcVehicle(v, limit, wPrice, rPrice, globalTarget, idleBurnRate) {
         effLitres, effLoss_w, effLoss_r,
         speedLitres:spd.litres, speedLoss_w:spd.lossW, speedLoss_r:spd.lossR,
         idleLitres:idle.litres, idleLoss_w:idle.lossW, idleLoss_r:idle.lossR,
+        netDrivingLitres, netDrivingKmL,
         totalLoss_w, totalLoss_r,
         score, fraudFlags
     };
