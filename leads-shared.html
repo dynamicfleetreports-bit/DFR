@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Prospect List | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.07);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--gld:#f59e0b;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;--pur:#a78bfa;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+        .topbar{background:var(--panel);border-bottom:1px solid var(--brd);padding:0.85rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;}
+        .tb-brand{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--grn);}
+        .tb-brand span{font-family:'Outfit',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--mut);display:block;margin-top:1px;}
+        .tb-partner{text-align:right;font-size:12px;font-weight:900;color:white;}
+        .main{max-width:1200px;margin:0 auto;padding:2rem 1.5rem;}
+        .page-title{font-size:2rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-0.02em;}
+        .page-sub{font-size:12px;color:var(--mut);margin-top:0.4rem;font-weight:600;max-width:640px;line-height:1.6;}
+        .toolbar{display:flex;gap:0.75rem;flex-wrap:wrap;margin:1.5rem 0;align-items:center;}
+        .search-box{flex:1;min-width:220px;background:rgba(255,255,255,0.04);border:1px solid var(--brd);border-radius:10px;padding:10px 14px;color:white;font-size:13px;font-family:'Outfit',sans-serif;}
+        .search-box:focus{outline:none;border-color:var(--grn);}
+        .filter-pill{background:rgba(255,255,255,0.04);border:1px solid var(--brd);color:var(--mut);padding:8px 14px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;}
+        .filter-pill.on{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.4);color:var(--grn);}
+        .btn{padding:10px 20px;border-radius:10px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.03em;cursor:pointer;border:none;font-family:'Outfit',sans-serif;white-space:nowrap;}
+        .btn-grn{background:var(--grn);color:#04120a;}
+        .btn-grn:hover{background:var(--gd);}
+        table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--brd);border-radius:14px;overflow:hidden;}
+        thead th{text-align:left;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--mut);padding:12px 16px;border-bottom:1px solid var(--brd);}
+        tbody td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);}
+        tbody tr{cursor:pointer;transition:background 0.15s;}
+        tbody tr:hover{background:rgba(255,255,255,0.03);}
+        tbody tr:last-child td{border-bottom:none;}
+        .company-name{font-weight:800;color:white;}
+        .company-sector{font-size:11px;color:var(--mut);margin-top:1px;}
+        .owner-tag{font-size:11px;font-weight:800;}
+        .owner-tag.mine{color:var(--grn);}
+        .status-pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.03em;}
+        .st-new{background:rgba(59,130,246,0.15);color:#93c5fd;}
+        .st-emailed{background:rgba(139,92,246,0.15);color:#c4b5fd;}
+        .st-followup{background:rgba(245,158,11,0.15);color:#fcd34d;}
+        .st-converted{background:rgba(34,197,94,0.15);color:#86efac;}
+        .empty-state{text-align:center;padding:3rem;color:var(--mut);}
+        .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;z-index:999;padding:1.5rem;}
+        .modal-bg.on{display:flex;}
+        .modal{background:var(--panel);border:1px solid var(--brd);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow-y:auto;}
+        .modal-header{padding:1.5rem;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;}
+        .modal-body{padding:1.5rem;}
+        .modal-close{background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;}
+        .field-row{margin-bottom:1rem;}
+        .field-row label{display:block;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--mut);margin-bottom:5px;}
+        .field-row input, .field-row select, .field-row textarea{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--brd);border-radius:8px;color:white;padding:10px 12px;font-size:13px;font-family:'Outfit',sans-serif;}
+        .field-row input:disabled, .field-row select:disabled, .field-row textarea:disabled{opacity:0.6;cursor:not-allowed;}
+        .field-row textarea{resize:vertical;min-height:70px;}
+        .activity-log{background:rgba(255,255,255,0.02);border:1px solid var(--brd);border-radius:10px;padding:0.75rem;max-height:200px;overflow-y:auto;margin-bottom:0.75rem;}
+        .activity-item{font-size:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+        .activity-item:last-child{border-bottom:none;}
+        .activity-date{font-size:10px;color:var(--mut);font-weight:700;}
+        .readonly-note{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--gld);margin-bottom:1rem;font-weight:700;}
+        .stat-strip{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;}
+        .stat-chip{background:var(--panel);border:1px solid var(--brd);border-radius:10px;padding:10px 18px;}
+        .stat-chip .n{font-size:20px;font-weight:900;color:white;}
+        .stat-chip .l{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:var(--mut);}
+        @media(max-width:640px){
+            table, thead, tbody, th, td, tr{display:block;}
+            thead{display:none;}
+            tbody tr{border-bottom:1px solid var(--brd);padding:12px 0;}
+            tbody td{border:none;padding:4px 16px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="tb-brand">Dynamic Fleet Reporting<span>Shared Prospect List</span></div>
+    <div class="tb-partner" id="tbPartner">—</div>
+</div>
+
+<div class="main">
+    <h1 class="page-title">Shared <span style="color:var(--grn);">Prospects</span> &amp; Leads</h1>
+    <p class="page-sub">Every partner's list, in one place. Check here before approaching a company — if someone's already working it, you'll see who and what's been done. Add your own prospects so others can see you're on it too.</p>
+
+    <div class="stat-strip" id="statStrip"></div>
+
+    <div class="toolbar">
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by company name..." oninput="renderList()">
+        <button class="filter-pill on" id="fltAll" onclick="setFilter('all')">All</button>
+        <button class="filter-pill" id="fltMine" onclick="setFilter('mine')">My Prospects</button>
+        <button class="filter-pill" id="fltOpen" onclick="setFilter('open')">Not Yet Converted</button>
+        <button class="btn btn-grn" onclick="openAddModal()" style="margin-left:auto;">➕ Add Prospect</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr><th>Company</th><th>Owner</th><th>Status</th><th>Contact</th><th>Last Activity</th></tr>
+        </thead>
+        <tbody id="listBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">No prospects match your search.</div>
+</div>
+
+<!-- Detail / Add modal -->
+<div class="modal-bg" id="modalBg">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.15em;color:var(--mut);" id="modalKicker">Prospect</div>
+                <div style="font-size:18px;font-weight:900;margin-top:2px;" id="modalTitle">—</div>
+            </div>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+let _partner = null;
+let _leads = [];
+let _activeFilter = 'all';
+let _editingId = null;
+let _isAdmin = false;
+
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
+
+document.addEventListener('DOMContentLoaded', function(){
+    var p = new URLSearchParams(window.location.search);
+    var ref = p.get('ref') || p.get('pid');
+    waitFor(()=>typeof cloudStorage!=='undefined').then(async function(){
+        var partners = JSON.parse(await cloudStorage.getItem('REFERRAL_PARTNERS')) || [];
+        if (ref) {
+            var refCode = ref.startsWith('ref_') ? ref : 'ref_' + ref.replace(/\s+/g,'_');
+            _partner = partners.find(function(pt){
+                var code = 'ref_' + pt.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+                return code === refCode || pt.id === ref || code === ref;
+            });
+        }
+        if (!_partner) {
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem;"><div><h2 style="font-size:20px;font-weight:900;margin-bottom:0.5rem;">Partner not recognised</h2><p style="color:var(--mut);font-size:13px;">Open this page from your Partner Portal so we know who you are.</p></div></div>';
+            return;
+        }
+        _isAdmin = _partner.principalRole === 'owner' || _partner.principalRole === 'coowner';
+        document.getElementById('tbPartner').textContent = _partner.name + (_isAdmin ? ' (Admin)' : '');
+        await loadLeads();
+    });
+});
+
+async function loadLeads(){
+    _leads = JSON.parse(await cloudStorage.getItem('FLEET_LEADS')) || [];
+    renderStats();
+    renderList();
+}
+
+function renderStats(){
+    const mine = _leads.filter(l=>l.ownerId===_partner.id).length;
+    document.getElementById('statStrip').innerHTML = `
+        <div class="stat-chip"><div class="n">${_leads.length}</div><div class="l">Total Prospects</div></div>
+        <div class="stat-chip"><div class="n" style="color:var(--grn);">${mine}</div><div class="l">Yours</div></div>
+        <div class="stat-chip"><div class="n" style="color:var(--pur);">${_leads.filter(l=>l.status==='converted').length}</div><div class="l">Converted</div></div>
+    `;
+}
+
+function setFilter(f){
+    _activeFilter = f;
+    ['fltAll','fltMine','fltOpen'].forEach(id=>document.getElementById(id).classList.remove('on'));
+    document.getElementById('flt'+f.charAt(0).toUpperCase()+f.slice(1)).classList.add('on');
+    renderList();
+}
+
+function renderList(){
+    const q = (document.getElementById('searchBox').value||'').toLowerCase().trim();
+    let rows = _leads.slice();
+    if (_activeFilter==='mine') rows = rows.filter(l=>l.ownerId===_partner.id);
+    if (_activeFilter==='open') rows = rows.filter(l=>l.status!=='converted');
+    if (q) rows = rows.filter(l=>(l.company||'').toLowerCase().includes(q) || (l.sector||'').toLowerCase().includes(q) || (l.contactName||'').toLowerCase().includes(q));
+    rows.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+
+    const body = document.getElementById('listBody');
+    const empty = document.getElementById('emptyState');
+    if (!rows.length){ body.innerHTML=''; empty.style.display='block'; return; }
+    empty.style.display='none';
+
+    const stLabel = {new:'🔵 New',emailed:'📧 Contacted',followup:'📞 Follow-Up',converted:'✅ Converted'};
+    body.innerHTML = rows.map(l=>{
+        const mine = l.ownerId===_partner.id;
+        const lastAct = (l.activityLog&&l.activityLog.length) ? new Date(l.activityLog[l.activityLog.length-1].date).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'}) : (l.createdAt ? new Date(l.createdAt).toLocaleDateString('en-ZA',{day:'2-digit',month:'short'}) : '—');
+        return `<tr onclick="openDetail('${l.id}')">
+            <td><div class="company-name">${esc(l.company)}</div><div class="company-sector">${esc(l.sector||'—')}</div></td>
+            <td><span class="owner-tag ${mine?'mine':''}">${mine?'👤 You':esc(l.ownerName||'Unclaimed')}</span></td>
+            <td><span class="status-pill st-${l.status||'new'}">${stLabel[l.status]||'🔵 New'}</span></td>
+            <td>${esc(l.contactName||'—')}${l.contactEmail?'<br><span style="font-size:11px;color:var(--mut);">'+esc(l.contactEmail)+'</span>':''}</td>
+            <td style="color:var(--mut);font-size:12px;">${lastAct}</td>
+        </tr>`;
+    }).join('');
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function canEdit(l){ return _isAdmin || l.ownerId===_partner.id; }
+
+function openDetail(id){
+    const l = _leads.find(x=>x.id===id);
+    if (!l) return;
+    _editingId = id;
+    const editable = canEdit(l);
+    document.getElementById('modalKicker').textContent = editable ? 'Prospect — you can edit this' : 'Prospect — owned by ' + (l.ownerName||'someone else');
+    document.getElementById('modalTitle').textContent = l.company;
+    const stOptions = ['new','emailed','followup','converted'].map(s=>`<option value="${s}" ${l.status===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+    const activityHtml = (l.activityLog&&l.activityLog.length)
+        ? l.activityLog.slice().reverse().map(a=>`<div class="activity-item"><div class="activity-date">${new Date(a.date).toLocaleDateString('en-ZA',{day:'2-digit',month:'short',year:'numeric'})} — ${esc(a.addedBy||'')}</div>${esc(a.note)}</div>`).join('')
+        : '<div class="activity-item" style="color:var(--mut);">No activity logged yet.</div>';
+
+    document.getElementById('modalBody').innerHTML = `
+        ${!editable ? '<div class="readonly-note">👁 View only — this prospect belongs to ' + esc(l.ownerName||'another partner') + '. Only they (or admin) can update it.</div>' : ''}
+        <div class="field-row"><label>Sector / Notes on Fleet</label><input id="d-sector" value="${esc(l.sector||'')}" ${editable?'':'disabled'}></div>
+        <div class="field-row"><label>Contact Name</label><input id="d-contactName" value="${esc(l.contactName||'')}" ${editable?'':'disabled'}></div>
+        <div class="field-row"><label>Contact Email</label><input id="d-contactEmail" value="${esc(l.contactEmail||'')}" ${editable?'':'disabled'}></div>
+        <div class="field-row"><label>Status</label><select id="d-status" ${editable?'':'disabled'}>${stOptions}</select></div>
+        <div class="field-row"><label>Notes</label><textarea id="d-notes" ${editable?'':'disabled'}>${esc(l.notes||'')}</textarea></div>
+        <div class="field-row">
+            <label>Activity Log</label>
+            <div class="activity-log">${activityHtml}</div>
+            ${editable ? '<input id="d-newActivity" placeholder="Add an update — e.g. \'Sent info pack via email\'..." style="margin-bottom:0.5rem;"><button class="btn btn-grn" style="width:100%;" onclick="addActivity()">+ Add Activity Note</button>' : ''}
+        </div>
+        ${editable ? '<button class="btn btn-grn" style="width:100%;margin-top:0.5rem;" onclick="saveDetail()">💾 Save Changes</button>' : ''}
+    `;
+    document.getElementById('modalBg').classList.add('on');
+}
+
+async function addActivity(){
+    const note = document.getElementById('d-newActivity').value.trim();
+    if (!note) return;
+    const l = _leads.find(x=>x.id===_editingId);
+    if (!l.activityLog) l.activityLog = [];
+    l.activityLog.push({ date: new Date().toISOString(), note, addedBy: _partner.name });
+    await persistLeads();
+    openDetail(_editingId); // re-render with the new entry
+}
+
+async function saveDetail(){
+    const l = _leads.find(x=>x.id===_editingId);
+    if (!l || !canEdit(l)) return;
+    l.sector = document.getElementById('d-sector').value.trim();
+    l.contactName = document.getElementById('d-contactName').value.trim();
+    l.contactEmail = document.getElementById('d-contactEmail').value.trim();
+    l.status = document.getElementById('d-status').value;
+    l.notes = document.getElementById('d-notes').value.trim();
+    await persistLeads();
+    closeModal();
+}
+
+function closeModal(){ document.getElementById('modalBg').classList.remove('on'); _editingId = null; }
+
+function openAddModal(){
+    document.getElementById('modalKicker').textContent = 'New Prospect — claimed by you';
+    document.getElementById('modalTitle').textContent = 'Add a Prospect';
+    document.getElementById('modalBody').innerHTML = `
+        <div class="field-row"><label>Company Name *</label><input id="a-company" placeholder="e.g. ABC Logistics"></div>
+        <div class="field-row"><label>Sector / Fleet Notes</label><input id="a-sector" placeholder="e.g. 15-truck refrigerated fleet"></div>
+        <div class="field-row"><label>Contact Name</label><input id="a-contactName"></div>
+        <div class="field-row"><label>Contact Email</label><input id="a-contactEmail"></div>
+        <div class="field-row"><label>Notes</label><textarea id="a-notes" placeholder="Anything worth flagging for anyone else who looks this up..."></textarea></div>
+        <button class="btn btn-grn" style="width:100%;" onclick="saveNewProspect()">➕ Add &amp; Claim This Prospect</button>
+    `;
+    document.getElementById('modalBg').classList.add('on');
+}
+
+async function saveNewProspect(){
+    const company = document.getElementById('a-company').value.trim();
+    if (!company) { alert('Company name is required.'); return; }
+    const existing = _leads.find(l=>(l.company||'').toLowerCase().trim() === company.toLowerCase().trim());
+    if (existing) {
+        if (!confirm(company + ' is already on the list, owned by ' + (existing.ownerName||'someone') + '. Add it anyway as a separate entry?')) return;
+    }
+    _leads.push({
+        id: 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+        company,
+        sector: document.getElementById('a-sector').value.trim(),
+        contactName: document.getElementById('a-contactName').value.trim(),
+        contactEmail: document.getElementById('a-contactEmail').value.trim(),
+        tier: 'small', source: 'Partner Added', notes: document.getElementById('a-notes').value.trim(),
+        status: 'new', createdAt: Date.now(),
+        ownerId: _partner.id, ownerName: _partner.name, activityLog: []
+    });
+    await persistLeads();
+    closeModal();
+}
+
+async function persistLeads(){
+    await cloudStorage.setItem('FLEET_LEADS', JSON.stringify(_leads));
+    renderStats();
+    renderList();
+}
+
+document.getElementById('modalBg').addEventListener('click', function(e){ if (e.target===e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>

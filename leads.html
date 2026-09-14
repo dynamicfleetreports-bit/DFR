@@ -185,10 +185,16 @@
         <h1 class="text-3xl md:text-4xl font-bold tracking-wide">Lead <span class="text-blue-400">Prospector</span></h1>
         <p class="text-gray-500 mt-1 text-sm mob-hide">Cold outbound — find transport companies, send the info pack, track every step</p>
     </div>
-    <button onclick="openAddModal()"
-        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all glow-blue">
-        <span class="text-lg leading-none">＋</span> Add Lead
-    </button>
+    <div class="flex items-center gap-2">
+        <button onclick="importOldLeads()"
+            class="flex items-center gap-2 bg-white/5 hover:bg-white/10 active:scale-95 text-gray-300 px-3.5 py-2.5 rounded-xl font-bold text-xs tracking-wide transition-all border border-white/10">
+            ⬇ Import Old Leads
+        </button>
+        <button onclick="openAddModal()"
+            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all glow-blue">
+            <span class="text-lg leading-none">＋</span> Add Lead
+        </button>
+    </div>
 </div>
 
 <!-- STAT CARDS -->
@@ -335,81 +341,81 @@
 <!-- TOAST -->
 <div id="toast" class="toast glass text-white"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set, remove, onValue, update, get }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
+<script type="module" src="firebase-helper.js"></script>
+<script>
 // ══════════════════════════════════════════════
-// 🔧 YOUR FIREBASE CONFIG
-// ══════════════════════════════════════════════
-const firebaseConfig = {
-    apiKey: "AIzaSyC7wWkArf06LSrJnqNRYxjPJJyV659Z2gw",
-  authDomain: "dynamic-fleet-reporting.firebaseapp.com",
-  projectId: "dynamic-fleet-reporting",
-  storageBucket: "dynamic-fleet-reporting.firebasestorage.app",
-  messagingSenderId: "167911673918",
-  appId: "1:167911673918:web:8315ef1ba74b78b949c16f",
-  measurementId: "G-GP2SFQS6QL",
-    databaseURL: "https://dynamic-fleet-reporting-default-rtdb.firebaseio.com"
-};
+// Lead Prospector — now shares the same FLEET_LEADS store as the
+// partner-facing "leads-shared.html" tool, via cloudStorage (Firestore),
+// same as every other page in the system. Previously this page talked
+// directly to the Realtime Database, which meant "Convert to Pipeline"
+// silently wrote prospects nobody else could ever see.
 // ══════════════════════════════════════════════
 
 // 🔗 YOUR INFO PACK LINK
 const INFO_PACK_URL = "https://dynamicfleetreports-bit.github.io/DFR/infopack.html";
 
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
-const LEADS_REF   = "FLEET_LEADS";
-const CLIENTS_REF = "FLEET_CLIENTS";
+function waitFor(fn){ return new Promise(r=>{ const t=setInterval(()=>{ if(fn()){ clearInterval(t); r(); } },60); }); }
 
 const SEED_LEADS = [
-    { name:"Imperial Logistics",    tier:"large",  sector:"Multi-Sector",    email:"info@imperiallogistics.com" },
-    { name:"Super Group",           tier:"large",  sector:"Fleet Africa",    email:"info@fleetafrica.com" },
-    { name:"Unitrans",              tier:"large",  sector:"Fuel/Agri",       email:"fleet@unitrans.co.za" },
-    { name:"Value Logistics",       tier:"large",  sector:"Retail/FMCG",     email:"tracking@valuelogistics.co.za" },
-    { name:"Cargo Carriers",        tier:"large",  sector:"Hazmat/Steel",    email:"ccinfo@cargocarriers.co.za" },
-    { name:"DSV South Africa",      tier:"large",  sector:"Courier/Road",    email:"info@za.dsv.com" },
-    { name:"Aspen Logistics",       tier:"medium", sector:"Carrier/Cold",    email:"enquiries@aspenlog.co.za" },
-    { name:"Vector Logistics",      tier:"medium", sector:"Carrier/FMCG",    email:"ops1@vectorlog.com" },
-    { name:"OneLogix",              tier:"medium", sector:"Auto/Specialized",email:"info@onelogix.com" },
-    { name:"Reinhardt Transport",   tier:"medium", sector:"Mining/Bulk",     email:"ops@rtg.co.za" },
-    { name:"HFR Transport",         tier:"medium", sector:"Carrier/Reefer",  email:"info@hfr.co.za" },
-    { name:"Sylmou Carriers",       tier:"medium", sector:"Regional/Reefer", email:"admin@sylmou.co.za" },
-    { name:"Kobus Minnaar",         tier:"small",  sector:"Polokwane/Agri",  email:"info@kobusminnaar.co.za" },
-    { name:"Booysen Logistics",     tier:"small",  sector:"Nigel/Pretoria",  email:"eddie@booysenlogistics.co.za" },
-    { name:"Titanic Trucking",      tier:"small",  sector:"Cape Town",       email:"ops@titanictrucking.co.za" },
-    { name:"Zamalwandle",           tier:"small",  sector:"Mpumalanga/Coal", email:"info@zamalwandle.co.za" },
-    { name:"Explo3 Solutions",      tier:"small",  sector:"Pretoria",        email:"admin@explo3.co.za" },
-    { name:"Peterbill Transport",   tier:"small",  sector:"Boksburg/Hazmat", email:"info@peterbill.co.za" },
-    { name:"Wright Motor Serv.",    tier:"small",  sector:"Nigel/Local",     email:"ops@wrightmotor.co.za" },
+    { company:"Imperial Logistics",    tier:"large",  sector:"Multi-Sector",    contactEmail:"info@imperiallogistics.com" },
+    { company:"Super Group",           tier:"large",  sector:"Fleet Africa",    contactEmail:"info@fleetafrica.com" },
+    { company:"Unitrans",              tier:"large",  sector:"Fuel/Agri",       contactEmail:"fleet@unitrans.co.za" },
+    { company:"Value Logistics",       tier:"large",  sector:"Retail/FMCG",     contactEmail:"tracking@valuelogistics.co.za" },
+    { company:"Cargo Carriers",        tier:"large",  sector:"Hazmat/Steel",    contactEmail:"ccinfo@cargocarriers.co.za" },
+    { company:"DSV South Africa",      tier:"large",  sector:"Courier/Road",    contactEmail:"info@za.dsv.com" },
+    { company:"Aspen Logistics",       tier:"medium", sector:"Carrier/Cold",    contactEmail:"enquiries@aspenlog.co.za" },
+    { company:"Vector Logistics",      tier:"medium", sector:"Carrier/FMCG",    contactEmail:"ops1@vectorlog.com" },
+    { company:"OneLogix",              tier:"medium", sector:"Auto/Specialized",contactEmail:"info@onelogix.com" },
+    { company:"Reinhardt Transport",   tier:"medium", sector:"Mining/Bulk",     contactEmail:"ops@rtg.co.za" },
+    { company:"HFR Transport",         tier:"medium", sector:"Carrier/Reefer",  contactEmail:"info@hfr.co.za" },
+    { company:"Sylmou Carriers",       tier:"medium", sector:"Regional/Reefer", contactEmail:"admin@sylmou.co.za" },
+    { company:"Kobus Minnaar",         tier:"small",  sector:"Polokwane/Agri",  contactEmail:"info@kobusminnaar.co.za" },
+    { company:"Booysen Logistics",     tier:"small",  sector:"Nigel/Pretoria",  contactEmail:"eddie@booysenlogistics.co.za" },
+    { company:"Titanic Trucking",      tier:"small",  sector:"Cape Town",       contactEmail:"ops@titanictrucking.co.za" },
+    { company:"Zamalwandle",           tier:"small",  sector:"Mpumalanga/Coal", contactEmail:"info@zamalwandle.co.za" },
+    { company:"Explo3 Solutions",      tier:"small",  sector:"Pretoria",        contactEmail:"admin@explo3.co.za" },
+    { company:"Peterbill Transport",   tier:"small",  sector:"Boksburg/Hazmat", contactEmail:"info@peterbill.co.za" },
+    { company:"Wright Motor Serv.",    tier:"small",  sector:"Nigel/Local",     contactEmail:"ops@wrightmotor.co.za" },
 ];
 
-let leadsData    = {};
+let leadsData    = {};   // key -> lead, same shape the rest of this file already expects
 let editingKey   = null;
 let activeFilter = "all";
 let activeTier   = "all";
 
-async function seedLeads() {
-    for (const l of SEED_LEADS) {
-        await push(ref(db, LEADS_REF), {
-            company:l.name, tier:l.tier, sector:l.sector, contactEmail:l.email,
-            contactName:"", fleet:"", source:"Pre-loaded", notes:"",
-            status:"new", createdAt:Date.now()
-        });
-    }
+function newId(){ return 'lead_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); }
+
+async function loadLeadsArray(){
+    return JSON.parse(await cloudStorage.getItem('FLEET_LEADS')) || [];
+}
+async function saveLeadsArray(arr){
+    await cloudStorage.setItem('FLEET_LEADS', JSON.stringify(arr));
+}
+function arrayToKeyedObject(arr){
+    const obj = {};
+    arr.forEach(l => { obj[l.id] = l; });
+    return obj;
 }
 
-const leadsRef = ref(db, LEADS_REF);
+async function refreshLeads(){
+    const arr = await loadLeadsArray();
+    leadsData = arrayToKeyedObject(arr);
+    renderLeads();
+    updateStats();
+}
+
 (async () => {
-    const snap = await get(leadsRef);
-    if (!snap.exists() || Object.keys(snap.val()||{}).length === 0) await seedLeads();
-    onValue(leadsRef, snap => {
-        leadsData = snap.val() || {};
-        renderLeads();
-        updateStats();
-        syncIndexStats();
-    });
+    await waitFor(() => typeof cloudStorage !== 'undefined');
+    let arr = await loadLeadsArray();
+    if (!arr.length) {
+        arr = SEED_LEADS.map(l => ({
+            id: newId(), company:l.company, tier:l.tier, sector:l.sector, contactEmail:l.contactEmail,
+            contactName:"", fleet:"", source:"Pre-loaded", notes:"",
+            status:"new", createdAt:Date.now(), ownerId:"pieter", ownerName:"Pieter Nell", activityLog:[]
+        }));
+        await saveLeadsArray(arr);
+    }
+    await refreshLeads();
 })();
 
 function updateStats() {
@@ -420,6 +426,50 @@ function updateStats() {
     document.getElementById("stat-followup").textContent = all.filter(l=>l.status==="followup").length;
     document.getElementById("stat-converted").textContent= all.filter(l=>l.status==="converted").length;
 }
+
+// ── One-time import from the old Realtime Database, for any real leads
+// added before this page moved onto cloudStorage. Safe to click more than
+// once - skips anything already present by company name. ──────────────────
+window.importOldLeads = async function() {
+    if (!confirm("Import any leads from the old storage that aren't already in the new list? This is safe to run more than once.")) return;
+    try {
+        const { initializeApp: initApp2 } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+        const { getDatabase, ref: rtRef, get: rtGet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+        const oldConfig = {
+            apiKey: "AIzaSyC7wWkArf06LSrJnqNRYxjPJJyV659Z2gw",
+            authDomain: "dynamic-fleet-reporting.firebaseapp.com",
+            projectId: "dynamic-fleet-reporting",
+            databaseURL: "https://dynamic-fleet-reporting-default-rtdb.firebaseio.com"
+        };
+        const oldApp = initApp2(oldConfig, 'legacy-import');
+        const oldDb  = getDatabase(oldApp);
+        const snap   = await rtGet(rtRef(oldDb, "FLEET_LEADS"));
+        const oldData = snap.exists() ? snap.val() : {};
+        const oldLeads = Object.values(oldData || {});
+        const current = await loadLeadsArray();
+        const existingNames = new Set(current.map(l => (l.company||'').toLowerCase().trim()));
+        let imported = 0;
+        oldLeads.forEach(l => {
+            const key = (l.company||'').toLowerCase().trim();
+            if (!key || existingNames.has(key)) return;
+            current.push({
+                id: newId(), company:l.company, tier:l.tier||'small', sector:l.sector||'',
+                contactEmail:l.contactEmail||'', contactName:l.contactName||'', fleet:l.fleet||'',
+                source:l.source||'Imported', notes:l.notes||'', status:l.status||'new',
+                createdAt:l.createdAt||Date.now(), ownerId:'pieter', ownerName:'Pieter Nell', activityLog:[]
+            });
+            existingNames.add(key);
+            imported++;
+        });
+        if (imported > 0) await saveLeadsArray(current);
+        await refreshLeads();
+        showToast(imported > 0 ? `Imported ${imported} lead(s) from old storage ✓` : 'Nothing new to import — already up to date', imported > 0 ? 'green' : 'blue');
+    } catch (e) {
+        console.error(e);
+        showToast('Import failed — see console for details', 'red');
+    }
+};
+
 
 function syncIndexStats() {
     const all = Object.values(leadsData);
@@ -558,36 +608,47 @@ dynamicfleetreports@gmail.com`);
     return `mailto:${l.contactEmail}?subject=${subj}&body=${body}`;
 }
 
-window.markEmailed = function(key) {
+window.markEmailed = async function(key) {
     const l = leadsData[key];
     if (l && l.status === "new") {
-        update(ref(db, `${LEADS_REF}/${key}`), { status:"emailed", emailedAt:Date.now() });
+        const arr = await loadLeadsArray();
+        const idx = arr.findIndex(x=>x.id===key);
+        if (idx>-1) { arr[idx].status="emailed"; arr[idx].emailedAt=Date.now(); await saveLeadsArray(arr); }
+        await refreshLeads();
         showToast("Marked as Emailed ✓", "purple");
     }
 };
-window.cycleStatus = function(key, current) {
+window.cycleStatus = async function(key, current) {
     const order = ["new","emailed","followup","converted"];
     const next  = order[(order.indexOf(current)+1) % order.length];
-    update(ref(db, `${LEADS_REF}/${key}`), { status:next });
+    const arr = await loadLeadsArray();
+    const idx = arr.findIndex(x=>x.id===key);
+    if (idx>-1) { arr[idx].status=next; await saveLeadsArray(arr); }
+    await refreshLeads();
     showToast(`Status → ${next}`, "blue");
 };
 window.convertLead = async function(key) {
     if (!confirm("Move this lead to the Pipeline as a Prospect?")) return;
     const l = leadsData[key]; if (!l) return;
-    const nr = push(ref(db, CLIENTS_REF));
-    await set(nr, {
+    const clients = JSON.parse(await cloudStorage.getItem('FLEET_CLIENTS')) || [];
+    clients.push({
+        id: 'client_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
         company:l.company, contactName:l.contactName||"", contactEmail:l.contactEmail||"",
         fleet:l.fleet||"", sector:l.sector||"",
         source:`Lead Prospector — ${l.source||"Cold Outbound"}`,
-        notes:l.notes||"", status:"prospect", createdAt:Date.now(), convertedFromLead:key
+        notes:l.notes||"", status:"prospect", createdAt:new Date().toISOString(), convertedFromLead:key
     });
-    await remove(ref(db, `${LEADS_REF}/${key}`));
+    await cloudStorage.setItem('FLEET_CLIENTS', JSON.stringify(clients));
+    const arr = (await loadLeadsArray()).filter(x=>x.id!==key);
+    await saveLeadsArray(arr);
     showToast("Converted! Redirecting…", "green");
     setTimeout(()=> window.location.href = "pipeline.html", 1600);
 };
-window.deleteLead = function(key) {
+window.deleteLead = async function(key) {
     if (!confirm("Delete this lead permanently?")) return;
-    remove(ref(db, `${LEADS_REF}/${key}`));
+    const arr = (await loadLeadsArray()).filter(x=>x.id!==key);
+    await saveLeadsArray(arr);
+    await refreshLeads();
     showToast("Lead deleted", "red");
 };
 window.openAddModal = function() {
@@ -613,7 +674,7 @@ window.openEditModal = function(key) {
     document.getElementById("modalOverlay").classList.remove("hidden");
 };
 window.closeModal = function() { document.getElementById("modalOverlay").classList.add("hidden"); };
-window.saveLead = function() {
+window.saveLead = async function() {
     const company = document.getElementById("f-company").value.trim();
     if (!company) { showToast("Company name is required","red"); return; }
     const data = {
@@ -626,14 +687,20 @@ window.saveLead = function() {
         source:       document.getElementById("f-source").value,
         notes:        document.getElementById("f-notes").value.trim(),
     };
+    const arr = await loadLeadsArray();
     if (editingKey) {
-        update(ref(db,`${LEADS_REF}/${editingKey}`), data);
+        const idx = arr.findIndex(x=>x.id===editingKey);
+        if (idx>-1) Object.assign(arr[idx], data);
         showToast("Lead updated ✓","blue");
     } else {
-        data.status="new"; data.createdAt=Date.now();
-        push(ref(db, LEADS_REF), data);
+        arr.push(Object.assign({
+            id:newId(), status:"new", createdAt:Date.now(),
+            ownerId:"pieter", ownerName:"Pieter Nell", activityLog:[]
+        }, data));
         showToast("Lead added ✓","green");
     }
+    await saveLeadsArray(arr);
+    await refreshLeads();
     closeModal();
 };
 window.setFilter = function(f, btn) {
