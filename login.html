@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="module" src="firebase-helper.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Dynamic Fleet Reporting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#020617;--panel:#0f172a;--brd:rgba(255,255,255,0.06);--grn:#10b981;--gd:#059669;--blu:#3b82f6;--red:#ef4444;--txt:#e2e8f0;--mut:#64748b;}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+        .card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--brd);border-radius:16px;padding:2rem;}
+        .brand{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--grn),var(--gd));-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:2px;}
+        .sub{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin-bottom:1.75rem;}
+        label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--mut);margin-bottom:6px;}
+        .fg{margin-bottom:1.1rem;}
+        input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--txt);padding:11px 12px;font-size:14px;font-family:'Outfit',sans-serif;}
+        input:focus{outline:none;border-color:var(--grn);}
+        button{width:100%;background:linear-gradient(135deg,var(--grn),var(--gd));color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.5rem;}
+        button:disabled{opacity:0.6;cursor:default;}
+        #err{color:var(--red);font-size:12px;margin-top:12px;display:none;font-weight:600;}
+    </style>
+</head>
+<body>
+    <form class="card" id="loginForm" onsubmit="return false;">
+        <div class="brand">Dynamic Fleet Reporting</div>
+        <div class="sub">Owner / Admin Sign In</div>
+        <div class="fg"><label>Email</label><input type="email" id="email" autocomplete="username" required></div>
+        <div class="fg"><label>Password</label><input type="password" id="password" autocomplete="current-password" required></div>
+        <button type="submit" id="btn">Sign In</button>
+        <div id="err"></div>
+    </form>
+    <script type="module">
+        // If already signed in, skip straight past the login screen.
+        window.dfrAuthReady.then(function(user){
+            if(user) redirectAfterLogin();
+        });
+
+        function redirectAfterLogin(){
+            var params = new URLSearchParams(window.location.search);
+            var next = params.get('next');
+            window.location.href = next ? decodeURIComponent(next) : 'index.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(){
+            var email = document.getElementById('email').value.trim();
+            var password = document.getElementById('password').value;
+            var btn = document.getElementById('btn');
+            var err = document.getElementById('err');
+            err.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Signing In...';
+            window.dfrSignIn(email, password).then(function(){
+                redirectAfterLogin();
+            }).catch(function(e){
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+                err.textContent = 'Sign-in failed — check your email and password and try again.';
+                err.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 // Firebase Helper - Drop-in replacement for localStorage
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getFirestore, collection, doc, getDoc, setDoc, getDocs, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC7wWkArf06LSrJnqNRYxjPJJyV659Z2gw",
@@ -13,6 +14,22 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+// Owner login (used to gate internal-only admin pages — see auth-guard.js).
+// window.dfrAuthReady resolves once with the current user (or null) the first
+// time Firebase reports auth state, so pages awaiting it never race the check.
+window.dfrAuth = auth;
+window.dfrCurrentUser = null;
+window.dfrAuthReady = new Promise(function(resolve){
+    onAuthStateChanged(auth, function(user){
+        window.dfrCurrentUser = user;
+        resolve(user);
+        document.dispatchEvent(new CustomEvent('dfr-auth-changed', { detail: { user: user } }));
+    });
+});
+window.dfrSignIn = function(email, password){ return signInWithEmailAndPassword(auth, email, password); };
+window.dfrSignOut = function(){ return signOut(auth); };
 
 window.cloudStorage = {
     async setItem(key, value) {
