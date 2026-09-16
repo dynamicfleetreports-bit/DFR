@@ -251,6 +251,7 @@ async function submitApplication(){
         commRate:  15,
         status:    'pending',
         parentPartnerId: _parentPartnerId || null,
+        overrideRate: _parentPartnerId ? 5 : null, // default sub-partner override; owner can change it later in the admin panel
         createdAt: new Date().toISOString(),
         signupDate: new Date().toISOString(),
         selfSignup: true,

@@ -361,6 +361,8 @@ Comment "AUDIT" below and I'll reach out directly. Or WhatsApp me on 083 314 959
       <div class="form-group"><label>Branch Code</label><input type="text" id="pBranch"></div>
       <div class="form-group"><label>Account Type</label><select id="pAccType"><option>Cheque</option><option>Savings</option><option>Current</option></select></div>
       <div class="form-group"><label>Commission Rate (%) <span style="font-weight:400;color:#64748b;">(used as fallback - overridden by the sliding scale below)</span></label><input type="number" id="pCommRate" value="15" min="1" max="30" step="0.5"></div>
+      <div class="form-group"><label>Sub-Partner Override Rate (%) <span style="font-weight:400;color:#64748b;">(only used if this partner has a Parent Partner below — default 5%, owner-set only)</span></label><input type="number" id="pOverrideRate" value="5" min="0" max="100" step="0.25"></div>
+      <div class="form-group"><label>Parent Partner <span style="font-weight:400;color:#64748b;">(who this partner is a sub-partner of, if any)</span></label><select id="pParentPartnerId"><option value="">— None (not a sub-partner) —</option></select></div>
       <div class="form-group"><label>Status</label><select id="pStatus"><option value="pending">Pending</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
       <div class="form-group full">
         <label>Principal Role <span style="font-weight:400;color:#64748b;">(leave as "Regular Partner" unless this is you or Tanja)</span></label>
@@ -578,7 +580,7 @@ function renderPartners(){
                 <div>
                 <div class="pc-name">${(typeof DFR_UOM !== 'undefined' && p.countryCode) ? DFR_UOM.getProfile(p).flag+' ' : ''}${p.name}</div>
                 <div class="pc-code">Code: ${code} &middot; ${p.commRate||15}% comm${p.countryCode && p.countryCode!=='ZA' ? ' &middot; '+p.countryCode : ''}</div>
-                ${p.parentPartnerId ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#f59e0b;margin-top:3px;">👥 Sub-partner of ${(_partners.find(x=>x.id===p.parentPartnerId)||{}).name||'Unknown'}${typeof p.overrideRate==='number' ? ' · '+p.overrideRate+'% override' : ' · override not set yet'}</div>` : ''}
+                ${p.parentPartnerId ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#f59e0b;margin-top:3px;">👥 Sub-partner of ${(_partners.find(x=>x.id===p.parentPartnerId)||{}).name||'Unknown'} · ${typeof p.overrideRate==='number' ? p.overrideRate : 5}% override</div>` : ''}
                 ${_partners.filter(x=>x.parentPartnerId===p.id).length ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#10b981;margin-top:3px;">👑 ${_partners.filter(x=>x.parentPartnerId===p.id).length} sub-partner(s) under this partner</div>` : ''}
                 ${p.principalRole==='owner' ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#a78bfa;margin-top:3px;">💠 Owner — company-wide override on all paid turnover</div>` : ''}
                 ${p.principalRole==='coowner' ? `<div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;color:#a78bfa;margin-top:3px;">💠 Co-Owner — company-wide override on all paid turnover</div>` : ''}
@@ -628,10 +630,22 @@ function openAddModal(){
     document.getElementById('modalTitle').textContent='Add Referral Partner';
     ['pName','pPhone','pEmail','pID','pBank','pAccNum','pBranch','pAddress','pNotes'].forEach(id=>document.getElementById(id).value=''); if(document.getElementById('pCountry')) document.getElementById('pCountry').value='ZA';
     document.getElementById('pCommRate').value='15';
+    document.getElementById('pOverrideRate').value='5';
+    populateParentPartnerOptions(null);
+    document.getElementById('pParentPartnerId').value='';
     document.getElementById('pAccType').value='Cheque';
     document.getElementById('pStatus').value='pending';
     document.getElementById('pPrincipalRole').value='';
     document.getElementById('partnerModal').classList.add('open');
+}
+
+// Populates the Parent Partner dropdown, excluding the partner currently being
+// edited (a partner can't be its own sub-partner) and excluding anyone who is
+// already a sub-partner of someone else (keeps the hierarchy to one level).
+function populateParentPartnerOptions(excludeId){
+    const sel=document.getElementById('pParentPartnerId');
+    const opts=_partners.filter(p=>p.id!==excludeId && !p.parentPartnerId);
+    sel.innerHTML='<option value="">— None (not a sub-partner) —</option>'+opts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
 }
 
 function editPartner(id){
@@ -649,6 +663,9 @@ function editPartner(id){
     document.getElementById('pAddress').value=p.address||'';
     document.getElementById('pNotes').value=p.notes||'';
     document.getElementById('pCommRate').value=p.commRate||15;
+    document.getElementById('pOverrideRate').value=(typeof p.overrideRate==='number')?p.overrideRate:5;
+    populateParentPartnerOptions(id);
+    document.getElementById('pParentPartnerId').value=p.parentPartnerId||'';
     document.getElementById('pAccType').value=p.accType||'Cheque';
     document.getElementById('pStatus').value=p.status||'pending';
     document.getElementById('pPrincipalRole').value=p.principalRole||'';
@@ -662,7 +679,8 @@ async function savePartner(){
     if(!name||!phone||!email){ toast('Name, phone and email required','red'); return; }
     const _pCountry = document.getElementById('pCountry') ? document.getElementById('pCountry').value : 'ZA';
     const _pUomProf = (typeof DFR_UOM !== 'undefined') ? DFR_UOM.getProfile({countryCode:_pCountry}) : null;
-    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim(),countryCode:_pCountry,currency:_pUomProf?_pUomProf.currency:'ZAR',currencySymbol:_pUomProf?_pUomProf.symbol:'R',principalRole:document.getElementById('pPrincipalRole').value||null};
+    const parentPartnerId = document.getElementById('pParentPartnerId').value || null;
+    const data={name,phone,email,idNumber:document.getElementById('pID').value.trim(),bank:document.getElementById('pBank').value.trim(),accNum:document.getElementById('pAccNum').value.trim(),branch:document.getElementById('pBranch').value.trim(),accType:document.getElementById('pAccType').value,commRate:parseFloat(document.getElementById('pCommRate').value)||15,status:document.getElementById('pStatus').value,address:document.getElementById('pAddress').value.trim(),notes:document.getElementById('pNotes').value.trim(),countryCode:_pCountry,currency:_pUomProf?_pUomProf.currency:'ZAR',currencySymbol:_pUomProf?_pUomProf.symbol:'R',principalRole:document.getElementById('pPrincipalRole').value||null,parentPartnerId:parentPartnerId,overrideRate:parentPartnerId?(parseFloat(document.getElementById('pOverrideRate').value)||5):null};
     if(_editId){
         const idx=_partners.findIndex(p=>p.id===_editId);
         if(idx>-1) _partners[idx]=Object.assign({},_partners[idx],data);
@@ -815,19 +833,20 @@ function previewComm(){
         const tier=getCommissionTier(mrr);
         const comm=Math.round(mrr*(tier.partnerRate/100));
 
-        // Override earnings from this partner's sub-partners, if any (partner freely sets this rate per sub-partner)
+        // Override earnings from this partner's sub-partners, if any (rate is owner-set in the
+        // admin panel, defaults to 5% if not explicitly set)
         const subPartners=_partners.filter(sp=>sp.parentPartnerId===p.id);
         let override=0;
         const overrideBreakdown=[];
         subPartners.forEach(sp=>{
-            if(typeof sp.overrideRate!=='number') return; // override not set yet - skip, don't guess a rate
+            const rate=(typeof sp.overrideRate==='number')?sp.overrideRate:5;
             const spClients=getPartnerClients(sp.id,'active');
             const spPaid=spClients.filter(c=>(c.invoiceHistory||[]).some(i=>i.month===month+1&&i.year===year&&i.paid));
             const spMrr=spPaid.reduce((s,c)=>s+getRetainer(c),0);
-            const spOverride=Math.round(spMrr*(sp.overrideRate/100));
+            const spOverride=Math.round(spMrr*(rate/100));
             if(spOverride>0){
                 override+=spOverride;
-                overrideBreakdown.push({subPartnerId:sp.id,subPartnerName:sp.name,mrr:spMrr,rate:sp.overrideRate,amount:spOverride});
+                overrideBreakdown.push({subPartnerId:sp.id,subPartnerName:sp.name,mrr:spMrr,rate:rate,amount:spOverride});
             }
         });
 
