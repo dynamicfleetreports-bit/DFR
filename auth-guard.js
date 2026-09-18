@@ -17,8 +17,17 @@ window.dfrAuthReady.then(function (user) {
 });
 
 function injectSignedInBadge(user) {
+    // z-index kept below the sidebar/overlay (60) so it can never sit on
+    // top of the hamburger button or the open nav; on narrow screens it's
+    // pushed down below the sticky mobile topbar instead of sitting in the
+    // same top-right corner as the hamburger.
+    var style = document.createElement('style');
+    style.textContent = '.dfr-auth-badge{position:fixed;top:10px;right:10px;z-index:40;background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 10px;font-family:Outfit,sans-serif;font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);}' +
+        '@media(max-width:768px){.dfr-auth-badge{top:56px;right:10px;}}';
+    document.head.appendChild(style);
+
     var badge = document.createElement('div');
-    badge.style.cssText = 'position:fixed;top:10px;right:10px;z-index:99999;background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 10px;font-family:Outfit,sans-serif;font-size:11px;color:#94a3b8;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,0.4);';
+    badge.className = 'dfr-auth-badge';
     badge.innerHTML = '<span>' + (user.email || 'Signed in') + '</span>' +
         '<button id="dfrSignOutBtn" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:4px 9px;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;font-family:Outfit,sans-serif;">Sign Out</button>';
     document.body.appendChild(badge);
