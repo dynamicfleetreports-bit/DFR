@@ -71,8 +71,9 @@
         /* Portal */
         .portal{display:none;padding:2rem;max-width:1100px;margin:0 auto;}
         .portal.on{display:block;}
-        .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:2rem;}
+        .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:2rem;}
         @media(max-width:768px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+        @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);}}
         @media(max-width:480px){.stats-row{grid-template-columns:repeat(2,1fr);}}
         .sc{background:rgba(255,255,255,0.03);border:1px solid var(--brd);border-radius:14px;padding:1.25rem;}
         .sc-label{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.2em;color:var(--mut);margin-bottom:0.4rem;}
@@ -239,6 +240,7 @@
         <div class="sc"><div class="sc-label">Active Clients</div><div class="sc-val grn" id="sAct">0</div><div class="sc-sub">Paying &amp; live</div></div>
         <div class="sc"><div class="sc-label">Monthly Commission</div><div class="sc-val gld" id="sComm">R 0</div><div class="sc-sub">Current estimate</div></div>
         <div class="sc"><div class="sc-label">Outstanding</div><div class="sc-val" id="sOwed">R 0</div><div class="sc-sub">Not yet paid</div></div>
+        <div class="sc"><div class="sc-label">Link Clicks</div><div class="sc-val" style="color:#a78bfa;" id="sClicks">0</div><div class="sc-sub" id="sClicksSub">All time</div></div>
     </div>
 
     <div class="ref-box">
@@ -640,7 +642,7 @@ function openPortal(){
         document.addEventListener(evt, resetSession, { passive:true });
     });
 
-    renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive();
+    renderStats(); renderAlerts(); renderBonusTracker(); renderEarnings(); renderProspects(); renderActive(); renderClicks();
 }
 
 function resetSession(){
@@ -811,6 +813,29 @@ function renderStats(){
     document.getElementById('sAct').textContent  = active.length;
     document.getElementById('sComm').textContent = 'R ' + Math.round(comm).toLocaleString('en-ZA');
     document.getElementById('sOwed').textContent = 'R ' + owed.toLocaleString('en-ZA');
+}
+
+async function renderClicks(){
+    if(!_partner) return;
+    try{
+        var data = JSON.parse(await cloudStorage.getItem('LINK_CLICKS')) || {};
+        var codes = [getRefCode(_partner), _partner.id].filter(Boolean);
+        var total = 0, byLink = {};
+        codes.forEach(function(k){
+            var e = data[k];
+            if(!e) return;
+            total += e.total || 0;
+            Object.keys(e.byLink || {}).forEach(function(t){ byLink[t] = (byLink[t]||0) + e.byLink[t]; });
+        });
+        document.getElementById('sClicks').textContent = total;
+        var parts = [];
+        if(byLink.enquiry) parts.push(byLink.enquiry + ' enquiry');
+        if(byLink.infopack) parts.push(byLink.infopack + ' info pack');
+        if(byLink.signup) parts.push(byLink.signup + ' sub-partner');
+        document.getElementById('sClicksSub').textContent = parts.length ? parts.join(' / ') : 'All time';
+    }catch(e){
+        document.getElementById('sClicks').textContent = '-';
+    }
 }
 
 function renderAlerts(){

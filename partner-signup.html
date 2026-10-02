@@ -305,5 +305,33 @@ function notifyWA(msg){
     });
 }
 </script>
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var key=p.get('parent');
+    if(!key)return;
+    var tries=0;
+    (function wait(){
+      if(typeof cloudStorage==='undefined'){ if(++tries<80) return setTimeout(wait,100); return; }
+      logClick(key);
+    })();
+    async function logClick(key){
+      try{
+        var raw=await cloudStorage.getItem('LINK_CLICKS');
+        var data=JSON.parse(raw)||{};
+        var today=new Date().toISOString().slice(0,10);
+        var e=data[key]=data[key]||{total:0,byLink:{},days:{},lastClick:0};
+        e.total=(e.total||0)+1;
+        e.byLink['signup']=(e.byLink['signup']||0)+1;
+        e.days[today]=(e.days[today]||0)+1;
+        e.lastClick=Date.now();
+        await cloudStorage.setItem('LINK_CLICKS',JSON.stringify(data));
+      }catch(err){}
+    }
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>

@@ -775,5 +775,33 @@
     function waitForCS(fn){return new Promise(function(r){var t=setInterval(function(){if(fn()){clearInterval(t);r();}},60);setTimeout(function(){clearInterval(t);r();},4000);});}
     waitForCS(function(){return typeof cloudStorage!=='undefined';}).then(applyPricing);
 </script>
+<script>
+(function(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var key=p.get('ref');
+    if(!key)return;
+    var tries=0;
+    (function wait(){
+      if(typeof cloudStorage==='undefined'){ if(++tries<80) return setTimeout(wait,100); return; }
+      logClick(key);
+    })();
+    async function logClick(key){
+      try{
+        var raw=await cloudStorage.getItem('LINK_CLICKS');
+        var data=JSON.parse(raw)||{};
+        var today=new Date().toISOString().slice(0,10);
+        var e=data[key]=data[key]||{total:0,byLink:{},days:{},lastClick:0};
+        e.total=(e.total||0)+1;
+        e.byLink['infopack']=(e.byLink['infopack']||0)+1;
+        e.days[today]=(e.days[today]||0)+1;
+        e.lastClick=Date.now();
+        await cloudStorage.setItem('LINK_CLICKS',JSON.stringify(data));
+      }catch(err){}
+    }
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
