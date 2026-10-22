@@ -103,7 +103,7 @@
         </div>
     </div>
     <div class="doc-footer">
-        <span>Dynamic Fleet Reporting · Brittania Bay, Western Cape · 083 314 9592 · dynamicfleetreports&#64;gmail&#46;com</span>
+        <span>Dynamic Fleet Reporting · Brittania Bay, Western Cape · 065 130 1095 · dynamicfleetreports&#64;gmail&#46;com</span>
         <span id="footRef">—</span>
     </div>
 </div>
@@ -232,7 +232,7 @@ async function markBonusPaid(idx){
 function emailStatement(){
     if(!_partner) return;
     const sub=encodeURIComponent('DFR Commission Statement — '+_partner.name);
-    const bod=encodeURIComponent('Hi '+(_partner.name||'')+',\n\nPlease find your commission statement attached.\n\nKind regards\nDynamic Fleet Reporting\n083 314 9592');
+    const bod=encodeURIComponent('Hi '+(_partner.name||'')+',\n\nPlease find your commission statement attached.\n\nKind regards\nDynamic Fleet Reporting\n065 130 1095');
     window.location.href='mailto:'+(_partner.email||'')+'?subject='+sub+'&body='+bod;
 }
 </script>

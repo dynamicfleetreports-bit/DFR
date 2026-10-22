@@ -381,7 +381,7 @@ async function confirmRecord(){
     if(result.credit>0) msg+='\n\u2705 R '+result.credit.toLocaleString('en-ZA')+' credit applied to your next invoice';
     if(result.disc50) msg+='\n\u2705 50% discount on your next invoice';
     if(newMilestones>0) msg+='\n\uD83C\uDF89 '+newMilestones+' FREE MONTH'+(newMilestones>1?'S':'')+' added to your bank!\nYou now have '+(allClients[idx].loyaltyFreeMonthsBank||0)+' banked.\nUse them any time \u2014 even save for December!';
-    msg+='\n\nThank you for growing DFR with us!\nDynamic Fleet Reporting \u00b7 083 314 9592';
+    msg+='\n\nThank you for growing DFR with us!\nDynamic Fleet Reporting \u00b7 065 130 1095';
     await notifyWA(msg);
     closeModal('recordModal');
     renderAll();
@@ -407,7 +407,7 @@ async function confirmFreeMonth(){
     allClients[idx].loyaltyFreeMonthsUsed.push({month:MONTHS[monthIdx]+' '+now.getFullYear(),date:now.toISOString()});
     await cloudStorage.setItem('FLEET_CLIENTS',JSON.stringify(allClients));
     _clients=allClients;
-    var msg='\uD83C\uDF89 FREE MONTH APPLIED!\n\nHi '+c.contactName+',\n\nYour DFR Loyalty Club free month has been applied to '+MONTHS[monthIdx]+' '+now.getFullYear()+'.\n\nYou will NOT be billed for '+MONTHS[monthIdx]+'.\nRemaining banked months: '+(allClients[idx].loyaltyFreeMonthsBank||0)+'\n\nThank you for being a valued DFR client!\nDynamic Fleet Reporting \u00b7 083 314 9592';
+    var msg='\uD83C\uDF89 FREE MONTH APPLIED!\n\nHi '+c.contactName+',\n\nYour DFR Loyalty Club free month has been applied to '+MONTHS[monthIdx]+' '+now.getFullYear()+'.\n\nYou will NOT be billed for '+MONTHS[monthIdx]+'.\nRemaining banked months: '+(allClients[idx].loyaltyFreeMonthsBank||0)+'\n\nThank you for being a valued DFR client!\nDynamic Fleet Reporting \u00b7 065 130 1095';
     await notifyWA(msg);
     closeModal('freeMonthModal');
     renderAll();

@@ -188,7 +188,7 @@
         <div class="lockout-banner" id="lockoutBanner" style="display:none;">
             <div class="lockout-title">🚫 Too Many Attempts</div>
             <div class="lockout-timer" id="lockoutTimer">5:00</div>
-            <div class="lockout-sub">Your portal has been temporarily locked. Please wait before trying again.<br>If you've forgotten your PIN, contact DFR on 083 314 9592.</div>
+            <div class="lockout-sub">Your portal has been temporarily locked. Please wait before trying again.<br>If you've forgotten your PIN, contact DFR on 065 130 1095.</div>
         </div>
 
         <!-- PIN dots -->
@@ -397,7 +397,7 @@ async function login(){
         if(_partner.status === 'inactive'){
             document.getElementById('loadingWrap').classList.remove('on');
             document.getElementById('loginWrap').classList.add('on');
-            document.getElementById('loginErr').textContent = 'This account is currently inactive. Contact DFR on 083 314 9592.';
+            document.getElementById('loginErr').textContent = 'This account is currently inactive. Contact DFR on 065 130 1095.';
             document.getElementById('loginErr').style.display = 'block';
             return;
         }
