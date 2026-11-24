@@ -539,8 +539,8 @@ Welcome aboard! 🚛
 Dynamic Fleet Reporting
 065 130 1095`;
 
-    await notifyWA(msg, p.phone);   // <-- passes partner's phone
-    toast('Partner approved and WhatsApp sent ✓','green');
+    await notifyWA(msg, p.email);   // <-- partner email (DFR gets a hidden copy)
+    toast(p.email ? 'Partner approved and email sent ✓' : 'Partner approved — no email on file, nothing sent','green');
     renderAll();
 }
 
@@ -735,7 +735,7 @@ Commission Rate: ${p.commRate||15}%
 
 Status changed: Inactive → Active`;
 
-        await notifyWA(partnerMsg, p.phone);
+        await notifyWA(partnerMsg, p.email);
         await notifyWA(ownerMsg, DFR_OWNER_PHONE);
 
     } else if(status==='inactive' && prevStatus==='active'){
@@ -757,7 +757,7 @@ Active Referred Clients: ${getPartnerClients(p.id,'active').length}
 
 Status changed: Active → Inactive`;
 
-        await notifyWA(partnerMsg, p.phone);
+        await notifyWA(partnerMsg, p.email);
         await notifyWA(ownerMsg, DFR_OWNER_PHONE);
     }
 }
@@ -776,8 +776,8 @@ ${link}
 ${portalLink}
 
 Dynamic Fleet Reporting · 065 130 1095`;
-    await notifyWA(msg, p.phone);   // <-- passes partner's phone
-    toast('WhatsApp sent to '+p.name+' ✓','green');
+    await notifyWA(msg, p.email);   // <-- partner email (DFR gets a hidden copy)
+    toast(p.email ? 'Email sent to '+p.name+' ✓' : 'No email on file for '+p.name,'red');
 }
 
 function openAgreement(id){ window.open('partner-agreement.html?pid='+encodeURIComponent(id),'_blank'); }
@@ -909,7 +909,7 @@ This will be paid to your ${p.bank||'nominated'} account within 7 business days.
 
 Thank you!
 Dynamic Fleet Reporting`;
-            await notifyWA(msg, p.phone);   // <-- passes partner's phone
+            await notifyWA(msg, p.email);   // <-- partner email (DFR gets a hidden copy)
         }
     }
     await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
@@ -967,7 +967,7 @@ This will be paid to your ${p.bank||'nominated'} account.
 
 Thank you for growing with DFR!
 Dynamic Fleet Reporting`;
-            await notifyWA(msg, p.phone);   // <-- passes partner's phone
+            await notifyWA(msg, p.email);   // <-- partner email (DFR gets a hidden copy)
         }
     }
     await cloudStorage.setItem('REFERRAL_PARTNERS',JSON.stringify(_partners));
@@ -976,16 +976,14 @@ Dynamic Fleet Reporting`;
     toast('Bonuses recorded and partners notified ✓','green');
 }
 
-// ── FIXED notifyWA: now passes the recipient's phone to your Apps Script ──────
-// Your Apps Script must accept a `phone` parameter and route accordingly.
-// The URL now includes &phone=<partnerPhone> so the script knows where to send.
-function notifyWA(msg, toPhone){
-    // Always send to DFR owner number — owner forwards to partner manually
-    // toPhone is included in the message body for reference
+// ── notifyWA (now EMAIL): second argument is the partner's email address ──────
+// If it is a valid email, the partner gets the message and DFR gets a hidden copy.
+// Anything else (e.g. DFR_OWNER_PHONE) sends to the DFR owner only.
+function notifyWA(msg, toEmail){
     var url = APPS_URL
-        + '?action=whatsapp'
-        + '&message=' + encodeURIComponent(msg)
-        + '&phone='   + encodeURIComponent(DFR_OWNER_PHONE);
+        + '?action=notify'
+        + '&message=' + encodeURIComponent(msg);
+    if (toEmail && String(toEmail).indexOf('@') > 0) url += '&to=' + encodeURIComponent(String(toEmail).trim());
     return fetch(url, {method:'get', mode:'no-cors'})
         .then(function(){ return {success:true}; })
         .catch(function(e){ return {success:false}; });

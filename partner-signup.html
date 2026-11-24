@@ -165,7 +165,7 @@
             </div>
             <div class="check-row" id="chk3" onclick="toggleCheck('chk3')">
                 <div class="check-box" id="chk3-box"></div>
-                <div class="check-text">I understand my application requires DFR's approval before I become active, and that I will receive my referral link via WhatsApp once approved.</div>
+                <div class="check-text">I understand my application requires DFR's approval before I become active, and that I will receive my referral link by email once approved.</div>
             </div>
             <div class="err" id="formErr">Please complete all required fields and tick all three boxes before submitting.</div>
             <button class="submit-btn" id="submitBtn" onclick="submitApplication()">Submit Application →</button>
@@ -177,7 +177,7 @@
         <div class="success-title">Application Received!</div>
         <div class="success-sub">
             Thank you — your Referral Partner application has been submitted to Dynamic Fleet Reporting.<br><br>
-            We will review your details and WhatsApp you within <strong style="color:white;">48 hours</strong> with your unique referral link and portal access.<br><br>
+            We will review your details and email you within <strong style="color:white;">48 hours</strong> with your unique referral link and portal access.<br><br>
             Your referral code will be:
         </div>
         <div class="ref-preview" id="successCode">—</div>
@@ -276,7 +276,7 @@ async function submitApplication(){
         existing.push(newPartner);
         await cloudStorage.setItem('REFERRAL_PARTNERS', JSON.stringify(existing));
 
-        // Notify DFR via WhatsApp
+        // Notify DFR by email
         document.getElementById('loaderTxt').textContent='Notifying DFR team...';
         const parentNote = _parentPartnerId ? '\n⚠️ Signed up via a SUB-PARTNER link (parent partner ID: '+_parentPartnerId+') - review the relationship in partners.html' : '';
         await notifyWA('🤝 NEW PARTNER APPLICATION\nName: '+name+'\nPhone: '+phone+'\nEmail: '+email+'\nBank: '+bank+' | Acc: '+accNum+parentNote+'\nReview in partners.html and activate to send their referral link.');
@@ -298,7 +298,7 @@ function notifyWA(msg){
         const cb='_cb'+Date.now();
         window[cb]=()=>{ delete window[cb]; res(); };
         const s=document.createElement('script');
-        s.src=APPS_URL+'?action=whatsapp&message='+encodeURIComponent(msg)+'&callback='+cb;
+        s.src=APPS_URL+'?action=notify&message='+encodeURIComponent(msg)+'&callback='+cb;
         s.onerror=()=>res();
         document.body.appendChild(s);
         setTimeout(res,5000);

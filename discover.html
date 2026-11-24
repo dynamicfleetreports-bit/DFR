@@ -311,6 +311,7 @@ const APPS_URL = 'https://script.google.com/macros/s/AKfycbx8r_qkYyGtq25WUfTw1W0
 let _refCode     = null;
 let _partnerName = null;
 let _partnerId   = null;
+let _partnerEmail = null;
 
 function getUrlParam(name) {
     return new URLSearchParams(window.location.search).get(name);
@@ -334,6 +335,7 @@ async function init() {
         if (partner) {
             _partnerName  = partner.name;
             _partnerId    = partner.id;
+            _partnerEmail = partner.email || null;
             // Also store partner id in sessionStorage
             try { sessionStorage.setItem('dfr_partnerId', partner.id); } catch(e) {}
             const banner = document.getElementById('partnerBanner');
@@ -495,6 +497,11 @@ async function submitAudit() {
     waMsg += savedToFirebase ? '\u2705 Saved to Firebase' : '\u26A0\uFE0F Firebase save failed \u2014 check manually';
 
     try { await notifyWA(waMsg); } catch(e) {}
+    // Short heads-up to the referring partner (no prospect contact details)
+    if (_partnerEmail) {
+        const pMsg = '\uD83C\uDF89 New referral from your DFR link\n\nCompany: ' + company + '\nFleet: ' + fleetSize + ' vehicles\n\nWe will contact them within 24 hours. Track progress in your partner portal:\nhttps://dynamicfleetreports-bit.github.io/DFR/partner-portal.html?ref=' + _refCode;
+        try { await notifyWA(pMsg, _partnerEmail); } catch(e) {}
+    }
 
     // Update Google Sheet status
     setLoading(true, 'Almost done\u2026');
@@ -537,12 +544,12 @@ function scrollToForm() {
 }
 
 // Apps Script helpers
-function notifyWA(msg) {
+function notifyWA(msg, toEmail) {
     return new Promise(res => {
         const cb = '_cb' + Date.now();
         window[cb] = () => { delete window[cb]; res(); };
         const s = document.createElement('script');
-        s.src     = APPS_URL + '?action=whatsapp&message=' + encodeURIComponent(msg) + '&callback=' + cb;
+        s.src     = APPS_URL + '?action=notify&message=' + encodeURIComponent(msg) + (toEmail ? '&to=' + encodeURIComponent(toEmail) : '') + '&callback=' + cb;
         s.onerror = () => res();
         document.body.appendChild(s);
         setTimeout(res, 5000);
